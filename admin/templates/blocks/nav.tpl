@@ -1,0 +1,1 @@
+<li><a {if $smarty.request.do=='blocks'}class="active"{else}{/if} href="index.php?do=blocks&cp={$sess}"><span>{#MAIN_BLOCKS#}</span></a></li>

@@ -1,0 +1,16 @@
+User-Agent: *
+Disallow: /admin/
+Disallow: /backup/
+Disallow: /cache/
+Disallow: /class/
+Disallow: /functions/
+Disallow: /inc/
+Disallow: /lib/
+#Disallow: /modules/
+Disallow: /session/
+Disallow: /*?sysblock
+Disallow: /*index.php?module
+#Disallow: /templates/
+#
+#Sitemap: http://site.com/sitemap.xml
+#Host: site.com

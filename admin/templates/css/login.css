@@ -1,0 +1,203 @@
+/* For IE */
+@font-face {
+  font-family: "Cuprum";
+  src: url('../fonts/cuprum.eot');
+}
+/* For SAFARI */
+@font-face {
+  font-family: 'Cuprum';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Cuprum'), url('../fonts/cuprum.ttf') format('truetype');
+}
+/* Other browsers */
+@font-face {
+	font-family: 'Cuprum';
+	font-style: normal;
+	font-weight: normal;
+	src: local('Cuprum'), url('../fonts/cuprum.woff') format('woff');
+}
+
+html { height: 100%; }
+* html body { height: 100%; }
+body { margin: 0; padding: 0; font-size: 11px; color: #424242; font-family: Arial, Helvetica, sans-serif; line-height: 18px; min-height: 100%; position: relative; }
+
+/* ==========  General styles ========== */
+
+.wrapper { margin: 0 5%; clear: both; }
+.img { border: 1px solid #d5d5d5; }
+
+/* ==========  Typo  ========== */
+
+h1, h2, h3, h4, h5, h6, ul.tabs li a, .leftNav ul li a, .stats ul li span, .userLink, .errorPage p, .ui-dialog .ui-dialog-title { font-family: 'Cuprum', sans-serif; font-weight: normal; }
+h1 { font-size: 24px; }
+h2 { font-size: 22px; }
+h3 { font-size: 20px; }
+h4 { font-size: 18px; }
+h5 { font-size: 16px; }
+h6 { font-size: 14px; }
+
+blockquote { border : 1px solid #d5d5d5; margin-top: 40px; padding: 15px 10px; quotes: "\201C" "\201D"; background: #fafafa; text-align: center; font-style: italic; font-size: 12px; border-left: 4px solid #d5d5d5; }
+blockquote:before { content: open-quote; font-weight: bold; }
+blockquote:after { content: close-quote; font-weight: bold; }
+
+.red { color: #B55D5C; }
+.green { color: #2a8827; }
+
+p { padding: 12px 0 0 0; }
+.p12 { padding: 12px; }
+.pt12 { padding-top: 12px; }
+
+.legendLabel span { display: block; margin: 0 5px; }
+.legendColorBox { padding-left: 10px; }
+
+
+/* ==========  Additional reset classes  ========== */
+
+.mt40 { margin-top: 40px; }
+.nomargin { margin: 0!important; }
+.nopadding { padding: 0!important; }
+.noborder { border: none!important; }
+.nobg { background: none!important; }
+.floatleft { display: block; float: left; }
+.floatright { display: block; float: right; }
+.aligncenter { text-align: center; }
+.fix { clear: both; }
+.first { margin-top: 22px!important; }
+.inactive { margin-top: 0px; color: #2B6893; }
+
+.ml122 { margin-left: 122px; }
+.w40 { width: 40%; }
+
+/* ===== Top navigation ===== */
+
+#topNav { height: 36px; display: block; }
+.fixed { position: fixed; background: url(../images/topNav.jpg) repeat; width: 100%; color: #eeeeee; border-bottom: 1px solid #4a4f51; z-index: 999; }
+
+.welcome { float: left; }
+.welcome img { float: left; margin: 8px 8px 8px 0 }
+.welcome span { padding: 8px 5px; display: block; white-space: nowrap; float: left; font-size: 11px; }
+
+.userNav { float: right; z-index: 6000; position: relative; font-size: 11px; }
+.userNav .lastNav { width: 2px; height: 36px; background: url(../images/navSep.png) repeat-y; position: absolute; top: 0; right: 0; }
+.userNav ul { margin-right: 2px; }
+.userNav ul li { display: inline; float: left; position: relative; cursor: pointer; border-right: 1px solid #3F3F3F; }
+.userNav ul li:first-child { border-left: 1px solid #3F3F3F; }
+.userNav ul li a { color: #eeeeee; text-decoration: none; display: block; float: left; }
+.userNav ul li:hover, .selected { background: #212121; }
+.userNav ul li span { display: block; padding: 8px 12px 8px 8px; float: left; }
+.userNav ul li img { float: left; display: block; margin: 13px 2px 11px 14px; }
+
+/* ===== Widgets ===== */
+.twoOne { width: 50%; }
+.widget, .content .title, .count, .widget .num a, a.count1, .table, .breadCrumb, .earnings, .leftNav ul li a, .listData .cNote, .pages li a, .errorPage, .btn14, .btn55, .loginPanel, .customfile { -moz-border-radius: 2px; -webkit-border-radius: 2px; -khtml-border-radius: 2px; border-radius: 2px; }
+
+.widgets { clear: both; }
+.widgets .left { float: left; /*width: 344px;*/ width: 48%; margin-right: 4%; }
+.widgets .right { float: right; /*width: 344px;*/ width: 48%; }
+
+.content { padding-bottom: 80px; overflow: hidden; }
+.content .title { background: url(../images/darkBg.jpg) repeat-x; height: 36px; -moz-box-shadow: 0 1px 0 #fff; -webkit-box-shadow: 0 1px 0 #fff; box-shadow: 0 1px 0 #fff; }
+.content .title h5 { float: left; color: #fafafa; font-weight: normal; display: block; padding: 7px 15px; }
+
+/* ===== Right side content ===== */
+.widget { /*width: 342px;*/ /*width: 100%;*/ margin-top: 40px; border: 1px solid #d5d5d5; display: block; background: #fafafa; clear: both; border-top: none; }
+.widgetS { /*width: 342px;*/ /*width: 100%;*/ margin-top: 40px; border: 1px solid #d5d5d5; display: block; background: #fafafa; border-top: none; min-width: 25%; float: left; margin-right: 40px; }
+
+.widget .body { padding: 12px 14px; }
+
+.userLink { font-size: 16px; padding-top: 3px; display: block; margin-left: 25px; white-space: nowrap; }
+.userWidget { padding: 6px 12px 0 12px; display: block; float: left; }
+
+/* ===== Forms ===== */
+
+.mainForm label { /*margin-right: 15px;*/ display: block; float:left; padding: 4px 10px; }
+.rowElem { clear: both; border-top: 1px solid #e7e7e7; padding: 10px 14px; position: relative; }
+.rowElem:first-child { border-top: none; }
+.rowElem > label { padding: 15px 0; width: 14%; }
+.rowElem .topLabel { padding: 5px 12px 12px 0; width: 100%; }
+
+#valid input { position: relative; }
+
+/* Inputs */
+.jqTransformInputWrapper { float: left; }
+.jqTransformInputWrapper > div { width: 550px; }
+
+.mainForm input[type=text], .mainForm textarea, .mainForm input[type=password] { background: #fff; width: 100%; border: 1px solid #d5d5d5; padding: 5px; font-size: 11px; font-family: Arial, Helvetica, sans-serif; }
+.mainForm input[type=text]:hover, .mainForm input[type=password]:hover, .mainForm textarea:hover { background: #fcfcfc; border: 1px solid #d1d1d1; }
+.mainForm input[type=text]:focus, .mainForm input[type=password]:focus, .mainForm textarea:focus { border: 1px solid #bbc1c9; background: #fff; }
+
+.submitForm { float: right; margin: 1px 14px 22px 14px; }
+
+.jqTransformInputWrapper_hover input{ background: #f6f6f6; }
+.jqTransformInputWrapper_focus input { background: #f6f6f6; border: 1px solid #cad1d4; }
+
+.jqTransformSafari .jqTransformInputInner div { position: relative; overflow: hidden; margin:0px 8px; }
+.jqTransformSafari .jqTransformInputInner div input { background: none; position: absolute; top: -10px; left: -2px; height: 42px; padding-left: 4px; }
+
+/* Checkboxes */
+span.jqTransformCheckboxWrapper{ display:block;float:left; margin-top:6px; }
+a.jqTransformCheckbox { background: transparent url(../images/forms/checkbox.png) no-repeat 0 0px ; vertical-align: middle; height: 15px; width: 15px; display:block;/*display: -moz-inline-block;*/ }
+
+a.jqTransformChecked { background-position: center bottom;} /* Checked - Used for both Radio and Checkbox */
+
+.jqTransformHidden {display: none;} /* used to hide the original form elements */
+
+
+
+/* ==========  Buttons ========== */
+input[type=submit], input[type=reset], input[type=button], button, .button {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 4px 12px 4px 12px;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 12px;
+}
+.mainForm input[type="text"], .mainForm input[type="password"] {
+  padding: 0px 27px 0px 5px;
+}
+
+.mainForm .loginEmail { background: #fff url(../images/icons/loginEmail.png) no-repeat 180px 3px !important; }
+.mainForm .loginPassword { background: #fff url(../images/icons/loginLock.png) no-repeat 180px 3px !important; }
+
+.basicBtn { background: url(../images/ui/blueBtn.png) repeat-x 0 0; border: 1px solid #336699; color: #fff; -moz-box-shadow: 0 0 2px #336699; -webkit-box-shadow: 0 0 2px #336699; box-shadow: 0 0 2px #336699; }
+.basicBtn:hover { background-position: 0 -25px; }
+.basicBtn:active { background-position: 0 -50px; }
+
+
+/* ==========  Login page  ========== */
+.loginPanel { width: 342px; background: #fafafa; border: 1px solid #d5d5d5; border-top: 0; display: block;}
+.loginWrapper { margin: -156px 0 0 -160px; position: absolute; top: 50%; left: 50%; }
+.loginLogo { position: absolute; width: 190px; height: 44px; display: block; top: -80px; left: 50%; margin-left: -95px; }
+.loginPanel h5 { font-weight: normal; padding: 7px 12px 7px 12px; float: left; }
+
+
+
+.loginPanel label { width: 80px; }
+.rememberMe { margin-left: 12px; }
+.rememberMe label { padding: 4px 12px!important; width: auto; }
+.loginInput { width: 200px; float: left; margin-left: 14px; }
+.loginRow { border-top: 1px solid #e7e7e7; padding: 15px 0; position: relative; }
+.loginRow:first-child { border-top: none; }
+.loginRowError{ border-top: none; position: relative; padding-top:5px }
+
+.backTo a:hover { background: #212121; }
+.backTo span { padding: 8px 14px 8px 8px; display: block; float: left; }
+.backTo img { margin: 13px 2px 11px 14px; float: left; display: block; }
+.backTo a { float: left; color: #eeeeee; font-size: 11px; border-right: 1px solid #3F3F3F; border-left: 1px solid #3F3F3F; }
+
+/* =====  Error messages  ===== */
+.messages{list-style:none;font:11px/11px Verdana, Arial, Tahoma; padding:0;}
+.messages li{-moz-box-shadow:0 1px 1px rgba(0,0,0,.05);-webkit-box-shadow:0 1px 1px rgba(0,0,0,.05);box-shadow:0 1px 1px rgba(0,0,0,.05);position:relative;margin:0;}
+.highlight{-moz-border-radius:3px;-webkit-border-radius:3px;border-radius:3px;padding:8px;}
+.highlight.grey{background:#fff url(../images/backgrounds/grey.png);border:1px solid #a8adb5;color:#a8adb5;}
+.highlight.green{background:#d3f3c0 url(../images/backgrounds/grey.png);border:1px solid #a5d985;color:#557143;}
+.highlight.yellow{background:#fff3c5 url(../images/backgrounds/grey.png);border:1px solid #ffe075;color:#937f38;}
+.highlight.red{background:#ffe3e2 url(../images/backgrounds/grey.png);border:1px solid #efb1af;color:#c00;}
+
+/* ===== Footer ===== */
+#footer { clear: both; /*height: 36px;*/ background: url(../images/topNav.jpg) repeat; width: 100%; color: #eeeeee; margin-top: 42px; position: absolute; bottom: 0; }
+#footer span { color: #696969; padding: 9px 5px; display: block; font-size: 11px; }
+#footer span a { color: #eeeeee; }

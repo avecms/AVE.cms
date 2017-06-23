@@ -1,0 +1,8 @@
+[admin]
+name        = "Dokument z rubrik"
+delete      = "Odstranit prvek"
+param       = "Dokument"
+value       = "Id"
+del_conf    = "Opravdu chcete odstranit tento prvek (dokument)?"
+del_head    = "Odstranění prvku (dokumentu)..."
+add         = "Přidat"

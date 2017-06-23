@@ -1,0 +1,8 @@
+[admin]
+name = "Text u zobrazení"
+TXT_IMG_TEXT  = "Text, který bude přenes do obrazu"
+TXT_IMG_SIZE  = "Velikost písma"
+TXT_IMG_COLOR = "Barva textu"
+TXT_IMG_ALT   = "Dosazení textu v alt"
+TXT_IMG_BTN   = "Transformovat"
+TXT_IMG_EXIST = "Aktuální hodnota pole:"

@@ -1,0 +1,27 @@
+###################### AVE.CMS_HTACCESS_BEGIN ##########################
+# Options:
+# -MultiViews: Turns off multiviews so it doesn't interfer with our rewrite rules
+# -Indexes: Stop directory listings
+# +FollowSymlinks: Let out rewrite rules work
+
+Options -Indexes +FollowSymLinks
+AddDefaultCharset utf-8
+
+<ifModule mod_php.c>
+	php_value default_charset utf-8
+
+	# Этот параметр устанавливает максимальное время в секундах, позволяющее скрипту запускаться прежде, чем он завершается синтаксическим анализатором.
+	php_value max_execution_time 3000
+
+	# Максимальное время загрузки данных для скрипта, в том числе и файлов из формы
+	php_value max_input_time 3000
+
+	# Ограничивает максимальный объем данных, получаемых от пользователя методом POST
+	php_value post_max_size 32M
+
+	# Устанавливает максимальный размер файла, который может быть получен методом POST (меньше, чем post_max_size)
+	php_value upload_max_filesize 32M
+
+</ifModule>
+
+####################### AVE.CMS_HTACCESS_END ###########################

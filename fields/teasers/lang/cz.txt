@@ -1,0 +1,8 @@
+[admin]
+name = "Podobné produkty"
+delete      = "Odstranit prvek"
+param       = "Zboží"
+value       = "ID"
+del_conf    = "Opravdu chcete odstranit tento prvek (zboží)?"
+del_head    = "Odsranění prvku (zboží)..."
+add         = "Přidat"

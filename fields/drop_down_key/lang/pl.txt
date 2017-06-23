@@ -1,0 +1,3 @@
+[admin]
+name = "Lista rozwijana (klucz)"
+no_items = "Nie ma znaczenia domyślnego"

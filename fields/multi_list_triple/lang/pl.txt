@@ -1,0 +1,9 @@
+[admin]
+name = "Multi list (Potrójne)"
+delete = "Usuń element"
+param = "Parametr"
+value = "Znaczenie"
+value2   	= "Znaczenie 2"
+del_conf = "Czy na pewno chcesz usunąć ten element?"
+del_head = "Usuń element..."
+add = "Dodaj"

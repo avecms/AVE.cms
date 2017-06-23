@@ -1,0 +1,41 @@
+/**
+ * @file
+ * Stylesheet for the Contextual module.
+ */
+
+/**
+ * Contextual links.
+ */
+div.contextual-links-wrapper:hover {
+	background: #F9F9F9;
+  	outline: #EFEFEF dashed 1px;
+}
+html div.contextual-links-wrapper {
+  display: block;
+  position: relative;
+}
+a.contextual-links-trigger {
+  display: block;
+  background:  #E0E0E0 url(gear.png) no-repeat 2px 0;
+  border: 1px solid transparent;
+  height: 18px;
+  margin: 0;
+  padding: 0 2px;
+  outline: none;
+  text-indent: 34px; /* LTR */
+  width: 20px;
+  overflow: hidden;
+  position: absolute;
+  -khtml-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  right: 0px;
+  opacity: 0.7;
+}
+
+a.contextual-links-trigger:hover,
+div.contextual-links-active a.contextual-links-trigger {
+  background:  #EFEFEF url(gear.png) no-repeat 2px -18px;
+}
+

@@ -1,0 +1,1 @@
+<li><a {if $smarty.request.do=='groups'}class="active"{else}{/if} href="index.php?do=groups&amp;cp={$sess}"><span>{#MAIN_NAVI_UGROUPS#}</span></a></li>

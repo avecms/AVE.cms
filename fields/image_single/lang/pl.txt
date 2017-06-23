@@ -1,0 +1,6 @@
+[admin]
+name = "Obrazek (Pojedyńczy)"
+look 	= "Popztrz"
+link = "Zmień sposób"
+select	= "Wybierz obrazek"
+place	= "Opis"

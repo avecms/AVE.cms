@@ -1,0 +1,3 @@
+[admin]
+name		= "Rozevírací seznam"
+no_items	= "Neexistuje žádná výchozí hodnota"

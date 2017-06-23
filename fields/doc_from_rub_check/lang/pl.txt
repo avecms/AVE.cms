@@ -1,0 +1,3 @@
+[admin]
+name = "Dokument z rubryki (Checkbox)"
+error = "Nie wybrano rubryki"

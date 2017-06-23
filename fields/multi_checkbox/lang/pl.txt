@@ -1,0 +1,3 @@
+[admin]
+name = "Multi checkbox"
+no_items = "Brak wartości domyślnej"

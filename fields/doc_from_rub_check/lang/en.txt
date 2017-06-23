@@ -1,0 +1,3 @@
+[admin]
+name = "Document from rubric (Checkbox)"
+error = "Not specified category"

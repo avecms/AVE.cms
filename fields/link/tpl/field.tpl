@@ -1,0 +1,2 @@
+<input id="feld_{$field_id}" type="text" style="width: 400px;" name="feld[{$field_id}]" value="{$field_value|escape}" />&nbsp;
+<input value="{#MAIN_BROWSE_DOCUMENTS#}" class="basicBtn" type="button" onclick="openLinkWin('feld_{$field_id}', 'feld_{$field_id}');" />

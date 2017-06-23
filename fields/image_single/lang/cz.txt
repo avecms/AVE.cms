@@ -1,0 +1,6 @@
+[admin]
+name		= "Zobrazení (Jediné)"
+look 		= "Zobrazit"
+link		= "Změnit cestu"
+select		= "Vybrat zobrazení"
+place	    = "Popis"

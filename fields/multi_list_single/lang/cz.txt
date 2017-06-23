@@ -1,0 +1,8 @@
+[admin]
+name		= "Multiseznam (Jediný)"
+delete      = "Odstranit prvek"
+param       = "Dokument"
+value       = "Id"
+del_conf    = "Opravdu chcete odstranit tento prvek?"
+del_head    = "Odstranění prvku..."
+add         = "Přidat"

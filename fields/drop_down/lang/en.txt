@@ -1,0 +1,3 @@
+[admin]
+name		= "Dropdown list"
+no_items	= "No default value"

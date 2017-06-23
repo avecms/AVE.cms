@@ -1,0 +1,8 @@
+[admin]
+name = "Tekst w obrazku"
+TXT_IMG_TEXT = "Tekst który zostanie przekształcony w obrazek"
+TXT_IMG_SIZE = "Rozmiar czcionki"
+TXT_IMG_COLOR = "Kolor tekstu"
+TXT_IMG_ALT = "Substytucja tekstu w alt"
+TXT_IMG_BTN = "Transformować"
+TXT_IMG_EXIST = "Aktualne znaczenie pola:"

@@ -1,0 +1,8 @@
+[admin]
+name = "Dokumenty z rubryki"
+delete = "Usuń element"
+param = "Dokument"
+value = "ID"
+del_conf = "Czy na pewno chcesz usunąć ten element (document)?"
+del_head = "Usuń element (document) ..."
+add = "Dodaj"

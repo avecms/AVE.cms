@@ -1,0 +1,6 @@
+[admin]
+name	= "Image (Single)"
+look 	= "Look"
+link	= "Change path"
+select	= "Select image"
+place	= "Description"

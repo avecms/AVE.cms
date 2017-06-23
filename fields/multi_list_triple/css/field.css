@@ -1,0 +1,18 @@
+.multi_list_triples {
+	position: relative;
+}
+
+.multi_list_triples > .ui-state-highlight {
+	display: inline-block;
+	margin: 3px;
+	width: 450px;
+	height: 26px;
+	background-color: rgba(255,255,255,0.5); !important;
+	border: solid 1px #eaeaea;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	position: relative;
+	text-align: center;
+	padding: 0 !important;
+}

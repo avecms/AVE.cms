@@ -1,0 +1,1 @@
+<li><a {if $smarty.request.do=='request'}class="active"{else}{/if} href="index.php?do=request&cp={$sess}"><span>{#MAIN_QUERIES#}</span></a></li>

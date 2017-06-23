@@ -1,0 +1,8 @@
+[admin]
+name = "Podobne produkty"
+delete = "Usuń element"
+param = "Produkt"
+value = "ID"
+del_conf = "Czy na pewno chcesz usunąć ten element (produkt)?"
+del_head = "Usunięcie elementu (produktu) ..."
+add = "Dodaj"

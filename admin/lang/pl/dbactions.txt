@@ -1,0 +1,49 @@
+# Język polski 02,2017 duncan
+
+DB_SUB_TITLE = "Zarządzanie bazami danych"
+DB_ACTION_WARNING = "Uwaga!\nWszystkie działania codo pracy z bazą danych wykonujesz na własne ryzyko.\n\nProszę pamiętać, że wszelkie działania w bazie danych mogą uszkodzić istniejącą informację.\n\Czy na pewno chcesz kontynuować?\n\n"
+DB_ACTION_RESET = "Uwaga!\nPróbujesz odzyskać bazę danych z kopii zapasowej. Wszystkie istniejące informacje zostaną usunięte i zaisane ponownie.\nProszę pamiętać, że podczas przywracania bazy danych, trzeba będzie awtoryzować się ponownie\n\nCzy na pewno chcesz kontynuować?\n\n"
+DB_OPTION_LIST = "Struktura bazy danych"
+DB_BUTTON_ACTION = " wykonać działanie"
+DB_OPTIMIZE_DATABASE = "Optymalizacja bazy danych"
+DB_OPTIMIZE_INFO = "Opcja ta pozwala zwiększyć wydajność i zmniejszyć rozmiar bazy danych. Zalecany odstęp pomiędzy optymalizacjami musi wynosić co najmniej 1 raz w tygodniu."
+DB_REPAIR_DATABASE = "Odbudowa uszkodzonych tablic"
+DB_REPAIR_INFO = "Ta funkcja pozwala wykonać próbę naprawy uszkodzonych tablic w bazie danych, w przypadku nieprawidłowego wyświetlania informacji na stronie internetowej."
+DB_BACKUP_DATABASE = "Utworzenie kopii zapasowej "
+DB_BACKUP_INFO = "Ta funkcja umożliwia utworzenie kopii zapasowej wszystkich baz danych, lub poszczególnych tablic. Proszę wybrać z listy po lewej te tablicy, dla których chcesz wykonać kopię zapasową. Aby wybrać wiele tablic przytrzymaj przycisk CTRL."
+DB_RESTORE_TITLE = " Przywracanie bazę danych z kopii zapasowej"
+DB_RESTORE_FILE = "Przywracanie bazy danych z pliku"
+DB_BUTTON_RESTORE = " Przywrócić"
+DB_ACTION = "Wybierz działanie"
+DB_TIPS = "<strong>Uwaga!</strong> Wszystkie działania codo pracy z bazą danych wykonujesz na własne ryzyko. Należy pamiętać, że wszelkie działania w bazie danych mogą uszkodzić istniejącą informację."
+DB_BACKUP_SERVER = "Przechować kopię zapasową na serwerze"
+DB_SC = "Operacja z bazą danych jest wykonana pomyślnie"
+
+DB_OPTIMIZE_DATABASE_SC = "Optymalizacja bazy danyzh jest wykonana pomyślnie"
+DB_REPAIR_DATABASE_SC = "Odbudowa uszkodzonych tablic jest wykonana pomyślnie"
+
+DB_REPORT_DUMP = "Kopiowanie zapasowe bazy danych jest zakończone"
+DB_REPORT_DUMP_RECOVER = "Odnowienie bazy danych z kopii zapasowej jest zakończone"
+DB_REPORT_DUMP_OPTIM = "Optymaizacja bazy danych jest zakończona"
+DB_REPORT_DUMP_TABLE = "Odnowienie tablic bazy danych jest zakończone"
+
+DB_FILE_DATA = "Data utworzenia"
+DB_FILE_SIZE = "Rozmiar"
+DB_FILE_NAME = "Nazwa pliku"
+DB_ACTIONS = "Działanie"
+DB_ACTIONS_EDIT = "Edytować"
+DB_ACTIONS_DEL = "Usunąć"
+DB_ACTIONS_RESTORE = "Odnowić"
+DB_ACTIONS_SAVE = "Zapisz w komputerze"
+
+DB_REPORT_DUMP_DEL_OK = "Plik kopii zapasowej bazy danych jest usunięty"
+DB_REPORT_DUMP_DEL_ER = "Nie udało się usunąć pliku kopii zapasowej bazy danych"
+DB_REPORT_DUMP_ER = "<strong> Błąd. </strong> Import bazy danych nie powiódł się, ponieważ plik zrzutu jest nieobecny lub uszkodzony"
+
+DB_ACTIONS_RESTORE_H = "Odnowić kopię zapasową"
+DB_ACTIONS_RESTORE_T = "Czy na pewno chcesz odnowić kopię zapasową bazy danych?"
+
+DB_ACTIONS_DELETE_H = "Usunąć plik"
+DB_ACTIONS_DELETE_T = "Czy na pewno chcesz usunąć plik kopii zapasowej bazy danych?"
+
+DB_NO_FILES_MESS = "Obecnie nie ma plików bazy danych kopii zapasowych"

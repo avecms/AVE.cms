@@ -1,0 +1,3 @@
+[admin]
+name		= "Multicheckbox"
+no_items	= "Neexistuje žádná výchozí hodnota"

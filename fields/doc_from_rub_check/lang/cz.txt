@@ -1,0 +1,3 @@
+[admin]
+name = "Dokument z rubriky (Checkbox)"
+error = "Rubrika nezadaná"

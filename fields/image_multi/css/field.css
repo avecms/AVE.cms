@@ -1,0 +1,97 @@
+.cascad {
+	position: relative;
+}
+
+.cascad_item {
+	display: inline-block;
+	margin: 3px;
+	width: 120px;
+	height: 216px;
+	background-color: rgba(255, 255, 255, 0.5);
+	border: solid 1px #eaeaea;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	position: relative;
+	text-align: center;
+}
+
+.cascad_item:hover {
+	background-color: rgba(255, 255, 255, 1.0);
+	border: solid 1px rgba(234, 234, 234, 0.5);
+	-webkit-box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.1);
+}
+
+.cascad_item:hover > .header {
+	background-color: rgba(210, 210, 210, 0.3);
+}
+
+.cascad_item .header {
+	background-color: rgba(210, 210, 210, 0.5);
+	height: 26px;
+	margin-bottom: 10px;
+	cursor: move;
+	border-radius: 5px 5px 0 0;
+}
+
+.cascad_item .image {
+	background-color: #fcfcfc;
+	border: solid 1px #eaeaea;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.cascad_item textarea {
+	display: inline-block;
+	width: 100px;
+	height: 60px;
+	margin-top: 10px;
+	border-radius: 0 0 2px 2px;
+	border: 1px solid #eaeaea !important;
+	resize: none !important;
+	box-shadow: none !important;
+	-webkit-box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	padding: 3px !important;
+	box-sizing: border-box !important;
+	-webkit-box-sizing: border-box !important;
+	-moz-box-sizing: border-box !important;
+}
+
+.cascad_item .view {
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	cursor: pointer !important;
+}
+
+.cascad_item .delete {
+	position: absolute;
+	top: 3px;
+	right: 3px;
+	cursor: pointer !important;
+}
+
+.cascad_item .info {
+	position: absolute;
+	top: 30px;
+	right: 3px;
+	cursor: pointer !important;
+}
+
+.cascad_sortable > .ui-state-highlight {
+	display: inline-block;
+	margin: 5px;
+	width: 120px;
+	height: 200px;
+	background-color: rgba(255,255,255,0.5); !important;
+	border: solid 1px #eaeaea;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	position: relative;
+	text-align: center;
+}

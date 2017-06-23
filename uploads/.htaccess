@@ -1,0 +1,5 @@
+#Header set Cache-Control "max-age=7200, must-revalidate"
+
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule .(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|bmp|BMP) /inc/thumb.php [QSA,L]

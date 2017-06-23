@@ -1,0 +1,3 @@
+[admin]
+name = "Multi selekt"
+no_items = "Brak znaczenia domyślnego"

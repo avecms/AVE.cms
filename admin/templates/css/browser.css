@@ -1,0 +1,99 @@
+/*-------------------- FileManager -------------------------*/
+#files {}
+
+.imageBlock0 {
+	float:left;
+	padding:0;
+	margin:5px;
+	width:200px;
+	height:200px;
+	margin:3px;
+	background-color:#fcfcfc;
+	border: solid 1px #eaeaea;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	position:relative;
+	cursor: pointer;
+}
+.imageBlock1 {
+	font-size: 11px;
+}
+.imageBlock {
+	margin:36px auto 0 auto;
+	width: 128px;
+	height: 128px;
+	vertical-align: middle;
+}
+.imageBlock div {
+	text-align:center; /* horizontal in all browsers */
+	display:table-cell; vertical-align:middle; /* ~= valign=center in CSS2 browsers */
+	height: 128px;
+	width: 128px;
+}
+
+.imageBlock img {
+	vertical-align: middle;
+}
+
+.imageName {
+	padding:2px;
+	font-weight:bold;
+	font-family:Tahoma, Verdana, Arial, Geneva;
+	font-size: 10px;
+	line-height: 14px;
+}
+
+.imageBlockHover {
+	background-color:#eff8fd;
+	border: solid 1px #d8f0fa;
+	-moz-border-radius:5px; -webkit-border-radius:5px;
+}
+
+.imageBlockAct {
+	background-color:#def1fb;
+	border: solid 1px #b3e4f9;
+	-moz-border-radius:5px; -webkit-border-radius:5px;
+}
+
+.imageBlockActHover {
+	background-color:#d5effc;
+	border: solid 1px #a7e0f8;
+	-moz-border-radius:5px; -webkit-border-radius:5px;
+}
+
+.mb_name {
+	position:absolute;
+	color:#516E48;
+	top: 5px;
+	left: 25px;
+	font-weight:bold;
+	display:inline;
+	font-size: 10px;
+	line-height: 14px;
+}
+.mb_icon_file {
+	position:absolute;
+	top: 5px;
+	left: 5px;
+	display:inline;
+}
+.mb_icon_delete {
+	position:absolute;
+	top: 5px;
+	right: 5px;
+	display:inline;
+}
+
+a img {
+	border:0;
+}
+
+.mb_time {
+	color:#7e7e7e;
+	font-style:italic;
+	text-align:center;
+	font-size: 10px;
+	line-height: 14px;
+}
+
+.tipsy-inner { padding: 8px 14px 8px 14px; background-color: black; color: white; max-width: 150px; line-height: 14px; }

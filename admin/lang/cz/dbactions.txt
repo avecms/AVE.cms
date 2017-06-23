@@ -1,0 +1,49 @@
+﻿# Slavík))) 02,2017 Olga "Un.Known" Andělová # https://www.facebook.com/olga.andelova
+
+DB_SUB_TITLE         = "Správa databáze"
+DB_ACTION_WARNING    = "Varování!\nVeškeré úpravy v databázi provádíte na vlastní zodpovědnost a riziko.\n\nPamatujte, že jakékoliv akce vykonané s databází mohou poškodit stávající informace.\n\n Přejete si pokračovat?\n\n"
+DB_ACTION_RESET      = "Varování!\nPokoušíte se otevřít databázi ze zálohy. Veškeré stávající informace budou odstraněny a přepsány.\n Berte prosím na vědomí, že po obnovení databáze bude zapotřebí znovu provést autorizaci.\n\nPřejete si pokračovat?\n\n"
+DB_OPTION_LIST       = "Struktura databáze."
+DB_BUTTON_ACTION     = "Provést akci"
+DB_OPTIMIZE_DATABASE = "Optimalizace databáze."
+DB_OPTIMIZE_INFO     = "Tato volba umožňuje zvýšit produktivitu a snížit velikost Vaší databáze. Doporučený interval mezi optimalizacemi musí být nejméně jednou týdně."
+DB_REPAIR_DATABASE   = "Obnovení poškozených tabulek"
+DB_REPAIR_INFO       = "Tato volba umožňuje vykonat pokus o obnovení poškozených tabulek v databázi v případě chybných   výstupních dat na webových stránkách."
+DB_BACKUP_DATABASE   = "Vytvoření zálohy"
+DB_BACKUP_INFO       = "Tato volba umožňuje vytvořit zálohu jak celé databáze, tak i samostatných tabulek. Vyberte prosím ze seznamu vlevo tabulky, pro které chcete vytvořit zálohu. Pro výběr vícero tabulek držte CTRL."
+DB_RESTORE_TITLE     = "Obnovení databáze ze zálohy"
+DB_RESTORE_FILE      = "Obnovení databáze ze souboru"
+DB_BUTTON_RESTORE    = "Obnovit"
+DB_ACTION            = "Vyberte akci"
+DB_TIPS              = "<strong>Varování!</strong> Veškeré úpravy v databázi provádíte na vlastní zodpovědnost a riziko. Pamatujte, že jakékoliv akce vykonané s databází mohou poškodit stávající informace"
+DB_BACKUP_SERVER	 = "Uložit zálohu na serveru"
+DB_SC = "Databázová operace byla úspěšně splněna."
+
+DB_OPTIMIZE_DATABASE_SC = "Optimalizace databáze byla úspěšně splněna."
+DB_REPAIR_DATABASE_SC   = "Obnovení poškozených tabulek bylo úspěšně splněno."
+
+DB_REPORT_DUMP = "Zálohování databáze dokončeno"
+DB_REPORT_DUMP_RECOVER = "Obnovení databáze ze zálohy dokončeno"
+DB_REPORT_DUMP_OPTIM = "Optimalizace databáze dokončena"
+DB_REPORT_DUMP_TABLE = "Obnovení tabulek databáze dokončeno"
+
+DB_FILE_DATA		= "Vytvořeno"
+DB_FILE_SIZE		= "Velikost"
+DB_FILE_NAME		= "Název"
+DB_ACTIONS 			= "Akce"
+DB_ACTIONS_EDIT		= "Editovat"
+DB_ACTIONS_DEL		= "Odstranit"
+DB_ACTIONS_RESTORE	= "Obnovit"
+DB_ACTIONS_SAVE		= "Uložit do počítače"
+
+DB_REPORT_DUMP_DEL_OK	= "Vymazat zálohu databáze"
+DB_REPORT_DUMP_DEL_ER	= "Nepodařilo se vymazat zálohu databáze"
+DB_REPORT_DUMP_ER		= "<strong>Chyba:</strong> Import databáze se nezdařil, jelikož soubor výpisu je poškozen nebo chybí."
+
+DB_ACTIONS_RESTORE_H = "Obnovit zálohu"
+DB_ACTIONS_RESTORE_T = "Jste si jisti, že chcete obnovit zálohu databáze?"
+
+DB_ACTIONS_DELETE_H = "Odstanit soubor"
+DB_ACTIONS_DELETE_T = "Jste si jisti, že chcete smazat zálohu databáze?"
+
+DB_NO_FILES_MESS    = "V současné době nejsou k dispozici žádné záložní soubory databáze."

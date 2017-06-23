@@ -1,0 +1,328 @@
+###################### AVE.CMS_HTACCESS_BEGIN ##########################
+# Options:
+# -MultiViews: Turns off multiviews so it doesn't interfer with our rewrite rules
+# -Indexes: Stop directory listings
+# +FollowSymlinks: Let out rewrite rules work
+
+Options -Indexes +FollowSymLinks
+
+
+# ------------------------------------------------------------------------------
+# | PHP Configuration                                                          |
+# ------------------------------------------------------------------------------
+
+<ifModule mod_php5.c>
+	php_value default_charset utf-8
+
+  #Отлючаем вывод ошибок
+	#php_value error_reporting E_NONE
+
+  # Этот параметр устанавливает максимальное время в секундах, позволяющее скрипту запускаться прежде, чем он завершается синтаксическим анализатором.
+	#php_value max_execution_time 300
+
+  # Максимальное время загрузки данных для скрипта, в том числе и файлов из формы
+	#php_value max_input_time 300
+
+  # Ограничивает максимальный объем данных, получаемых от пользователя методом POST
+	#php_value post_max_size 512M
+
+  # Устанавливает максимальный размер файла, который может быть получен методом POST (меньше, чем post_max_size)
+	#php_value upload_max_filesize 128M
+
+  # Максимальное кол-во загружаемых файлов
+	#php_value max_file_uploads 50
+
+  # Включаем у PHP короткие <?
+	#php_value short_open_tag On
+
+	php_flag magic_quotes_gpc off
+
+	php_flag magic_quotes_runtime off
+
+	php_flag register_globals off
+</ifModule>
+
+<ifModule !mod_php5.c>
+	php_value default_charset utf-8
+
+  #Отлючаем вывод ошибок
+	#php_value error_reporting E_NONE
+
+  # Этот параметр устанавливает максимальное время в секундах, позволяющее скрипту запускаться прежде, чем он завершается синтаксическим анализатором.
+	#php_value max_execution_time 300
+
+  # Максимальное время загрузки данных для скрипта, в том числе и файлов из формы
+	#php_value max_input_time 300
+
+  # Ограничивает максимальный объем данных, получаемых от пользователя методом POST
+	#php_value post_max_size 32M
+
+  # Устанавливает максимальный размер файла, который может быть получен методом POST (меньше, чем post_max_size)
+	#php_value upload_max_filesize 32M
+
+  # Максимальное кол-во загружаемых файлов
+	#php_value max_file_uploads 50
+
+  # Включаем у PHP короткие <?
+	#php_value short_open_tag On
+
+	php_flag magic_quotes_gpc off
+
+	php_flag magic_quotes_runtime off
+
+	php_flag register_globals off
+</ifModule>
+
+
+# ------------------------------------------------------------------------------
+# | CORS-enabled images                                                        |
+# ------------------------------------------------------------------------------
+
+# Send the CORS header for images when browsers request it.
+# https://developer.mozilla.org/en-US/docs/HTML/CORS_Enabled_Image
+# http://blog.chromium.org/2011/07/using-cross-domain-images-in-webgl-and.html
+# http://hacks.mozilla.org/2011/11/using-cors-to-load-webgl-textures-from-cross-domain-images/
+
+<IfModule mod_setenvif.c>
+	<IfModule mod_headers.c>
+		<FilesMatch "\.(cur|gif|ico|jpe?g|png|svgz?|webp)$">
+			SetEnvIf Origin ":" IS_CORS
+			Header set Access-Control-Allow-Origin "*" env=IS_CORS
+		</FilesMatch>
+	</IfModule>
+</IfModule>
+
+
+# ------------------------------------------------------------------------------
+# | Web fonts access                                                           |
+# ------------------------------------------------------------------------------
+
+# Allow access to web fonts from all domains.
+
+<IfModule mod_headers.c>
+	<FilesMatch "\.(eot|otf|tt[cf]|woff)$">
+		Header set Access-Control-Allow-Origin "*"
+	</FilesMatch>
+</IfModule>
+
+
+# ##############################################################################
+# # INTERNET EXPLORER                                                          #
+# ##############################################################################
+
+# ------------------------------------------------------------------------------
+# | Better website experience                                                  |
+# ------------------------------------------------------------------------------
+
+# Force Internet Explorer to render pages in the highest available mode
+# in the various cases when it may not.
+# http://hsivonen.iki.fi/doctype/ie-mode.pdf
+
+<IfModule mod_headers.c>
+	Header set X-UA-Compatible "IE=edge"
+	# `mod_headers` cannot match based on the content-type, however, this
+	# header should be send only for HTML pages and not for the other resources
+	<FilesMatch "\.(appcache|atom|crx|css|cur|eot|f4[abpv]|flv|gif|htc|ico|jpe?g|js|json(ld)?|m4[av]|manifest|map|mp4|oex|og[agv]|opus|otf|pdf|png|rdf|rss|safariextz|svgz?|swf|tt[cf]|vcf|vtt|webapp|web[mp]|woff|xml|xpi)$">
+		Header unset X-UA-Compatible
+	</FilesMatch>
+</IfModule>
+
+
+# ##############################################################################
+# # MIME TYPES AND ENCODING                                                    #
+# ##############################################################################
+
+# ------------------------------------------------------------------------------
+# | Proper MIME types for all files                                            |
+# ------------------------------------------------------------------------------
+
+<IfModule mod_mime.c>
+
+  # Audio
+	AddType audio/mp4                                   m4a f4a f4b
+	AddType audio/ogg                                   oga ogg opus
+
+  # Data interchange
+	AddType application/json                            json map
+	AddType application/ld+json                         jsonld
+
+  # JavaScript
+	# Normalize to standard type.
+	# http://tools.ietf.org/html/rfc4329#section-7.2
+	AddType application/javascript                      js
+
+  # Video
+	AddType video/mp4                                   f4v f4p m4v mp4
+	AddType video/ogg                                   ogv
+	AddType video/webm                                  webm
+	AddType video/x-flv                                 flv
+
+  # Web fonts
+	AddType application/font-woff                       woff
+	AddType application/vnd.ms-fontobject               eot
+
+	# Browsers usually ignore the font MIME types and simply sniff the bytes
+	# to figure out the font type.
+	# http://mimesniff.spec.whatwg.org/#matching-a-font-type-pattern
+
+	# Chrome however, shows a warning if any other MIME types are used for
+	# the following fonts.
+
+	AddType application/x-font-ttf                      ttc ttf
+	AddType font/opentype                               otf
+
+	# Make SVGZ fonts work on the iPad.
+	# https://twitter.com/FontSquirrel/status/14855840545
+	AddType     image/svg+xml                           svgz
+	AddEncoding gzip                                    svgz
+
+  # Other
+	AddType application/octet-stream                    safariextz
+	AddType application/x-chrome-extension              crx
+	AddType application/x-opera-extension               oex
+	AddType application/x-web-app-manifest+json         webapp
+	AddType application/x-xpinstall                     xpi
+	AddType application/xml                             atom rdf rss xml
+	AddType image/webp                                  webp
+	AddType image/x-icon                                cur
+	AddType text/cache-manifest                         appcache manifest
+	AddType text/vtt                                    vtt
+	AddType text/x-component                            htc
+	AddType text/x-vcard                                vcf
+</IfModule>
+
+
+# ------------------------------------------------------------------------------
+# | UTF-8 encoding                                                             |
+# ------------------------------------------------------------------------------
+
+# Use UTF-8 encoding for anything served as `text/html` or `text/plain`.
+AddDefaultCharset utf-8
+
+# Force UTF-8 for certain file formats.
+<IfModule mod_mime.c>
+	AddCharset utf-8 .atom .css .js .json .jsonld .rss .vtt .webapp .xml
+</IfModule>
+
+
+# ------------------------------------------------------------------------------
+# | Expires headers                                                            |
+# ------------------------------------------------------------------------------
+
+# The following expires headers are set pretty far in the future. If you
+# don't control versioning with filename-based cache busting, consider
+# lowering the cache time for resources such as style sheets and JavaScript
+# files to something like one week.
+
+<IfModule mod_expires.c>
+
+	ExpiresActive on
+	ExpiresDefault										"access plus 1 month"
+
+  # CSS
+	ExpiresByType text/css								"access plus 1 year"
+
+  # Data interchange
+	ExpiresByType application/json						"access plus 0 seconds"
+	ExpiresByType application/ld+json					"access plus 0 seconds"
+	ExpiresByType application/xml						"access plus 0 seconds"
+	ExpiresByType text/xml								"access plus 0 seconds"
+
+  # Favicon (cannot be renamed!) and cursor images
+	ExpiresByType image/x-icon						  	"access plus 1 week"
+
+  # HTML components (HTCs)
+	ExpiresByType text/x-component					  	"access plus 1 month"
+
+  # HTML
+	ExpiresByType text/html							 	"access plus 0 seconds"
+
+  # JavaScript
+	ExpiresByType application/javascript				"access plus 1 year"
+
+  # Manifest files
+	ExpiresByType application/x-web-app-manifest+json	"access plus 0 seconds"
+	ExpiresByType text/cache-manifest					"access plus 0 seconds"
+
+  # Media
+	ExpiresByType audio/ogg								"access plus 1 month"
+	ExpiresByType image/gif								"access plus 1 month"
+	ExpiresByType image/jpeg							"access plus 1 month"
+	ExpiresByType image/png								"access plus 1 month"
+	ExpiresByType video/mp4								"access plus 1 month"
+	ExpiresByType video/ogg								"access plus 1 month"
+	ExpiresByType video/webm							"access plus 1 month"
+
+  # Web feeds
+	ExpiresByType application/atom+xml					"access plus 1 hour"
+	ExpiresByType application/rss+xml				 	"access plus 1 hour"
+
+  # Web fonts
+	ExpiresByType application/font-woff					"access plus 1 month"
+	ExpiresByType application/vnd.ms-fontobject			"access plus 1 month"
+	ExpiresByType application/x-font-ttf				"access plus 1 month"
+	ExpiresByType font/opentype							"access plus 1 month"
+	ExpiresByType image/svg+xml							"access plus 1 month"
+</IfModule>
+
+
+<FilesMatch "\.(backup|cache|class|fields|functions|inc|modules|lib|session|templates)$">
+	Order allow,deny
+</FilesMatch>
+
+<IfModule mod_security.c>
+	SecFilterScanPOST Off
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# | Rewrite engine                                                             |
+# ------------------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+	RewriteEngine on
+	RewriteBase /
+
+	# Заглушка для index.php
+	RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.php\ HTTP/
+	RewriteRule ^index\.php$ http://%{HTTP_HOST}/ [R=301,L]
+
+	# Убираем слеш в конце
+#	RewriteCond %{HTTP_HOST} (.*)
+#	RewriteCond %{REQUEST_URI} /$ [NC]
+#	RewriteRule ^(.*)(/)$ $1 [L,R=301]
+
+	# Редирект с www.domain.com на domain.com
+#	RewriteCond %{HTTP_HOST} ^www\.(.+) [NC]
+#	RewriteRule (.*) http://%1/$1 [R=permanent,L]
+
+	# Редирект с domain.com на www.domain.com
+#	RewriteCond %{HTTP_HOST} !^www\. [NC]
+#	RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [QSA,L]
+
+#	RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+#	RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+#	RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+
+	RewriteCond %{REQUEST_URI} !^/(backup|cache|class|fields|functions|inc|modules|lib|session|templates)/
+
+	# Файл robots.txt
+	RewriteCond %{REQUEST_URI} !^/robots\.txt$ [NC]
+
+	# Файл sitemap.xml
+	RewriteRule ^sitemap.xml$ inc/sitemap.php [QSA,L]
+
+#--start-ave-editor--#
+
+#--end-ave-editor--#
+
+	# RSS
+	RewriteRule ^rss/rss-([0-9]+).xml$ inc/rss.php?id=$1 [QSA,L]
+
+	RewriteRule \.(ico)$ - [NC,L]
+
+	RewriteRule ^index.php$ - [L]
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule .* index.php [L]
+</IfModule>
+####################### AVE.CMS_HTACCESS_END ###########################
