@@ -80,7 +80,7 @@ function get_field_image_single($field_value, $action, $field_id=0, $tpl='', $tp
 					$field_value
 				);
 
-				$field_value = preg_replace_callback('/\[tag:([r|c|f|t]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $field_value);
+				$field_value = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $field_value);
 			}
 
 			$tpl_file = get_field_tpl($tpl_dir, $field_id, 'doc');
@@ -124,7 +124,7 @@ function get_field_image_single($field_value, $action, $field_id=0, $tpl='', $tp
 					$field_value
 				);
 
-				$field_value = preg_replace_callback('/\[tag:([r|c|f|t]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $field_value);
+				$field_value = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $field_value);
 			}
 
 			$maxlength = null;

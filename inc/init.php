@@ -17,7 +17,7 @@
 		exit;
 
 	// Подключаем файл настроек
-	require_once(BASE_DIR . '/inc/config.php');
+	require_once (BASE_DIR . '/inc/config.php');
 
 	if (PHP_DEBUGGING_FILE && ! defined('ACP'))
 		include_once BASE_DIR . '/inc/errors.php';
@@ -35,7 +35,8 @@
 
 		foreach ($GLOBALS as $key => $value)
 		{
-			if (!isset($allowed[$key])) unset($GLOBALS[$key]);
+			if (!isset($allowed[$key]))
+				unset($GLOBALS[$key]);
 		}
 	}
 
@@ -116,9 +117,9 @@
 			}
 		}
 		else
-		{
-			$_SERVER['HTTP_HOST'] = '';
-		}
+			{
+				$_SERVER['HTTP_HOST'] = '';
+			}
 
 		$ssl = is_ssl();
 		$schema = ($ssl) ? 'https://' : 'http://';
@@ -140,16 +141,16 @@
 
 	set_host();
 
-	set_include_path(get_include_path() . '/' . BASE_DIR . '/lib');
+	set_include_path (get_include_path() . '/' . BASE_DIR . '/lib');
 
-	ini_set('arg_separator.output',     '&amp;');
-	ini_set('session.cache_limiter',    'none');
-	ini_set('session.cookie_lifetime',  60*60*24*14);
-	ini_set('session.gc_maxlifetime',   60*24);
-	ini_set('session.use_cookies',      1);
-	ini_set('session.use_only_cookies', 1);
-	ini_set('session.use_trans_sid',    0);
-	ini_set('url_rewriter.tags',        '');
+	ini_set ('arg_separator.output',     '&amp;');
+	ini_set ('session.cache_limiter',    'none');
+	ini_set ('session.cookie_lifetime',  60*60*24*14);
+	ini_set ('session.gc_maxlifetime',   60*24);
+	ini_set ('session.use_cookies',      1);
+	ini_set ('session.use_only_cookies', 1);
+	ini_set ('session.use_trans_sid',    0);
+	ini_set ('url_rewriter.tags',        '');
 
 
 	// Переключение для нормальной работы с русскими буквами в некоторых функциях
@@ -175,35 +176,35 @@
 	/**
 	 * Подкючаем необходимые файлы функций
 	 */
-	require_once(BASE_DIR . '/functions/func.breadcrumbs.php');		// Хлебные крошки
-	require_once(BASE_DIR . '/functions/func.common.php');			// Основные функции
-	require_once(BASE_DIR . '/functions/func.locale.php');			// Языковые функции
-	require_once(BASE_DIR . '/functions/func.documents.php');		// Функции по работе с документами
-	require_once(BASE_DIR . '/functions/func.fields.php');			// Функции по работе с полями
-	require_once(BASE_DIR . '/functions/func.helpers.php');			// Второстепенные функции
-	require_once(BASE_DIR . '/functions/func.hidden.php');			// Парс тега [hide]
-	require_once(BASE_DIR . '/functions/func.login.php');			// Авторизация пользователей
-	require_once(BASE_DIR . '/functions/func.logs.php');			// Системные сообщения
-	require_once(BASE_DIR . '/functions/func.mail.php');			// Отправка писем
-	require_once(BASE_DIR . '/functions/func.navigation.php');		// Функции по работе с меню навигации
-	require_once(BASE_DIR . '/functions/func.pagination.php');		// Постраничная навигация
-	require_once(BASE_DIR . '/functions/func.parserequest.php');	// Функции по работе с запросами
-	require_once(BASE_DIR . '/functions/func.block.php');			// Функции по работе с визуальными блоками
-	require_once(BASE_DIR . '/functions/func.sysblock.php');		// Функции по работе с системными блоками
-	require_once(BASE_DIR . '/functions/func.thumbnails.php');		// Функции по работе с превьюшками изображений
-	require_once(BASE_DIR . '/functions/func.users.php');			// Функции по работе с пользователями
-	require_once(BASE_DIR . '/functions/func.watermarks.php');		// Функции по работе с водными знаками
+	require_once (BASE_DIR . '/functions/func.breadcrumbs.php');	// Хлебные крошки
+	require_once (BASE_DIR . '/functions/func.common.php');			// Основные функции
+	require_once (BASE_DIR . '/functions/func.locale.php');			// Языковые функции
+	require_once (BASE_DIR . '/functions/func.documents.php');		// Функции по работе с документами
+	require_once (BASE_DIR . '/functions/func.fields.php');			// Функции по работе с полями
+	require_once (BASE_DIR . '/functions/func.helpers.php');		// Второстепенные функции
+	require_once (BASE_DIR . '/functions/func.hidden.php');			// Парс тега [hide]
+	require_once (BASE_DIR . '/functions/func.login.php');			// Авторизация пользователей
+	require_once (BASE_DIR . '/functions/func.logs.php');			// Системные сообщения
+	require_once (BASE_DIR . '/functions/func.mail.php');			// Отправка писем
+	require_once (BASE_DIR . '/functions/func.navigation.php');		// Функции по работе с меню навигации
+	require_once (BASE_DIR . '/functions/func.pagination.php');		// Постраничная навигация
+	require_once (BASE_DIR . '/functions/func.parserequest.php');	// Функции по работе с запросами
+	require_once (BASE_DIR . '/functions/func.block.php');			// Функции по работе с визуальными блоками
+	require_once (BASE_DIR . '/functions/func.sysblock.php');		// Функции по работе с системными блоками
+	require_once (BASE_DIR . '/functions/func.thumbnails.php');		// Функции по работе с превьюшками изображений
+	require_once (BASE_DIR . '/functions/func.users.php');			// Функции по работе с пользователями
+	require_once (BASE_DIR . '/functions/func.watermarks.php');		// Функции по работе с водными знаками
 
 
 	/**
 	 * Создание папок и файлов
 	 */
-	foreach(array('cache', 'backup', 'session') as $dir)
+	foreach (array('cache', 'backup', 'session') as $dir)
 	{
 		write_htaccess_deny(BASE_DIR . '/' . $dir);
 	}
 
-	foreach(array('attachments', 'combine', 'module', 'redactor', 'smarty', 'sql', 'tpl') as $dir)
+	foreach (array('attachments', 'combine', 'module', 'redactor', 'smarty', 'sql', 'tpl') as $dir)
 	{
 		write_htaccess_deny(BASE_DIR . '/cache/' . $dir);
 	}
@@ -211,40 +212,42 @@
 	global $AVE_DB;
 
 	// Класс для работы с MySQL (Global $AVE_DB)
-	require_once(BASE_DIR . '/class/class.database.php');
+	require_once (BASE_DIR . '/class/class.database.php');
 
 	// Если не существует объекта по работе с БД
 	if (! isset($AVE_DB))
 	{
 		// Подключаем конфигурационный файл с параметрами подключения
-		require_once(BASE_DIR . '/inc/db.config.php');
+		require_once (BASE_DIR . '/inc/db.config.php');
 
 		// Если параметры не указаны, прерываем работу
-		if (! isset($config)) exit;
+		if (! isset($config))
+			exit;
 
 		// Если константа префикса таблиц не задана, принудительно определяем ее на основании параметров в файле db.config.php
-		if (! defined('PREFIX')) define('PREFIX', $config['dbpref']);
+		if (! defined('PREFIX'))
+			define('PREFIX', $config['dbpref']);
 
 		// Создаем объект для работы с БД
 		try {
-		$AVE_DB = AVE_DB::getInstance($config)
-			// Назначаем кодировку
-			->setCharset('utf8')
-			// Назначаем БД
-			->setDatabaseName($config['dbname']);
+			$AVE_DB = AVE_DB::getInstance($config)
+				// Назначаем кодировку
+				->setCharset('utf8')
+				// Назначаем БД
+				->setDatabaseName($config['dbname']);
 		}
 		catch (AVE_DB_Exception $e)
-		{
-			ob_start();
-			header('HTTP/1.1 503 Service Temporarily Unavailable');
-			header('Status: 503 Service Temporarily Unavailable');
-			header('Retry-After: 3600');
-			header('X-Powered-By:');
-			echo $e->getMessage();
-			die;
-		}
+			{
+				ob_start();
+				header('HTTP/1.1 503 Service Temporarily Unavailable');
+				header('Status: 503 Service Temporarily Unavailable');
+				header('Retry-After: 3600');
+				header('X-Powered-By:');
+				echo $e->getMessage();
+				die;
+			}
 
-		unset($config);
+		unset ($config);
 	}
 
 	// Устанавливаем обновления системы
@@ -254,7 +257,7 @@
 
 		if ($updaters)
 		{
-			sort($updaters);
+			sort ($updaters);
 
 			foreach ($updaters as $ufile)
 			{
@@ -275,15 +278,15 @@
 	if (! SESSION_SAVE_HANDLER)
 	{
 		// Класс для работы с сессиями
-		require(BASE_DIR . '/class/class.session.files.php');
+		require (BASE_DIR . '/class/class.session.files.php');
 		$ses_class = new AVE_Session();
 	}
 	else
-	{
-		// Класс для работы с сессиями
-		require(BASE_DIR . '/class/class.session.php');
-		$ses_class = new AVE_Session_DB();
-	}
+		{
+			// Класс для работы с сессиями
+			require (BASE_DIR . '/class/class.session.php');
+			$ses_class = new AVE_Session_DB();
+		}
 
 	/* Изменяем save_handler, используем функции класса */
 	session_set_save_handler (
@@ -328,18 +331,21 @@
 
 
 	//Запоминаем время последнего визита пользователя
-	if(! empty($_SESSION['user_id']))
+	if (! empty($_SESSION['user_id']))
 	{
 		$AVE_DB->Query("
-			UPDATE " . PREFIX . "_users
-			SET last_visit = '" . time() . "'
-			WHERE Id = '" . intval($_SESSION['user_id']) . "'
+			UPDATE
+				" . PREFIX . "_users
+			SET
+				last_visit = '" . time() . "'
+			WHERE
+				Id = '" . intval($_SESSION['user_id']) . "'
 		");
 	}
 
 	//Запоминаем язык браузера
 	$browlang = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-	$browlang = explode("-", $browlang);
+	$browlang = explode('-', $browlang);
 	$browlang = $browlang[0];
 
 	$_SESSION['accept_langs'] = array();
@@ -355,13 +361,13 @@
 			lang_default ASC
 	", SYSTEM_CACHE_LIFETIME);
 
-	while($row = $sql->FetchRow())
+	while ($row = $sql->FetchRow())
 	{
-		if(trim($row->lang_key) > '')
+		if (trim($row->lang_key) > '')
 		{
 			$_SESSION['accept_langs'][trim($row->lang_key)] = trim($row->lang_alias_pref);
 
-			if(! @defined('DEFAULT_LANGUAGE') && $row->lang_default == 1)
+			if (! @defined('DEFAULT_LANGUAGE') && $row->lang_default == 1)
 				define('DEFAULT_LANGUAGE', trim($row->lang_key));
 		}
 	}
@@ -389,20 +395,20 @@
 	set_locale();
 
 	// Класс Шаблонов SMARTY
-	require(BASE_DIR . '/class/class.template.php');
+	require (BASE_DIR . '/class/class.template.php');
 
 	// Класс пагинации
-	require(BASE_DIR . '/class/class.paginations.php');
+	require (BASE_DIR . '/class/class.paginations.php');
 
 	// Класс Модулей
-	require(BASE_DIR . '/class/class.modules.php');
+	require (BASE_DIR . '/class/class.modules.php');
 	$AVE_Module = new AVE_Module;
 
 	// Debug
-	require(BASE_DIR . '/class/class.debug.php');
+	require (BASE_DIR . '/class/class.debug.php');
 	$Debug = new Debug;
 
 	// Hooks
-	require(BASE_DIR . '/class/class.hooks.php');
+	require (BASE_DIR . '/class/class.hooks.php');
 	$Hooks = new Hooks;
 ?>

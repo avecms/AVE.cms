@@ -411,7 +411,7 @@ function showrequestelement($mixed, $template = '', $tparams = '')
 		$item = preg_replace('/\[tag:doc:\d*\]/', '', $item);
 		$item = preg_replace('/\[tag:langfile:\d*\]/', '', $item);
 
-		$item = preg_replace_callback('/\[tag:([r|c|f|t]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $item);
+		$item = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $item);
 
 		if ($tparams != '')
 		{

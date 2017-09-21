@@ -96,7 +96,7 @@ function insertLinkCK(data) {ldelim}
 					{elseif $smarty.request.selecturl == 1}
 						<input onclick="insertLinkCK('index.php?id={$item->Id}&doc={$item->document_alias}');" class="whiteBtn" type="button" value="{#DOC_BUTTON_INSERT_LINK#}" />
 					{elseif $smarty.request.alias == 1}
-						<input onclick="insertLink({ldelim}{$smarty.request.target|escape}:'/{$item->document_alias}'{rdelim});" class="whiteBtn" type="button" value="{#DOC_BUTTON_INSERT_LINK#}" />
+						<input onclick="insertLink({ldelim}{$smarty.request.target|escape}:'{$ABS_PATH}{$item->document_alias}'{rdelim});" class="whiteBtn" type="button" value="{#DOC_BUTTON_INSERT_LINK#}" />
 					{elseif $smarty.request.function == 1}
 						<input onclick="insertFunction('{$smarty.request.target|escape}', '{$item->Id}');" class="whiteBtn" type="button" value="{#DOC_BUTTON_INSERT_LINK#}" />
 					{else}

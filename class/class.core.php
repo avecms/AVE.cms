@@ -1056,7 +1056,7 @@ class AVE_Core
 						$main_content = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)\]/', 'document_get_field', $main_content);
 						$main_content = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/', 'return_element', $main_content);
 						$main_content = preg_replace_callback('/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/', 'watermarks', $main_content);
-						$main_content = preg_replace_callback('/\[tag:([r|c|f|t]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $main_content);
+						$main_content = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $main_content);
 
 						// Возвращаем поле из БД документа
 						$main_content = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',

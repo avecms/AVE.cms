@@ -2,7 +2,7 @@ $().ready(function() {
 
 	// отдельный файловый менеджер
 	$('#finder').elfinder({
-		url : ave_path+'lib/redactor/elfinder/inc/connector.php',
+		url : ave_path+'lib/redactor/elfinder/php/connector.php',
 		lang : 'ru',
 	   height : 500,
 	   title : 'Файловый менеджер'
@@ -13,7 +13,7 @@ $().ready(function() {
 	$('.dialog_images').click(function() {
 		var id = $(this).attr("rel");
 		$('<div/>').dialogelfinder({
-			url : ave_path+'lib/redactor/elfinder/inc/connector.php',
+			url : ave_path+'lib/redactor/elfinder/php/connector.php',
 			lang : 'ru',
 			width : 1100,
 			height: 600,

@@ -125,7 +125,7 @@ function get_field_image_multi_new_3inputs($field_value, $action, $field_id=0, $
 								$image_item
 							);
 
-							$image_item = preg_replace_callback('/\[tag:([r|c|f|t]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $image_item);
+							$image_item = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $image_item);
 						}
 					}
 					$res[] = $image_item;

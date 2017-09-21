@@ -160,7 +160,7 @@ function get_field_image_multi($field_value, $action, $field_id=0, $tpl='', $tpl
 									$image_item
 								);
 
-								$image_item = preg_replace_callback('/\[tag:([r|c|f|t]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $image_item);
+								$image_item = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $image_item);
 							}
 					}
 

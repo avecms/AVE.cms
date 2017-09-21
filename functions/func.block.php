@@ -74,7 +74,7 @@ function parse_block($id)
 		{
 			//-- парсим теги полей документа в шаблоне рубрики
 			$return = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)\]/', 'document_get_field', $return);
-			$return = preg_replace_callback('/\[tag:([r|c|f|t]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $return);
+			$return = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $return);
 		}
 
 		$gen_time = Debug::endTime('SYSBLOCK_' . $id);

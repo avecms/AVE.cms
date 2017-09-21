@@ -23,7 +23,7 @@
 
 <script type="text/javascript">
 
-function openLinkWin(target) {ldelim}
+function openLinkWin(target, rtrn='', data='') {ldelim}
 	if (typeof width == 'undefined' || width == '')
 		var width = screen.width * 0.8;
 
@@ -33,7 +33,9 @@ function openLinkWin(target) {ldelim}
 	var left = ( screen.width - width ) / 2;
 	var top = ( screen.height - height ) / 2;
 
-	window.open('index.php?do=docs&action=showsimple&target='+target+'&selurl=1&pop=1','pop','left='+left+',top='+top+',width='+width+',height='+height+',scrollbars=1,resizable=1');
+	data = data.length ? data : 'selurl';
+
+	window.open('index.php?do=docs&action=showsimple&target='+target+'&'+data+'=1&pop=1','pop','left='+left+',top='+top+',width='+width+',height='+height+',scrollbars=1,resizable=1');
 {rdelim}
 
 function openLinkWinId(target, doc) {ldelim}
@@ -548,7 +550,7 @@ $(document).ready(function(){ldelim}
 							<td nowrap="nowrap" colspan="3">
 								<div style="margin:2px 0 3px;">
 									<select style="width: 400px;" name="rubric_tmpl_id" id="rubric_tmpl_id">
-										<option value="0" {if $smarty.request.action == 'new'}selected="selected"{/if}>Использовать по умолчанию</option>
+										<option value="0" {if $smarty.request.action == 'new'}selected="selected"{/if}>{#DOC_TEMPLATE_DEFAULT#}</option>
 										{foreach from=$rubric_tmpls item=tmpl}
 										<option value="{$tmpl->id}"{if $document->rubric_tmpl_id == $tmpl->id}selected="selected"{/if}>{$tmpl->title}</option>
 										{/foreach}

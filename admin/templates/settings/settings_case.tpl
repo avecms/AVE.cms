@@ -67,10 +67,10 @@
 				</select>
 			{/if}
 			{if $def.TYPE=="string"}
-				<input class="mousetrap" name="GLOB[{$_var}]" type="text" id="{$_var}" style="width:550px" value="{php} echo(constant  ($this->_tpl_vars['_var']));{/php}" size="100" />
+				<input class="mousetrap" name="GLOB[{$_var}]" type="text" id="{$_var}" style="width:550px" value="{php} echo(constant  ($this->_tpl_vars['_var']));{/php}" size="100" autocomplete="off" />
 			{/if}
 			{if $def.TYPE=="integer"}
-				<input class="mousetrap" name="GLOB[{$_var}]" type="text" id="{$_var}" style="width:550px" value="{php} echo(constant  ($this->_tpl_vars['_var']));{/php}" size="100" />
+				<input class="mousetrap" name="GLOB[{$_var}]" type="text" id="{$_var}" style="width:550px" value="{php} echo(constant  ($this->_tpl_vars['_var']));{/php}" size="100" autocomplete="off" />
 			{/if}
 			{if $def.TYPE=="bool"}
 				<input type="radio" name="GLOB[{$_var}]" value="1" {php} echo(constant($this->_tpl_vars['_var']) ? 'checked' : "");{/php} /><label style="cursor: pointer;">{#SETTINGS_YES#}</label>

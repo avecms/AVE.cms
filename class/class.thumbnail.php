@@ -883,6 +883,51 @@ class Image_Toolbox {
 				$cpy_w_offset = 0;
 				$cpy_h_offset = 0;
 			}
+			elseif ($mode == 4) {
+				//smart crop
+				($width >= $height)
+					? ($this->_img['target']['bias'] = IMAGE_TOOLBOX_BIAS_HORIZONTAL)
+					: ($this->_img['target']['bias'] = IMAGE_TOOLBOX_BIAS_VERTICAL);
+
+				if ($this->_img['main']['bias'] == $this->_img['target']['bias'] || !$autorotate)
+				{
+					$this->_img['target']['width'] = $width;
+					$this->_img['target']['height'] = $height;
+				}
+				else
+					{
+						$this->_img['target']['width'] = $height;
+						$this->_img['target']['height'] = $width;
+					}
+
+				$this->_img['target']['aspectratio'] = $this->_img['target']['width'] / $this->_img['target']['height'];
+
+				if ($this->_img['main']['width'] / $this->_img['target']['width'] >= $this->_img['main']['height'] / $this->_img['target']['height'])
+				{
+					$cpy_h = $this->_img['main']['height'];
+					$cpy_w = (integer) $this->_img['main']['height'] * $this->_img['target']['aspectratio'];
+					$cpy_w_offset = (integer) ($this->_img['main']['width'] - $cpy_w) / 2;
+					$cpy_h_offset = 0;
+				}
+				else
+				{
+					$cpy_w = $this->_img['main']['width'];
+					$cpy_h = (integer) $this->_img['main']['width'] / $this->_img['target']['aspectratio'];
+					$cpy_h_offset = (integer) ($this->_img['main']['height'] - $cpy_h) / 2;
+					$cpy_w_offset = 0;
+				}
+
+				if ($this->_img['main']['width'] >= $this->_img['target']['height'])
+				{
+					$cpy_w_offset = (integer) ($this->_img['main']['width'] - $cpy_w) / 2;
+					$cpy_h_offset = 0;
+				}
+				else
+				{
+					$cpy_w_offset = 0;
+					$cpy_h_offset = (integer) ($this->_img['main']['height'] - $cpy_h) / 2;
+				}
+			}
 		} elseif (($width == 0 && $height > 0) || ($width > 0 && $height == 0) && is_int($width) && is_int($height)) {
 			//keep aspectratio
 			if ($autorotate == true) {
@@ -915,13 +960,18 @@ class Image_Toolbox {
 
 		//create resized picture
 		$functionname = $this->_imagecreatefunction;
+
 		$dummy = $functionname($this->_img['target']['width'] + 1, $this->_img['target']['height'] + 1);
-		if ($this->_img['main']['type'] == 3) {
+
+		if ($this->_img['main']['type'] == 3)
+		{
 			imagealphablending($dummy, false);
 			imagesavealpha($dummy, true);
 		}
 		$resize_function = $this->_resize_function;
+
 		$resize_function($dummy, $this->_img["main"]["resource"], 0, 0, $cpy_w_offset, $cpy_h_offset, $this->_img["target"]["width"], $this->_img["target"]["height"], $cpy_w, $cpy_h);
+
 		if ($mode == 2) {
 			$this->_img['target']['resource'] = $functionname($width, $height);
 			$fillcolor = $this->_hexToPHPColor($bgcolor);

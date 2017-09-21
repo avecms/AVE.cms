@@ -265,13 +265,22 @@ AddDefaultCharset utf-8
 	ExpiresByType image/svg+xml							"access plus 1 month"
 </IfModule>
 
-
 <FilesMatch "\.(backup|cache|class|fields|functions|inc|modules|lib|session|templates)$">
 	Order allow,deny
 </FilesMatch>
 
 <IfModule mod_security.c>
 	SecFilterScanPOST Off
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# | mod_deflate.c                                                              |
+# ------------------------------------------------------------------------------
+
+<IfModule mod_deflate.c>
+	<FilesMatch "\.(css|js|x?html?|php)$">
+		SetOutputFilter DEFLATE
+	</FilesMatch>
 </IfModule>
 
 # ------------------------------------------------------------------------------
@@ -319,6 +328,10 @@ AddDefaultCharset utf-8
 	RewriteRule ^rss/rss-([0-9]+).xml$ inc/rss.php?id=$1 [QSA,L]
 
 	RewriteRule \.(ico)$ - [NC,L]
+
+	# If-Modified-Since
+	RewriteRule .* - [E=HTTP_IF_MODIFIED_SINCE:%{HTTP:If-Modified-Since}]
+	RewriteRule .* - [E=HTTP_IF_NONE_MATCH:%{HTTP:If-None-Match}]
 
 	RewriteRule ^index.php$ - [L]
 	RewriteCond %{REQUEST_FILENAME} !-f

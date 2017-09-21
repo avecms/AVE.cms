@@ -277,7 +277,7 @@ if ($count_error > 0 && ! (isset($_REQUEST['force']) && 1 == $_REQUEST['force'])
 $_REQUEST['step'] = isset($_REQUEST['step']) ? $_REQUEST['step'] : '';
 
 // Минимальные требования к системе
-define('PHP_version', '5.2.2');
+define('PHP_version', '5.5');
 define('MySQL_version', '5.0.0');
 define('GD_version', '2.0');
 define('PCRE_version', '7.0');

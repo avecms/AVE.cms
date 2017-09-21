@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="{$ABS_PATH}lib/redactor/codemirror/lib/codemirror.css">
 <link rel="stylesheet" href="{$ABS_PATH}lib/redactor/codemirror/addon/hint/show-hint.css">
 <link rel="stylesheet" href="{$ABS_PATH}lib/redactor/codemirror/addon/dialog/dialog.css">
+<link rel="stylesheet" href="{$ABS_PATH}lib/redactor/ckeditor/plugins/codemirror/css/codemirror.min.css">
 
 {if $smarty.const.CODEMIRROR_THEME != '' && $smarty.const.CODEMIRROR_THEME != 'default'}
 <link rel="stylesheet" href="{$ABS_PATH}lib/redactor/codemirror/theme/{$smarty.const.CODEMIRROR_THEME}.css">

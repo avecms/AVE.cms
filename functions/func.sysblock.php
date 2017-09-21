@@ -27,17 +27,16 @@ function parse_sysblock($id)
 
 	$eval_sysblock = false;
 
-
 	if ($id != '')
 	{
 		$eval_sysblock = true;
 
 		$cache_file = BASE_DIR . '/cache/sql/sysblock/' . $id . '.cache';
 
-		if(! file_exists(dirname($cache_file)))
+		if (! file_exists(dirname($cache_file)))
 			mkdir(dirname($cache_file), 0766, true);
 
-		if(file_exists($cache_file))
+		if (file_exists($cache_file))
 		{
 			$return = file_get_contents($cache_file);
 		}
@@ -79,8 +78,10 @@ function parse_sysblock($id)
 		{
 			//-- парсим теги полей документа в шаблоне рубрики
 			$return = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)\]/', 'document_get_field', $return);
-			$return = preg_replace_callback('/\[tag:([r|c|f|t]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $return);
+			$return = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $return);
 		}
+
+		$return = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $return);
 
 		if ($eval_sysblock)
 			$return = eval2var('?'.'>' . $return . '<'.'?');

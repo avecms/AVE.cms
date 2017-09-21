@@ -11,14 +11,14 @@
 	 * @license GPL v.2
 	 */
 
-	define('START_MICROTIME', microtime());
-	define('START_MEMORY', memory_get_usage());
-	define('BASE_DIR', str_replace("\\", "/", dirname(__FILE__)));
+	define ('START_MICROTIME', microtime());
+	define ('START_MEMORY', memory_get_usage());
+	define ('BASE_DIR', str_replace("\\", "/", dirname(__FILE__)));
 
 	// Проверяем уставлена ли CMS
 	if (! @filesize(BASE_DIR . '/inc/db.config.php'))
 	{
-		header('Location:install/index.php');
+		header ('Location:install/index.php');
 		exit;
 	}
 
@@ -26,7 +26,7 @@
 	// подключаем файл обработки thumbnail
 	if (! empty($_REQUEST['thumb']))
 	{
-		require(BASE_DIR . '/inc/thumb.php');
+		require (BASE_DIR . '/inc/thumb.php');
 		exit;
 	}
 
@@ -34,19 +34,19 @@
 
 	// Подключаем файл определения мобильных устройств
 	// далее пользуемся $MDetect
-	require_once(BASE_DIR . '/lib/mobile_detect/Mobile_Detect.php');
+	require_once (BASE_DIR . '/lib/mobile_detect/Mobile_Detect.php');
 	$MDetect = new Mobile_Detect;
 
 	// Подключаем файл инициализации
-	require(BASE_DIR . '/inc/init.php');
+	require (BASE_DIR . '/inc/init.php');
 
-	unset($GLOBALS['CMS_CONFIG']);
+	unset ($GLOBALS['CMS_CONFIG']);
 
 	// Проверяем нет ли в запросе папки UPLOADS_DIR
 	// подключаем файл для работы thumbsnail
-	if (strpos($_SERVER['REQUEST_URI'], ABS_PATH . UPLOAD_DIR . '/') === 0)
+	if (strpos ($_SERVER['REQUEST_URI'], ABS_PATH . UPLOAD_DIR . '/') === 0)
 	{
-		require(BASE_DIR . '/inc/thumb.php');
+		require (BASE_DIR . '/inc/thumb.php');
 		exit;
 	}
 
@@ -54,11 +54,11 @@
 	$AVE_Template = new AVE_Template(BASE_DIR . '/templates/');
 
 	// Подключаем ядро системы
-	require(BASE_DIR . '/class/class.core.php');
+	require (BASE_DIR . '/class/class.core.php');
 	$AVE_Core = new AVE_Core;
 
 	// Проверям на вызов внешних модулей и системных блоков
-	if (empty($_REQUEST['module']) || empty($_REQUEST['sysblock']) || empty($_REQUEST['request']))
+	if (empty ($_REQUEST['module']) || empty ($_REQUEST['sysblock']) || empty ($_REQUEST['request']))
 		$AVE_Core->coreUrlParse($_SERVER['REQUEST_URI']);
 
 	$GLOBALS['page_id'] = array((isset($_REQUEST['id'])
@@ -91,19 +91,24 @@
 
 	$content = ob_get_clean();
 
-	ob_start();
+	if (substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') && GZIP_COMPRESSION)
+	{
+		ob_start('ob_gzhandler');
+	}
+	else
+		ob_start();
 
-	eval('?>' . $content . '<?');
+	eval ('?>' . $content . '<?');
 
 	$render = ob_get_clean();
 
-	unset($content);
+	unset ($content);
 
 	// Ловим 404 ошибку
 	if (isset($_REQUEST['id']) AND ($_REQUEST['id']) == PAGE_NOT_FOUND_ID)
 	{
 		report404();
-		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
+		header ($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
 	}
 
 	// Постраничка
@@ -131,24 +136,29 @@
 	)
 	{
 		if ($_REQUEST['id'] == 1)
-			header('Location:' . ABS_PATH);
+			header ('Location:' . ABS_PATH);
 		else
-			header('Location:' . ABS_PATH . $AVE_Core->curentdoc->document_alias . URL_SUFF);
+			header ('Location:' . ABS_PATH . $AVE_Core->curentdoc->document_alias . URL_SUFF);
 		exit;
 	}
 
 	// Тут заменяем [tag:rubheader]
 	// на собранный $GLOBALS["user_header"]
-	$rubheader = (empty($GLOBALS["user_header"])
-		? ""
-		: implode(chr(10), $GLOBALS["user_header"]));
+	$rubheader = (empty($GLOBALS['user_header'])
+		? ''
+		: implode(chr(10), $GLOBALS['user_header']));
 
 	$render = str_replace('[tag:rubheader]', $rubheader, $render);
 
-	//Вывод конечного результата
-	echo $render;
+	//-- Header Engine
+	header('X-Engine: AVE.cms');
+	header('X-Engine-Copyright: 2007-' . date('Y') . ' (c) AVE.cms');
+	header('X-Engine-Site: https://ave-cms.ru');
 
 	//Вывод статистики загрузки и запросов SQL (только для администраторов)
 	if (! defined('ONLYCONTENT') && UGROUP == 1 && defined('PROFILING') && PROFILING)
-		echo get_statistic(1, 1, 1, 1);
+		$render .= get_statistic(1, 1, 1, 1);
+
+	//Вывод конечного результата
+	gzip_compress($render);
 ?>

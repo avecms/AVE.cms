@@ -284,3 +284,18 @@ DOC_SEARCH_FIELD_EQ         = "Равно на"
 DOC_SEARCH_FIELD_TEXT       = "Стойност"
 DOC_TEMPLATE_DEFAULT        = "Използвай по подразбиране"
 DOC_SHOW_LANG               = "Покажи"
+
+// 3.2
+DOC_TABS_META               = "Meta данни"
+DOC_TABS_URL                = "URL на документа"
+DOC_TABS_DATE               = "Дата на публикация"
+DOC_TABS_OTHER              = "Други параметри"
+
+DOC_WITHOUT_TITLE           = "Документ без наименование"
+DOC_SAVE_ADD                = "Добавил"
+DOC_SAVE_EDIT               = "Редактирал"
+DOC_SAVE_LOG_DOC            = " документ"
+
+DOC_LANG                    = "Език"
+DOC_LANG_ID                 = "Език на документа:"
+DOC_LANG_SELECT             = "Изберете език"

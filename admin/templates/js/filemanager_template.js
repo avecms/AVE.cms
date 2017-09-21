@@ -1,7 +1,7 @@
 $(function() {
 	// отдельный файловый менеджер
 	$('#finder').elfinder({
-		url : ave_path+'lib/redactor/elfinder/inc/connector_template.php',
+		url : ave_path+'lib/redactor/elfinder/php/connector_template.php',
 		lang : 'ru',
 	   height : 500,
 	   title : 'Файловый менеджер'

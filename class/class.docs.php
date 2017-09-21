@@ -162,7 +162,7 @@ class AVE_Document
 	{
 		$func = 'get_field_'.$field_type;
 
-		if(! is_callable($func))
+		if (! is_callable($func))
 			$func='get_field_default';
 
 		$field = $func($field_value, 'edit', $field_id, '', 0, $x, 0, 0, $default);
@@ -174,7 +174,7 @@ class AVE_Document
 	{
 		$func = 'get_field_'.$field_type;
 
-		if(! is_callable($func))
+		if (! is_callable($func))
 			$func='get_field_default';
 
 		$field = $func($field_value, 'save', $field_id, '', 0, $x, 0, 0, $default);
@@ -599,9 +599,12 @@ class AVE_Document
 		{
 			// Определяем количество комментариев, оставленных для данного документа
 			$row->ist_remark = $AVE_DB->Query("
-				SELECT COUNT(*)
-				FROM " . PREFIX . "_document_remarks
-				WHERE document_id = '" . $row->Id . "'
+				SELECT
+					COUNT(*)
+				FROM
+					" . PREFIX . "_document_remarks
+				WHERE
+					document_id = '" . $row->Id . "'
 			")->GetCell();
 
 			$this->documentPermissionFetch($row->rubric_id);
@@ -740,10 +743,12 @@ class AVE_Document
 	 * Метод, предназначенный для сохранения статусов документа в БД
 	 *
 	 */
-	function documentEditStatus() {
+	function documentEditStatus()
+	{
 		global $AVE_DB;
 
-		switch(@$_REQUEST['moderation']) {
+		switch(@$_REQUEST['moderation'])
+		{
 			// статусы
 			case "1" :
 				foreach (@$_REQUEST['document'] as $id => $status)
@@ -814,14 +819,14 @@ class AVE_Document
 	{
 		global $AVE_DB;
 
-		if(! $keywords)
+		if (! $keywords)
 			$keywords = $AVE_DB->Query("SELECT document_meta_keywords FROM " . PREFIX . "_documents WHERE Id = " . intval($document_id) . " LIMIT 1")->GetCell();
 
 		$keywords = explode(',', $keywords);
 
 		$res = $AVE_DB->Query("DELETE FROM " . PREFIX . "_document_keywords where document_id = " . intval($document_id));
 
-		foreach($keywords as $k => $v)
+		foreach ($keywords as $k => $v)
 		{
 			if (trim($v) > '')
 			{
@@ -863,7 +868,10 @@ class AVE_Document
 			{
 				$key = trim(mb_substr($v, 0, 254));
 
-				$res = $AVE_DB->Query("INSERT INTO ".PREFIX."_document_tags
+				$res = $AVE_DB->Query("
+					INSERT
+					INTO
+					" . PREFIX . "_document_tags
 					(
 						document_id,
 						tag
@@ -909,9 +917,9 @@ class AVE_Document
 			$rows[$row['rubric_field_id']] = pretty_chars(clean_no_print_char($row['field_value']));
 		}
 
-		$dtime = $AVE_DB->Query('SELECT document_changed FROM ' . PREFIX . '_documents WHERE Id=' . $document_id)->GetCell();
+		$dtime = $AVE_DB->Query('SELECT document_changed FROM ' . PREFIX . '_documents WHERE Id = ' . $document_id)->GetCell();
 
-		$last_rev = @unserialize($AVE_DB->Query("SELECT doc_data FROM ".PREFIX."_document_rev WHERE doc_id=".$document_id." ORDER BY doc_revision DESC LIMIT 1")->GetCell());
+		$last_rev = @unserialize($AVE_DB->Query("SELECT doc_data FROM " . PREFIX . "_document_rev WHERE doc_id=" . $document_id . " ORDER BY doc_revision DESC LIMIT 1")->GetCell());
 		// это я долго пытался понять почему всегда старая ревизия не равна новой даже если просто нажали лишний раз сохранить
 		// оказывается редактор подсовывет alt="" если альта в имге нету и сносит его если он есть там пустой ))))))))))
 		// но пусть проверка будет - может редакторы сменятся/апдейтятся а может кто просто хардкором будет код править)))
@@ -961,7 +969,17 @@ class AVE_Document
 
 		if ($run === true)
 		{
-			$res = $AVE_DB->Query("SELECT doc_data FROM ".PREFIX."_document_rev WHERE doc_id='".$document_id."' AND doc_revision='".$revision."' LIMIT 1")->GetCell();
+			$res = $AVE_DB->Query("
+				SELECT
+					doc_data
+				FROM
+					" . PREFIX . "_document_rev
+				WHERE
+					doc_id = '" . $document_id . "'
+				AND
+					doc_revision = '" . $revision . "'
+				LIMIT 1
+			")->GetCell();
 
 			if (! $res)
 				return false;
@@ -999,7 +1017,15 @@ class AVE_Document
 					}
 					else
 						{
-							$AVE_DB->Query("DELETE FROM ". PREFIX . "_document_fields_text ".'WHERE document_id='.$document_id.' AND rubric_field_id='.$k);
+							$AVE_DB->Query("
+								DELETE
+								FROM
+									". PREFIX . "_document_fields_text
+								WHERE
+									document_id= '" . $document_id . "'
+								AND
+									rubric_field_id='" . $k . "'
+							");
 						}
 				}
 			}
@@ -1009,9 +1035,9 @@ class AVE_Document
 			header('Location:index.php?do=docs&action=edit&Id=' . (int)$_REQUEST['doc_id'] . '&rubric_id=' . (int)$_REQUEST['rubric_id'] . '&cp=' . SESSION);
 		}
 		else
-		{
-			$AVE_Template->assign('content', $AVE_Template->get_config_vars('DOC_NO_RES_REVISION'));
-		}
+			{
+				$AVE_Template->assign('content', $AVE_Template->get_config_vars('DOC_NO_RES_REVISION'));
+			}
 	}
 
 	/**
@@ -1032,21 +1058,27 @@ class AVE_Document
 		{
 
 			$AVE_DB->Query("
-						DELETE
-						FROM " . PREFIX . "_document_rev
-						WHERE doc_id = '" . $document_id . "' AND doc_revision='".$revision."'
-					");
+				DELETE
+				FROM
+					" . PREFIX . "_document_rev
+				WHERE
+					doc_id = '" . $document_id . "'
+				AND
+					doc_revision='".$revision."'
+			");
 
 			reportLog($AVE_Template->get_config_vars('DOC_REVISION_DELETE')." (Doc: $document_id Rev: $revision)");
 
-			if(!isset($_REQUEST['ajax'])){
+			if (! isset($_REQUEST['ajax']))
+			{
 				header('Location:index.php?do=docs&action=edit&rubric_id=' . $rubric_id . '&Id=' . $document_id . '&cp=' . SESSION);
 			}
 
-		} else {
-			$AVE_Template->assign('content', $AVE_Template->get_config_vars('DOC_NO_DEL_REVISION'));
 		}
-
+		else
+			{
+				$AVE_Template->assign('content', $AVE_Template->get_config_vars('DOC_NO_DEL_REVISION'));
+			}
 	}
 
 
@@ -1275,7 +1307,8 @@ class AVE_Document
 						WHERE
 							document_alias = '" . $data['document_alias'] . "'
 						LIMIT 1
-				")->NumRows())
+					")->NumRows()
+				)
 				{
 					$data['document_alias'] = $_url . '-' . $cnt;
 					$cnt++;
@@ -1285,29 +1318,41 @@ class AVE_Document
 		// Если оператор UPDATE, забираем перед сохранением старый алиас документа
 		if ($oper == 'UPDATE')
 		{
-			$data['document_alias_old'] = $AVE_DB->Query("SELECT document_alias FROM " . PREFIX . "_documents WHERE Id = '" . $document_id . "' ")->GetCell();
+			$data['document_alias_old'] = $AVE_DB->Query("
+				SELECT
+					document_alias
+				FROM
+					" . PREFIX . "_documents
+				WHERE
+					Id = '" . $document_id . "'
+			")->GetCell();
 		}
 		else
 			{
 				// Если оператор INSERT
 				// Если новый алиас документа, сопадает с алиасом в истории, просто стираем историю
-				$AVE_DB->Query("DELETE FROM ". PREFIX . "_document_alias_history WHERE document_alias = '" . $data['document_alias'] . "'");
+				$AVE_DB->Query("
+					DELETE FROM
+						". PREFIX . "_document_alias_history
+					WHERE
+						document_alias = '" . $data['document_alias'] . "'
+				");
 			}
 
 		// Дата публикации документа
 		// Для документов с ID = 1 и Ошибки 404, дата не пишется
-		$data["document_published"] = ($document_id == 1 || $document_id == PAGE_NOT_FOUND_ID)
+		$data['document_published'] = ($document_id == 1 || $document_id == PAGE_NOT_FOUND_ID)
 			? '0'
 			: $this->_documentStart($data['document_published']);
 
 		// Дата окончания публикации документа
 		// Для документов с ID = 1 и Ошибки 404, дата не пишется
-		$data["document_expire"] = ($document_id == 1 || $document_id == PAGE_NOT_FOUND_ID)
+		$data['document_expire'] = ($document_id == 1 || $document_id == PAGE_NOT_FOUND_ID)
 			? '0'
 			: $this->_documentEnd($data['document_expire']);
 
 		// Дата изменения документа
-		$data["document_changed"] = time();
+		$data['document_changed'] = time();
 
 		// Использовать ли историю алиасов
 		$data['document_alias_history'] = (empty($data['document_alias_history']))
@@ -1395,7 +1440,7 @@ class AVE_Document
 			: '';
 
 		// Сохраняем все параметры документа
-		$sql="
+		$sql = "
 			$operator
 			SET
 				rubric_id					= '" . $rubric_id . "',
@@ -1446,7 +1491,14 @@ class AVE_Document
 				($data['document_alias_history'] == '1')
 			)
 			AND
-			($AVE_DB->Query("SELECT 1 FROM " . PREFIX . "_document_alias_history WHERE document_alias = '" . $data['document_alias_old'] . "' LIMIT 1 ")->NumRows() == 0)
+			($AVE_DB->Query("
+				SELECT 1
+				FROM
+					" . PREFIX . "_document_alias_history
+				WHERE
+					document_alias = '" . $data['document_alias_old'] . "'
+				LIMIT 1
+			")->NumRows() == 0)
 		)
 		{
 			$AVE_DB->Query("
@@ -1523,7 +1575,7 @@ class AVE_Document
 			// для преобразования перед сохранением
 			$func = 'get_field_' . $field_rubric->rubric_field_type;
 
-			if(is_callable($func))
+			if (is_callable($func))
 			{
 				$fld_val = $func($fld_val, 'save', $fld_id, '', 0, $x, 0, 0, 0);
 			}
@@ -1621,7 +1673,7 @@ class AVE_Document
 							". PREFIX . "_document_fields_text
 						WHERE
 							document_id = '" . $document_id . "'
-							AND
+						AND
 							rubric_field_id='" . $fld_id . "'
 					");
 				}
@@ -1680,7 +1732,6 @@ class AVE_Document
 			|| (isset($_SESSION[$rubric_id . '_alles']) && $_SESSION[$rubric_id . '_alles']  == 1)
 			|| (defined('UGROUP') && UGROUP == 1) )
 		{
-
 			// Поля
 			$sql = $AVE_DB->Query("
 				SELECT
@@ -1845,8 +1896,10 @@ class AVE_Document
 					}
 
 					$maxId = $AVE_DB->Query("
-						SELECT MAX(Id)
-						FROM " . PREFIX . "_documents
+						SELECT
+							MAX(Id)
+						FROM
+							" . PREFIX . "_documents
 					")->GetCell();
 
 					// получения списка документов из связанной рубрики
@@ -1898,9 +1951,9 @@ class AVE_Document
 					// получения списка документов из связанной рубрики
 					$AVE_Template->assign('document_alias', $document_alias);
 
-					$lang_pack=array();
+					$lang_pack = array();
 
-					if(! empty($_REQUEST['lang_pack']))
+					if (! empty($_REQUEST['lang_pack']))
 					{
 						$sql1 = $AVE_DB->Query("
 							SELECT
@@ -1979,7 +2032,8 @@ class AVE_Document
 		{
 			// Если была нажата кнопка Сохранить изменения
 			case 'save':
-					$row = $AVE_DB->Query("
+
+				$row = $AVE_DB->Query("
 					SELECT
 						rubric_id,
 						document_author_id
@@ -1998,13 +2052,13 @@ class AVE_Document
 						echo "<script>window.opener.location.reload(); window.close();</script>";
 					}
 					else
-					{
-						$message = $AVE_Template->get_config_vars('DOCUMENT_SAVED');
-						$header = $AVE_Template->get_config_vars('DOC_REV_SUCCESS');
-						$theme = 'accept';
-						echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
-						exit;
-					}
+						{
+							$message = $AVE_Template->get_config_vars('DOCUMENT_SAVED');
+							$header = $AVE_Template->get_config_vars('DOC_REV_SUCCESS');
+							$theme = 'accept';
+							echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
+							exit;
+						}
 				}
 				else
 				{
@@ -2013,14 +2067,14 @@ class AVE_Document
 					{
 						header('Location:index.php?do=docs&action=after&document_id=' . $document_id . '&rubric_id=' . $row->rubric_id . '&cp=' . SESSION);
 					}
-					else
-					{
-						$message = $AVE_Template->get_config_vars('DOCUMENT_SAVED');
-						$header = $AVE_Template->get_config_vars('DOC_REV_SUCCESS');
-						$theme = 'accept';
-						echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
-						exit;
-					}
+						else
+						{
+							$message = $AVE_Template->get_config_vars('DOCUMENT_SAVED');
+							$header = $AVE_Template->get_config_vars('DOC_REV_SUCCESS');
+							$theme = 'accept';
+							echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
+							exit;
+						}
 				}
 				exit;
 
@@ -2436,8 +2490,10 @@ class AVE_Document
 				// Выполняем запрос к БД на получение данных о документе
 				$document = $AVE_DB->Query("
 					SELECT *
-					FROM " . PREFIX . "_documents
-					WHERE Id = '" . $document_id . "'
+					FROM
+						" . PREFIX . "_documents
+					WHERE
+						Id = '" . $document_id . "'
 				")->FetchRow();
 
 				$show = true;
@@ -2479,9 +2535,9 @@ class AVE_Document
 						$document->dontChangeStatus = 0;
 					}
 					else
-					{
-						$document->dontChangeStatus = 1;
-					}
+						{
+							$document->dontChangeStatus = 1;
+						}
 
 					// Выполняем запрос к БД и получаем все данные для полей документа
 					$sql = $AVE_DB->Query("
@@ -2512,15 +2568,16 @@ class AVE_Document
 
 					while ($row = $sql->FetchRow())
 					{
-						//$row->Feld = $this->_documentFieldGet($row->rubric_field_type, (string)$row->field_value.(string)$row->more, $row->Id, $row->rubric_field_default);
 						$row->field_value = (string)$row->field_value . (string)$row->field_value_more;
 						$row->field = $this->_documentFieldGet($row->rubric_field_type, $row->field_value, $row->Id, $row->rubric_field_default);
 						array_push($fields, $row);
 					}
 
 					$maxId = $AVE_DB->Query("
-						SELECT MAX(Id)
-						FROM " . PREFIX . "_documents
+						SELECT
+							MAX(Id)
+						FROM
+							" . PREFIX . "_documents
 					")->GetCell();
 
 					foreach ($fields as $field)
@@ -2551,7 +2608,8 @@ class AVE_Document
 					$document->document_published = time();
 					$document->document_expire = mktime(date("H"), date("i"), 0, date("m"), date("d"), date("Y") + 10);
 
-					if ($document->document_parent != 0) $document->parent = $AVE_DB->Query("SELECT document_title, Id FROM " . PREFIX . "_documents WHERE Id = '".$document->document_parent."' ")->FetchRow();
+					if ($document->document_parent != 0)
+						$document->parent = $AVE_DB->Query("SELECT document_title, Id FROM " . PREFIX . "_documents WHERE Id = '" . $document->document_parent . "' ")->FetchRow();
 
 					$AVE_Template->assign('document', $document);
 
@@ -2559,10 +2617,10 @@ class AVE_Document
 					$AVE_Template->assign('content', $AVE_Template->fetch('documents/form.tpl'));
 				}
 				else // Если пользователь не имеет прав на редактирование, формируем сообщение об ошибке
-				{
-					$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('DOC_NO_PERMISSION'));
-					$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
-				}
+					{
+						$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('DOC_NO_PERMISSION'));
+						$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
+					}
 				break;
 		}
 	}
@@ -2582,8 +2640,10 @@ class AVE_Document
 				Id,
 				rubric_id,
 				document_author_id
-			FROM " . PREFIX . "_documents
-			WHERE Id = '" . $document_id . "'
+			FROM
+				" . PREFIX . "_documents
+			WHERE
+				Id = '" . $document_id . "'
 		")->FetchRow();
 
 		// Если у пользователя достаточно прав на выполнение данной операции
@@ -2602,9 +2662,12 @@ class AVE_Document
 			{
 				// Выполняем запрос к БД на обновление данных (пометка на удаление)
 				$AVE_DB->Query("
-					UPDATE " . PREFIX . "_documents
-					SET document_deleted = '1'
-					WHERE Id = '" . $document_id . "'
+					UPDATE
+						" . PREFIX . "_documents
+					SET
+						document_deleted = '1'
+					WHERE
+						Id = '" . $document_id . "'
 				");
 
 				$AVE_DB->clearcache('rub_'.$row->rubric_id);
@@ -2632,14 +2695,19 @@ class AVE_Document
 		// Выполняем запрос к БД на обновление информации (снятие отметки об удалении)
 		$row = $AVE_DB->Query("
 			SELECT *
-			FROM " . PREFIX . "_documents
-			WHERE Id = '" . $document_id . "'
+			FROM
+				" . PREFIX . "_documents
+			WHERE
+				Id = '" . $document_id . "'
 		")->FetchRow();
 
 		$AVE_DB->Query("
-			UPDATE " . PREFIX . "_documents
-			SET document_deleted = '0'
-			WHERE Id = '" . $document_id . "'
+			UPDATE
+				" . PREFIX . "_documents
+			SET
+				document_deleted = '0'
+			WHERE
+				Id = '" . $document_id . "'
 		");
 
 		// Сохраняем системное сообщение в журнал
@@ -2667,8 +2735,10 @@ class AVE_Document
 		{
 			$row = $AVE_DB->Query("
 				SELECT *
-				FROM " . PREFIX . "_documents
-				WHERE Id = '" . $document_id . "'
+				FROM
+					" . PREFIX . "_documents
+				WHERE
+					Id = '" . $document_id . "'
 			")->FetchRow();
 
 			// Выполняем запрос к БД на удаление информации о документе
@@ -2683,8 +2753,8 @@ class AVE_Document
 			// Выполняем запрос к БД на удаление полей, которые относились к документу
 			$AVE_DB->Query("
 				DELETE
-					   f1.*,
-					   f2.*
+					f1.*,
+					f2.*
 				FROM
 					" . PREFIX . "_document_fields AS f1
 				INNER JOIN
@@ -2739,8 +2809,10 @@ class AVE_Document
 				Id,
 				rubric_id,
 				document_author_id
-			FROM " . PREFIX . "_documents
-			WHERE Id = '" . $document_id . "'
+			FROM
+				" . PREFIX . "_documents
+			WHERE
+				Id = '" . $document_id . "'
 		")->FetchRow();
 
 		// Проверяем права доступа к документу
@@ -2808,9 +2880,12 @@ class AVE_Document
 				{
 					// Выполянем запрос к БД на смену статуса у документа
 					$AVE_DB->Query("
-						UPDATE " . PREFIX . "_documents
-						SET document_status = '" . $openclose . "'
-						WHERE Id = '" . $document_id . "'
+						UPDATE
+							" . PREFIX . "_documents
+						SET
+							document_status = '" . $openclose . "'
+						WHERE
+							Id = '" . $document_id . "'
 					");
 
 					$AVE_DB->clearcache('rub_'.$row->rubric_id);
@@ -2820,47 +2895,53 @@ class AVE_Document
 					// Сохраняем системное сообщение в журнал
 					reportLog($_SESSION['user_name'] . ' - ' . (($openclose==1) ? $AVE_Template->get_config_vars('DOC_DOCUMENT_ACT') : $AVE_Template->get_config_vars('DOC_DOCUMENT_DISACT')) . ' ' . $AVE_Template->get_config_vars('DOC_DOCUMENT_DOC') . ' (' . $document_id . ')', 2, 2);
 
-				}else{
+				}
+				else
+					{
+						$errors[] = $AVE_Template->get_config_vars('DOC_DOCUMENT_OPEN_ERR');
+					}
 
-					$errors[] = $AVE_Template->get_config_vars('DOC_DOCUMENT_OPEN_ERR');
+			}
+			else
+				{
+					$errors[] = $AVE_Template->get_config_vars('DOC_DOCUMENT_OPEN_PRIVE');
 				}
 
-			}else{
-
-				$errors[] = $AVE_Template->get_config_vars('DOC_DOCUMENT_OPEN_PRIVE');
-			}
-
-			if (isset($_REQUEST['ajax'])) {
-
+			if (isset($_REQUEST['ajax']))
+			{
 				if (empty($errors))
 				{
 					// Если ошибок не найдено, формируем сообщение об успешной операции
 					echo json_encode(array((($openclose==1) ? $AVE_Template->get_config_vars('DOC_DOCUMENT_OPEN') : $AVE_Template->get_config_vars('DOC_DOCUMENT_CLOSE')) . implode(',<br />', $errors), 'accept'));
-				}else{
-
-					// В противном случае формируем сообщение с ошибкой
-					echo json_encode(array($AVE_Template->get_config_vars('DOC_URL_CHECK_ER') . implode(',<br />', $errors), 'error'));
-
 				}
+				else
+					{
+						// В противном случае формируем сообщение с ошибкой
+						echo json_encode(array($AVE_Template->get_config_vars('DOC_URL_CHECK_ER') . implode(',<br />', $errors), 'error'));
+
+					}
 
 				$AVE_DB->clearcache('rub_'.$row->rubric_id);
 				$AVE_DB->clearcache('doc_'.$document_id);
 				$AVE_DB->clearcompile('doc_'.$document_id);
 				exit;
 
-			}else{
-
-				$AVE_DB->clearcache('rub_'.$row->rubric_id);
-				$AVE_DB->clearcache('doc_'.$document_id);
-				$AVE_DB->clearcompile('doc_'.$document_id);
-				// Выполняем обновление страницы
-				header('Location:index.php?do=docs'.(empty($_REQUEST['rubric_id']) ? '' : '&rubric_id='.$_REQUEST['rubric_id']).'&cp=' . SESSION);
+			}
+			else
+				{
+					$AVE_DB->clearcache('rub_'.$row->rubric_id);
+					$AVE_DB->clearcache('doc_'.$document_id);
+					$AVE_DB->clearcompile('doc_'.$document_id);
+					// Выполняем обновление страницы
+					header('Location:index.php?do=docs'.(empty($_REQUEST['rubric_id']) ? '' : '&rubric_id='.$_REQUEST['rubric_id']).'&cp=' . SESSION);
+					exit;
+				}
+		}
+		else
+			{
+				header('Location:index.php?do=docs&cp=' . SESSION);
 				exit;
 			}
-		} else {
-			header('Location:index.php?do=docs&cp=' . SESSION);
-			exit;
-		}
 	}
 
 	/**
@@ -2892,7 +2973,7 @@ class AVE_Document
 
 		// Если в запросе пришел идентификатор новой рубрики и id документа, тогда
 		// выполняем автоматический перенос документа из одной рубрики в другую
-		if ((!empty($_POST['NewRubr'])) and (!empty($_GET['Id'])))
+		if ((! empty($_POST['NewRubr'])) and (! empty($_GET['Id'])))
 		{
 			$new_rubric_id = (int)$_POST['NewRubr']; // идентификатор целевой рубрики
 
@@ -2909,15 +2990,22 @@ class AVE_Document
 							// Выполняем запрос к БД на удаление старого поля (лишнее или не требует переноса)
 							$AVE_DB->Query("
 								DELETE
-								FROM " . PREFIX . "_document_fields
-								WHERE document_id = '" . $document_id . "'
-								AND rubric_field_id = '" . $key . "'
+								FROM
+									" . PREFIX . "_document_fields
+								WHERE
+									document_id = '" . $document_id . "'
+								AND
+									rubric_field_id = '" . $key . "'
 							");
+
 							$AVE_DB->Query("
 								DELETE
-								FROM " . PREFIX . "_document_fields_text
-								WHERE document_id = '" . $document_id . "'
-								AND rubric_field_id = '" . $key . "'
+								FROM
+									" . PREFIX . "_document_fields_text
+								WHERE
+									document_id = '" . $document_id . "'
+								AND
+									rubric_field_id = '" . $key . "'
 							");
 							break;
 
@@ -2928,24 +3016,32 @@ class AVE_Document
 								SELECT
 									rubric_field_title,
 									rubric_field_type
-								FROM " . PREFIX . "_rubric_fields
-								WHERE Id = '" . $key . "'
+								FROM
+									" . PREFIX . "_rubric_fields
+								WHERE
+									Id = '" . $key . "'
 							")->FetchRow();
 
 							// Выполняем запрос к БД и получаем последнюю позицию полей в рубрики КУДА переносим
 							$new_pos = $AVE_DB->Query("
-								SELECT rubric_field_position
-								FROM " . PREFIX . "_rubric_fields
-								WHERE rubric_id = '" . $new_rubric_id . "'
-								ORDER BY rubric_field_position DESC
+								SELECT
+									rubric_field_position
+								FROM
+									" . PREFIX . "_rubric_fields
+								WHERE
+									rubric_id = '" . $new_rubric_id . "'
+								ORDER BY
+									rubric_field_position DESC
 								LIMIT 1
 							")->GetCell();
+
 							++$new_pos;
 
 							// Выполняем запрос к БД и добавляем новое поле в новую рубрику
 							$AVE_DB->Query("
 								INSERT
-								INTO " . PREFIX . "_rubric_fields
+								INTO
+									" . PREFIX . "_rubric_fields
 								SET
 									rubric_id             = '" . $new_rubric_id . "',
 									rubric_field_title    = '" . addslashes($row_fd->rubric_field_title) . "',
@@ -2958,15 +3054,18 @@ class AVE_Document
 							// Выполняем запрос к БД и добавляем запись о поле в таблицу с полями документов
 							$sql_docs = $AVE_DB->Query("
 								SELECT Id
-								FROM " . PREFIX . "_documents
-								WHERE rubric_id = '" . $new_rubric_id . "'
+								FROM
+									" . PREFIX . "_documents
+								WHERE
+									rubric_id = '" . $new_rubric_id . "'
 							");
 
 							while ($row_docs = $sql_docs->FetchRow())
 							{
 								$AVE_DB->Query("
 									INSERT
-									INTO " . PREFIX . "_document_fields
+									INTO
+										" . PREFIX . "_document_fields
 									SET
 										rubric_field_id    = '" . $lastid . "',
 										document_id        = '" . $row_docs->Id . "',
@@ -2977,16 +3076,24 @@ class AVE_Document
 
 							// Выполняем запрос к БД и создаем новое поле для изменяемого документа
 							$AVE_DB->Query("
-								UPDATE " . PREFIX . "_document_fields
-								SET rubric_field_id   = '" . $lastid . "'
-								WHERE rubric_field_id = '" . $key . "'
-								AND document_id       = '" . $document_id . "'
+								UPDATE
+									" . PREFIX . "_document_fields
+								SET
+									rubric_field_id = '" . $lastid . "'
+								WHERE
+									rubric_field_id = '" . $key . "'
+								AND
+									document_id = '" . $document_id . "'
 							");
 							$AVE_DB->Query("
-								UPDATE " . PREFIX . "_document_fields_text
-								SET rubric_field_id   = '" . $lastid . "'
-								WHERE rubric_field_id = '" . $key . "'
-								AND document_id       = '" . $document_id . "'
+								UPDATE
+									" . PREFIX . "_document_fields_text
+								SET
+									rubric_field_id = '" . $lastid . "'
+								WHERE
+									rubric_field_id = '" . $key . "'
+								AND
+									document_id = '" . $document_id . "'
 							");
 							break;
 
@@ -2994,16 +3101,25 @@ class AVE_Document
 						default:
 							// Выполняем запрос к БД и просто обновляем имеющиеся данные
 							$AVE_DB->Query("
-								UPDATE " . PREFIX . "_document_fields
-								SET rubric_field_id   = '" . $value . "'
-								WHERE rubric_field_id = '" . $key . "'
-								AND document_id       = '" . $document_id . "'
+								UPDATE
+									" . PREFIX . "_document_fields
+								SET
+									rubric_field_id = '" . $value . "'
+								WHERE
+									rubric_field_id = '" . $key . "'
+								AND
+									document_id = '" . $document_id . "'
 							");
+
 							$AVE_DB->Query("
-								UPDATE " . PREFIX . "_document_fields_text
-								SET rubric_field_id   = '" . $value . "'
-								WHERE rubric_field_id = '" . $key . "'
-								AND document_id       = '" . $document_id . "'
+								UPDATE
+									" . PREFIX . "_document_fields_text
+								SET
+									rubric_field_id = '" . $value . "'
+								WHERE
+									rubric_field_id = '" . $key . "'
+								AND
+									document_id = '" . $document_id . "'
 							");
 							break;
 					}
@@ -3013,9 +3129,12 @@ class AVE_Document
 			// Выполняем запрос к БД и получаем список всех полей у новой рубрики
 			$sql_rub = $AVE_DB->Query("
 				SELECT Id
-				FROM " . PREFIX . "_rubric_fields
-				WHERE rubric_id = '" . $new_rubric_id . "'
-				ORDER BY Id ASC
+				FROM
+					" . PREFIX . "_rubric_fields
+				WHERE
+					rubric_id = '" . $new_rubric_id . "'
+				ORDER BY
+					Id ASC
 			");
 
 			// Выполняем запросы к БД на проверку наличия нужных полей.
@@ -3023,9 +3142,12 @@ class AVE_Document
 			{
 				$num = $AVE_DB->Query("
 					SELECT 1
-					FROM " . PREFIX . "_document_fields
-					WHERE rubric_field_id = '" . $row_rub->Id . "'
-					AND document_id = '" . $document_id . "'
+					FROM
+						" . PREFIX . "_document_fields
+					WHERE
+						rubric_field_id = '" . $row_rub->Id . "'
+					AND
+						document_id = '" . $document_id . "'
 					LIMIT 1
 				")->NumRows();
 
@@ -3033,7 +3155,8 @@ class AVE_Document
 				if ($num != 1)
 				{
 					$AVE_DB->Query("
-						INSERT " . PREFIX . "_document_fields
+						INSERT
+							" . PREFIX . "_document_fields
 						SET
 							rubric_field_id    = '" . $row_rub->Id . "',
 							document_id        = '" . $document_id . "',
@@ -3046,16 +3169,21 @@ class AVE_Document
 			// Выполянем запрос к БД на обновление информации, в котором устанавливаем для перенесенного документа
 			// новое значение id рубрики
 			$AVE_DB->Query("
-				UPDATE " . PREFIX . "_documents
-				SET rubric_id = '" . $new_rubric_id . "'
-				WHERE Id = '" . $document_id . "'
+				UPDATE
+					" . PREFIX . "_documents
+				SET
+					rubric_id = '" . $new_rubric_id . "'
+				WHERE
+					Id = '" . $document_id . "'
 			");
 
 			// Выполняем запрос к БД и очищаем кэш шаблона документа
 			$AVE_DB->Query("
 				DELETE
-				FROM " . PREFIX . "_rubric_template_cache
-				WHERE doc_id = '" . $document_id . "'
+				FROM
+					" . PREFIX . "_rubric_template_cache
+				WHERE
+					doc_id = '" . $document_id . "'
 			");
 
 			echo '<script>window.opener.location.reload(); window.close();</script>';
@@ -3065,7 +3193,7 @@ class AVE_Document
 			// Формируем и отображаем форму, где пользователь самостоятельно определяет перенос
 			$fields = array();
 
-			if ((!empty($_GET['NewRubr'])) and ($rubric_id != (int)$_GET['NewRubr']))
+			if ((! empty($_GET['NewRubr'])) and ($rubric_id != (int)$_GET['NewRubr']))
 			{
 				// Выполняем запрос к БД  и выбираем все поля новой рубрики
 				$sql_rub = $AVE_DB->Query("
@@ -3073,11 +3201,15 @@ class AVE_Document
 						Id,
 						rubric_field_title,
 						rubric_field_type
-					FROM " . PREFIX . "_rubric_fields
-					WHERE rubric_id = '" . (int)$_GET['NewRubr'] . "'
-					ORDER BY Id ASC
+					FROM
+						" . PREFIX . "_rubric_fields
+					WHERE
+						rubric_id = '" . (int)$_GET['NewRubr'] . "'
+					ORDER BY
+						Id ASC
 				");
 				$mass_new_rubr = array();
+
 				while ($row_rub = $sql_rub->FetchRow())
 				{
 					$mass_new_rubr[] = array('Id'                => $row_rub->Id,
@@ -3092,9 +3224,12 @@ class AVE_Document
 						Id,
 						rubric_field_title,
 						rubric_field_type
-					FROM " . PREFIX . "_rubric_fields
-					WHERE rubric_id = '" . $rubric_id . "'
-					ORDER BY Id ASC
+					FROM
+						" . PREFIX . "_rubric_fields
+					WHERE
+						rubric_id = '" . $rubric_id . "'
+					ORDER BY
+						Id ASC
 				");
 
 				// Циклически обрабатываем полученные данные
@@ -3109,7 +3244,9 @@ class AVE_Document
 						if ($row['rubric_field_type'] == $type)
 						{
 							$option_arr[$row['Id']] = $row['title'];
-							if ($row_nr->rubric_field_title == $row['title']) $selected = $row['Id'];
+
+							if ($row_nr->rubric_field_title == $row['title'])
+								$selected = $row['Id'];
 						}
 					}
 					$fields[$row_nr->Id] = array('title'    => $row_nr->rubric_field_title,
@@ -3146,8 +3283,10 @@ class AVE_Document
 			SELECT
 				rubric_id,
 				rubric_permission
-			FROM " . PREFIX . "_rubric_permissions
-			WHERE user_group_id = '" . UGROUP . "'
+			FROM
+				" . PREFIX . "_rubric_permissions
+			WHERE
+				user_group_id = '" . UGROUP . "'
 		");
 
 		// Циклически обрабатываем полученные данные и формируем массив прав
@@ -3159,7 +3298,7 @@ class AVE_Document
 
 			foreach ($permissions as $rubric_permission)
 			{
-				if (!empty($rubric_permission))
+				if (! empty($rubric_permission))
 				{
 					$_SESSION[$row->rubric_id . '_' . $rubric_permission] = 1;
 				}
@@ -3177,7 +3316,8 @@ class AVE_Document
 		global $AVE_DB, $AVE_Template, $AVE_Core;
 
 		// Если id документа не число или 0, прерываем выполнение
-		if (!(is_numeric($document_id) && $document_id > 0)) exit;
+		if (! (is_numeric($document_id) && $document_id > 0))
+			exit;
 
 		$document_title = get_document($document_id, 'document_title');
 		$AVE_Template->assign('document_title', $document_title);
@@ -3190,7 +3330,8 @@ class AVE_Document
 			{
 				// Выполняем запрос к БД на добавление новой заметки для документа
 				$AVE_DB->Query("
-					INSERT " . PREFIX . "_document_remarks
+					INSERT
+						" . PREFIX . "_document_remarks
 					SET
 						document_id         = '" . $document_id . "',
 						remark_title        = '" . clean_no_print_char($_REQUEST['remark_title']) . "',
@@ -3212,19 +3353,24 @@ class AVE_Document
 			if (isset($_REQUEST['sub']) && $_REQUEST['sub'] == 'save')
 			{
 				// Если пользователь оставил ответ и имеет на это права
-				if (!empty($_REQUEST['remark_text']) && check_permission('remarks'))
+				if (! empty($_REQUEST['remark_text']) && check_permission('remarks'))
 				{
 					// Выполняем запрос на получение e-mail адреса автора заметки
 					$remark_author_email = $AVE_DB->Query("
-						SELECT remark_author_email
-						FROM  " . PREFIX . "_document_remarks
-						WHERE remark_first = '1'
-						AND document_id = '" . $document_id . "'
+						SELECT
+							remark_author_email
+						FROM
+							" . PREFIX . "_document_remarks
+						WHERE
+							remark_first = '1'
+						AND
+							document_id = '" . $document_id . "'
 					")->GetCell();
 
 					// Выполняем запрос к БД на добавление заметки в БД
 					$AVE_DB->Query("
-						INSERT " . PREFIX . "_document_remarks
+						INSERT
+							" . PREFIX . "_document_remarks
 						SET
 							document_id         = '" . $document_id . "',
 							remark_title        = '" . clean_no_print_char($_REQUEST['remark_title']) . "',
@@ -3268,7 +3414,7 @@ class AVE_Document
 
 			// Определяыем лимит заметок на 1 странице и подсчитываем количество страниц
 			$limit = 10;
-			$seiten = ceil($num / $limit);
+			$pages = ceil($num / $limit);
 			$start = get_current_page() * $limit - $limit;
 
 			$answers = array();
@@ -3276,11 +3422,15 @@ class AVE_Document
 			// Выполняем запрос к БД на получение заметок с учетом количества на 1 странцу
 			$sql = $AVE_DB->Query("
 				SELECT *
-				FROM " . PREFIX . "_document_remarks
-				WHERE document_id = '" . $document_id . "'
-				ORDER BY Id DESC
+				FROM
+					" . PREFIX . "_document_remarks
+				WHERE
+					document_id = '" . $document_id . "'
+				ORDER BY
+					Id DESC
 				LIMIT " . $start . "," . $limit
 			);
+
 			while ($row = $sql->FetchAssocArray())
 			{
 				$row['remark_author'] = get_username_by_id($row['remark_author_id']);
@@ -3290,10 +3440,14 @@ class AVE_Document
 			}
 
 			$remark_status = $AVE_DB->Query("
-				SELECT remark_status
-				FROM " . PREFIX . "_document_remarks
-				WHERE document_id = '" . $document_id . "'
-				AND remark_first = '1'
+				SELECT
+					remark_status
+				FROM
+					" . PREFIX . "_document_remarks
+				WHERE
+					document_id = '" . $document_id . "'
+				AND
+					remark_first = '1'
 			")->GetCell();
 
 			// Если количество заметок превышает допустимое значение, определенное в переменной $limit, тогда
@@ -3301,7 +3455,7 @@ class AVE_Document
 			if ($num > $limit)
 			{
 				$page_nav = "<li><a href=\"index.php?do=docs&action=remark_reply&Id=" . $document_id . "&page={s}&pop=1&cp=" . SESSION . "\">{t}</a></li>";
-				$page_nav = get_pagination($seiten, 'page', $page_nav);
+				$page_nav = get_pagination($pages, 'page', $page_nav);
 				$AVE_Template->assign('page_nav', $page_nav);
 			}
 
@@ -3314,12 +3468,12 @@ class AVE_Document
 			$AVE_Template->assign('content', $AVE_Template->fetch('documents/newremark.tpl'));
 		}
 		else
-		{ // В противном случае, если заметок еще нет, открываем форму для добавление заметки
-			$AVE_Template->assign('reply', 1);
-			$AVE_Template->assign('new', 1);
-			$AVE_Template->assign('formaction', 'index.php?do=docs&action=remark&sub=save&Id=' . $document_id . '&cp=' . SESSION);
-			$AVE_Template->assign('content', $AVE_Template->fetch('documents/newremark.tpl'));
-		}
+			{ // В противном случае, если заметок еще нет, открываем форму для добавление заметки
+				$AVE_Template->assign('reply', 1);
+				$AVE_Template->assign('new', 1);
+				$AVE_Template->assign('formaction', 'index.php?do=docs&action=remark&sub=save&Id=' . $document_id . '&cp=' . SESSION);
+				$AVE_Template->assign('content', $AVE_Template->fetch('documents/newremark.tpl'));
+			}
 	}
 
 	/**
@@ -3338,10 +3492,14 @@ class AVE_Document
 		{
 			// Выполняем запрос к БД на обновление статуса у заметок
 			$AVE_DB->Query("
-				UPDATE " . PREFIX . "_document_remarks
-				SET remark_status  = '" . ($status != 1 ? 0 : 1) . "'
-				WHERE remark_first = '1'
-				AND document_id    = '" . $document_id . "'
+				UPDATE
+					" . PREFIX . "_document_remarks
+				SET
+					remark_status  = '" . ($status != 1 ? 0 : 1) . "'
+				WHERE
+					remark_first = '1'
+				AND
+					document_id = '" . $document_id . "'
 			");
 		}
 
@@ -3360,7 +3518,8 @@ class AVE_Document
 		global $AVE_DB;
 
 		// Если id документа не число или 0, прерываем выполнение
-		if (!(is_numeric($document_id) && $document_id > 0)) exit;
+		if (! (is_numeric($document_id) && $document_id > 0))
+			exit;
 
 		// Если в запросе пришел параметр на удаление всех заметок
 		if ($all == 1)
@@ -3380,7 +3539,7 @@ class AVE_Document
 		}
 		else
 		{
-			if (!(isset($_REQUEST['CId']) && is_numeric($_REQUEST['CId']) && $_REQUEST['CId'] > 0))
+			if (! (isset($_REQUEST['CId']) && is_numeric($_REQUEST['CId']) && $_REQUEST['CId'] > 0))
 				exit;
 
 			// В противном случае, выполняем запрос к БД и удаляем только ту заметку, которая была выбрана
@@ -3450,16 +3609,15 @@ class AVE_Document
 				")->FetchArray();
 			}
 			else
-			{
-				$navigation_id = (isset($_REQUEST['navi_id']) && (int)$_REQUEST['navi_id'] > 0) ? (int)$_REQUEST['navi_id'] : 1;
-				$status  = 1;
-				$level   = 1;
-			}
+				{
+					$navigation_id = (isset($_REQUEST['navi_id']) && (int)$_REQUEST['navi_id'] > 0) ? (int)$_REQUEST['navi_id'] : 1;
+					$status  = 1;
+					$level   = 1;
+				}
 
 			$target = (isset($_REQUEST['navi_item_target']) && $_REQUEST['navi_item_target'] == '_blank') ? '_blank' : '_self';
 
 			$position = empty($_REQUEST['navi_item_position']) ? 1 : (int)$_REQUEST['navi_item_position'];
-
 
 			if ($level > 3)
 				$level = '3';
@@ -3467,7 +3625,8 @@ class AVE_Document
 			// Добавляем информации о новой связке Документ<->Пункт меню
 			$AVE_DB->Query("
 				INSERT
-				INTO " . PREFIX . "_navigation_items
+				INTO
+					" . PREFIX . "_navigation_items
 				SET
 					title              = '" . $title . "',
 					document_id        = '" . $document_id . "',
@@ -3505,9 +3664,12 @@ class AVE_Document
 					rubric_id,
 					document_title AS document_title,
 					'" . $innavi . "' AS innavi
-				FROM " . PREFIX . "_documents
-				WHERE Id = '" . $document_id . "'
-				AND rubric_id = '" . $rubric_id . "'
+				FROM
+					" . PREFIX . "_documents
+				WHERE
+					Id = '" . $document_id . "'
+				AND
+					rubric_id = '" . $rubric_id . "'
 				LIMIT 1
 			")->FetchAssocArray();
 		}
@@ -3546,6 +3708,7 @@ class AVE_Document
 			");
 
 			$username = get_username_by_id($_REQUEST['user_id']);
+
 			echo "
 				<script>
 					window.opener.document.getElementById('doc_id_". $_REQUEST['doc_id'] ."').textContent = '$username';
@@ -3564,28 +3727,40 @@ class AVE_Document
 	{
 		global $AVE_DB, $AVE_Template;
 
-		if(check_permission('document_php')){
-
+		if (check_permission('document_php'))
+		{
 			$sql = $AVE_DB->Query("
 				TRUNCATE TABLE " . PREFIX . "_document_rev
 			");
 
-			if ($sql->_result === false) {
+			if ($sql->_result === false)
+			{
 				$message = $AVE_Template->get_config_vars('SETTINGS_REV_DELETED_ERR');
 				$header = $AVE_Template->get_config_vars('SETTINGS_ERROR');
 				$theme = 'error';
-			} else {
-				$message = $AVE_Template->get_config_vars('SETTINGS_REV_DELETED');
-				$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
-				$theme = 'accept';
-				reportLog($AVE_Template->get_config_vars('SETTINGS_REV_UPDATE'));
 			}
+			else
+				{
+					$message = $AVE_Template->get_config_vars('SETTINGS_REV_DELETED');
+					$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
+					$theme = 'accept';
+					reportLog($AVE_Template->get_config_vars('SETTINGS_REV_UPDATE'));
+				}
 
-			if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] = 'run') {
-				echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
-			} else {
-				header('Location:index.php?do=settings&cp=' . SESSION);
+			if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] = 'run')
+			{
+				echo json_encode(
+					array(
+						'message' => $message,
+						'header' => $header,
+						'theme' => $theme
+					)
+				);
 			}
+			else
+				{
+					header('Location:index.php?do=settings&cp=' . SESSION);
+				}
 		}
 		exit;
 	}
@@ -3598,28 +3773,41 @@ class AVE_Document
 	{
 		global $AVE_DB, $AVE_Template;
 
-		if(check_permission('gen_settings')){
-
+		if (check_permission('gen_settings'))
+		{
 			$sql = $AVE_DB->Query("
-				TRUNCATE TABLE " . PREFIX . "_view_count
+				TRUNCATE TABLE
+					" . PREFIX . "_view_count
 			");
 
-			if ($sql->_result === false) {
+			if ($sql->_result === false)
+			{
 				$message = $AVE_Template->get_config_vars('SETTINGS_COUNT_DELETED_ERR');
 				$header = $AVE_Template->get_config_vars('SETTINGS_ERROR');
 				$theme = 'error';
-			}else{
-				$message = $AVE_Template->get_config_vars('SETTINGS_COUNT_DELETED');
-				$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
-				$theme = 'accept';
-				reportLog($AVE_Template->get_config_vars('SETTINGS_COUNT_UPDATE'));
 			}
+			else
+				{
+					$message = $AVE_Template->get_config_vars('SETTINGS_COUNT_DELETED');
+					$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
+					$theme = 'accept';
+					reportLog($AVE_Template->get_config_vars('SETTINGS_COUNT_UPDATE'));
+				}
 
-			if (isAjax()) {
-				echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
-			} else {
-				header('Location:index.php?do=settings&cp=' . SESSION);
+			if (isAjax())
+			{
+				echo json_encode(
+					array(
+						'message' => $message,
+						'header' => $header,
+						'theme' => $theme
+					)
+				);
 			}
+			else
+				{
+					header('Location:index.php?do=settings&cp=' . SESSION);
+				}
 		}
 		exit;
 	}
@@ -3636,7 +3824,8 @@ class AVE_Document
 		$title  = empty($_REQUEST['title'])  ? '' : $_REQUEST['title'];
 		$title  = (URL_YANDEX==true) ? y_translate($title) : prepare_url($title);
 
-		if ($alias != $title && $alias != trim($prefix . '/' . $title, '/')) $alias = trim($alias . '/' . $title, '/');
+		if ($alias != $title && $alias != trim($prefix . '/' . $title, '/'))
+			$alias = trim($alias . '/' . $title, '/');
 
 		return $alias;
 	}
@@ -3658,7 +3847,7 @@ class AVE_Document
 		$errors = array();
 
 		// Если указанный URL пользователем не пустой
-		if (!empty($document_alias))
+		if (! empty($document_alias))
 		{
 			// Проверяем, чтобы данный URL соответствовал требованиям
 			if (preg_match(TRANSLIT_URL ? '/[^\.a-z0-9\/_-]+/' : '/^[^0-9A-Za-zА-Яа-яЁё]+$/u', $document_alias))
@@ -3667,14 +3856,18 @@ class AVE_Document
 			}
 
 			// Если URL начинается с "/" - фиксируем ошибку
-			if ($document_alias[0] == '/') $errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_START');
+			if ($document_alias[0] == '/')
+				$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_START');
 
 			// Если суффикс URL заканчивается на "/" и URL заканчивается на "/" - фиксируем ошибку
-			if (substr(URL_SUFF, 0, 1) == '/' && substr($document_alias, -1) == '/') $errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_END');
+			if (substr(URL_SUFF, 0, 1) == '/' && substr($document_alias, -1) == '/')
+				$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_END');
 
 			// Если в URL используются слова apage-XX, artpage-XX,page-XX,print, фиксируем ошибку, где ХХ - число
 			$matches = preg_grep('/^(apage-\d+|artpage-\d+|page-\d+|print)$/i', explode('/', $document_alias));
-			if (!empty($matches)) $errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_SEGMENT') . implode(', ', $matches);
+
+			if (! empty($matches))
+				$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_SEGMENT') . implode(', ', $matches);
 
 			$and_docs = (($check === false) ? "AND Id != '" . $document_id . "'" : '');
 			//$and_aliace = (($check === true) ? "AND document_id != '" . $document_id . "'" : '');
@@ -3685,30 +3878,36 @@ class AVE_Document
 			{
 				$alias_exist = $AVE_DB->Query("
 					SELECT 1
-					FROM " . PREFIX . "_documents
-					WHERE document_alias = '" . $document_alias . "'
-					$and_docs
+					FROM
+						" . PREFIX . "_documents
+					WHERE
+						document_alias = '" . $document_alias . "'
+						$and_docs
 					LIMIT 1
 				")->NumRows();
 
-				if ($alias_exist) $errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_DUPLICATES');
+				if ($alias_exist)
+					$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_DUPLICATES');
 
 				$alias_exist = $AVE_DB->Query("
 					SELECT 1
-					FROM " . PREFIX . "_document_alias_history
-					WHERE document_alias = '" . $document_alias . "'
-					$and_alias_id
+					FROM
+						" . PREFIX . "_document_alias_history
+					WHERE
+						document_alias = '" . $document_alias . "'
+						$and_alias_id
 					LIMIT 1
 				")->NumRows();
 
-				if ($alias_exist) $errors[] = $AVE_Template->get_config_vars('DOC_URL_H_ERROR_DUPLICATES');
+				if ($alias_exist)
+					$errors[] = $AVE_Template->get_config_vars('DOC_URL_H_ERROR_DUPLICATES');
 
 			}
 		}
 		else
-		{  // В противном случае, если URL пустой, формируем сообщение об ошибке
-			$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_EMTY');
-		}
+			{  // В противном случае, если URL пустой, формируем сообщение об ошибке
+				$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_EMTY');
+			}
 
 		// Если ошибок не найдено, формируем сообщение об успешной операции
 		if (empty($errors))
@@ -3716,9 +3915,9 @@ class AVE_Document
 			return json_encode(array($AVE_Template->get_config_vars('DOC_URL_CHECK_OK') . implode(',<br />', $errors), 'accept', $check));
 		}
 		else
-		{ // В противном случае формируем сообщение с ошибкой
-			return json_encode(array($AVE_Template->get_config_vars('DOC_URL_CHECK_ER') . implode(',<br />', $errors), 'error'));
-		}
+			{ // В противном случае формируем сообщение с ошибкой
+				return json_encode(array($AVE_Template->get_config_vars('DOC_URL_CHECK_ER') . implode(',<br />', $errors), 'error'));
+			}
 	}
 
 	/**
@@ -3739,14 +3938,20 @@ class AVE_Document
 				d.document_title,
 				d.document_alias,
 				r.rubric_title
-			FROM " . PREFIX . "_document_alias_history AS h
-			LEFT JOIN " . PREFIX . "_documents AS d
+			FROM
+				" . PREFIX . "_document_alias_history AS h
+			LEFT JOIN
+				" . PREFIX . "_documents AS d
 				ON h.document_id = d.Id
-			LEFT JOIN " . PREFIX . "_rubrics AS r
+			LEFT JOIN
+				" . PREFIX . "_rubrics AS r
 				ON d.rubric_id = r.Id
-			WHERE h.document_id = d.Id
-			GROUP BY h.document_id
-			ORDER BY h.document_alias_changed DESC
+			WHERE
+				h.document_id = d.Id
+			GROUP BY
+				h.document_id
+			ORDER BY
+				h.document_alias_changed DESC
 		");
 
 		$documents = array();
@@ -3774,16 +3979,21 @@ class AVE_Document
 				d.document_title,
 				d.document_alias,
 				r.rubric_title
-			FROM " . PREFIX . "_documents AS d
-			LEFT JOIN " . PREFIX . "_rubrics AS r
+			FROM
+				" . PREFIX . "_documents AS d
+			LEFT JOIN
+				" . PREFIX . "_rubrics AS r
 				ON d.rubric_id = r.Id
-			WHERE d.Id = " . $id . "
+			WHERE
+				d.Id = " . $id . "
 		")->FetchRow();
 
 		$sql = $AVE_DB->Query("
 			SELECT *
-			FROM ".PREFIX."_document_alias_history
-			WHERE document_id = '". $id ."'
+			FROM
+				".PREFIX."_document_alias_history
+			WHERE
+				document_id = '". $id ."'
 		");
 
 		$aliases = array();
@@ -3819,7 +4029,8 @@ class AVE_Document
 
 		$sql = $AVE_DB->Query("
 			INSERT
-			INTO " . PREFIX . "_document_alias_history
+			INTO
+				" . PREFIX . "_document_alias_history
 			SET
 				document_id              = '" . (int)$_REQUEST['doc_id'] . "',
 				document_alias           = '" . trim($_REQUEST['alias']) . "',
@@ -3827,27 +4038,33 @@ class AVE_Document
 				document_alias_changed   = '" . time() . "'
 		");
 
-		if ($sql === false) {
+		if ($sql === false)
+		{
 			$message = $AVE_Template->get_config_vars('DOC_ALIASES_REP_ER_T');
 			$header = $AVE_Template->get_config_vars('DOC_ALIASES_REP_ER');
 			$theme = 'error';
 		}
 		else
-		{
-			$message = $AVE_Template->get_config_vars('DOC_ALIASES_REP_OK_T');
-			$header = $AVE_Template->get_config_vars('DOC_ALIASES_REP_OK');
-			$theme = 'accept';
-			//reportLog($AVE_Template->get_config_vars('RUBRIK_CODE_UPDATE') . " (" . stripslashes(htmlspecialchars($this->rubricNameByIdGet($rubric_id)->rubric_title, ENT_QUOTES)) . ") (id: $rubric_id)");
-		}
+			{
+				$message = $AVE_Template->get_config_vars('DOC_ALIASES_REP_OK_T');
+				$header = $AVE_Template->get_config_vars('DOC_ALIASES_REP_OK');
+				$theme = 'accept';
+			}
 
 		if (isAjax())
 		{
-			echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
+			echo json_encode(
+				array(
+					'message' => $message,
+					'header' => $header,
+					'theme' => $theme
+				)
+			);
 		}
 		else
-		{
-			header('Location:index.php?do=docs&action=aliases_doc&cp=' . SESSION);
-		}
+			{
+				header('Location:index.php?do=docs&action=aliases_doc&cp=' . SESSION);
+			}
 		exit;
 	}
 
@@ -3860,28 +4077,41 @@ class AVE_Document
 		global $AVE_DB, $AVE_Template;
 
 			$sql = $AVE_DB->Query("
-				UPDATE " . PREFIX . "_document_alias_history
-				SET document_alias  = '" . $_REQUEST['alias'] . "'
-				WHERE id = '" . $_REQUEST['id'] . "'
+				UPDATE
+					" . PREFIX . "_document_alias_history
+				SET
+					document_alias  = '" . $_REQUEST['alias'] . "'
+				WHERE
+					id = '" . $_REQUEST['id'] . "'
 			");
 
-			if ($sql === false) {
+			if ($sql === false)
+			{
 				$message = $AVE_Template->get_config_vars('DOC_ALIASES_REP_ER_T_E');
 				$header = $AVE_Template->get_config_vars('DOC_ALIASES_REP_ER');
 				$theme = 'error';
 			}
 			else
-			{
-				$message = $AVE_Template->get_config_vars('DOC_ALIASES_REP_OK_T_E');
-				$header = $AVE_Template->get_config_vars('DOC_ALIASES_REP_OK');
-				$theme = 'accept';
-			}
+				{
+					$message = $AVE_Template->get_config_vars('DOC_ALIASES_REP_OK_T_E');
+					$header = $AVE_Template->get_config_vars('DOC_ALIASES_REP_OK');
+					$theme = 'accept';
+				}
 
-			if (isAjax()) {
-				echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
-			} else {
-				header('Location:index.php?do=docs&action=aliases_doc&cp=' . SESSION);
+			if (isAjax())
+			{
+				echo json_encode(
+					array(
+						'message' => $message,
+						'header' => $header,
+						'theme' => $theme
+					)
+				);
 			}
+			else
+				{
+					header('Location:index.php?do=docs&action=aliases_doc&cp=' . SESSION);
+				}
 
 		exit;
 	}
@@ -3894,12 +4124,16 @@ class AVE_Document
 	{
 		global $AVE_DB, $AVE_Template;
 
-		if (isset($_REQUEST['alias_del'])) {
-			foreach ($_REQUEST['alias_del'] as $id => $val) {
+		if (isset($_REQUEST['alias_del']))
+		{
+			foreach ($_REQUEST['alias_del'] as $id => $val)
+			{
 				$AVE_DB->Query("
 					DELETE
-					FROM " . PREFIX . "_document_alias_history
-					WHERE id = '" . $id . "'
+					FROM
+						" . PREFIX . "_document_alias_history
+					WHERE
+						id = '" . $id . "'
 				");
 			}
 		}
@@ -3915,11 +4149,14 @@ class AVE_Document
 	{
 		global $AVE_DB, $AVE_Template;
 
-		if (isset($_REQUEST['alias_id'])) {
+		if (isset($_REQUEST['alias_id']))
+		{
 			$AVE_DB->Query("
 				DELETE
-				FROM " . PREFIX . "_document_alias_history
-				WHERE id = '" . $_REQUEST['alias_id'] . "'
+				FROM
+					" . PREFIX . "_document_alias_history
+				WHERE
+					id = '" . $_REQUEST['alias_id'] . "'
 			");
 		}
 

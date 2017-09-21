@@ -68,47 +68,79 @@ class AVE_Settings
 		global $AVE_Template;
 
 		// Сохраняем настройки
-		if (@$_REQUEST['more']) {
-			$set='<?php';
-			foreach($_REQUEST['GLOB'] as $k=>$v){
-				switch ($GLOBALS['CMS_CONFIG'][$k]['TYPE']) {
-						case 'bool' : $v=$v ? 'true' : 'false'; break;
-						case 'integer' : $v=intval($v); break;
-						case 'string' : $v="'".add_slashes($v)."'";break;
-						case 'dropdown' : $v="'".add_slashes($v)."'";break;
-						default : $v="'".add_slashes($v)."'";break;
-				}
-				$set.="
-				//".$GLOBALS['CMS_CONFIG'][$k]['DESCR']."\r\n";
-				$set.="	define('".$k."',".$v.");\r\n\r\n";
-			}
-			$set.='?>';
-			$result = file_put_contents(BASE_DIR.'/inc/config.inc.php',$set);
+		if (isset($_REQUEST['more']))
+		{
+			$set = '<?php' . "\r\n\r\n";
 
-			if ($result > 0) {
+			foreach($_REQUEST['GLOB'] as $k => $v)
+			{
+				switch ($GLOBALS['CMS_CONFIG'][$k]['TYPE'])
+				{
+						case 'bool' :
+							$v = $v ? 'true' : 'false';
+						break;
+
+						case 'integer' :
+							$v = intval($v);
+						break;
+
+						case 'string' :
+							$v = "'" . add_slashes($v) . "'";
+						break;
+
+						case 'dropdown' :
+							$v = "'" . add_slashes($v) . "'";
+						break;
+
+						default :
+							$v = "'" . add_slashes($v) . "'";
+						break;
+				}
+
+				$set .= "//" . $GLOBALS['CMS_CONFIG'][$k]['DESCR'] . "\r\n";
+				$set .= "define('" . $k . "', " . $v . ");\r\n\r\n";
+			}
+
+			$set .= '?>';
+
+			$result = file_put_contents(BASE_DIR . '/inc/config.inc.php', $set);
+
+			if ($result > 0)
+			{
 				$message = $AVE_Template->get_config_vars('SETTINGS_SAVED');
 				$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
 				$theme = 'accept';
 				reportLog($AVE_Template->get_config_vars('SETTINGS_SAVE_DOP'));
-			}else{
-				$message = $AVE_Template->get_config_vars('SETTINGS_SAVED_ERR');
-				$header = $AVE_Template->get_config_vars('SETTINGS_ERROR');
-				$theme = 'error';
 			}
+			else
+				{
+					$message = $AVE_Template->get_config_vars('SETTINGS_SAVED_ERR');
+					$header = $AVE_Template->get_config_vars('SETTINGS_ERROR');
+					$theme = 'error';
+				}
 
-			if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] = '1') {
-				echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
-			} else {
-				$AVE_Template->assign('message', $message);
-				header('Location:index.php?do=settings&sub=case&cp=' . SESSION);
+			if (isAjax())
+			{
+				echo json_encode(array(
+					'message' => $message,
+					'header' => $header,
+					'theme' => $theme)
+				);
 			}
+			else
+				{
+					$AVE_Template->assign('message', $message);
+					header('Location:index.php?do=settings&sub=case&cp=' . SESSION);
+				}
 
 			exit;
 		// Выводим настройки
- 		} else {
-			$AVE_Template->assign('CMS_CONFIG',$GLOBALS['CMS_CONFIG']);
-			$AVE_Template->assign('content', $AVE_Template->fetch('settings/settings_case.tpl'));
-		}
+ 		}
+ 		else
+	 		{
+				$AVE_Template->assign('CMS_CONFIG', $GLOBALS['CMS_CONFIG']);
+				$AVE_Template->assign('content', $AVE_Template->fetch('settings/settings_case.tpl'));
+			}
 	}
 
 	/**
