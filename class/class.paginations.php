@@ -91,7 +91,7 @@
 				if ($curent_page - 1 == 1)
 				{
 					$search = array('[link]', '[page]', '[name]');
-					$replace = array($template_label, $curent_page, $pagination_prev_label);
+					$replace = array($template_label, $curent_page-1, $pagination_prev_label);
 
 					$link = str_replace($search, $replace, $pagination_link_template);
 
@@ -100,6 +100,7 @@
 				// Если больше 2х
 				else
 				{
+
 					$search = array('[link]', '[page]', '[name]');
 					$replace = array($template_label, $curent_page - 1, $pagination_prev_label);
 
@@ -181,7 +182,7 @@
 				// Если пришел внешний контейнер для
 				if ($pagination_box_ext != '')
 					$pagination = sprintf($pagination_box_ext, $pagination);
-				else if (pagination_box != '')
+				else if ($pagination_box != '')
 					$pagination = sprintf($pagination_box, $pagination);
 			}
 

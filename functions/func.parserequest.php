@@ -370,7 +370,7 @@ function showrequestelement($mixed, $template = '', $tparams = '')
 
 		// Возвращаем поле из БД документа
 		$item = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
-			function ($match)
+			function ($match) use ($row)
 			{
 				return isset($row->{$match[1]})
 					? $row->{$match[1]}
@@ -570,28 +570,35 @@ function request_parse($id, $params = array())
 	{
 		foreach($params['SORT'] as $fid => $sort)
 		{
-			$fid = (int)get_field_num($request->rubric_id, $fid);
+			if (is_numeric($fid))
+				$fid = (int)get_field_num($request->rubric_id, $fid);
 
-			if ((int)$fid <= 0)
-				continue;
+			if ((int)$fid > 0)
+			{
+				$sort = strtolower($sort);
 
-			$sort = strtolower($sort);
+				$request_join[$fid] = "<? if (preg_match('t[]'))?><?=(! isset(\$t[$fid])) ? \"LEFT JOIN " . PREFIX . "_document_fields AS t$fid ON (t$fid.document_id = a.Id AND t$fid.rubric_field_id='$fid')\" : ''?>";
 
-			$request_join[$fid] = "<? if (preg_match('t[]'))?><?=(! isset(\$t[$fid])) ? \"LEFT JOIN " . PREFIX . "_document_fields AS t$fid ON (t$fid.document_id = a.Id AND t$fid.rubric_field_id='$fid')\" : ''?>";
+				$asc_desc = strpos(strtolower($sort),'asc') !== false ? 'ASC' : 'DESC';
 
-			$asc_desc = strpos(strtolower($sort),'asc') !== false ? 'ASC' : 'DESC';
+				$request_order['field-'.$fid] = "t$fid.field_value " . $asc_desc;
 
-			$request_order['field-'.$fid] = "t$fid.field_value " . $asc_desc;
-
-			$request_order_fields[] = $fid;
+				$request_order_fields[] = $fid;
+			}
+			else
+				{
+					$asc_desc = strpos(strtolower($sort),'asc') !== false ? 'ASC' : 'DESC';
+					$request_order[$param] = "$fid " . $asc_desc;
+				}
 		}
 	}
 	// Сортировка по полю из настроек (только если не передана другая в параметрах)
 	elseif ($request->request_order_by_nat)
 		{
 			$fid = (int)$request->request_order_by_nat;
+
 			// Добавляем с учётом переменной $t из условий, чтобы не выбирать те же таблиы заново - это оптимизирует время
-			$request_join[$fid] = "<?=(! isset(\$t[$fid])) ? \"LEFT JOIN " . PREFIX . "_document_fields AS t$fid ON (t$fid.document_id = a.Id AND t$fid.rubric_field_id='$fid')\" : ''?>";
+			$request_join[$fid] = "<?= (! isset(\$t[$fid])) ? \"LEFT JOIN " . PREFIX . "_document_fields AS t$fid ON (t$fid.document_id = a.Id AND t$fid.rubric_field_id='$fid')\" : ''?>";
 
 			$request_order['field-' . $fid] = "t$fid.field_value " . $request->request_asc_desc;
 			$request_order_fields[] = $fid;

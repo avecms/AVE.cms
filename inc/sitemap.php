@@ -31,8 +31,7 @@
 
 	require_once (BASE_DIR . '/inc/init.php');
 
-	if (! defined('ABS_PATH'))
-		define ('ABS_PATH', str_ireplace(BASE_DIR,'/',str_replace("\\", "/", dirname(dirname(__FILE__)))));
+	$abs_path = str_ireplace(BASE_DIR, '/', str_replace("\\", "/", dirname(dirname(__FILE__))));
 
 	if (isset ($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')
 	{
@@ -92,8 +91,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 	$res = $AVE_DB->Query($sql);
 
 	while ($row = $res->FetchAssocArray()):
-		$document_alias = ABS_PATH . $row['document_alias'] . URL_SUFF;
-		$document_alias = $domain . str_ireplace(ABS_PATH . '/' . URL_SUFF, '/', $document_alias);
+		$document_alias = $abs_path . $row['document_alias'] . URL_SUFF;
+		$document_alias = $domain . str_ireplace($abs_path . '/' . URL_SUFF, '/', $document_alias);
 		$date = $row["document_changed"] ? date("Y-m-d", $row["document_changed"]) : date("Y-m-d");
 ?>
 	<url>
