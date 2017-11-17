@@ -165,7 +165,7 @@
 					<input type="hidden" name="sub" value="save" />
 				{/if}
 				{if $smarty.request.pop}
-				    <input onclick="javascript:void(0);" type="button" class="redBtn Close" value="Закрыть" />
+				    <input onclick="javascript:void(0);" type="button" class="redBtn Close" value="{#NAVI_CLOSE#}" />
 				{/if}
 			</div>
 		</div>
@@ -178,7 +178,7 @@ AveAdmin.navItemSaveBtn({$item->navigation_item_id});
 		{ldelim}
 			event.preventDefault();
 			$('#document_id').val('');
-			$('#show_doc').html('Нет связанного документа');
+			$('#show_doc').html('{#NAVI_NOLINK_DOC#}');
 			$(".tipsy").remove();
 		{rdelim}
 	);

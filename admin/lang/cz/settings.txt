@@ -75,7 +75,6 @@ SETTINGS_MAIN_PAGENAVI  = "Nastavení výstupu stránkové navigace"
 SETTINGS_NAME           = "Parametr"
 SETTINGS_VALUE          = "Hodnota"
 SETTINGS_USE_EDITOR      = "Výchozí editor"
-SETTINGS_EDITOR_ELFINDER = "Elrte та Elfinder"
 SETTINGS_EDITOR_CKEDITOR = "CKEditor"
 
 SETTINGS_ERROR = "Chyba"

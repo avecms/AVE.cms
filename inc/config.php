@@ -12,7 +12,7 @@
 	 */
 
 	@define('APP_NAME', 'AVE.CMS');
-	@define('APP_VERSION', '3.2');
+	@define('APP_VERSION', '3.22');
 	@define('APP_INFO', '<a target="_blank" href="http://www.ave-cms.ru/">Ave-Cms.Ru</a> '.'&copy; 2007-' . date('Y'));
 
 	$GLOBALS['CMS_CONFIG']['USER_IP'] = array('DESCR' =>'Использовать IP для автологина на сайте','default'=>false,'TYPE'=>'bool','VARIANT'=>'');
@@ -136,6 +136,8 @@
 	$GLOBALS['CMS_CONFIG']['DB_EXPORT_GZ'] = array('DESCR' => 'Создание резервной копии базы данных со сжатием','default'=>false,'TYPE'=>'bool','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['DB_EXPORT_TPL'] = array('DESCR' => 'Шаблон имени файла экспорта бд (%SERVER%,%DATE%,%TIME%)','default'=>'%SERVER%_DB_BackUP_%DATE%_%TIME%','TYPE'=>'string','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['DB_EXPORT_PREFIX'] = array('DESCR' => 'Использовать префикс при экспорте бд','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
+
+	$GLOBALS['CMS_CONFIG']['HTML_COMPRESSION'] = array('DESCR' => 'Включить html компрессию','default'=>false,'TYPE'=>'bool','VARIANT'=>'');
 
 	$GLOBALS['CMS_CONFIG']['GZIP_COMPRESSION'] = array('DESCR' => 'Включить gzip компрессию','default'=>false,'TYPE'=>'bool','VARIANT'=>'');
 

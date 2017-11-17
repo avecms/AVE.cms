@@ -25,7 +25,7 @@
 	</div>
 
 	<div class="body" id="navigation-menu">
-		<a href="index.php?do=navigation&action=itemedit&sub=new&navigation_id={$smarty.request.navigation_id}&cp={$sess}&pop=1" data-width="420" data-modal="true" data-dialog="item-new" data-title="Добавить пункт меню" class="openDialog button greenBtn" id="addNewItem">Добавить пункт меню</a>
+		<a href="index.php?do=navigation&action=itemedit&sub=new&navigation_id={$smarty.request.navigation_id}&cp={$sess}&pop=1" data-width="420" data-modal="true" data-dialog="item-new" data-title="{#NAVI_ITEM_ADD#}" class="openDialog button greenBtn" id="addNewItem">{#NAVI_ITEM_ADD#}</a>
 		&nbsp;
 		<a href="javascript:void(0);" class="link" data-action="expand-all">{#NAVI_OPEN_ALL#}</a>
 		&nbsp;

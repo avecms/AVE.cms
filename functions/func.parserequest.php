@@ -442,6 +442,8 @@ function showrequestelement($mixed, $template = '', $tparams = '')
 			}
 		*/
 
+		$item = str_replace('[tag:domain]', getSiteUrl(), $item);
+
 		$link = rewrite_link('index.php?id=' . $row->Id . '&amp;doc=' . (empty($row->document_alias) ? prepare_url($row->document_title) : $row->document_alias));
 		$item = str_replace('[tag:link]', $link, $item);
 		$item = str_replace('[tag:docid]', $row->Id, $item);
@@ -974,6 +976,8 @@ function request_parse($id, $params = array())
 	$main_template = str_replace('[tag:humandate]', human_date($AVE_Core->curentdoc->document_published), $main_template);
 	$main_template = str_replace('[tag:docdate]', pretty_date(strftime(DATE_FORMAT, $AVE_Core->curentdoc->document_published)), $main_template);
 	$main_template = str_replace('[tag:doctime]', pretty_date(strftime(TIME_FORMAT, $AVE_Core->curentdoc->document_published)), $main_template);
+
+	$main_template = str_replace('[tag:domain]', getSiteUrl(), $main_template);
 
 	if (preg_match('/\[tag:docauthor]/u', $item))
 	{

@@ -282,7 +282,9 @@
 			$item_num = $x;
 
 			// Проверяем пункт меню на принадлежность к "активному пути" и выбираем шаблон
-			$item = (in_array($row['navigation_item_id'], $navi_active_way)) ? $navi_item_tpl[$navi_item_level]['active'] : $navi_item_tpl[$navi_item_level]['inactive'];
+			$item = (in_array($row['navigation_item_id'], $navi_active_way))
+				? $navi_item_tpl[$navi_item_level]['active']
+				: $navi_item_tpl[$navi_item_level]['inactive'];
 
 			################### ПАРСИМ ТЕГИ ###################
 			// id
@@ -318,8 +320,8 @@
 
 			if ($row['image'] != '')
 			{
-				@$img = explode(".", $row['image']);
-				@$row['image_act'] = $img[0]."_act.".$img[1];
+				@$img = explode('.', $row['image']);
+				@$row['image_act'] = $img[0] . "_act.".$img[1];
 				@$item = str_replace('[tag:img_act]', stripslashes($row['image_act']), $item);
 			}
 
@@ -350,20 +352,28 @@
 					@$item = str_replace('[tag:css_style]', '', $item);
 				}
 
-			$item = '<'.'?php $item_num='.var_export($item_num,1).'; $last_item='.var_export($last_item,1).'?'.'>'.$item;
+			$item = '<'.'?php $item_num = ' . var_export($item_num, true) . '; ?'.'>' . $item;
+			$item = '<'.'?php $last_item = ' . var_export($last_item, true) . '; ?'.'>' . $item;
+
 			$item = str_replace('[tag:if_first]', '<'.'?php if(isset($item_num) && $item_num===1) { ?'.'>', $item);
 			$item = str_replace('[tag:if_not_first]', '<'.'?php if(isset($item_num) && $item_num!==1) { ?'.'>', $item);
+
 			$item = str_replace('[tag:if_last]', '<'.'?php if(isset($last_item) && $last_item) { ?'.'>', $item);
 			$item = str_replace('[tag:if_not_last]', '<'.'?php if(isset($item_num) && !$last_item) { ?'.'>', $item);
+
+			$item = str_replace('[tag:if_sub_level]', '<'.'?php if (isset($exist_level) && $exist_level) { ?'.'>', $item);
+			$item = str_replace('[tag:if_no_sub_level]', '<'.'?php if (isset($exist_level) && !$exist_level) { ?'.'>', $item);
+
 			$item = preg_replace('/\[tag:if_every:([0-9-]+)\]/u', '<'.'?php if(isset($item_num) && !($item_num % $1)){ '.'?'.'>', $item);
 			$item = preg_replace('/\[tag:if_not_every:([0-9-]+)\]/u', '<'.'?php if(isset($item_num) && ($item_num % $1)){ '.'?'.'>', $item);
+
 			$item = str_replace('[tag:/if]', '<'.'?php  } ?>', $item);
 			$item = str_replace('[tag:if_else]', '<'.'?php  }else{ ?>', $item);
 
+			################### //ПАРСИМ ТЕГИ ##################
+
 			// Удаляем ошибочные теги
 			@$item = preg_replace('/\[tag:([a-zA-Z0-9-_]+)\]/', '', $item);
-
-			################### //ПАРСИМ ТЕГИ ##################
 
 			// Определяем тег для вставки следующего уровня
 			switch ($navi_item_level)
@@ -372,6 +382,7 @@
 					$tag = '[tag:level:2]';
 					$tag_exist = '[tag:level:2:exist]';
 					break;
+
 				case 2 :
 					$tag = '[tag:level:3]';
 					$tag_exist = '[tag:level:3:exist]';
@@ -383,16 +394,17 @@
 			}
 
 			// Если есть подуровень, то заново запускаем для него функцию и вставляем вместо тега
-			if (!empty($navi_items[$row['navigation_item_id']]))
+			if (! empty($navi_items[$row['navigation_item_id']]))
 			{
+				$item = '<'.'?php $exist_level = true; ?'.'>' . $item;
 				$item_sublevel = printNavi($navi_menu, $navi_items, $navi_active_way, $navi_item_tpl, $row['navigation_item_id']);
 				$item = @str_replace($tag, $item_sublevel, $item);
 				$item = @str_replace($tag_exist, 1, $item);
-
 			}
 			// Если нет подуровня, то удаляем тег
 			else
 				{
+					$item = '<'.'?php $exist_level = false; ?'.'>' . $item;
 					$item = @str_replace(@$tag,'',$item);
 					$item = @str_replace($tag_exist, 0, $item);
 				}
@@ -401,20 +413,20 @@
 			if (empty($navi))
 				$navi = '';
 
-			$navi .= $item;
+			$navi .= eval2var('?>' . $item . '<?');
 		}
 
 		// Вставляем все пункты уровня в шаблон уровня
 		switch ($navi_item_level)
 		{
 			case 1 :
-				$navi = str_replace("[tag:content]",$navi, $navi_menu->level1_begin);
+				$navi = str_replace("[tag:content]", $navi, $navi_menu->level1_begin);
 				break;
 			case 2 :
-				$navi = str_replace("[tag:content]",$navi, $navi_menu->level2_begin);
+				$navi = str_replace("[tag:content]", $navi, $navi_menu->level2_begin);
 				break;
 			case 3 :
-				$navi = str_replace("[tag:content]",$navi, $navi_menu->level3_begin);
+				$navi = str_replace("[tag:content]", $navi, $navi_menu->level3_begin);
 				break;
 		}
 

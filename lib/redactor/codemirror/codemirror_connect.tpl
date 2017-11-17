@@ -16,16 +16,12 @@
 <script src="{$ABS_PATH}lib/redactor/codemirror/mode/clike/clike.js"></script>
 <script src="{$ABS_PATH}lib/redactor/codemirror/mode/php/php.js"></script>
 <script src="{$ABS_PATH}lib/redactor/codemirror/mode/smarty/smarty.js"></script>
+<script src="{$ABS_PATH}lib/redactor/codemirror/mode/htmlmixed/htmlmixed.js"></script>
 
 <script src="{$ABS_PATH}lib/redactor/codemirror/addon/edit/closetag.js"></script>
 <script src="{$ABS_PATH}lib/redactor/codemirror/addon/edit/matchbrackets.js"></script>
-
-<script src="{$ABS_PATH}lib/redactor/codemirror/addon/hint/html-hint.js"></script>
-
 <script src="{$ABS_PATH}lib/redactor/codemirror/addon/selection/active-line.js"></script>
-
 <script src="{$ABS_PATH}lib/redactor/codemirror/addon/dialog/dialog.js"></script>
-
 <script src="{$ABS_PATH}lib/redactor/codemirror/addon/search/searchcursor.js"></script>
 <script src="{$ABS_PATH}lib/redactor/codemirror/addon/search/search.js"></script>
 

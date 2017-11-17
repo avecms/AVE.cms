@@ -195,7 +195,7 @@
 		}
 
 		// Последний элемент
-		if (get_settings('bread_link_box_last') == 1)
+		if (get_settings('bread_link_box_last') == 1 || (isset($AVE_Core->curentdoc->bread_link_box_last) && $AVE_Core->curentdoc->bread_link_box_last == 1))
 			$bread_crumb .= sprintf($bread_self_box, $current->document_breadcrum_title);
 
 		if (! $noprint)

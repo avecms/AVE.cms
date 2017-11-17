@@ -67,7 +67,10 @@ class AVE_DB_Service
 				// Сохраняем CREATE и DROP запросы
 				$this->_database_dump .= "DROP TABLE IF EXISTS `" . (! DB_EXPORT_PREFIX ? $table_export : $table) . "`;" . $this->_delimiter . "\n";
 
-				$this->_database_dump .= $row[1] . ";" . $this->_delimiter . "\n\n";
+				if (! DB_EXPORT_PREFIX)
+					$this->_database_dump .= str_replace('CREATE TABLE `' . PREFIX . '_', 'CREATE TABLE `%%PRFX%%_', $row[1]) . ";" . $this->_delimiter . "\n\n";
+				else
+					$this->_database_dump .= $row[1] . ";" . $this->_delimiter . "\n\n";
 
 				$nums = 0;
 
@@ -158,7 +161,11 @@ class AVE_DB_Service
 
 				// Сохраняем CREATE и DROP запросы
 				$this->_database_dump .= "DROP TABLE IF EXISTS `" . (! DB_EXPORT_PREFIX ? $table_export : $table) . "`;" . $this->_delimiter . "\n";
-				$this->_database_dump .= $row[1] . ";" . $this->_delimiter . "\n\n";
+
+				if (! DB_EXPORT_PREFIX)
+					$this->_database_dump .= str_replace('CREATE TABLE `' . PREFIX . '_', 'CREATE TABLE `%%PRFX%%_', $row[1]) . ";" . $this->_delimiter . "\n\n";
+				else
+					$this->_database_dump .= $row[1] . ";" . $this->_delimiter . "\n\n";
 
 				$nums = 0;
 

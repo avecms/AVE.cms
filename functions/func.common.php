@@ -1021,17 +1021,47 @@
 	}
 
 	/**
-	 * Функция делает компрессию данных (gzip)
+	 * Функция делает html в 1 строчку, удаляет лишние пробелы, комментарии и т.д.
 	 *
 	 * @return string
 	 */
-	function gzip_compress($data)
+	function compress_htlm($data) {
+
+		$search = array(
+			'/\>[^\S ]+/s',		// strip whitespaces after tags, except space
+			'/[^\S ]+\</s',		// strip whitespaces before tags, except space
+			'/(\s)+/s',			// shorten multiple whitespace sequences
+			'/<!--(.|\s)*?-->/' // Remove HTML comments
+		);
+
+		$replace = array(
+			'>',
+			'<',
+			'\\1',
+			''
+		);
+
+		$data = preg_replace($search, $replace, $data);
+
+		return $data;
+	}
+
+
+	/**
+	 * Функция делает компрессию данных
+	 *
+	 * @return string
+	 */
+	function output_compress($data)
 	{
 		$Gzip = strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false;
 
+		if (HTML_COMPRESSION)
+			$data = compress_htlm($data);
+
 		if ($Gzip && GZIP_COMPRESSION)
 		{
-			$content = gzencode (trim(preg_replace( '/\s+/', ' ', $data)), 9);
+			$content = gzencode($data, 9);
 			header ('Content-Encoding: gzip');
 		}
 		else
@@ -1051,5 +1081,7 @@
 
 		echo $content;
 	}
+
+
 
 ?>

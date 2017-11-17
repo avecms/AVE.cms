@@ -153,8 +153,8 @@
 
 				<tr>
 					<td>
-						<strong><a class="rightDir" title="{#TEMPLATES_CSS#}" href="javascript:void(0);" onclick="textSelection('[tag:css:]','');">[tag:css:FFF:P]</a></strong>,&nbsp;&nbsp;
-						<strong><a class="rightDir" title="{#TEMPLATES_JS#}" href="javascript:void(0);" onclick="textSelection('[tag:js:]','');">[tag:js:FFF:P]</a></strong>
+						<strong><a class="rightDir" title="{#TEMPLATES_CSS#}" href="javascript:void(0);" onclick="textSelection('[tag:css:',']');">[tag:css:FFF:P]</a></strong>,&nbsp;&nbsp;
+						<strong><a class="rightDir" title="{#TEMPLATES_JS#}" href="javascript:void(0);" onclick="textSelection('[tag:js:',']');">[tag:js:FFF:P]</a></strong>
 					</td>
 				</tr>
 
@@ -208,19 +208,19 @@
 
 				<tr>
 					<td>
-						<strong><a class="rightDir" title="{#TEMPLATES_TEASER#}" href="javascript:void(0);" onclick="textSelection('[tag:teaser:]','');">[tag:teaser:XXX]</a></strong>
+						<strong><a class="rightDir" title="{#TEMPLATES_TEASER#}" href="javascript:void(0);" onclick="textSelection('[tag:teaser:',']');">[tag:teaser:XXX]</a></strong>
 					</td>
 				</tr>
 
 				<tr>
 					<td>
-						<strong><a class="rightDir" title="{#TEMPLATES_SYSBLOCK#}" href="javascript:void(0);" onclick="textSelection('[tag:sysblock:]','');">[tag:sysblock:XXX]</a></strong>
+						<strong><a class="rightDir" title="{#TEMPLATES_SYSBLOCK#}" href="javascript:void(0);" onclick="textSelection('[tag:sysblock:',']');">[tag:sysblock:XXX]</a></strong>
 					</td>
 				</tr>
 
 				<tr>
 					<td>
-						<strong><a class="rightDir" title="{#TEMPLATES_NAVIGATION#}" href="javascript:void(0);" onclick="textSelection('[tag:navigation:]','');">[tag:navigation:XXX]</a></strong>
+						<strong><a class="rightDir" title="{#TEMPLATES_NAVIGATION#}" href="javascript:void(0);" onclick="textSelection('[tag:navigation:',']');">[tag:navigation:XXX]</a></strong>
 					</td>
 				</tr>
 

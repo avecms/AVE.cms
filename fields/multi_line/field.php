@@ -56,17 +56,13 @@ function get_field_multi_line($field_value, $action, $field_id=0, $tpl='', $tpl_
 				} else {
 					switch ($_SESSION['use_editor']) {
 						case '0': // CKEditor
+						case '1':
 							$oCKeditor = new CKeditor();
 							$oCKeditor->returnOutput = true;
 							$oCKeditor->config['toolbar'] = 'Big';
 							$oCKeditor->config['height'] = 400;
 							$config = array();
 							$field = $oCKeditor->editor('feld[' . $field_id . ']', $field_value, $config);
-							break;
-
-						case '1': // Elrte и Elfinder
-							$field  = '<a name="' . $field_id . '"></a>';
-							$field  .='<textarea style="width: 98%" name="feld[' . $field_id . ']" class="maxi-editor">' . $field_value . '</textarea></div>';
 							break;
 
 						default:

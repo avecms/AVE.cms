@@ -137,7 +137,7 @@ class AVE_Session_DB
 	/* Garbage collection, deletes old sessions */
 	function _gc($maxlifetime)
 	{
-		$session_res = @mysqli_query($this->mysql_connect, "DELETE FROM ".PREFIX."_sessions	WHERE expiry < UNIX_TIMESTAMP(NOW() - '" . $maxlifetime . "')");
+		$session_res = @mysqli_query($this->mysql_connect, "DELETE FROM ".PREFIX."_sessions WHERE expire < (UNIX_TIMESTAMP(NOW()) - " . (int)$maxlifetime . ")");
 
 		if (!$session_res) {
 			return false;

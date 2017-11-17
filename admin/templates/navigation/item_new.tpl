@@ -25,7 +25,7 @@
 			{if $items}
 			<thead>
 			<tr class="noborder">
-				<td colspan="2">Добавить после:</td>
+				<td colspan="2">{#NAVI_ADD_AFTER#}:</td>
 			</tr>
 			</thead>
 			<tbody>
@@ -177,7 +177,7 @@
 				<input type="submit" class="basicBtn SaveButton" value="{#NAVI_BUTTON_SAVE#}" />
 				<input type="hidden" name="navigation_id" value="{$smarty.request.navigation_id}" />
 				<input type="hidden" name="sub" value="save" />
-				<input onclick="javascript:void(0);" type="button" class="redBtn Close" value="Закрыть" />
+				<input onclick="javascript:void(0);" type="button" class="redBtn Close" value="{#NAVI_CLOSE#}" />
 			</div>
 		</div>
 	</div>
@@ -191,7 +191,7 @@ $(document).ready(function(){ldelim}
 		{ldelim}
 			event.preventDefault();
 			$('#document_id').val('');
-			$('#show_doc').html('Нет связанного документа');
+			$('#show_doc').html('{#NAVI_NOLINK_DOC#}');
 			$(".tipsy").remove();
 		{rdelim}
 	);

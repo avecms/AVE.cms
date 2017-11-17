@@ -56,17 +56,13 @@ function get_field_multi_line_slim($field_value,$action, $field_id=0, $tpl='', $
 				} else {
 					switch ($_SESSION['use_editor']) {
 						case '0': // CKEditor
+						case '1':
 							$oCKeditor = new CKeditor();
 							$oCKeditor->returnOutput = true;
 							$oCKeditor->config['toolbar'] = 'Verysmall';
 							$oCKeditor->config['height'] = 200;
 							$config = array();
 							$field = $oCKeditor->editor('feld[' . $field_id . ']', $field_value, $config);
-							break;
-
-						case '1': // Elrte и Elfinder
-							$field  = '<a name="' . $field_id . '"></a>';
-							$field  .='<textarea style="width:' . $AVE_Document->_textarea_width_small . ';height:' . $AVE_Document->_textarea_height_small . '" name="feld[' . $field_id . ']" class="small-editor">' . $field_value . '</textarea>';
 							break;
 
 						default:

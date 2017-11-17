@@ -176,6 +176,7 @@
 			switch ($_SESSION['use_editor'])
 			{
 				case '0': // CKEditor
+				case '1':
 					$oCKeditor = new CKeditor();
 					$oCKeditor->returnOutput = true;
 					$oCKeditor->config['customConfig'] = 'block.js';
@@ -183,9 +184,6 @@
 					$oCKeditor->config['height'] = 400;
 					$config = array();
 					$row['block_text'] = $oCKeditor->editor('block_text', $row['block_text'], $config);
-					break;
-
-				case '1': // Elrte и Elfinder
 					break;
 			}
 
@@ -209,6 +207,7 @@
 			switch ($_SESSION['use_editor'])
 			{
 				case '0': // CKEditor
+				case '1':
 					$oCKeditor = new CKeditor();
 					$oCKeditor->returnOutput = true;
 					$oCKeditor->config['customConfig'] = 'block.js';
@@ -216,9 +215,6 @@
 					$oCKeditor->config['height'] = 400;
 					$config = array();
 					$row['block_text'] = $oCKeditor->editor('block_text', $row['block_text'], $config);
-					break;
-
-				case '1': // Elrte и Elfinder
 					break;
 			}
 

@@ -29,10 +29,10 @@ function parse_block($id)
 	{
 		$cache_file = BASE_DIR . '/cache/sql/block/' . $id . '.cache';
 
-		if(! file_exists(dirname($cache_file)))
+		if (! file_exists(dirname($cache_file)))
 			mkdir(dirname($cache_file), 0766, true);
 
-		if(file_exists($cache_file))
+		if (file_exists($cache_file))
 		{
 			$return = file_get_contents($cache_file);
 		}
@@ -77,7 +77,12 @@ function parse_block($id)
 			$return = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $return);
 		}
 
-		$gen_time = Debug::endTime('SYSBLOCK_' . $id);
+		// Парсим блоки
+		$return = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $return);
+		// Парсим ситемные блоки
+		$return = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_sysblock', $return);
+
+		$gen_time = Debug::endTime('BLOCK_' . $id);
 
 		$GLOBALS['block_generate'][] = array('BLOCK_'. $id => $gen_time);
 

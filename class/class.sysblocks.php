@@ -187,6 +187,7 @@
 				switch ($_SESSION['use_editor'])
 				{
 					case '0': // CKEditor
+					case '1':
 						$oCKeditor = new CKeditor();
 						$oCKeditor->returnOutput = true;
 						$oCKeditor->config['customConfig'] = 'sysblock.js';
@@ -194,9 +195,6 @@
 						$oCKeditor->config['height'] = 400;
 						$config = array();
 						$row['sysblock_text'] = $oCKeditor->editor('sysblock_text', $row['sysblock_text'], $config);
-						break;
-
-					case '1': // Elrte и Elfinder
 						break;
 				}
 				$AVE_Template->assign($row);
@@ -228,6 +226,7 @@
 				switch ($_SESSION['use_editor'])
 				{
 					case '0': // CKEditor
+					case '1':
 						$oCKeditor = new CKeditor();
 						$oCKeditor->returnOutput = true;
 						$oCKeditor->config['customConfig'] = 'sysblock.js';
@@ -235,9 +234,6 @@
 						$oCKeditor->config['height'] = 400;
 						$config = array();
 						$row['sysblock_text'] = $oCKeditor->editor('sysblock_text', $row['sysblock_text'], $config);
-						break;
-
-					case '1': // Elrte и Elfinder
 						break;
 				}
 

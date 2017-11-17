@@ -78,7 +78,6 @@ SETTINGS_MAIN_PAGENAVI  = "Настройки вывода постраничн�
 SETTINGS_NAME           = "Параметр"
 SETTINGS_VALUE          = "Значение"
 SETTINGS_USE_EDITOR      = "Редактор по умолчанию"
-SETTINGS_EDITOR_ELFINDER = "Elrte и Elfinder"
 SETTINGS_EDITOR_CKEDITOR = "CKEditor"
 
 SETTINGS_ERROR = "Ошибка"

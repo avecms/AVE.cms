@@ -192,12 +192,12 @@
 					</tr>
 					<tr>
 						<td>
-							<a class="rightDir" title="{#RUBRIK_TAG_SYSBLOCK#}" href="javascript:void(0);" onclick="textSelection('[tag:sysblock:]', '');"><strong>[tag:sysblock:XXX]</strong></a>
+							<a class="rightDir" title="{#RUBRIK_TAG_SYSBLOCK#}" href="javascript:void(0);" onclick="textSelection('[tag:sysblock:', ']');"><strong>[tag:sysblock:XXX]</strong></a>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<a class="rightDir" title="{#RUBRIK_TAG_TEASER#}" href="javascript:void(0);" onclick="textSelection('[tag:teaser:]', '');"><strong>[tag:teaser:XXX]</strong></a>
+							<a class="rightDir" title="{#RUBRIK_TAG_TEASER#}" href="javascript:void(0);" onclick="textSelection('[tag:teaser:', ']');"><strong>[tag:teaser:XXX]</strong></a>
 						</td>
 					</tr>
 					<tr>
@@ -211,7 +211,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td><strong><a title="{#RUBRIK_THUMBNAIL#}" class="rightDir" href="javascript:void(0);" onclick="textSelection('[tag:X000x000:[tag:fld:]]', '');">[tag:X000x000:[tag:fld:YYY]]</a></strong></td>
+						<td><strong><a title="{#RUBRIK_THUMBNAIL#}" class="rightDir" href="javascript:void(0);" onclick="textSelection('[tag:X000x000:[tag:fld:', ']]');">[tag:X000x000:[tag:fld:YYY]]</a></strong></td>
 					</tr>
 					<tr>
 						<td><strong><a title="{#RUBRIK_TAG_LANGFILE#}" class="rightDir" href="javascript:void(0);" onclick="textSelection('[tag:langfile:', ']');">[tag:langfile:XXX]</a></strong></td>
@@ -521,7 +521,7 @@
 						<td><strong><a title="{#RUBRIK_MEDIAPATH#}" class="rightDir" href="javascript:void(0);" onclick="textSelection3('[tag:mediapath]', '');">[tag:mediapath]</a></strong></td>
 					</tr>
 					<tr>
-						<td><strong><a title="{#RUBRIK_THUMBNAIL#}" class="rightDir" href="javascript:void(0);" onclick="textSelection3('[tag:X000x000:[tag:fld:]]', '');">[tag:X000x000:[tag:fld:YYY]]</a></strong></td>
+						<td><strong><a title="{#RUBRIK_THUMBNAIL#}" class="rightDir" href="javascript:void(0);" onclick="textSelection3('[tag:X000x000:[tag:fld:', ']]');">[tag:X000x000:[tag:fld:YYY]]</a></strong></td>
 					</tr>
 					<tr>
 						<td><strong>HTML Tags</strong></td>
@@ -670,7 +670,7 @@
 					</tr>
 					<tr>
 						<td>
-							<strong><a title="{#RUBRIK_THUMBNAIL#}" class="rightDir" href="javascript:void(0);" onclick="textSelection4('[tag:X000x000:[tag:fld:]]', '');">[tag:X000x000:[tag:fld:YYY]]</a></strong>
+							<strong><a title="{#RUBRIK_THUMBNAIL#}" class="rightDir" href="javascript:void(0);" onclick="textSelection4('[tag:X000x000:[tag:fld:', ']]');">[tag:X000x000:[tag:fld:YYY]]</a></strong>
 						</td>
 					</tr>
 					<tr>

@@ -157,9 +157,9 @@
 								$image_item = array();
 
 								$image_item['url']			= $field_data[0];
-								$image_item['title']		= $field_data[1] ? $field_data[1] : '';
-								$image_item['description']	= $field_data[2] ? $field_data[2] : '';
-								$image_item['link']			= $field_data[3] ? $field_data[3] : '';
+								$image_item['title']		= isset($field_data[1]) ? $field_data[1] : '';
+								$image_item['description']	= isset($field_data[2]) ? $field_data[2] : '';
+								$image_item['link']			= isset($field_data[3]) ? $field_data[3] : '';
 
 								if (! empty($image_item['link']))
 									$image_item['http'] = (preg_match('/^(http|https)/', $image_item['link']) ? true : false);
@@ -296,7 +296,7 @@
 						$field_value_new[] = $v['url']
 						. ($v['title'] ? '|' . stripslashes(htmlspecialchars($v['title'], ENT_QUOTES)) : '|')
 						. ($v['description'] ? '|' . stripslashes(htmlspecialchars($v['description'], ENT_QUOTES)) : '|')
-						. ($v['link'] ? '|' . ltrim($v['link'], '/') : '');
+						. ($v['link'] ? '|' . ltrim($v['link'], '/') : '|');
 					}
 				}
 

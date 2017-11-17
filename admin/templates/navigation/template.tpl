@@ -214,6 +214,10 @@
 				&nbsp;|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelection_1_2('[tag:if_not_every:]', '[tag:/if]');"><strong>[tag:if_not_every:XXX]</strong></a>
 				&nbsp;|&nbsp;
+				<a href="javascript:void(0);" onclick="textSelection_1_2('[tag:if_sub_level]', '[tag:/if]');"><strong>[tag:if_sub_level]</strong></a>
+				&nbsp;|&nbsp;
+				<a href="javascript:void(0);" onclick="textSelection_1_2('[tag:if_no_sub_level]', '[tag:/if]');"><strong>[tag:if_no_sub_level]</strong></a>
+				&nbsp;|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelection_1_2('[tag:if_every:2]{#NAVI_ITEM_EVEN#}[tag:if_else]{#NAVI_ITEM_ODD#}[tag:/if]', '');"><strong>{#NAVI_EXAMPLE#}</strong></a>
 				&nbsp;|
 			</td>
@@ -277,6 +281,10 @@
 				<a href="javascript:void(0);" onclick="textSelection_1_3('[tag:if_every:]', '[tag:/if]');"><strong>[tag:if_every:XXX]</strong></a>
 				&nbsp;|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelection_1_3('[tag:if_not_every:]', '[tag:/if]');"><strong>[tag:if_not_every:XXX]</strong></a>
+				&nbsp;|&nbsp;
+				<a href="javascript:void(0);" onclick="textSelection_1_3('[tag:if_sub_level]', '[tag:/if]');"><strong>[tag:if_sub_level]</strong></a>
+				&nbsp;|&nbsp;
+				<a href="javascript:void(0);" onclick="textSelection_1_3('[tag:if_no_sub_level]', '[tag:/if]');"><strong>[tag:if_no_sub_level]</strong></a>
 				&nbsp;|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelection_1_3('[tag:if_every:2]{#NAVI_ITEM_EVEN#}[tag:if_else]{#NAVI_ITEM_ODD#}[tag:/if]', '');"><strong>{#NAVI_EXAMPLE#}</strong></a>
 				&nbsp;|
@@ -390,6 +398,10 @@
 				&nbsp;|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelection_2_2('[tag:if_not_every:]', '[tag:/if]');"><strong>[tag:if_not_every:XXX]</strong></a>
 				&nbsp;|&nbsp;
+				<a href="javascript:void(0);" onclick="textSelection_2_2('[tag:if_sub_level]', '[tag:/if]');"><strong>[tag:if_sub_level]</strong></a>
+				&nbsp;|&nbsp;
+				<a href="javascript:void(0);" onclick="textSelection_2_2('[tag:if_no_sub_level]', '[tag:/if]');"><strong>[tag:if_no_sub_level]</strong></a>
+				&nbsp;|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelection_2_2('[tag:if_every:2]{#NAVI_ITEM_EVEN#}[tag:if_else]{#NAVI_ITEM_ODD#}[tag:/if]', '');"><strong>{#NAVI_EXAMPLE#}</strong></a>
 				&nbsp;|
 			</td>
@@ -451,6 +463,10 @@
 				<a href="javascript:void(0);" onclick="textSelection_2_3('[tag:if_every:]', '[tag:/if]');"><strong>[tag:if_every:XXX]</strong></a>
 				&nbsp;|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelection_2_3('[tag:if_not_every:]', '[tag:/if]');"><strong>[tag:if_not_every:XXX]</strong></a>
+				&nbsp;|&nbsp;
+				<a href="javascript:void(0);" onclick="textSelection_2_3('[tag:if_sub_level]', '[tag:/if]');"><strong>[tag:if_sub_level]</strong></a>
+				&nbsp;|&nbsp;
+				<a href="javascript:void(0);" onclick="textSelection_2_3('[tag:if_no_sub_level]', '[tag:/if]');"><strong>[tag:if_no_sub_level]</strong></a>
 				&nbsp;|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelection_2_3('[tag:if_every:2]{#NAVI_ITEM_EVEN#}[tag:if_else]{#NAVI_ITEM_ODD#}[tag:/if]', '');"><strong>{#NAVI_EXAMPLE#}</strong></a>
 				&nbsp;|

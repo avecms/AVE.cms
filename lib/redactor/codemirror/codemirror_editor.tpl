@@ -1,4 +1,11 @@
 <script type="text/javascript">
+var mixedMode = {ldelim}
+	name: "htmlmixed",
+	scriptTypes: [
+		{ldelim}matches: /(text|application)\/(x-)?(html|httpd|php)/i, mode: "php"{rdelim}
+	]
+{rdelim};
+
 editor{$conn_id} = CodeMirror.fromTextArea(document.getElementById('{$textarea_id}'), {ldelim}
 	theme: '{$smarty.const.CODEMIRROR_THEME}',
 	foldGutter: true,
@@ -16,8 +23,6 @@ editor{$conn_id} = CodeMirror.fromTextArea(document.getElementById('{$textarea_i
 		'Cmd-O': function (cm) {ldelim}
 			{$ctrlo}
 		{rdelim},
-		'Ctrl-Space': 'autocomplete',
-		'Cmd-Space': 'autocomplete',
 		'Cmd-F11': function (cm) {ldelim}
 			var codem = $(cm.getWrapperElement());
 			if (codem.hasClass('CodeMirror-fullscreen')) $('body').css('overflow','auto');
@@ -70,5 +75,8 @@ function textSelection{$conn_id}(startTag, endTag) {ldelim}
 	editor{$conn_id}.replaceRange(startTag + editor{$conn_id}.getRange(range.from, range.to) + endTag, range.from, range.to)
 	editor{$conn_id}.setCursor(range.from.line, range.from.ch + startTag.length);
 	editor{$conn_id}.save();
+	editor{$conn_id}.focus();
+
+	return false;
 {rdelim}
 </script>

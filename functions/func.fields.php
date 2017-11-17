@@ -98,13 +98,13 @@
 	/**
 	 * Возвращаем тип поля
 	 *
-	 * @return string
+	 * @return mixed
 	 */
 	function get_field_type($type = '')
 	{
 		static $fields;
 
-		if(is_array($fields))
+		if (is_array($fields))
 			return $fields;
 
 		$arr = get_defined_functions();
@@ -112,9 +112,9 @@
 		$fields = array();
 		$field = array();
 
-		foreach($arr['user'] as $v)
+		foreach ($arr['user'] as $v)
 		{
-			if(trim(substr($v, 0, strlen('get_field_'))) == 'get_field_')
+			if (trim(substr($v, 0, strlen('get_field_'))) == 'get_field_')
 			{
 				$d = '';
 
@@ -124,19 +124,21 @@
 
 				if ($name != false && is_string($name))
 					$fields[] = array('id' => $id,'name' => (isset($fields_vars[$name])
-							? $fields_vars[$name]
-							: $name));
+						? $fields_vars[$name]
+						: $name));
 
 				if (! empty($type) && $id == $type)
 					$field =  array('id' => $id,'name' => (isset($fields_vars[$name])
-							? $fields_vars[$name]
-							: $name));
+						? $fields_vars[$name]
+						: $name));
 			}
 		}
 
 		$fields = msort($fields, array('name'));
 
-		return (! empty($type)) ? $field : $fields;
+		return (! empty($type))
+			? $field
+			: $fields;
 	}
 
 
@@ -146,11 +148,17 @@
 	 * @param $id
 	 * @return string
 	 */
-	function get_field_alias($id){
+	function get_field_alias($id)
+	{
 		global $AVE_DB;
-		static $alias_field_id=array();
-		if(isset($alias_field_id[$id])) return $alias_field_id[$id];
+
+		static $alias_field_id = array();
+
+		if (isset($alias_field_id[$id]))
+				return $alias_field_id[$id];
+
 		$alias_field_id[$id] = $AVE_DB->Query("SELECT rubric_field_alias FROM " . PREFIX . "_rubric_fields WHERE Id=".intval($id))->GetCell();
+
 		return $alias_field_id[$id];
 	}
 
@@ -271,7 +279,7 @@
 
 		$func = 'get_field_' . $field_type;
 
-		if(! is_callable($func))
+		if (! is_callable($func))
 			$func = 'get_field_default';
 
 		$field_value = $func($field_value, 'doc', $field_id, $rubric_field_template, $tpl_field_empty, $maxlength, $document_fields, RUB_ID, $rubric_field_default);
@@ -292,7 +300,8 @@
 	 */
 	function document_get_field_value($field_id, $length = 0)
 	{
-		if (!is_numeric($field_id)) return '';
+		if (! is_numeric($field_id))
+			return '';
 
 		$document_fields = get_document_fields(get_current_document_id());
 
@@ -350,7 +359,7 @@
 	 * @param       $document_id
 	 * @param       array $values если надо вернуть документ с произвольными значениями - используется для ревизий документов
 	 * @internal    param int $id id документа
-	 * @return      array
+	 * @return      mixed
 	 */
 	function get_document_fields($document_id, $values = null)
 	{
@@ -358,7 +367,7 @@
 
 		static $document_fields = array();
 
-		if (!is_numeric($document_id))
+		if (! is_numeric($document_id))
 			return false;
 
 		if (!isset ($document_fields[$document_id]))
@@ -454,21 +463,23 @@
 	{
 		global $req_item_id;
 
-		// если не передан $doc_id, то проверяем реквест
-		if (!$doc_id && $req_item_id) $doc_id = $req_item_id;
-		// или берём для текущего дока
+		//-- Если не передан $doc_id, то проверяем реквест
+		if (! $doc_id && $req_item_id)
+			$doc_id = $req_item_id;
+		//-- Или берём для текущего дока
 		elseif (! $doc_id && $_REQUEST['id'] > 0)
 			$doc_id = $_REQUEST['id'];
-		elseif (! $doc_id)
-			return;
+		//-- Возвращаем FALSE, если не число
+		elseif (! is_numeric($doc_id))
+			return false;
 
-		// забираем из базы массив полей
+		//-- Забираем из базы массив полей
 		$field = get_document_field($doc_id, $field_id);
 
-		// возвращаем нужную часть поля
+		//-- Возвращаем нужную часть поля
 		if ($parametr !==  null)
 		{
-			$field = explode("|",$field);
+			$field = explode("|", $field);
 			$field = array_values(array_diff($field, array('')));
 			$field = $field[$parametr];
 		}
@@ -484,22 +495,23 @@
 	 * @param int  $doc_id
 	 * @param int  $parametr ([tag:parametr:X]) - часть поля
 	 *
-	 * @return string
+	 * @return mixed
 	 */
 	function get_true_field($field_id, $doc_id = null, $parametr = null)
 	{
 		global $req_item_id, $AVE_DB;
 
-		// если не передан $doc_id, то проверяем реквест
+		//-- Если не передан $doc_id, то проверяем реквест
 		if (! $doc_id && $req_item_id)
 			$doc_id = $req_item_id;
-		// или берём для текущего дока
+		//-- Или берём для текущего дока
 		elseif (! $doc_id && $_REQUEST['id'] > 0)
 			$doc_id = $_REQUEST['id'];
-		elseif (! $doc_id)
-			return;
+		//-- Возвращаем FALSE, если не число
+		elseif (! is_numeric($doc_id))
+			return false;
 
-		// забираем из базы массив полей
+		//-- Забираем поле из базы
 		$sql = "
 			SELECT
 				doc_field.field_value,
@@ -519,9 +531,9 @@
 
 		$field = (string)$query->field_value . (string)$query->field_value_more;
 
-		unset($sql, $query);
+		unset ($sql, $query);
 
-		// возвращаем нужную часть поля
+		//-- Возвращаем нужную часть поля
 		if ($parametr !==  null)
 		{
 			$field = explode("|", $field);
@@ -531,6 +543,7 @@
 
 		return $field;
 	}
+
 
 	/**
 	 * Возвращает элемент сериализованного поля по номеру и ключу
@@ -545,16 +558,17 @@
 	{
 		global $req_item_id;
 
-		// если не передан $doc_id, то проверяем реквест
-		if (!$doc_id && $req_item_id)
+		//-- Если не передан $doc_id, то проверяем реквест
+		if (! $doc_id && $req_item_id)
 			$doc_id = $req_item_id;
-		// или берём для текущего дока
+		//-- Или берём для текущего дока
 		elseif (! $doc_id && $_REQUEST['id'] > 0)
 			$doc_id = $_REQUEST['id'];
-		elseif (! $doc_id)
-			return;
+		//-- Возвращаем FALSE, если не число
+		elseif (! is_numeric($doc_id))
+			return false;
 
-		// забираем из базы поле
+		//-- Забираем из базы поле
 		$field = get_field($field_id, $doc_id);
 		$field = unserialize($field);
 
@@ -575,12 +589,59 @@
 		return $field;
 	}
 
+
+	/**
+	 * Возвращает сериализованны(й|е) элемент(ы) поля
+	 *
+	 * @param int $field_id	([tag:fld:X]) - номер поля
+	 * @param int $item_id - номер элемента
+	 * @param int $doc_id	([tag:docid]) - id документа
+	 * @return mixed
+	 */
+	function get_serialize($field_id, $item_id = null, $doc_id = null)
+	{
+		global $req_item_id;
+
+		//-- Если не передан $doc_id, то проверяем реквест
+		if (! $doc_id && $req_item_id)
+			$doc_id = $req_item_id;
+		//-- Или берём для текущего дока
+		elseif (! $doc_id && $_REQUEST['id'] > 0)
+			$doc_id = $_REQUEST['id'];
+		//-- Возвращаем FALSE, если не число
+		elseif (! is_numeric($doc_id))
+			return false;
+
+		//-- Забираем поле
+		$field = get_field($field_id, $doc_id);
+		$field = unserialize($field);
+
+		$field_data = array();
+
+		//-- Если получили массив из данных, собираем новый
+		if (! empty($field))
+			foreach ($field AS $k => $v)
+				$field_data[$k] = explode('|', $v);
+		//-- Иначе возвращаем FALSE
+		else
+			return false;
+
+		unset($field);
+
+		//-- Если пришло $item_id
+		if (is_numeric($item_id))
+			return $field_data[$item_id];
+		else
+			return $field_data;
+	}
+
+
 	/**
 	 * Возвращает элемент сериализованного поля по номеру и ключу, через тег [tag:fld:XXX][XXX][XXX]
 	 *
 	 * @return string
 	 */
-	function return_element ()
+	function return_element()
 	{
 		$param = func_get_args();
 

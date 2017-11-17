@@ -1096,7 +1096,6 @@ class AVE_Document
 
 	function documentSave($rubric_id, $document_id, $data, $update_non_exists_fields = false, $rubric_code = true, $revisions = true, $logs = true, $generate = true)
 	{
-
 		global $AVE_DB, $AVE_Template;
 
 		//-- Проверяем входящие данные -- //
@@ -1127,6 +1126,9 @@ class AVE_Document
 			WHERE
 				Id = '" . $rubric_id . "'
 		")->FetchRow();
+
+		// Запускаем триггер перед сохранением
+		Hooks::trigger('DocumentBeforeSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data));
 
 		// Выполняем стартовый код рубрики
 		if ($rubric_code)
@@ -1410,7 +1412,7 @@ class AVE_Document
 		}
 
 		// Если пришел вызов поля, который связан с модулем
-		if (isset($_REQUEST['field_module']))
+		if (isset($data['field_module']))
 		{
 			while(list($mod_key, $mod_val) = each($_REQUEST['field_module']))
 			{
@@ -1523,6 +1525,7 @@ class AVE_Document
 		foreach ($fields as $k => $v)
 		{
 			$fld_id = $v->Id;
+			$slash = false;
 
 			// Если в данных нет поля и мы редактируем документ - изменять ли это поле на пустое значение
 			if ($oper == 'UPDATE' && (! (isset($data['feld'][$fld_id]))) && ! $update_non_exists_fields)
@@ -1606,6 +1609,13 @@ class AVE_Document
 			// Сохраняем первые 500 символов
 			$f_val_500 = mb_substr($fval, 0, $substr);
 
+			// Проверяем чтобы не было в конце слеша - \
+			if (mb_substr($f_val_500, 498, 1) == '\\')
+				$slash = true;
+
+			if ($slash)
+				$f_val_500 = rtrim($f_val_500, '\\');
+
 			$sql = "
 				$operator
 				SET
@@ -1620,7 +1630,7 @@ class AVE_Document
 
 			$AVE_DB->Query($sql);
 
-			unset($sql, $f_val_500, $fld_val);
+			unset ($sql, $f_val_500, $fld_val);
 
 			// Если символов больше 500, то сохраняем их в другой таблице
 			if (mb_strlen($fval) > $substr)
@@ -1651,6 +1661,9 @@ class AVE_Document
 					: "rubric_field_id = '" . $fld_id . "', document_id = '" . $document_id . "',");
 
 				$f_val_unlim = mb_substr($fval, $substr);
+
+				if ($slash)
+					$f_val_unlim = '\\' . $f_val_unlim;
 
 				$sql = "
 					$operator
@@ -1695,7 +1708,7 @@ class AVE_Document
 		}
 
 		// Запускаем триггер после сохранения
-		Hooks::trigger('DocumentAfterSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data, 'field_module' => $_REQUEST['field_module']));
+		Hooks::trigger('DocumentAfterSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data, 'field_module' => $data['field_module']));
 
 		// Чистим кеш
 		$AVE_DB->clearcache('rub_' . $rubric_id);

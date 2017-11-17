@@ -522,7 +522,7 @@ function changeRub(select) {ldelim}
 				<td><strong><a title="{#REQUEST_MEDIAPATH#}" class="rightDir" href="javascript:void(0);" onclick="textSelection2('[tag:mediapath]', '');">[tag:mediapath]</a></strong></td>
 			</tr>
 			<tr>
-				<td><strong><a title="{#REQUEST_THUMBNAIL#}" class="rightDir" href="javascript:void(0);" onclick="textSelection2('[tag:X000x000:[tag:rfld:][150]]', '');">[tag:X000x000:[tag:rfld:XXX][XXX]]</a></strong></td>
+				<td><strong><a title="{#REQUEST_THUMBNAIL#}" class="rightDir" href="javascript:void(0);" onclick="textSelection2('[tag:X000x000:[tag:rfld:', '][150]]');">[tag:X000x000:[tag:rfld:XXX][XXX]]</a></strong></td>
 			</tr>
 			<tr>
 				<td><strong><a title="{#REQUEST_LANGFILE#}" class="rightDir" href="javascript:void(0);" onclick="textSelection('[tag:langfile:', ']');">[tag:langfile:XXX]</a></strong></td>
@@ -743,4 +743,3 @@ function changeRub(select) {ldelim}
 	{rdelim});
 </script>
 {/if}
-

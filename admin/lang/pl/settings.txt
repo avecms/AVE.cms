@@ -1,7 +1,7 @@
 # Język polski 02,2017 duncan
 
 [settings]
-SETTINGS_COUNTRIES = "Zarządzanie krajami" 
+SETTINGS_COUNTRIES = "Zarządzanie krajami"
 SETTINGS_COUNTRIES_ALL = "Lista krajów"
 SETTINGS_COUNTRY_TIP = "Proszę wybrać kraje, które będą dostępne do wyboru przy rejestracji nowych użytkowników w systemie. Pamiętaj, że obrana lista krajów może być wykorzystywana przez inne moduły w systemie."
 SETTINGS_ACTIVE = "Aktywna?"
@@ -72,7 +72,6 @@ SETTINGS_MAIN_PAGENAVI = "Ustawienia wyjścia nawigacji stronicowania"
 SETTINGS_NAME = "Parametr"
 SETTINGS_VALUE = "Znaczenie"
 SETTINGS_USE_EDITOR = "Domyślny edytor"
-SETTINGS_EDITOR_ELFINDER = "Elrte i Elfinder"
 SETTINGS_EDITOR_CKEDITOR = "CKEditor"
 SETTINGS_ERROR = "Błąd"
 SETTINGS_SUCCESS = "Gotowe"

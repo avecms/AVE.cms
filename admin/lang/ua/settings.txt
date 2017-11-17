@@ -75,7 +75,6 @@ SETTINGS_MAIN_PAGENAVI  = "Налаштування виводу посторі�
 SETTINGS_NAME           = "Параметр"
 SETTINGS_VALUE          = "Значення"
 SETTINGS_USE_EDITOR      = "Редактор по замовчуванню"
-SETTINGS_EDITOR_ELFINDER = "Elrte та Elfinder"
 SETTINGS_EDITOR_CKEDITOR = "CKEditor"
 
 SETTINGS_ERROR = "Помилка"

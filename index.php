@@ -160,5 +160,5 @@
 		$render .= get_statistic(1, 1, 1, 1);
 
 	//Вывод конечного результата
-	gzip_compress($render);
+	output_compress($render);
 ?>
