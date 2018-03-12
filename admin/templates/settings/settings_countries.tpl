@@ -1,31 +1,30 @@
 <div class="title"><h5>{#SETTINGS_COUNTRIES#}</h5></div>
 
 <div class="widget" style="margin-top: 0px;">
-    <div class="body">
+	<div class="body">
 		{#SETTINGS_COUNTRY_TIP#}
-    </div>
+	</div>
 </div>
 
 
 <div class="breadCrumbHolder module">
 	<div class="breadCrumb module">
-	    <ul>
-	        <li class="firstB"><a href="index.php" title="{#MAIN_PAGE#}">{#MAIN_PAGE#}</a></li>
-	        <li><a href="index.php?do=settings&cp={$sess}">{#SETTINGS_MAIN_TITLE#}</a></li>
+		 <ul>
+			 <li class="firstB"><a href="index.php" title="{#MAIN_PAGE#}">{#MAIN_PAGE#}</a></li>
+			 <li><a href="index.php?do=settings&cp={$sess}">{#SETTINGS_MAIN_TITLE#}</a></li>
 			<li>{#SETTINGS_COUNTRIES#}</li>
-	    </ul>
+		 </ul>
 	</div>
 </div>
 
 <div class="widget first">
 	<div class="body">
-		{if check_permission('cache_clear')}<a class="button basicBtn clearCacheSess" href="javascript:void(0);">{#MAIN_STAT_CLEAR_CACHE_FULL#}</a>{/if}
-		&nbsp;
-		{if check_permission('cache_thumb')}<a class="button basicBtn clearThumb" href="javascript:void(0);">{#MAIN_STAT_CLEAR_THUMB#}</a>{/if}
-		&nbsp;
-		{if check_permission('document_revisions')}<a class="button basicBtn clearRev" href="javascript:void(0);">{#MAIN_STAT_CLEAR_REV#}</a>{/if}
-		&nbsp;
-		{if check_permission('gen_settings')}<a class="button basicBtn clearCount" href="javascript:void(0);">{#MAIN_STAT_CLEAR_COUNT#}</a>{/if}
+		{if check_permission('cache_clear')}<a class="button redBtn clearCacheSess" href="javascript:void(0);">{#MAIN_STAT_CLEAR_CACHE_FULL#}</a>&nbsp;{/if}
+		{if check_permission('cache_thumb')}<a class="button redBtn clearThumb" href="javascript:void(0);">{#MAIN_STAT_CLEAR_THUMB#}</a>&nbsp;{/if}
+		{if check_permission('document_revisions')}<a class="button redBtn clearRev" href="javascript:void(0);">{#MAIN_STAT_CLEAR_REV#}</a>&nbsp;{/if}
+		{if check_permission('gen_settings')}<a class="button redBtn clearCount" href="javascript:void(0);">{#MAIN_STAT_CLEAR_COUNT#}</a>&nbsp;{/if}
+		{if check_permission('gen_settings_robots')}<a data-dialog="robots" data-height="650" data-modal="true" class="button greenBtn openDialog" href="index.php?do=settings&action=robots&cp={$sess}">{#SETTINGS_FILE_ROBOTS#}</a>&nbsp;{/if}
+		{if check_permission('gen_settings_fcustom')}<a data-dialog="custom" data-height="650" data-modal="true" class="button greenBtn openDialog" href="index.php?do=settings&action=custom&cp={$sess}">{#SETTINGS_FILE_CUSTOM#}</a>{/if}
 	</div>
 </div>
 
@@ -40,14 +39,14 @@
 		<li><a href="index.php?do=settings&action=paginations&cp={$sess}">{#SETTINGS_PAGINATION#}</a></li>
 	</ul>
 			<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
-            	<thead>
-                	<tr>
-                        <td width="20%">{#SETTINGS_COUNTRY_NAME#}</td>
-                        <td width="20%">{#SETTINGS_ACTIVE#}</td>
-                        <td width="20%">{#SETTINGS_IN_EC#}</td>
-                    </tr>
-                </thead>
-                <tbody>
+				<thead>
+					<tr>
+						<td width="20%">{#SETTINGS_COUNTRY_NAME#}</td>
+						<td width="20%">{#SETTINGS_ACTIVE#}</td>
+						<td width="20%">{#SETTINGS_IN_EC#}</td>
+					</tr>
+				</thead>
+				<tbody>
 			{foreach from=$countries item=land name=l}
 			<tr {if $land.country_status==1}class="green"{/if}>
 				<td>
@@ -65,8 +64,8 @@
 				</td>
 			</tr>
 			{/foreach}
-                </tbody>
-            </table>
+				</tbody>
+			</table>
 
 	<div class="rowElem" id="saveBtn">
 		<div class="saveBtn">
@@ -92,13 +91,13 @@
 
 $(document).ready(function(){ldelim}
 
-    var sett_options = {ldelim}
+	var sett_options = {ldelim}
 		url: 'index.php?do=settings&sub=countries&cp={$sess}&save=1',
 		beforeSubmit: Request,
-        success: Response
+		success: Response
 	{rdelim}
 
-    $(".SaveSettings").click(function(e){ldelim}
+	$(".SaveSettings").click(function(e){ldelim}
 		e.preventDefault();
 		var title = '{#SETTINGS_BUTTON_SAVE#}';
 		var confirm = '{#SETTINGS_SAVE_CONFIRM#}';
@@ -107,20 +106,20 @@ $(document).ready(function(){ldelim}
 				title,
 				function(b){ldelim}
 					if (b){ldelim}
-        				$("#settings").ajaxSubmit(sett_options);
+						$("#settings").ajaxSubmit(sett_options);
 					{rdelim}
 				{rdelim}
 			);
 	{rdelim});
 
 		Mousetrap.bind(['ctrl+s', 'command+s'], function(e) {ldelim}
-		    if (e.preventDefault) {ldelim}
-		        e.preventDefault();
-		    {rdelim} else {ldelim}
-		        // internet explorer
-		        e.returnValue = false;
-		    {rdelim}
-		    $("#settings").ajaxSubmit(sett_options);
+			if (e.preventDefault) {ldelim}
+				e.preventDefault();
+			{rdelim} else {ldelim}
+				// internet explorer
+				e.returnValue = false;
+			{rdelim}
+			$("#settings").ajaxSubmit(sett_options);
 			return false;
 		{rdelim});
 
@@ -137,3 +136,4 @@ function Response(){ldelim}
 {rdelim}
 
 </script>
+{include file="$codemirror_connect"}

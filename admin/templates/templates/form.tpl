@@ -82,7 +82,7 @@
 					<td>
 						<strong><a class="rightDir" title="{#TEMPLATES_THEME_FOLDER#}" href="javascript:void(0);" onclick="textSelection('[tag:theme:',']');">[tag:theme:folder]</a></strong>
 					</td>
-					<td rowspan="27">
+					<td rowspan="28">
 						<textarea {$read_only} class="{if $php_forbidden==1}tpl_code_readonly{else}{/if}" wrap="off" style="width:100%; height:100%;" name="template_text" id="template_text">{$row->template_text|default:$prefab|escape}</textarea>
 						<ul class="messages" style="margin-top: 10px;">
 							<li class="highlight grey">
@@ -107,6 +107,12 @@
 				<tr>
 					<td>
 						<strong><a class="rightDir" title="{#TEMPLATES_RUBHEADER#}" href="javascript:void(0);" onclick="textSelection('[tag:rubheader]','');">[tag:rubheader]</a></strong>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<strong><a class="rightDir" title="{#TEMPLATES_RUBFOOTER#}" href="javascript:void(0);" onclick="textSelection('[tag:rubfooter]','');">[tag:rubfooter]</a></strong>
 					</td>
 				</tr>
 

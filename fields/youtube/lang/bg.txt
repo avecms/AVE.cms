@@ -1,3 +1,9 @@
 [admin]
-
 name = "YouTube"
+f_url = "Линк"
+f_width = "Ширина"
+f_height = "Височина"
+f_fullscreen = "На цял екран"
+f_allow = "Разреши"
+f_forbidden = "Забрани"
+f_metod = "Метод на вмъкване"

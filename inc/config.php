@@ -11,9 +11,9 @@
 	 * @license GPL v.2
 	 */
 
-	@define('APP_NAME', 'AVE.CMS');
-	@define('APP_VERSION', '3.22');
-	@define('APP_INFO', '<a target="_blank" href="http://www.ave-cms.ru/">Ave-Cms.Ru</a> '.'&copy; 2007-' . date('Y'));
+	@define('APP_NAME', 'AVE.cms');
+	@define('APP_VERSION', '3.24');
+	@define('APP_INFO', '<a target="_blank" href="https://www.ave-cms.ru/">Ave-Cms.Ru</a> '.'&copy; 2007-' . date('Y'));
 
 	$GLOBALS['CMS_CONFIG']['USER_IP'] = array('DESCR' =>'Использовать IP для автологина на сайте','default'=>false,'TYPE'=>'bool','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['REWRITE_MODE'] = array('DESCR' =>'Использовать ЧПУ Адреса вида index.php будут преобразованы в /home/','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
@@ -24,10 +24,8 @@
 	$themes = array();
 
 	foreach (glob(dirname(dirname(__FILE__)) . '/templates/*') as $filename)
-	{
 		if (is_dir($filename))
-			$themes[]=basename($filename);
-	}
+			$themes[] = basename($filename);
 
 	$GLOBALS['CMS_CONFIG']['DEFAULT_THEME_FOLDER'] = array('DESCR' =>'Тема публичной части','default'=>$themes[0],'TYPE'=>'dropdown','VARIANT'=>$themes);
 
@@ -35,7 +33,7 @@
 
 	$GLOBALS['CMS_CONFIG']['CODEMIRROR_THEME'] = array(
 		'DESCR' => 'Цветовая схема Codemirror',
-		'default' => 'default',
+		'default' => 'dracula',
 		'TYPE' => 'dropdown',
 		'VARIANT' => array(
 			'default',
@@ -90,6 +88,7 @@
 	);
 
 	$GLOBALS['CMS_CONFIG']['ADMIN_MENU'] = array('DESCR' => 'Использовать плавующее боковое меню','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
+	$GLOBALS['CMS_CONFIG']['ADMIN_MENU_QUICK_ADD'] = array('DESCR' => 'Показывать меню в шапке с действиями','default'=>false,'TYPE'=>'bool','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['ADMIN_CAPTCHA'] = array('DESCR' => 'Использовать капчу при входе в админку','default'=>false,'TYPE'=>'bool','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['ADMIN_EDITMENU'] = array('DESCR' => 'Использовать всплывающие "Действия" в системе','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
 
@@ -145,12 +144,16 @@
 	$GLOBALS['CMS_CONFIG']['OUTPUT_EXPIRE_OFFSET'] = array('DESCR' => 'Время жизни кеширования страницы (60*60 - 1 час)','default'=>60*60, 'TYPE'=>'integer', 'VARIANT'=>'');
 
 	$GLOBALS['CMS_CONFIG']['CHECK_VERSION'] = array('DESCR' => 'Проверка наличия новых версий','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
+	// 3.23
+	$GLOBALS['CMS_CONFIG']['REQUEST_ETC'] = array('DESCR' => 'Окончание в полях запроса', 'default'=>'...', 'TYPE'=>'string', 'VARIANT'=>'');
+	$GLOBALS['CMS_CONFIG']['REQUEST_BREAK_WORDS'] = array('DESCR' => 'Разбивать слова при выводе полей в запросе', 'default'=>false, 'TYPE'=>'bool', 'VARIANT'=>'');
+	$GLOBALS['CMS_CONFIG']['REQUEST_STRIP_TAGS'] = array('DESCR' => 'При - у поля, оставляем теги в результате', 'default'=>'', 'TYPE'=>'string', 'VARIANT'=>'');
+
+	$GLOBALS['CMS_CONFIG']['DEV_MODE'] = array('DESCR' => 'Режим разработчика (Отключено кеширование SQL)', 'default'=>false, 'TYPE'=>'bool', 'VARIANT'=>'');
 
 	include_once(dirname(dirname(__FILE__)) . '/inc/config.inc.php');
 
 	foreach($GLOBALS['CMS_CONFIG'] as $k => $v)
-	{
 		if(! defined($k))
 			define($k, $v['default']);
-	}
 ?>

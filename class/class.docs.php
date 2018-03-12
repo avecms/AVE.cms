@@ -182,13 +182,82 @@ class AVE_Document
 		return $field;
 	}
 
-/**
- *	Внутренние методы
- */
 
-	/**
-	 *	Управление Документами
-	 */
+	function _get_rubric_fields ($id)
+	{
+		global $AVE_DB;
+
+		$sql = "
+			SELECT
+				Id,
+				rubric_field_type,
+				rubric_field_numeric
+			FROM
+				".PREFIX."_rubric_fields
+			WHERE
+				rubric_id = '" . $id . "'
+		";
+
+		$query = $AVE_DB->Query($sql);
+
+		$ids = array();
+
+		while ($row = $query->FetchAssocArray())
+		{
+			$ids[$row['Id']]['rubric_field_type'] = $row['rubric_field_type'];
+			$ids[$row['Id']]['rubric_field_numeric'] = (int)$row['rubric_field_numeric'];
+		}
+
+		return $ids;
+	}
+
+
+	function _get_document_text_fields ($id)
+	{
+		global $AVE_DB;
+
+		$sql = "
+			SELECT
+				rubric_field_id
+			FROM
+				".PREFIX."_document_fields_text
+			WHERE
+				document_id = '" . $id . "'
+		";
+
+		$query = $AVE_DB->Query($sql);
+
+		$ids = array();
+
+		while ($row = $query->GetCell())
+			array_push($ids, $row);
+
+		return $ids;
+	}
+
+
+	function _get_rubric ($id)
+	{
+		global $AVE_DB;
+
+		if (! $id)
+			return false;
+
+		$sql = "
+			SELECT
+				rubric_alias,
+				rubric_alias_history,
+				rubric_code_start,
+				rubric_code_end
+			FROM
+				" . PREFIX . "_rubrics
+			WHERE
+				Id = '" . $id . "'
+		";
+
+		return $AVE_DB->Query($sql)->FetchRow();
+	}
+
 
 	/**
 	 * Метод, предназначенный для получения списка документов в Панели управления
@@ -208,6 +277,9 @@ class AVE_Document
 		$nav_rub = '';
 		$ex_docstatus = '';
 		$navi_docstatus = '';
+
+		// При смене страницы убираем из сессии параметры выборки документов
+		unset ($_SESSION['search_query']);
 
 		// Если в запросе пришел параметр на поиск документа по названию
 		if (!empty($_REQUEST['QueryTitel']))
@@ -428,6 +500,9 @@ class AVE_Document
 		$db_sort   = 'ORDER BY doc.Id DESC';
 		$navi_sort = '&sort=id_desc';
 
+		// Параметры вывборки документов
+		$search_query = base64_encode($_SERVER['QUERY_STRING']);
+
 		// Если в запросе используется параметр сортировки
 		if (!empty($_REQUEST['sort']))
 		{
@@ -597,6 +672,9 @@ class AVE_Document
 		// Циклически обрабатываем полученные данные с целью приведения некоторых из них к удобочитаемому виду
 		while ($row = $sql->FetchRow())
 		{
+			// Запомниаем в сесии, параметры выборки для документа
+			$_SESSION['search_query'][$row->Id] = $search_query;
+
 			// Определяем количество комментариев, оставленных для данного документа
 			$row->ist_remark = $AVE_DB->Query("
 				SELECT
@@ -1085,23 +1163,27 @@ class AVE_Document
 	/**
 	 * Метод, предназначенный для сохранения документа в БД
 	 *
-	 * @param int $rubric_id	идентификатор Рубрики
-	 * @param int $document_id	идентификатор Документа
-	 * @param array $data			Документ в массиве структура - хитрая
-	 * @param bool $update_non_exists_fields	Изменять поля на пустые
-	 * значения у не переданных полей или не надо
-	 * @param bool $rubric_cod	Использовать код рубрики или не надо
-	 * возвращает номер документа если все удачно и false если все плохо
+	 * @param int $rubric_id						Идентификатор Рубрики
+	 * @param int $document_id						Идентификатор Документа или null, если документ новый
+	 * @param array $data							Документ в массиве структура - хитрая
+	 * @param bool $update_non_exists_fields 		Изменять поля на пустые значения у не переданных полей или не надо
+	 * @param bool $rubric_code						Использовать код рубрики или не надо
+	 * @param bool $revisions						Использовать ревизии документов
+	 * @param bool $logs							Писать системные сообщения в журнал
+	 * @param bool $generate						Генерировать Meta
+	 *
+	 * return int/bool								Возвращает номер документа если все удачно или false если все плохо
 	 */
 
-	function documentSave($rubric_id, $document_id, $data, $update_non_exists_fields = false, $rubric_code = true, $revisions = true, $logs = true, $generate = true)
+	function documentSave ($rubric_id, $document_id, $data, $update_non_exists_fields = false, $rubric_code = true, $revisions = true, $logs = true, $generate = true)
 	{
 		global $AVE_DB, $AVE_Template;
 
 		//-- Проверяем входящие данные -- //
 
-		$rubric_id 		= (int)$rubric_id;
-		$document_id 	= (int)$document_id;
+		// Если отсутсвует рубрика, ничего не делаем
+		if(! $rubric_id)
+			return false;
 
 		// Если отсутсвуют данные, ничего не делаем
 		if(! isset($data))
@@ -1111,30 +1193,21 @@ class AVE_Document
 		if(! isset($data['feld']))
 			return false;
 
+		$rubric_id 		= (int)$rubric_id;
+		$document_id 	= (int)$document_id;
+
 		// Определяем тип опреации
 		$oper = 'INSERT';
 
 		// Забираем параметры рубрики
-		$_rubric = $AVE_DB->Query("
-			SELECT
-				rubric_alias,
-				rubric_alias_history,
-				rubric_code_start,
-				rubric_code_end
-			FROM
-				" . PREFIX . "_rubrics
-			WHERE
-				Id = '" . $rubric_id . "'
-		")->FetchRow();
+		$_rubric = $this->_get_rubric($rubric_id);
 
 		// Запускаем триггер перед сохранением
-		Hooks::trigger('DocumentBeforeSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data));
+		Hooks::trigger('DocumentBeforeSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data, 'requests' => $_REQUEST));
 
 		// Выполняем стартовый код рубрики
 		if ($rubric_code)
-		{
-			eval ('?>' . $_rubric->rubric_code_start . '<?');
-		}
+			eval ('?'.'>' . $_rubric->rubric_code_start . '<'.'?');
 
 		// Если нет данных для сохранения, перкращаем сохранение и переходим на страницу документов
 		if (empty($data))
@@ -1154,6 +1227,7 @@ class AVE_Document
 			|| (defined('UGROUP') && UGROUP == 1) ))
 			return false;
 
+		// Title документа
 		$data['document_title'] = $_url = empty($data['document_title'])
 			? $AVE_Template->get_config_vars('DOC_WITHOUT_TITLE')
 			: $data['document_title'];
@@ -1332,7 +1406,7 @@ class AVE_Document
 		else
 			{
 				// Если оператор INSERT
-				// Если новый алиас документа, сопадает с алиасом в истории, просто стираем историю
+				// Если новый алиас документа, совпадает с алиасом в истории, просто стираем историю
 				$AVE_DB->Query("
 					DELETE FROM
 						". PREFIX . "_document_alias_history
@@ -1378,9 +1452,9 @@ class AVE_Document
 		$fields = array();
 
 		// Получаем структуру документа
-		if($oper == 'INSERT')
+		if ($oper == 'INSERT')
 		{
-			$sql = $AVE_DB->Query("
+			$sql = "
 				SELECT
 					*
 				FROM
@@ -1389,27 +1463,28 @@ class AVE_Document
 					rubric_id = '" . $rubric_id . "'
 				ORDER BY
 					rubric_field_position ASC
-			");
+			";
 		}
 		else
 		{
-			$sql = $AVE_DB->Query("
+			$sql = "
 				SELECT
-					doc.Id AS df_id,
 					rub.*,
 					rubric_field_default,
-					doc.field_value
+					df.field_value
 				FROM
 					" . PREFIX . "_rubric_fields AS rub
 				LEFT JOIN
-					" . PREFIX . "_document_fields AS doc
+					" . PREFIX . "_document_fields AS df
 					ON rubric_field_id = rub.Id
 				WHERE
 					document_id = '" . $document_id . "'
 				ORDER BY
 					rubric_field_position ASC
-			");
+			";
 		}
+
+		$query = $AVE_DB->Query($sql);
 
 		// Если пришел вызов поля, который связан с модулем
 		if (isset($data['field_module']))
@@ -1420,18 +1495,18 @@ class AVE_Document
 
 				$mod_function = (string)$mod_val . '_document_save';
 
-				$fields = $mod_function($mod_key, $mod_val, $sql, $data['feld'][$mod_key], $mod_key, $rubric_id);
+				$fields = $mod_function($mod_key, $mod_val, $query, $data['feld'][$mod_key], $mod_key, $rubric_id);
 			}
 		}
 		else
 		{
-			while ($row = $sql->FetchRow())
+			while ($row = $query->FetchRow())
 			{
-				array_push($fields, $row);
+				$fields[$row->Id] = $row;
 			}
 		}
 
-		unset($sql);
+		unset($sql, $query);
 
 		$where = ($oper == 'UPDATE' ? 'WHERE Id = ' . $document_id : '');
 		$author = ($oper != 'UPDATE' ? 'document_author_id = ' . $_SESSION['user_id'] . ',' : '');
@@ -1518,8 +1593,13 @@ class AVE_Document
 		if ($logs)
 			reportLog(($oper=='INSERT'
 				? $AVE_Template->get_config_vars('DOC_SAVE_ADD')
-				: $AVE_Template->get_config_vars('DOC_SAVE_EDIT'))
-		. $AVE_Template->get_config_vars('DOC_SAVE_LOG_DOC') .' (' . $data['document_title'] . ' Id: ' . $document_id . ')');
+				: $AVE_Template->get_config_vars('DOC_SAVE_EDIT')) . $AVE_Template->get_config_vars('DOC_SAVE_LOG_DOC') .' (' . $data['document_title'] . ' Id: ' . $document_id . ')');
+
+		// Получаем ID полей в данной рубрике
+		$rubric_fields = $this->_get_rubric_fields($rubric_id);
+
+		// Получаем ID текстовых полей в данном документе
+		$document_text_fields = $this->_get_document_text_fields($document_id);
 
 		// Циклически обрабатываем поля документа
 		foreach ($fields as $k => $v)
@@ -1535,23 +1615,10 @@ class AVE_Document
 				? $data['feld'][$fld_id]
 				: $v->rubric_field_default);
 
-			if (! $AVE_DB->Query("
-					SELECT 1
-					FROM
-						" . PREFIX . "_rubric_fields
-					WHERE
-						Id = '" . $fld_id . "'
-					AND
-						rubric_id = '" . $rubric_id . "'
-					LIMIT 1
-				")->NumRows())
-			{
-				continue;
-			}
-
 			/* ------------------------------------------------------------------- */
 
-			if(! is_array($fld_val))
+			// Если значение поля не является массивом
+			if (! is_array ($fld_val))
 			{
 				// Если запрещено использование php кода, тогда обнуляем данные поля
 				if (! check_permission('document_php'))
@@ -1565,23 +1632,13 @@ class AVE_Document
 				$fld_val = pretty_chars($fld_val);
 			}
 
-			$field_rubric = $AVE_DB->Query("
-				SELECT
-					*
-				FROM
-					" . PREFIX . "_rubric_fields
-				WHERE
-					Id = '" . $fld_id . "'
-			")->FetchRow();
-
 			// Отправляем полученные данные в функцию поля, в раздел "Save"
 			// для преобразования перед сохранением
-			$func = 'get_field_' . $field_rubric->rubric_field_type;
+			$func = 'get_field_' . $rubric_fields[$fld_id]['rubric_field_type'];
 
-			if (is_callable($func))
-			{
+			// Если вызывается функция
+			if (is_callable ($func))
 				$fld_val = $func($fld_val, 'save', $fld_id, '', 0, $x, 0, 0, 0);
-			}
 
 			//-- Собираем запрос к БД на добавление нового поля с его содержимым --//
 
@@ -1597,9 +1654,9 @@ class AVE_Document
 				? ''
 				: "rubric_field_id = '" . $fld_id . "', document_id = '" . $document_id . "',");
 
-			$fval = (is_array($fld_val)
-				? serialize($fld_val)
-				: ($fld_val));
+			$fval = is_array ($fld_val)
+				? serialize ($fld_val)
+				: $fld_val;
 
 			$substr = 500;
 
@@ -1607,22 +1664,22 @@ class AVE_Document
 				$substr = 499;
 
 			// Сохраняем первые 500 символов
-			$f_val_500 = mb_substr($fval, 0, $substr);
+			$f_val_500 = mb_substr ($fval, 0, $substr);
 
 			// Проверяем чтобы не было в конце слеша - \
 			if (mb_substr($f_val_500, 498, 1) == '\\')
 				$slash = true;
 
 			if ($slash)
-				$f_val_500 = rtrim($f_val_500, '\\');
+				$f_val_500 = rtrim ($f_val_500, '\\');
 
 			$sql = "
 				$operator
 				SET
 					$insert
 					field_value				= '" . $f_val_500 . "',
-					field_number_value		= '" . (($field_rubric->rubric_field_numeric)
-													? preg_replace('/[^\d.]/', '', $fld_val)
+					field_number_value		= '" . (($rubric_fields[$fld_id]['rubric_field_numeric'])
+													? preg_replace ('/[^\d.]/', '', $fld_val)
 													: 0) . "',
 					document_in_search		= '" . $search . "'
 				$where
@@ -1636,27 +1693,21 @@ class AVE_Document
 			if (mb_strlen($fval) > $substr)
 			{
 				// Проверяем есть ли запись о поле в БД
-				$check_field = $AVE_DB->Query("
-					SELECT
-						Id
-					FROM
-						" .PREFIX . "_document_fields_text
-					WHERE
-						document_id = '" . $document_id . "'
-					AND
-						rubric_field_id='" . $fld_id . "'
-				")->GetCell();
+				$check_field = false;
 
-				$operator = ($check_field > 0
+				if (in_array ($fld_id, $document_text_fields))
+					$check_field = true;
+
+				$operator = ($check_field
 					? "UPDATE " . PREFIX . "_document_fields_text"
 					: "INSERT INTO " . PREFIX . "_document_fields_text"
 				);
 
-				$where = ($check_field > 0
+				$where = ($check_field
 					? "WHERE document_id = '" . $document_id . "' AND rubric_field_id = '" . $fld_id . "'"
 					: '');
 
-				$insert = ($check_field > 0
+				$insert = ($check_field
 					? ''
 					: "rubric_field_id = '" . $fld_id . "', document_id = '" . $document_id . "',");
 
@@ -1701,14 +1752,12 @@ class AVE_Document
 				doc_id = '" . $document_id . "'
 		");
 
-		// Выполняем код рубрики, после сохранения
-		if ($rubric_code)
-		{
-			eval ('?>' . $_rubric->rubric_code_end . '<?');
-		}
-
 		// Запускаем триггер после сохранения
 		Hooks::trigger('DocumentAfterSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data, 'field_module' => $data['field_module']));
+
+		// Выполняем код рубрики, после сохранения
+		if ($rubric_code)
+			eval ('?>' . $_rubric->rubric_code_end . '<?');
 
 		// Чистим кеш
 		$AVE_DB->clearcache('rub_' . $rubric_id);
@@ -1716,7 +1765,7 @@ class AVE_Document
 		$AVE_DB->clearcompile('doc_' . $document_id);
 		$AVE_DB->clearcacherequest('doc_' . $document_id);
 
-		unset($_rubric);
+		unset ($_rubric, $fields);
 
 		// Дополнительные обработки
 		if ($generate)
@@ -1819,7 +1868,9 @@ class AVE_Document
 					$innavi = check_permission_acp('navigation_new') ? '&innavi=1' : '';
 
 					// Определяем статус документа
-					$document_status = !empty($_REQUEST['document_status']) ? (int)$_REQUEST['document_status'] : '0';
+					$document_status = ! empty($_REQUEST['document_status'])
+						? (int)$_REQUEST['document_status']
+						: '0';
 
 					// Если статус документа не определен
 					if (empty($document_status) && $_SESSION['user_group'] != 1)
@@ -1832,7 +1883,7 @@ class AVE_Document
 						// которые пользователь ввел в поля документа
 						foreach ($_POST['feld'] as $val)
 						{
-							if (!empty($val))
+							if (! empty($val))
 							{
 								$newtext .= $val;
 								$newtext .= "\n---------------------\n";
@@ -1850,6 +1901,7 @@ class AVE_Document
 						$body_to_admin = str_replace('%N%', "\n", $body_to_admin);
 						$body_to_admin = str_replace('%TITLE%', stripslashes($_POST['document_title']), $body_to_admin);
 						$body_to_admin = str_replace('%USER%', "'" . $_SESSION['user_name'] . "'", $body_to_admin);
+
 						send_mail(
 							$system_mail,
 							$body_to_admin . $text,
@@ -2201,6 +2253,7 @@ class AVE_Document
 							groups.Id AS group_id,
 							rub.*,
 							rubric_field_default,
+							rubric_field_alias,
 							doc.field_value,
 							field_more.field_value as field_value_more
 						FROM
@@ -2263,6 +2316,7 @@ class AVE_Document
 						$fields_list[$group_id]['fields'][$field->Id]['Id'] = $field->Id;
 						$fields_list[$group_id]['fields'][$field->Id]['rubric_id'] = $row->rubric_id;
 						$fields_list[$group_id]['fields'][$field->Id]['rubric_field_title'] = $field->rubric_field_title;
+						$fields_list[$group_id]['fields'][$field->Id]['rubric_field_alias'] = $field->rubric_field_alias;
 						$fields_list[$group_id]['fields'][$field->Id]['rubric_field_description'] = $field->rubric_field_description;
 						$fields_list[$group_id]['fields'][$field->Id]['result'] = $field->field;
 					}
@@ -3693,9 +3747,46 @@ class AVE_Document
 			exit;
 		}
 
+		$search_query = $_SESSION['search_query'][$document_id] ? true : false;
+
+		$AVE_Template->assign('search_query', $search_query);
 		$AVE_Template->assign($document);
 		$AVE_Template->assign('content', $AVE_Template->fetch('documents/form_after.tpl'));
 	}
+
+
+	/**
+	 * Редирект сохраненного документа на раздел, учитывая фильтр
+	 *
+	 */
+	function documentSaveRedirect()
+	{
+		$document_id = isset($_REQUEST['document_id'])
+			? (int)$_REQUEST['document_id']
+			: 0;
+
+		// Если не пришел $documet_id
+		if (! $document_id)
+		{
+			header('Location:index.php?do=docs&cp=' . SESSION);
+			exit;
+		}
+
+		// Параметры поиска
+		$search_query = base64_decode($_SESSION['search_query'][$document_id]);
+
+		$search_query = $search_query
+			? $search_query
+			: 'do=docs&cp=' . SESSION;
+
+		// Убираем из сессии данный документ
+		unset ($_SESSION['search_query'][$document_id]);
+
+		// Переходим на страницу
+		header('Location: index.php?' . $search_query);
+		exit;
+	}
+
 
 	/**
 	 * Метод, предназначенный для смены автора документа

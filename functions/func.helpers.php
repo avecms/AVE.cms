@@ -341,29 +341,29 @@ if (!function_exists('cleanSanitize')){
  * @param bool   $middle        Вырезает середину, оставляет начало + разделитель + конец
  * @return mixed|string
  */
-if (!function_exists('trancate'))
+if (! function_exists('trancate'))
 {
 	function truncate($string, $length = 80, $etc = '...', $break_words = false, $middle = false)
 	{
 		if ($length == 0)
 			return '';
 
-		if (strlen($string) > $length)
+		if (mb_strlen($string) > $length)
 		{
-			$length -= min($length, strlen($etc));
+			$length -= min($length, mb_strlen($etc));
 
 			if (! $break_words && ! $middle)
 			{
-				$string = preg_replace('/\s+?(\S+)?$/', '', substr($string, 0, $length + 1));
+				$string = preg_replace('/\s+?(\S+)?$/', '', mb_substr($string, 0, $length + 1));
 			}
 
-			if (!$middle)
+			if (! $middle)
 			{
-				return substr($string, 0, $length) . $etc;
+				return mb_substr($string, 0, $length) . $etc;
 			}
 			else
 				{
-					return substr($string, 0, $length/2) . $etc . substr($string, -$length/2);
+					return mb_substr($string, 0, $length / 2) . $etc . mb_substr($string, - $length / 2);
 				}
 		}
 		else
@@ -409,7 +409,9 @@ if (!function_exists('truncate_text'))
 			if (strlen($out) >= $n)
 			{
 				$out = trim($out);
-				return (strlen($out) == strlen($str)) ? $out : $out . $end_char;
+				return (strlen($out) == strlen($str))
+					? $out
+					: $out . $end_char;
 			}
 		}
 		return $str;

@@ -88,7 +88,7 @@ $(function() {ldelim}
 					<col width="40">
 					<col width="30">
 					<col width="40">
-					<col width="40">
+					<col width="20">
 					<col width="20">
 					<col width="20">
 					<col width="20">
@@ -110,8 +110,7 @@ $(function() {ldelim}
 								</div>
 							</td>
 							<td align="center"><a href="javascript:void(0);" class="topDir icon_sprite ico_lines float" style="cursor: help; display: inline-block" title="{#RUBRIK_COUNT_FIELDS#}"></a></td>
-							<td align="center"><a href="javascript:void(0);" class="topDir icon_sprite ico_template float" style="cursor: help; display: inline-block" title="{#RUBRIK_EDIT_TMPLS#}"></a></td>
-							<td align="center" colspan="5">{#RUBRIK_ACTION#}</td>
+							<td align="center" colspan="6">{#RUBRIK_ACTION#}</td>
 						</tr>
 					</thead>
 					<tbody id="rubsTbody">
@@ -191,13 +190,6 @@ $(function() {ldelim}
 							<td align="center"><strong class="code">{$rubric->fld_count}</strong></td>
 							<td align="center">
 								{if check_permission('rubric_edit')}
-									<strong class="code"><a class="topDir" title="{#RUBRIK_EDIT_TMPLS#}" href="index.php?do=rubs&action=tmpls&Id={$rubric->Id}&cp={$sess}">{$rubric->tmpls_count}</a></strong>
-								{else}
-									<strong class="code">{$rubric->tmpls_count}</strong>
-								{/if}
-							</td>
-							<td align="center">
-								{if check_permission('rubric_edit')}
 									<a class="topleftDir icon_sprite ico_edit" title="{#RUBRIK_EDIT#}" href="index.php?do=rubs&action=edit&Id={$rubric->Id}&cp={$sess}"></a>
 								{else}
 									<span title="{#RUBRIK_NO_CHANGE1#}" class="topleftDir icon_sprite ico_edit_no"></span>
@@ -206,6 +198,13 @@ $(function() {ldelim}
 							<td align="center">
 								{if check_permission('rubric_edit')}
 									<a class="topleftDir icon_sprite ico_template" title="{#RUBRIK_EDIT_TEMPLATE#}" href="index.php?do=rubs&action=template&Id={$rubric->Id}&cp={$sess}"></a>
+								{else}
+									<span title="{#RUBRIK_NO_CHANGE2#}" class="topleftDir icon_sprite ico_template_no"></span>
+								{/if}
+							</td>
+							<td align="center">
+								{if check_permission('rubric_edit')}
+									<a class="topleftDir icon_sprite ico_template" title="{#RUBRIK_EDIT_TMPLS#}" href="index.php?do=rubs&action=tmpls&Id={$rubric->Id}&cp={$sess}"></a>
 								{else}
 									<span title="{#RUBRIK_NO_CHANGE2#}" class="topleftDir icon_sprite ico_template_no"></span>
 								{/if}

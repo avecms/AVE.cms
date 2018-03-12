@@ -298,3 +298,6 @@ DOC_SAVE_LOG_DOC            = " документ"
 DOC_LANG                    = "Язык"
 DOC_LANG_ID                 = "Язык документа:"
 DOC_LANG_SELECT             = "Выберите язык"
+
+// 3.25
+DOC_CLOSE_SEARCH_RUBRIC     = "Вернуться в раздел, учитывая параметры поиска"

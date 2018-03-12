@@ -15,8 +15,8 @@
 	/**
 	 * Вставляем файл с пользовательскими функциями
 	 */
-	if (file_exists(BASE_DIR."/functions/func.custom.php"))
-		include (BASE_DIR."/functions/func.custom.php");
+	if (file_exists(BASE_DIR . '/functions/func.custom.php'))
+		include (BASE_DIR . '/functions/func.custom.php');
 
 
 	/**
@@ -255,9 +255,7 @@
 		static $settings = null;
 
 		if ($settings === null)
-		{
-			$settings = $AVE_DB->Query("SELECT * FROM " . PREFIX . "_settings", SYSTEM_CACHE_LIFETIME)->FetchAssocArray();
-		}
+			$settings = $AVE_DB->Query("SELECT * FROM " . PREFIX . "_settings", SYSTEM_CACHE_LIFETIME, 'settings')->FetchAssocArray();
 
 		if ($field == '')
 			return $settings;
@@ -925,6 +923,37 @@
 			$keyword = $row->keyword;
 			echo "$keyword\n";
 		}
+	}
+
+
+	/**
+	 * Функция поиска ключевых слов
+	 *
+	 * @param string $string - запрос
+	 * @return string
+	 */
+	function searchTags()
+	{
+		global $AVE_DB;
+
+		$sql = $AVE_DB->Query("
+			SELECT DISTINCT
+				tag
+			FROM
+				" . PREFIX . "_document_tags
+		");
+
+		$tags = array();
+
+		$ii = 0;
+
+		while ($row = $sql->GetCell())
+		{
+			$tags[]['value'] = $row;
+		}
+
+		echo json_encode($tags);
+		exit;
 	}
 
 

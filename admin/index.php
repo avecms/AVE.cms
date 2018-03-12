@@ -25,13 +25,16 @@
 		exit;
 	}
 
-	require(BASE_DIR . '/admin/init.php');
+	require (BASE_DIR . '/admin/init.php');
 
 	if (! isset($_SESSION['user_id']))
 	{
 		@session_destroy();
 
-		if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] == 'run' || ( !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ))
+		if (
+			isset($_REQUEST['ajax']) && $_REQUEST['ajax'] == 'run'
+			|| (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' )
+		)
 		{
 			header($_SERVER['SERVER_PROTOCOL'] . ' 401 Unauthorised access', true);
 			exit;
@@ -69,16 +72,16 @@
 	}
 
 	/* Вывод модулей на всех страницах */
-	get_editable_module();
+	getInstaledModules();
 	LoginModuleCheck();
 
 	$AVE_Template->assign('use_editor', get_settings('use_editor'));
 	$AVE_Template->assign('user_avatar', getAvatar($_SESSION['user_id'],25));
 
-	if (!isset($_REQUEST['do']))     $_REQUEST['do']     = '';
-	if (!isset($_REQUEST['action'])) $_REQUEST['action'] = '';
-	if (!isset($_REQUEST['sub']))    $_REQUEST['sub']    = '';
-	if (!isset($_REQUEST['submit'])) $_REQUEST['submit'] = '';
+	if (! isset($_REQUEST['do']))		$_REQUEST['do']     = '';
+	if (! isset($_REQUEST['action']))	$_REQUEST['action'] = '';
+	if (! isset($_REQUEST['sub']))		$_REQUEST['sub']    = '';
+	if (! isset($_REQUEST['submit']))	$_REQUEST['submit'] = '';
 
 	//Шаблоны навигации
 	$AVE_Template->assign('navi', $AVE_Template->fetch('navi/navi.tpl'));
@@ -113,7 +116,7 @@
 	header("Cache-Control: no-store, no-cache, must-revalidate");
 	header("Expires: " . date("r"));
 
-	include(BASE_DIR . '/admin/' . $do . '.php');
+	include (BASE_DIR . '/admin/' . $do . '.php');
 
 	if (defined('NOPERM'))
 		$AVE_Template->assign('content', $config_vars['MAIN_NO_PERMISSION']);

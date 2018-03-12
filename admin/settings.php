@@ -172,6 +172,15 @@ switch($_REQUEST['action'])
 		$AVE_Settings->settingsPaginationsDel();
 	break;
 	//-- v3.2
-}
 
+	//-- v3.24
+	case 'robots':
+		$AVE_Settings->editRobots();
+	break;
+
+	case 'custom':
+		$AVE_Settings->editCustom();
+	break;
+	//-- v3.24
+}
 ?>

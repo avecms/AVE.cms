@@ -37,12 +37,6 @@ $(document).ready(function(){ldelim}
 	<h5>{#RUBRIC_TMPLS_HEAD#}</h5>
 	<div class="num">
 		<a class="basicNum" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_TEMPLATE#}</a>
-		&nbsp;
-		<a class="basicNum" href="index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT#}</a>
-		&nbsp;
-		{if check_permission('rubric_code')}
-		<a class="basicNum" href="index.php?do=rubs&action=code&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_CODE#}</a>
-		{/if}
 	</div>
 </div>
 
@@ -51,6 +45,34 @@ $(document).ready(function(){ldelim}
 		{#RUBRIC_TMPLS_TIP#}
 	</div>
 </div>
+
+
+<table class="first tableButtons" cellpadding="0" cellspacing="0" width="100%" id="rubricButtons">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<tr>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FIELDS#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=ftlist&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FTEMPLATES#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=fieldsgroups&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FGROUPS#}</a>
+		</td>
+		<td>
+			{if check_permission('rubric_code')}
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=code&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_CODE#}</a>
+			{/if}
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=rules&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_RULES#}</a>
+		</td>
+	</tr>
+</table>
 
 <div class="breadCrumbHolder module">
 	<div class="breadCrumb module">

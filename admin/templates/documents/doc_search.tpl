@@ -34,19 +34,18 @@
 			},
 			speed: 5,
 			loadOpen: function(elem, opts) {
-				$(".mainForm select").not("[multiple*=multiple]").styler({
-					selectVisibleOptions: 5,
-					selectSearch: false
-				});
 				elem.next().show();
 			},
 			loadClose: function(elem, opts) {
-				$(".mainForm select").not("[multiple*=multiple]").styler({
-					selectVisibleOptions: 5,
-					selectSearch: false
-				});
 				elem.next().hide();
 			}
+		});
+
+		$('.collapsible').on('click', function() {
+			setTimeout(function() {
+				AveAdmin.sticky_panel_refresh();
+				AveAdmin.select_form();
+			}, 10);
 		});
 		{/literal}
 

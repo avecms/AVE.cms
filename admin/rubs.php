@@ -73,21 +73,22 @@ switch($_REQUEST['action'])
 
 					$Rtemplate = $_POST['rubric_template'];
 					$Htemplate = $_POST['rubric_header_template'];
+					$Ftemplate = $_POST['rubric_footer_template'];
 					$Ttemplate = $_POST['rubric_teaser_template'];
 					$Atemplate = $_POST['rubric_admin_teaser_template'];
 
-					$check_code = strtolower($Rtemplate.$Htemplate.$Ttemplate.$Atemplate);
+					$check_code = strtolower($Rtemplate.$Htemplate.$Ttemplate.$Atemplate.$Ftemplate);
 
 					$ok = true;
 
-					if((is_php_code($check_code)) && !check_permission('rubric_php') )
+					if ((is_php_code($check_code)) && !check_permission('rubric_php') )
 					{
 						$AVE_Template->assign('php_forbidden', 1);
 
 						$ok = false;
 					}
 
-					if(! $ok)
+					if (! $ok)
 					{
 						$message = $AVE_Template->get_config_vars('RUBRIC_SAVED_PHP_ERR');
 						$header = $AVE_Template->get_config_vars('RUBRIC_ERROR');
@@ -102,11 +103,10 @@ switch($_REQUEST['action'])
 						{
 							$AVE_Rubric->rubricTemplateShow(1);
 						}
-
 					}
 					else
 					{
-						$AVE_Rubric->rubricTemplateSave($Rtemplate, $Htemplate, $Ttemplate, $Atemplate);
+						$AVE_Rubric->rubricTemplateSave($Rtemplate, $Htemplate, $Ttemplate, $Atemplate, $Ftemplate);
 					}
 					break;
 			}
@@ -549,6 +549,104 @@ switch($_REQUEST['action'])
 		if(check_permission('rubric_edit'))
 		{
 			$AVE_Rubric->tmplsDelete();
+		}
+		else
+		{
+			$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('RUBRIK_NO_PERMISSION'));
+			$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
+		}
+		break;
+
+	case 'rules':
+		if (check_permission('rubric_edit'))
+		{
+			switch($_REQUEST['sub'])
+			{
+				case '':
+					switch($_REQUEST['submit'])
+					{
+						case 'saveperms':
+							if (check_permission('rubric_perms'))
+								$AVE_Rubric->rubricPermissionSave((int)$_REQUEST['Id']);
+							break;
+					}
+			}
+			$AVE_Rubric->rubricRulesShow((int)$_REQUEST['Id'], null);
+			break;
+		}
+		else
+		{
+			$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('RUBRIK_NO_CHANGE1'));
+			$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
+		}
+		break;
+
+	case 'ftlist':
+		if (check_permission('rubric_edit'))
+		{
+			$AVE_Rubric->ShowFields();
+		}
+		else
+		{
+			$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('RUBRIK_NO_PERMISSION'));
+			$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
+		}
+		break;
+
+	case 'ftshowfield':
+		if (check_permission('rubric_edit'))
+		{
+			$AVE_Rubric->ShowFieldsByType($_REQUEST['type']);
+		}
+		else
+		{
+			$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('RUBRIK_NO_PERMISSION'));
+			$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
+		}
+		break;
+
+
+	case 'ftcreate':
+		if (check_permission('rubric_edit'))
+		{
+			$AVE_Rubric->EditFieldTpl((int)$_REQUEST['id'], $_REQUEST['fld'], $_REQUEST['type']);
+		}
+		else
+		{
+			$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('RUBRIK_NO_PERMISSION'));
+			$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
+		}
+		break;
+
+	case 'ftedit':
+		if (check_permission('rubric_edit'))
+		{
+			$AVE_Rubric->EditFieldTpl((int)$_REQUEST['id'], $_REQUEST['fld'], $_REQUEST['type']);
+		}
+		else
+		{
+			$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('RUBRIK_NO_PERMISSION'));
+			$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
+		}
+		break;
+
+	case 'ftsave':
+		if (check_permission('rubric_edit'))
+		{
+			$AVE_Rubric->SaveFieldTpl((int)$_REQUEST['field_id'], $_REQUEST['field_name'], $_REQUEST['field_type'], $_REQUEST['func']);
+		}
+		else
+		{
+			$AVE_Template->assign('erorr', $AVE_Template->get_config_vars('RUBRIK_NO_PERMISSION'));
+			$AVE_Template->assign('content', $AVE_Template->fetch('error.tpl'));
+		}
+		break;
+
+
+	case 'ftdelete':
+		if (check_permission('rubric_edit'))
+		{
+			$AVE_Rubric->DeleteFieldTpl((int)$_REQUEST['id'], $_REQUEST['fld'], $_REQUEST['type'], $_REQUEST['func']);
 		}
 		else
 		{

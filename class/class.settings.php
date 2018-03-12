@@ -218,6 +218,8 @@ class AVE_Settings
 		}
 		else
 			{
+				$this->clearSettingsCache();
+
 				$_SESSION['use_editor'] = intval($_REQUEST['use_editor']);
 				$message = $AVE_Template->get_config_vars('SETTINGS_SAVED');
 				$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
@@ -317,6 +319,7 @@ class AVE_Settings
 		$AVE_Template->assign('content', $AVE_Template->fetch('settings/settings_lang.tpl'));
 	}
 
+
 	/**
 	 * Метод Редактирования параметров языков
 	 *
@@ -339,6 +342,7 @@ class AVE_Settings
 
 		$AVE_Template->assign('content', $AVE_Template->fetch('settings/settings_lang_edit.tpl'));
 	}
+
 
 	function settingsLanguageEditSave()
 	{
@@ -589,5 +593,143 @@ class AVE_Settings
 		return true;
 	}
 
+	/**
+	 * Функция очищает кеш системных настроек
+	 *
+	 */
+	function clearSettingsCache()
+	{
+		$cache_dir = BASE_DIR . '/cache/sql/settings/';
+
+		return rrmdir($cache_dir);
+	}
+
+
+	/**
+	 * Функция редактирования robots.txt
+	 *
+	 */
+	function editRobots()
+	{
+		global $AVE_DB, $AVE_Template;
+
+		$file_name = 'robots.txt';
+
+		$_REQUEST['sub'] = (! isset($_REQUEST['sub']))
+			? ''
+			: $_REQUEST['sub'];
+
+		switch ($_REQUEST['sub'])
+		{
+			case 'save':
+				$file = BASE_DIR . '/' . $file_name;
+
+				$template = stripcslashes($_REQUEST['code_text']);
+
+				$result = file_put_contents($file, trim($template));
+
+				if ($result === false)
+				{
+					$message = $AVE_Template->get_config_vars('SETTINGS_SAVED_ERR_FILE');
+					$header = $AVE_Template->get_config_vars('SETTINGS_ERROR');
+					$theme = 'error';
+				}
+					else
+					{
+						$message = $AVE_Template->get_config_vars('SETTINGS_SAVED_FILE');
+						$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
+						$theme = 'accept';
+					}
+
+				if (isAjax())
+				{
+					echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
+				}
+					else
+					{
+						$AVE_Template->assign('message', $message);
+						header('Location:index.php?do=settings&cp=' . SESSION);
+					}
+			exit;
+
+			default:
+				$file = BASE_DIR . '/' . $file_name;
+
+				$template = file_get_contents($file);
+
+				$formaction = "index.php?do=settings&action=robots&sub=save&cp=" . SESSION;
+
+				$AVE_Template->assign('file_name', $file_name);
+				$AVE_Template->assign('formaction', $formaction);
+				$AVE_Template->assign('template', $template);
+			break;
+		}
+
+		$AVE_Template->assign('content', $AVE_Template->fetch('settings/edit_file.tpl'));
+	}
+
+
+	/**
+	 * Функция редактирования func.custom.php
+	 *
+	 */
+	function editCustom()
+	{
+		global $AVE_DB, $AVE_Template;
+
+		$file_name = 'func.custom.php';
+
+		$_REQUEST['sub'] = (! isset($_REQUEST['sub']))
+			? ''
+			: $_REQUEST['sub'];
+
+		switch ($_REQUEST['sub'])
+		{
+			case 'save':
+				$file = BASE_DIR . '/functions/' . $file_name;
+
+				$template = stripcslashes($_REQUEST['code_text']);
+
+				$result = file_put_contents($file, trim($template));
+
+				if ($result === false)
+				{
+					$message = $AVE_Template->get_config_vars('SETTINGS_SAVED_ERR_FILE');
+					$header = $AVE_Template->get_config_vars('SETTINGS_ERROR');
+					$theme = 'error';
+				}
+					else
+					{
+						$message = $AVE_Template->get_config_vars('SETTINGS_SAVED_FILE');
+						$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
+						$theme = 'accept';
+					}
+
+				if (isAjax())
+				{
+					echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
+				}
+					else
+					{
+						$AVE_Template->assign('message', $message);
+						header('Location:index.php?do=settings&cp=' . SESSION);
+					}
+			exit;
+
+			default:
+				$file = BASE_DIR . '/functions/' . $file_name;
+
+				$template = file_get_contents($file);
+
+				$formaction = "index.php?do=settings&action=robots&sub=save&cp=" . SESSION;
+
+				$AVE_Template->assign('file_name', $file_name);
+				$AVE_Template->assign('formaction', $formaction);
+				$AVE_Template->assign('template', $template);
+			break;
+		}
+
+		$AVE_Template->assign('content', $AVE_Template->fetch('settings/edit_file.tpl'));
+	}
 }
 ?>

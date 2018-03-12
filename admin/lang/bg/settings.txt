@@ -59,12 +59,12 @@ SETTINGS_PAGE_PREV      = "Текст на линка &quot;Предходна&q
 
 SETTINGS_MAIN_BREADCRUMBS	= "Настройки за извеждането на  «Breadcrumb»"
 SETTINGS_BREAD_BOX			= "Контейнер «Breadcrumb»:<br><small>Пример: &lt;ul class="breadcrumb"&gt;%s&lt;/ul&gt;</small>"
-SETTINGS_BREAD_MAIN			= "Показывать первый элемент: Главная страница:<br><small>Да/Нет</small>"
-SETTINGS_BREAD_HOST			= "Добавлять адрес хоста в url:<br><small>Да/Нет</small>"
+SETTINGS_BREAD_MAIN			= "Показвай първия елемент: Главна страница:<br><small>Да/Не</small>"
+SETTINGS_BREAD_HOST			= "Добавяй адреса на хоста в url:<br><small>Да/Не</small>"
 SETTINGS_BREAD_SEPPARATOR	= "Разделител между линковете:<br><small>Пример: &lt;li&gt;&nbsp;&rarr;&nbsp;&lt;/li&gt;</small>"
 SETTINGS_BREAD_SEPP_USE		= "Покажи:<br><small>Да/Не</small>"
 SETTINGS_BREAD_BOX_LINK		= "Контейнер за линка:<br><small>Пример: &lt;li&gt;%s&lt;/li&gt;</small>"
-SETTINGS_BREAD_LINK_TPL		= "Шаблон ссылки<br /><small>Используются теги: [name], [link], [count]</small>"
+SETTINGS_BREAD_LINK_TPL		= "Шаблон за линка<br /><small>Използват се таговете: [name], [link], [count]</small>"
 SETTINGS_BREAD_BOX_LASTLINK	= "Показване на последния елемент:"
 SETTINGS_BREAD_SELF_BOX		= "Контейнер за последния елемент:<br><small>Пример: &lt;li class="active"&gt;%s&lt;/li&gt;</small>"
 

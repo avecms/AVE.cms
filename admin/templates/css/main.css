@@ -413,6 +413,20 @@ input, textarea { box-sizing:border-box; }
 a.btn{font-size: 10px;font-weight: bold;text-transform: uppercase;padding: 4px 12px;cursor: pointer;font-family: Arial, Helvetica, sans-serif;line-height: 12px;}
 a.button, span.button { padding: 4px 10px; }
 
+.topBtn {
+	width: 100%;
+	display: block;
+	padding: 4px 0 !important;
+	text-align: center;
+	height: 22px;
+	line-height: 22px;
+	border: none !important;
+}
+
+.tableButtons td {
+	padding: 0 10px;
+}
+
 /* ========== Pagination ========== */
 .pagination { margin: auto; width: auto; text-align: center; margin-top: 40px; }
 

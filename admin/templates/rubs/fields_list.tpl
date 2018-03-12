@@ -1,5 +1,4 @@
 <script language="Javascript" type="text/javascript">
-
 var sess = '{$sess}';
 
 function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
@@ -10,12 +9,13 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 	var top = ( screen.height - height ) / 2;
 	window.open('index.php?field_id='+fieldId+'&rubric_id='+rubId+'&target='+target+'&do=rubs&action=alias_add&cp={$sess}&pop=1','pop','left='+left+',top='+top+',width='+width+',height='+height+',scrollbars='+scrollbar+',resizable=1').focus();
 {rdelim}
-
 </script>
+
 <div class="title">
 	<h5>{#RUBRIK_EDIT_FIELDS#}</h5>
 </div>
-{if !$rub_fields}
+
+{if !$fields_list}
 <div class="widget" style="margin-top: 0px;">
 	<div class="body">{#RUBRIK_NO_FIELDS#}</div>
 </div>
@@ -24,6 +24,34 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 	<div class="body">{#RUBRIK_FIELDS_INFO#}</div>
 </div>
 {/if}
+
+<table class="first tableButtons" cellpadding="0" cellspacing="0" width="100%" id="rubricButtons">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<tr>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_TEMPLATES#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=ftlist&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FTEMPLATES#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=fieldsgroups&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FGROUPS#}</a>
+		</td>
+		<td>
+			{if check_permission('rubric_code')}
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=code&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_CODE#}</a>
+			{/if}
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=rules&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_RULES#}</a>
+		</td>
+	</tr>
+</table>
+
 <div class="breadCrumbHolder module">
 	<div class="breadCrumb module">
 		<ul>
@@ -67,16 +95,6 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 
 		<div class="head">
 			<h5 class="iFrames">{#RUBRIK_FIELDS_TITLE#}</h5>
-			<div class="num">
-				<a class="basicNum" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_TEMPLATE#}</a>
-				&nbsp;
-				<a class="basicNum" href="index.php?do=rubs&action=fieldsgroups&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_FIELDS_GROUPS#}</a>
-				&nbsp;
-				{if check_permission('rubric_code')}
-					<a class="basicNum" href="index.php?do=rubs&action=code&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_CODE#}</a>
-				{/if}
-
-			</div>
 		</div>
 
 		<div id="fields_list">
@@ -364,124 +382,6 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 	</div>
 </div>
 
-{if check_permission('rubric_edit') && check_permission('rubric_perms')}
-<div class="widget first">
-	<div class="head closed active">
-		<h5>{#RUBRIK_SET_PERMISSION#}</h5>
-	</div>
-	<div style="display: block;">
-		<form id="rubperm" action="index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&submit=saveperms&cp={$sess}" method="post" class="mainForm">
-			<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
-				<col width="16%">
-				<col width="12%">
-				<col width="12%">
-				<col width="12%">
-				<col width="12%">
-				<col width="12%">
-				<col width="12%">
-				<col width="12%">
-				<thead>
-					<tr>
-						<td>{#RUBRIK_USER_GROUP#}</td>
-						<td align="center">
-							{#RUBRIK_DOC_READ#}&nbsp;<a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_VIEW_TIP#}">[?]</a>
-						</td>
-						<td align="center">
-							{#RUBRIK_ALL_PERMISSION#}&nbsp;<a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_ALL_TIP#}">[?]</a>
-						</td>
-						<td align="center">
-							{#RUBRIK_CREATE_DOC#}&nbsp;<a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_DOC_TIP#}">[?]</a>
-						</td>
-						<td align="center">
-							{#RUBRIK_CREATE_DOC_NOW#}&nbsp;<a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_DOC_NOW_TIP#}">[?]</a>
-						</td>
-						<td align="center">
-							{#RUBRIK_EDIT_OWN#}&nbsp;<a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_OWN_TIP#}">[?]</a>
-						</td>
-						<td align="center">
-							{#RUBRIK_EDIT_OTHER#}&nbsp;<a href="javascript:void(0);" class="topleftDir link" style="cursor: help;" title="{#RUBRIK_OTHER_TIP#}">[?]</a>
-						</td>
-						<td align="center">
-							{#RUBRIK_EDIT_DELREV#}&nbsp;<a href="javascript:void(0);" class="topleftDir link" style="cursor: help;" title="{#RUBRIK_DELREV_TIP#}">[?]</a>
-						</td>
-					</tr>
-				</thead>
-				<tbody>
-					{foreach from=$groups item=group}
-					{assign var=doall value=$group->doall}
-					<tr>
-						<td>{$group->user_group_name|escape:html} </td>
-						<td align="center" {if in_array('docread', $group->permissions) || in_array('alles', $group->permissions)} class="yellow"{/if}>
-							{if $group->doall_h==1}
-							<input type="hidden" name="perm[{$group->user_group}][]" value="docread" />
-							<input class="check_perm" name="perm[{$group->user_group}][]" type="checkbox" value="docread" checked="checked" disabled="disabled" />
-							{else}
-							<input class="check_perm" name="perm[{$group->user_group}][]" type="checkbox" value="docread"{if in_array('docread', $group->permissions) || in_array('alles', $group->permissions)} checked="checked"{/if} />
-							{/if}
-						</td>
-						<td align="center" {if in_array('alles', $group->permissions)} class="yellow"{/if}>
-							{if $group->doall_h==1}
-							<input type="hidden" name="perm[{$group->user_group}][]" value="alles" />
-							<input class="check_perm" name="perm[{$group->user_group}][]" type="checkbox" value="alles" checked="checked" disabled="disabled" />
-							{else}
-							<input class="check_perm" name="perm[{$group->user_group}][]" type="checkbox" value="alles"{if in_array('alles', $group->permissions)} checked="checked"{/if}{if $group->user_group==2} disabled="disabled"{/if} />
-							{/if}
-						</td>
-						<td align="center" {if in_array('new', $group->permissions) || in_array('alles', $group->permissions)} class="yellow"{/if}>
-							<input type="hidden" name="user_group[{$group->user_group}]" value="{$group->user_group}" />
-							{if $group->doall_h==1}
-							<input class="check_perm" name="{$group->user_group}" type="checkbox" value="1"{$doall} />
-							<input type="hidden" name="perm[{$group->user_group}][]" value="new" />
-							{else}
-							<input class="check_perm new" id="new_{$group->user_group}" name="perm[{$group->user_group}][]" type="checkbox" value="new"{if in_array('new', $group->permissions) || in_array('alles', $group->permissions)} checked="checked"{/if}{if $group->user_group==2} disabled="disabled"{/if} />
-							{/if}
-						</td>
-						<td align="center" {if in_array('newnow', $group->permissions) || in_array('alles', $group->permissions)} class="yellow"{/if}>
-							<input type="hidden" name="user_group[{$group->user_group}]" value="{$group->user_group}" />
-							{if $group->doall_h==1}
-							<input class="check_perm" name="{$group->user_group}" type="checkbox" value="1"{$doall} />
-							<input type="hidden" name="perm[{$group->user_group}][]" value="newnow" />
-							{else}
-							<input class="check_perm newnow" id="newnow_{$group->user_group}" name="perm[{$group->user_group}][]" type="checkbox" value="newnow"{if in_array('newnow', $group->permissions) || in_array('alles', $group->permissions)} checked="checked"{/if}{if $group->user_group==2} disabled="disabled"{/if} />
-							{/if}
-						</td>
-						<td align="center" {if in_array('editown', $group->permissions) || in_array('alles', $group->permissions)} class="yellow"{/if}>
-							{if $group->doall_h==1}
-							<input class="check_perm" name="{$group->user_group}" type="checkbox" value="1"{$doall} />
-							<input type="hidden" name="perm[{$group->user_group}][]" value="editown" />
-							{else}
-							<input class="check_perm editown" id="editown_{$group->user_group}" data-id="{$group->user_group}" name="perm[{$group->user_group}][]" type="checkbox" value="editown"{if in_array('editown', $group->permissions) || in_array('alles', $group->permissions)} checked="checked"{/if}{if $group->user_group==2} disabled="disabled"{/if} />
-							{/if}
-						</td>
-						<td align="center" {if in_array('editall', $group->permissions) || in_array('alles', $group->permissions)} class="yellow"{/if}>
-							{if $group->doall_h==1}
-								<input class="check_perm" name="{$group->user_group}" type="checkbox" value="1"{$doall} />
-							{else}
-								<input class="check_perm editall" id="editall_{$group->user_group}" name="perm[{$group->user_group}][]" data-id="{$group->user_group}" type="checkbox" value="editall"{if in_array('editall', $group->permissions) || in_array('alles', $group->permissions)} checked="checked"{/if}{if $group->user_group==2} disabled="disabled"{/if} />
-							{/if}
-						</td>
-						<td align="center" {if in_array('delrev', $group->permissions) || in_array('alles', $group->permissions)} class="yellow"{/if}>
-							{if $group->doall_h==1}
-								<input class="check_perm" name="{$group->user_group}" type="checkbox" value="1"{$doall} />
-								<input type="hidden" name="perm[{$group->user_group}][]" value="delrev" />
-							{else}
-								<input class="check_perm" name="perm[{$group->user_group}][]" type="checkbox" value="delrev"{if in_array('delrev', $group->permissions) || in_array('alles', $group->permissions)} checked="checked"{/if}{if $group->user_group==2} disabled="disabled"{/if} />
-							{/if}
-						</td>
-					</tr>
-					{/foreach}
-				</tbody>
-			</table>
-			<div class="rowElem">
-				<input type="submit" class="basicBtn" value="{#RUBRIK_BUTTON_PERM#}" />
-				&nbsp;
-				<input type="submit" class="blackBtn SaveEditPerms" value="{#RUBRIK_BUTTON_TPL_NEXT#}" />
-			</div>
-		</form>
-	</div>
-</div>
-{/if}
-
 {include file="$codemirror_connect"}
 
 <script language="javascript">
@@ -623,15 +523,6 @@ $(document).ready(function(){ldelim}
 		}
 	});
 
-	$('.check_perm').on('change', function(event) {
-		event.preventDefault();
-		if	($(this).is(':checked')) {
-			$(this).parent().parent('td').addClass('yellow');
-		} else {
-			$(this).parent().parent('td').removeClass('yellow');
-		}
-	});
-
 	$('.collapsible').collapsible({
 		defaultOpen: 'opened',
 		cssOpen: 'inactive',
@@ -643,6 +534,14 @@ $(document).ready(function(){ldelim}
 		},
 		speed: 200
 	});
+
+	$('.collapsible').on('click', function() {
+		setTimeout(function() {
+			AveAdmin.sticky_panel_refresh();
+			AveAdmin.select_form();
+		}, 10);
+	});
+
 	{/literal}
 
 	Mousetrap.bind(['ctrl+s', 'command+s'], function(event) {ldelim}
@@ -709,25 +608,6 @@ $(document).ready(function(){ldelim}
 				{rdelim} else {ldelim}
 					$.alerts._overlay('hide');
 				{rdelim}
-			{rdelim}
-		{rdelim});
-		return false;
-	{rdelim});
-
-	$(".SaveEditPerms").click(function(event){ldelim}
-		event.preventDefault();
-		$("#rubperm").ajaxSubmit({ldelim}
-			url: 'index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&submit=saveperms&cp={$sess}&ajax=1',
-			dataType: 'json',
-			beforeSubmit: function(){ldelim}
-				$.alerts._overlay('show');
-			{rdelim},
-			success: function(data){ldelim}
-				$.jGrowl(data['message'], {ldelim}
-					header: data['header'],
-					theme: data['theme']
-				{rdelim});
-					$.alerts._overlay('hide');
 			{rdelim}
 		{rdelim});
 		return false;

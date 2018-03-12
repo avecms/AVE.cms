@@ -1,4 +1,4 @@
-var Analoque = {
+var Teasers = {
 
 	init: false,
 
@@ -57,7 +57,7 @@ var Analoque = {
 		$('.AddButton').on('click', function() {
 			c_id = $(this).parent().parent('.analoque_lists').attr("data-id");
 			d_id = $(this).parent().parent('.analoque_lists').attr("data-docid");
-			i_id = Analoque.Analoque_maxid(d_id + '_' + c_id);
+			i_id = Teasers.Analoque_maxid(d_id + '_' + c_id);
 			$('#analoque_lists_' + d_id + '_' + c_id + ':last').append(
 				'<div class="analoque_list fix mb10" id="analoque_list_' + d_id + '_' + c_id + '_' + i_id + '" data-id="' + i_id + '">' +
 				'<input class="mousetrap search_analoque" name="feld[' + c_id + '][' + i_id + '][param]" type="text" value="" placeholder="' + analoque_param + '" data-docid="' + d_id + '" data-fieldid="' + c_id + '" data-id="' + i_id + '" style="width: 450px;"/>&nbsp;&nbsp;Id:&nbsp;<input type="text" class="mousetrap field_' + d_id + '_' + c_id + '_' + i_id + '" value="" name="feld[' + c_id + '][' + i_id + '][value]" placeholder="' + analoque_value + '" style="width: 50px;" readonly />&nbsp;&nbsp;<a href="javascript:void(0);" data-id="' + d_id + '_' + c_id + '_' + i_id + '" class="button redBtn topDir DelButton" title="' + analoque_del + '">&times;</a>' +
@@ -65,7 +65,7 @@ var Analoque = {
 				'</div>'
 			);
 
-			Analoque.Analoque_update();
+			Teasers.Analoque_update();
 		});
 	},
 
@@ -81,6 +81,8 @@ var Analoque = {
 	 */
 	Analoque_search: function() {
 
+		var res_search = false;
+
 		$('.search_analoque').on('input', function(event)
 		{
 			event.preventDefault();
@@ -92,28 +94,40 @@ var Analoque = {
 			var kid = query.attr('data-id');
 			var field_id_input = $('.field_' + did + '_' + fid + '_' + kid);
 
-			query.autocomplete("index.php?do=fields&field=analoque&type=search&doc_id=" + did + "&field_id=" + fid, {
+			if (res_search)
+				return false;
+
+			res_search = true;
+
+			query.autocomplete("index.php?do=fields&field=teasers&type=search&doc_id=" + did + "&field_id=" + fid, {
 				width: query.outerWidth(),
-				max: 10,
+				max: 5,
 				dataType: "json",
 				matchContains: "word",
 				scroll: true,
 				scrollHeight: 200,
 				parse: function(data) {
-					return $.map(data, function(row) {
-						return {
-							data: row,
-							value: row.doc_title,
-							result: query.val()
-						}
-					});
+					res_search = false;
+
+					if (typeof data === 'object')
+					{
+						return $.map(data, function(row) {
+							return {
+								data: row,
+								value: row.doc_title,
+								result: query.val()
+							}
+						});
+					}
+
+					return false;
 				},
 				formatItem: function(item) {
-					return '<div style="padding: 3px 0;"><span style="font-weight: 700;">' + item.doc_article + '</span> ' + item.doc_name + '</div>';
+						return '<div style="padding: 3px 0;"><span style="font-weight: 700;">' + item.doc_article + '</span> ' + item.doc_name + '</div>';
 				}
 			}).result(function(e, item) {
-				query.val(item.doc_name);
-				field_id_input.val(item.doc_id);
+					query.val(item.doc_name);
+					field_id_input.val(item.doc_id);
 			});
 
 			return false;
@@ -123,7 +137,6 @@ var Analoque = {
 	}
 }
 
-$(document).ready(function()
-{
-	Analoque.init();
+$(document).ready(function() {
+	Teasers.init();
 });

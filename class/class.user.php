@@ -32,24 +32,25 @@ class AVE_User
 	 * @public array
 	 */
 	public $_allowed_admin_permission = array(
-		'alles',																								// все права
-		'adminpanel',																							// доступ в админку
-		'group_view', 'group_edit',																				// группы пользователей
-		'user_view', 'user_edit', 'user_perms',																	// пользователи
-		'template_view', 'template_edit', 'template_php',														// шаблоны
-		'rubric_view', 'rubric_edit', 'rubric_php', 'rubric_perms', 'rubric_code',								// рубрики
-		'document_view', 'document_php', 'document_revisions',													// документы
-		'remark_view', 'remark_edit',																			// заметки
-		'request_view', 'request_edit', 'request_php',															// запросы
-		'navigation_view', 'navigation_edit',																	// навигация
-		'blocks_view', 'blocks_edit',																			// визуальные блоки
-		'sysblocks_view', 'sysblocks_edit',																		// системные блоки
-		'modules_view', 'modules_admin', 'modules_system',														// модули
-		'mediapool_int', 'mediapool_add', 'mediapool_del', 'mediapool_finder',									// файловый менеджер
-		'gen_settings', 'gen_settings_more', 'gen_settings_countries', 'gen_settings_languages',				// общие настройки
-		'db_actions',																							// база данных
-		'logs_view', 'logs_clear',																				// логи
-		'cache_clear', 'cache_thumb'																			// сессии и кеш
+		'alles',																													// все права
+		'adminpanel',																												// доступ в админку
+		'group_view', 'group_edit',																									// группы пользователей
+		'user_view', 'user_edit', 'user_perms',																						// пользователи
+		'template_view', 'template_edit', 'template_php',																			// шаблоны
+		'rubric_view', 'rubric_edit', 'rubric_php', 'rubric_perms', 'rubric_code',													// рубрики
+		'document_view', 'document_php', 'document_revisions',																		// документы
+		'remark_view', 'remark_edit',																								// заметки
+		'request_view', 'request_edit', 'request_php',																				// запросы
+		'navigation_view', 'navigation_edit',																						// навигация
+		'blocks_view', 'blocks_edit',																								// визуальные блоки
+		'sysblocks_view', 'sysblocks_edit',																							// системные блоки
+		'modules_view', 'modules_admin', 'modules_system',																			// модули
+		'mediapool_int', 'mediapool_add', 'mediapool_del', 'mediapool_finder',														// файловый менеджер
+		'gen_settings', 'gen_settings_more', 'gen_settings_countries', 'gen_settings_languages',									// общие настройки
+		'gen_settings_robots', 'gen_settings_fcustom',
+		'db_actions',																												// база данных
+		'logs_view', 'logs_clear',																									// логи
+		'cache_clear', 'cache_thumb'																								// сессии и кеш
 	);
 
 	/**
@@ -309,8 +310,10 @@ class AVE_User
 					SELECT
 						user_group_name,
 						user_group_permission
-					FROM " . PREFIX . "_user_groups
-					WHERE user_group = '" . $user_group_id . "'
+					FROM
+						" . PREFIX . "_user_groups
+					WHERE
+						user_group = '" . $user_group_id . "'
 				")->FetchRow();
 			}
 
@@ -321,9 +324,9 @@ class AVE_User
 			else
 			{
 				$AVE_Template->assign('g_all_permissions', $this->_allowed_admin_permission);
-				$AVE_Template->assign('g_group_permissions', explode('|', $row->user_group_permission));
+				$AVE_Template->assign('g_group_permissions', array_diff(explode('|', $row->user_group_permission), array('')));
 				$AVE_Template->assign('g_name', $row->user_group_name);
-				$AVE_Template->assign('modules', $AVE_Module->moduleListGet(1));
+				$AVE_Template->assign('modules', $AVE_Module->_modules);
 			}
 		}
 

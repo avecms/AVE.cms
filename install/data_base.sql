@@ -262,7 +262,7 @@ INSERT INTO `%%PRFX%%_rubric_permissions` VALUES
 	(5, 1, 5, 'docread');#inst#
 
 INSERT INTO `%%PRFX%%_rubrics` VALUES
-	(1, 'Основные страницы', '', '0', '<h1>[tag:fld:header]</h1>[tag:fld:text]', 1, 1, 0, 1, '', '', '', '', '', '', '0', '', '0', '');#inst#
+	(1, 'Основные страницы', '', '0', '<h1>[tag:fld:header]</h1>[tag:fld:text]', 1, 1, 0, 1, '', '', '', '', '', '', '', '0', '', '0', '');#inst#
 
 INSERT INTO `%%PRFX%%_settings` VALUES
 	(

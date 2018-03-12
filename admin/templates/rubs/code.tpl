@@ -1,10 +1,41 @@
 <script language="Javascript" type="text/javascript">
-var sess = '{$sess}';
+	var sess = '{$sess}';
 </script>
 
 <div class="title">
 	<h5>{#RUBRIK_EDIT_CODE_T#}</h5>
 </div>
+
+<div class="widget" style="margin-top: 0px;">
+	<div class="body">
+		{#RUBRIK_EDIT_CODE_TIP#}
+	</div>
+</div>
+
+<table class="first tableButtons" cellpadding="0" cellspacing="0" width="100%" id="rubricButtons">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<tr>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FIELDS#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=ftlist&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FTEMPLATES#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=fieldsgroups&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FGROUPS#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_TEMPLATES#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=rules&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_RULES#}</a>
+		</td>
+	</tr>
+</table>
 
 <div class="breadCrumbHolder module">
 	<div class="breadCrumb module">
@@ -43,6 +74,11 @@ var sess = '{$sess}';
 					</div>
 				</td>
 			</tr>
+			<tr>
+				<td>
+					{#RUBRIK_EDIT_CODE_LOAD_TIP#}
+				</td>
+			</tr>
 			</tbody>
 		</table>
 	</div>
@@ -50,11 +86,6 @@ var sess = '{$sess}';
 <div class="widget first">
 	<div class="head">
 		<h5>{#RUBRIK_CODE#}</h5>
-		<div class="num">
-			<a class="basicNum" href="index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT#}</a>
-			&nbsp;
-			<a class="basicNum" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_TEMPLATE#}</a>
-		</div>
 	</div>
 
 	<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
@@ -77,6 +108,14 @@ var sess = '{$sess}';
 					<div class="pr12">
 						<textarea name="rubric_code_end" type="text" id="rubric_code_end" value="" style="height:300px;" />{$code->rubric_code_end}</textarea>
 					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{#RUBRIK_EDIT_CODE_BEF_TIP#}
+				</td>
+				<td>
+					{#RUBRIK_EDIT_CODE_AFT_TIP#}
 				</td>
 			</tr>
 		</tbody>

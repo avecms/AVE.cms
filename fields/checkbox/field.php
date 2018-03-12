@@ -12,7 +12,7 @@
  */
 
 // Чекбокс (Checkbox)
-function get_field_checkbox($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null)
+function get_field_checkbox($field_value, $action, $field_id = 0, $tpl = '', $tpl_empty = 0, &$maxlength = null, $document_fields = array(), $rubric_id = 0, $default = null)
 {
 
 	global $AVE_Template;
@@ -20,7 +20,9 @@ function get_field_checkbox($field_value, $action, $field_id=0, $tpl='', $tpl_em
 	$fld_dir  = dirname(__FILE__) . '/';
 	$tpl_dir  = $fld_dir . 'tpl/';
 
-	$lang_file = $fld_dir . 'lang/' . (defined('ACP') ? $_SESSION['admin_language'] : $_SESSION['user_language']) . '.txt';
+	$lang_file = $fld_dir . 'lang/' . (defined('ACP')
+		? $_SESSION['admin_language']
+		: $_SESSION['user_language']) . '.txt';
 
 	$AVE_Template->config_load($lang_file, 'lang');
 	$AVE_Template->assign('config_vars', $AVE_Template->get_config_vars());
@@ -36,19 +38,22 @@ function get_field_checkbox($field_value, $action, $field_id=0, $tpl='', $tpl_em
 			$AVE_Template->assign('doc_id', (isset($_REQUEST['Id']) ? (int)$_REQUEST['Id'] : 0));
 
 			$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin');
-			return $AVE_Template->fetch($tpl_file);
 
+			return $AVE_Template->fetch($tpl_file);
 			break;
 
 		case 'doc':
 			$field_value = clean_php($field_value);
 
-			$res = ((int)$field_value === 1) ? (int)$field_value : 0;
+			$res = ((int)$field_value === 1)
+				? (int)$field_value
+				: 0;
 
 			$tpl_file = get_field_tpl($tpl_dir, $field_id, 'doc');
 
-			if($tpl_empty && $tpl_file)
+			if ($tpl_empty && $tpl_file)
 			{
+				$AVE_Template->assign('field_id', $field_id);
 				$AVE_Template->assign('field_value', $field_value);
 				return $AVE_Template->fetch($tpl_file);
 			}
@@ -59,12 +64,15 @@ function get_field_checkbox($field_value, $action, $field_id=0, $tpl='', $tpl_em
 		case 'req':
 			$field_value = clean_php($field_value);
 
-			$res = ((int)$field_value === 1) ? (int)$field_value : 0;
+			$res = ((int)$field_value === 1)
+				? (int)$field_value
+				: 0;
 
 			$tpl_file = get_field_tpl($tpl_dir, $field_id, 'req');
 
-			if($tpl_empty && $tpl_file)
+			if ($tpl_empty && $tpl_file)
 			{
+				$AVE_Template->assign('field_id', $field_id);
 				$AVE_Template->assign('field_value', $field_value);
 				return $AVE_Template->fetch($tpl_file);
 			}
@@ -74,7 +82,9 @@ function get_field_checkbox($field_value, $action, $field_id=0, $tpl='', $tpl_em
 
 		case 'save':
 			$field_value = clean_php($field_value);
-			$res = ((int)$field_value === 1) ? $field_value : '0';
+			$res = ((int)$field_value === 1)
+				? $field_value
+				: '0';
 			break;
 
 		case 'name':

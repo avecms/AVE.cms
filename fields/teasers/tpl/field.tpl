@@ -1,5 +1,5 @@
 {if $analoque != load}
-	{assign var=analoque value='' scope="global"}
+	{assign var=teasers value='' scope="global"}
 	{if $smarty.request.outside}
 	<script src="{$ABS_PATH}fields/{$field_dir}/js/outside.js" type="text/javascript"></script>
 	{else}
@@ -14,7 +14,7 @@
 		var analoque_del_conf = '{#del_conf#}';
 		var analoque_del_head = '{#del_head#}';
 	</script>
-	{assign var=analoque value="load" scope="global"}
+	{assign var=teasers value="load" scope="global"}
 {/if}
 
 <div class="analoque_lists mt10" id="analoque_lists_{$doc_id}_{$field_id}" data-docid="{$doc_id}" data-id="{$field_id}">

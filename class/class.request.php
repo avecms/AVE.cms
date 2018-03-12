@@ -476,9 +476,11 @@ class AVE_Request
 
 					$sql = $AVE_DB->Query("SELECT Id FROM " . PREFIX . "_documents WHERE rubric_id = ".$_REQUEST['rubric_id']);
 
+					$AVE_DB->clear_request($request_id);
+
 					while ($row = $sql->FetchRow())
 					{
-						$AVE_DB->clearcacherequest('doc_'.$row->Id);
+						$AVE_DB->clearcacherequest('doc_' . $row->Id);
 					}
 
 					// Сохраняем системное сообщение в журнал
@@ -813,11 +815,15 @@ class AVE_Request
 				// require(BASE_DIR . '/functions/func.parserequest.php');
 				request_get_condition_sql_string($request_id, true);
 
-				if (! isAjax()){
+				if (! isAjax())
+				{
 					header('Location:index.php?do=request&action=conditions&rubric_id=' . $_REQUEST['rubric_id'] . '&Id=' . $request_id . '&cp=' . SESSION);
 					exit;
-				}else{
-					if (!$message){
+				}
+				else
+				{
+					if (! $message)
+					{
 						$message = $AVE_Template->get_config_vars('REQUEST_COND_NEW_SUC');
 						$header = $AVE_Template->get_config_vars('REQUEST_SUCCESS');
 						$theme = 'accept';

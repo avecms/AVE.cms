@@ -39,7 +39,7 @@ $image.http						Есть ли в ссылке http или https (true/false)
 	{/if}
 	{if isset($image.description) && $image.description != ''}
 		<p>
-			{$image.description}
+			{$image.description|html_entity_decode}
 		</p>
 	{/if}
 	</div>

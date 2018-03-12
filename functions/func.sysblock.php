@@ -33,6 +33,10 @@ function parse_sysblock($id)
 
 		$cache_file = BASE_DIR . '/cache/sql/sysblock/' . $id . '.cache';
 
+		// Если включен DEV MODE, то отключаем кеширование запросов
+		if (defined('DEV_MODE') AND DEV_MODE)
+			$cache_file = null;
+
 		if (! file_exists(dirname($cache_file)))
 			mkdir(dirname($cache_file), 0766, true);
 
@@ -52,7 +56,8 @@ function parse_sysblock($id)
 					LIMIT 1
 				")->GetCell();
 
-				file_put_contents($cache_file,$return);
+				if ($cache_file)
+					file_put_contents($cache_file, $return);
 			}
 
 		//-- парсим теги
@@ -88,7 +93,7 @@ function parse_sysblock($id)
 
 		$gen_time = Debug::endTime('SYSBLOCK_' . $id);
 
-		$GLOBALS['block_generate'][] = array('SYSBLOCK_'. $id => $gen_time);
+		$GLOBALS['block_generate']['SYSBLOCK'][$id] = $gen_time;
 
 		return $return;
 	}

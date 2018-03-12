@@ -591,7 +591,8 @@ class AVE_DB
 
 		foreach ((array)$stack as $call)
 		{
-			if (@$call['class'] == __CLASS__) continue;
+			if (@$call['class'] == __CLASS__)
+				continue;
 
 			$function = $call['function'];
 
@@ -611,7 +612,8 @@ class AVE_DB
 	}
 
 
-/************************* Внешние методы класса *************************/
+	/************************* Внешние методы класса *************************/
+
 
 	/**
 	 * Метод, предназначенный для выполнения запроса к MySQL
@@ -657,31 +659,39 @@ class AVE_DB
 	 */
 	public function Query($query, $TTL = null, $cache_id = '', $log = true)
 	{
+		// Если это документ, то меняем расположение
 		if (substr($cache_id, 0, 3) == 'doc')
 		{
 			$cache_id = (int)str_replace('doc_', '', $cache_id);
 			$cache_id = 'doc/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 		}
 
+		// Принудительная фильтрация запроса
 		//$query = filter_var($query, FILTER_SANITIZE_STRING);
 
 		$result = array();
 
-		$TTL = strtoupper(substr(trim($query), 0, 6)) == 'SELECT' ? $TTL : null;
-/*
-		// Не знаю кто поставил эту заглушку, но я выкл ее
-		if (defined('ACP')) $TTL = null;
-*/
-		if ($TTL && $TTL != "nocache")
+		// Если это SELECT - то отслеживаем кеширование
+		$TTL = strtoupper(substr(trim($query), 0, 6)) == 'SELECT'
+			? $TTL
+			: null;
+
+		// Если включен DEV MODE, то отключаем кеширование запросов
+		if (defined('DEV_MODE') AND DEV_MODE)
+			$TTL = null;
+
+		if ($TTL && ($TTL != 'nocache' AND $TTL != null))
 		{
 			$cache_file = md5($query);
 
-			$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > '' ? trim($cache_id) . '/' : substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
+			$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+				? trim($cache_id) . '/'
+				: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
 
-			if(! file_exists($cache_dir))
+			if (! file_exists($cache_dir))
 				mkdir($cache_dir, 0777, true);
 
-			if(! (file_exists($cache_dir . $cache_file) && ($TTL == -1 ? true : @time() - @filemtime($cache_dir . $cache_file) < $TTL)))
+			if (! (file_exists($cache_dir . $cache_file) && ($TTL == -1 ? true : time() - filemtime($cache_dir . $cache_file) < $TTL)))
 			{
 				$res = $this->Real_Query($query, $log);
 
@@ -701,6 +711,7 @@ class AVE_DB
 		else
 			return $this->Real_Query($query, $log);
 	}
+
 
 	/**
 	 * This method is needed for prepared statements. They require
@@ -737,6 +748,7 @@ class AVE_DB
 		return '';
 	}
 
+
 	/**
 	 * Метод, предназначенный для экранирования специальных символов в строках для использования в выражениях SQL
 	 *
@@ -753,6 +765,7 @@ class AVE_DB
 		return $value;
 	}
 
+
 	/**
 	 * Метод, предназначенный для экранирования специальных символов в строках для использования в выражениях SQL
 	 *
@@ -763,13 +776,26 @@ class AVE_DB
 	{
 		$value = htmlspecialchars($value);
 
-		$value = strtr($value, array(
+		$search = array(
+			'<'			=> '&lt;',
+			';'			=> '&#58;',
+			'|'			=> '&#124;',
+			'&'			=> '&#38;',
+			'>'			=> '&gt;',
+			"'"			=> '&apos;',
+			'"'			=> '&#x22;',
+			')'			=> '&#x29;',
+			'('			=> '&#x28;',
 			'{' 		=> '&#123;',
 			'}' 		=> '&#125;',
 			'$' 		=> '&#36;',
-			'&amp;gt;' 	=> '&gt;',
-			"'"			=> "&#39;"
-		));
+			'&amp;gt;' 	=> '&gt;'
+		);
+
+		$value = str_replace(array_keys($search), array_values($search), $value);
+		$value = str_ireplace('%3Cscript', '', $value);
+
+		$value = filter_var($value, FILTER_SANITIZE_STRING);
 
 		if (! is_array($value))
 		{
@@ -808,18 +834,23 @@ class AVE_DB
 	 */
 	public function NumAllRows($query, $TTL = null, $cache_id = '')
 	{
-		if ($TTL)
-		{
-			$cache_file = md5($query).'.count';
+		// Если включен DEV MODE, то отключаем кеширование запросов
+		if (defined('DEV_MODE') AND DEV_MODE)
+			$TTL = null;
 
-			$cache_dir = BASE_DIR.'/cache/sql/'.(trim($cache_id) > ''
-				? trim($cache_id).'/'
-				: substr($cache_file, 0, 2).'/'.substr($cache_file, 2, 2).'/'.substr($cache_file, 4, 2).'/');
+		if ($TTL AND ($TTL != "nocache" AND $TTL != null))
+		{
+			// Кол-во
+			$cache_file = md5($query) . '.count';
+
+			$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+				? trim($cache_id) . '/'
+				: substr($cache_file, 0, 2) . '/'. substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
 
 			if (! file_exists($cache_dir))
 				mkdir($cache_dir, 0777, true);
 
-			if (! (file_exists($cache_dir.$cache_file) && ($TTL==-1 ? true : @time()-@filemtime($cache_dir.$cache_file) < $TTL)))
+			if (! (file_exists($cache_dir . $cache_file) && ($TTL == -1 ? true : time() - filemtime($cache_dir . $cache_file) < $TTL)))
 			{
 				if ($query <> $this->_last_query)
 				{
@@ -1145,6 +1176,28 @@ class AVE_DB
 			: '');
 
 		return rrmdir($cache_dir);
+	}
+
+
+	/**
+	 * Метод, предназначенный для очищения кеша запросов
+	 *
+	 * @param $cache_id
+	 * @return bool
+	 */
+	public function clear_request($cache_id)
+	{
+		$request = request_get_settings($cache_id);
+
+		$cache_from_id = BASE_DIR . '/cache/sql/request/settings/' . (trim($request->Id) > ''
+			? trim($request->Id) . '/'
+			: '');
+
+		$cache_from_alias = BASE_DIR . '/cache/sql/request/settings/' . (trim($request->request_alias) > ''
+			? trim($request->request_alias) . '/'
+			: '');
+
+		return (rrmdir($cache_from_id) AND rrmdir($cache_from_alias));
 	}
 
 } // End AVE_DB class

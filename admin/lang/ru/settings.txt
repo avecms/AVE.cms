@@ -137,3 +137,11 @@ pagination_start_label			= "Текст ссылки "Первая""
 pagination_end_label			= "Текст ссылки "Последняя""
 pagination_next_label			= "Текст ссылки "Следующая""
 pagination_prev_label			= "Текст ссылки "Предыдущая""
+
+// v3.24
+SETTINGS_SAVED_ERR_FILE			= "Ошибка при сохранении файла. Попробуйте снова."
+SETTINGS_SAVED_FILE				= "Файл успешно сохранен."
+SETTINGS_FILE_EDIT_H			= "Редактирование файла"
+SETTINGS_FILE_CONTENT			= "Содержимое файла:"
+SETTINGS_FILE_ROBOTS			= "Файл robots.txt"
+SETTINGS_FILE_CUSTOM			= "Файл func.custom.php"

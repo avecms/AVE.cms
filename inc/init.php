@@ -359,7 +359,7 @@
 			lang_status = '1'
 		ORDER BY
 			lang_default ASC
-	", SYSTEM_CACHE_LIFETIME);
+	", SYSTEM_CACHE_LIFETIME, 'langs');
 
 	while ($row = $sql->FetchRow())
 	{
@@ -394,6 +394,14 @@
 	// Язык системы
 	set_locale();
 
+	// Debug
+	require (BASE_DIR . '/class/class.debug.php');
+	$Debug = new Debug;
+
+	// Hooks
+	require (BASE_DIR . '/class/class.hooks.php');
+	$Hooks = new Hooks;
+
 	// Класс Шаблонов SMARTY
 	require (BASE_DIR . '/class/class.template.php');
 
@@ -403,12 +411,4 @@
 	// Класс Модулей
 	require (BASE_DIR . '/class/class.modules.php');
 	$AVE_Module = new AVE_Module;
-
-	// Debug
-	require (BASE_DIR . '/class/class.debug.php');
-	$Debug = new Debug;
-
-	// Hooks
-	require (BASE_DIR . '/class/class.hooks.php');
-	$Hooks = new Hooks;
 ?>

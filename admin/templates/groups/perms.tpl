@@ -62,8 +62,10 @@
 			<td></td>
 			<td>
 			{foreach from=$modules item=module}
-				<input type="checkbox" name="perms[]" class="float" value="mod_{$module->ModuleSysName}"{if in_array($module->ModuleFunction, $g_group_permissions) || in_array('alles', $g_group_permissions)} checked="checked"{/if}{if $smarty.request.Id == 1 || $smarty.request.Id == $PAGE_NOT_FOUND_ID || in_array('alles', $g_group_permissions)} disabled="disabled"{/if}><label>{$module->ModuleName}</label>
+				{if $module.status == 1 && $module.ModuleIsFunction == 1}
+				<input type="checkbox" name="perms[]" class="float" value="mod_{$module.ModuleSysName}"{if in_array($module.ModuleFunction, $g_group_permissions) || in_array('alles', $g_group_permissions)} checked="checked"{/if}{if $smarty.request.Id == 1 || $smarty.request.Id == $PAGE_NOT_FOUND_ID || in_array('alles', $g_group_permissions)} disabled="disabled"{/if}><label>{$module.ModuleName}</label>
 				<div class="clear"></div>
+				{/if}
 			{/foreach}
 			</td>
 		</tr>

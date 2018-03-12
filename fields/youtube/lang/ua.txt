@@ -1,2 +1,9 @@
 [admin]
 name = "YouTube"
+f_url = "Url"
+f_width = "Width"
+f_height = "Height"
+f_fullscreen = "Fullscreen"
+f_allow = "Allow"
+f_forbidden = "Forbidden"
+f_metod = "Metod"

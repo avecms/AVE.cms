@@ -8,12 +8,15 @@
 
 <ul id="doclinks" style="padding-left:70px">
 	<li><span class="icon_sprite ico_edit floatleft"></span>&nbsp;<a href="index.php?do=docs&action=edit&Id={$document_id}&cp={$sess}">{#DOC_EDIT_THIS_DOCUMENT#}</a></li>
-	<li><span class="icon_sprite ico_look floatleft"></span>&nbsp;<a href="../{if $document_id!=1}index.php?id={$document_id}&cp={$sess}{/if}" target="_blank">{#DOC_DISPLAY_NEW_WINDOW#}</a><br /><br /></li>
+	<li><span class="icon_sprite ico_look floatleft"></span>&nbsp;<a href="../{if $document_id != 1}index.php?id={$document_id}&cp={$sess}{/if}" target="_blank">{#DOC_DISPLAY_NEW_WINDOW#}</a><br /><br /></li>
 	{if $innavi}
 		<li class="navig"><span class="icon_sprite ico_navigation floatleft"></span><a href="javascript:void(0);">{#DOC_INCLUDE_NAVIGATION#}</a><br /><br /></li>
 	{/if}
 	<li><span class="icon_sprite ico_add floatleft"></span>&nbsp;<a href="index.php?do=docs&action=copy&rubric_id={$rubric_id}&Id={$document_id}&cp={$sess}">{#DOC_ADD_COPY_DOCUMENT#}</a><br /></li>
 	<li><span class="icon_sprite ico_add floatleft"></span>&nbsp;<a href="index.php?do=docs&action=new&rubric_id={$rubric_id}&cp={$sess}">{#DOC_ADD_NEW_DOCUMENT#}</a><br /><br /></li>
+	{if $search_query}
+	<li><span class="icon_sprite ico_copy floatleft"></span>&nbsp;<a href="index.php?do=docs&action=redirect&document_id={$document_id}&cp={$sess}">{#DOC_CLOSE_SEARCH_RUBRIC#}</a></li>
+	{/if}
 	<li><span class="icon_sprite ico_copy floatleft"></span>&nbsp;<a href="index.php?do=docs&rubric_id={$rubric_id}&cp={$sess}">{#DOC_CLOSE_WINDOW_RUBRIC#}</a></li>
 	<li><span class="icon_sprite ico_copy floatleft"></span>&nbsp;<a href="index.php?do=docs&cp={$sess}">{#DOC_CLOSE_WINDOW#}</a></li>
 </ul>

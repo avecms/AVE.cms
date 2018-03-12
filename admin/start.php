@@ -18,7 +18,7 @@ if (!defined('ACP'))
 }
 
 get_ave_info();
-get_editable_module();
+getInstaledModules();
 DisplayMainDocuments();
 get_online_users();
 getLogRecords();

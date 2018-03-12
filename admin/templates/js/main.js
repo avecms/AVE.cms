@@ -506,10 +506,10 @@ var AveAdmin = {
 			}
 		});
 
-	setTimeout(function() {
-		AveAdmin.sticky_panel_refresh();
-	}, 1);
-
+		setTimeout(function() {
+			AveAdmin.sticky_panel_refresh();
+			AveAdmin.select_form();
+		}, 10);
 	},
 
 	//Окно очистки кэша + Сессий

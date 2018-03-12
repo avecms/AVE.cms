@@ -625,6 +625,7 @@ $(document).ready(function(){ldelim}
 			<h5>{#DOC_MAIN_CONTENT#}</h5>
 		</div>
 		<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
+			<col width="10">
 			<col width="250">
 			<col>
 			<tbody>
@@ -633,12 +634,15 @@ $(document).ready(function(){ldelim}
 
 				{if $document->count_groups > 1}
 				<tr class="group_row_{$document_field_group.group_id|default:0} group_row grey" id="group_row_{$document_field_group.group_id|default:0}">
-					<td colspan="3" class="aligncenter"><h5>{if $document_field_group.group_title}{$document_field_group.group_title}{else}{#DOC_FIELD_G_UNKNOW#}{/if}</h5></td>
+					<td colspan="4" class="aligncenter"><h5>{if $document_field_group.group_title}{$document_field_group.group_title}{else}{#DOC_FIELD_G_UNKNOW#}{/if}</h5></td>
 				</tr>
 				{/if}
 
 				{foreach from=$document_field_group.fields  item=field}
 				<tr class="field_row_{$field.Id} field_row" id="field_row_{$field.Id}">
+					<td align="center">
+						<span class="code topDir"{if $field.rubric_field_alias}title="{$field.rubric_field_alias}"{/if}>{$field.Id}</span>
+					</td>
 					<td>
 						<strong>{$field.rubric_field_title|escape}</strong>
 						{if $field.rubric_field_description}

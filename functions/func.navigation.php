@@ -21,25 +21,45 @@
 	{
 		global $AVE_DB, $AVE_Core;
 
-		$gen_time = microtime(true);
-
-		// извлекаем id из аргумента
+		// Извлекаем id из аргумента
 		$navi_id = $navi_tag[1];
 
+		Debug::startTime('NAVIAGTION_' . $navi_id);
+
+		// Достаем для проверки тип меню
+		$sql = "
+			SELECT
+				expand_ext
+			FROM
+				".PREFIX."_navigation
+			WHERE
+				navigation_id = '" . $navi_id . "'
+			OR
+				alias = '" . $navi_id . "'
+		";
+
+		$expnad_ext = $AVE_DB->Query($sql, SYSTEM_CACHE_LIFETIME, 'nav_' . $navi_id)->GetCell();
+
 		// извлекаем level из аргумента
-		$navi_print_level = $navi_tag[2];
+		$navi_print_level = (! empty($navi_tag[2]))
+			? $navi_tag[2]
+			: '';
 
 		$navi = '';
 
 		$cache_file = BASE_DIR . '/cache/sql/nav/template-' . $navi_id . '.cache';
 
-		if(! file_exists(dirname($cache_file)))
+		// Если включен DEV MODE, то отключаем кеширование запросов
+		if (defined('DEV_MODE') AND DEV_MODE || $expnad_ext != 1)
+			$cache_file = null;
+
+		if (! file_exists(dirname($cache_file)))
 			mkdir(dirname($cache_file), 0766, true);
 
 		// получаем меню навигации по id,
 		// и если такой не существует, выводим сообщение
 
-		if(file_exists($cache_file))
+		if (file_exists($cache_file))
 		{
 			$navi_menu = unserialize(file_get_contents($cache_file));
 		}
@@ -47,7 +67,8 @@
 			{
 				$navi_menu = get_navigations($navi_id);
 
-				file_put_contents($cache_file, serialize($navi_menu));
+				if ($cache_file)
+					file_put_contents($cache_file, serialize($navi_menu));
 			}
 
 		if (! $navi_menu)
@@ -75,10 +96,14 @@
 		// после ; id текущего пункта
 
 		// id текущего документа. Если не задан, то главная страница
-		$doc_active_id = (int)(($_REQUEST['id']) ? $_REQUEST['id'] : 1);
+		$doc_active_id = (int)(($_REQUEST['id'])
+			? $_REQUEST['id']
+			: 1);
 
 		// алиас текущего документа
-		$alias = ltrim(isset($AVE_Core->curentdoc->document_alias) ? $AVE_Core->curentdoc->document_alias : '');
+		$alias = ltrim(isset($AVE_Core->curentdoc->document_alias)
+			? $AVE_Core->curentdoc->document_alias
+			: '');
 
 		// запрос для выборки по текущему алиасу
 		$sql_doc_active_alias = '';
@@ -146,10 +171,10 @@
 		$sql_navi_level = '';
 		$sql_navi_active = '';
 
-		if($navi_print_level)
+		if ($navi_print_level)
 		{
 			$sql_navi_level = ' AND level IN (' . $navi_print_level . ') ';
-			$sql_navi_active = ' AND parent_id IN(' . $navi_active_way_str . ') ';
+			$sql_navi_active = ' AND parent_id IN (' . $navi_active_way_str . ') ';
 		}
 
 		// обычное использование навигации
@@ -157,14 +182,14 @@
 		{
 			switch ($navi_menu->expand_ext)
 			{
-				// все уровни
-				case 1:
+				// текущий и родительский уровни
+				case 0:
+					$sql_navi_active = ' AND parent_id IN (' . $navi_active_way_str . ') ';
 					$navi_parent = 0;
 					break;
 
-				// текущий и родительский уровни
-				case 0:
-					$sql_navi_active = ' AND parent_id IN(' . $navi_active_way_str . ') ';
+				// все уровни
+				case 1:
 					$navi_parent = 0;
 					break;
 
@@ -176,50 +201,75 @@
 			}
 		}
 
-
 		$cache_items = BASE_DIR . '/cache/sql/nav/items-' . $navi_id . '.cache';
 
 		$navi_items = array();
 
-		//-- Проверяем есть файл кеша, если есть пропускам запрос к БД
-		if(! file_exists($cache_items))
+		// Если включен DEV MODE, то отключаем кеширование запросов
+		if (defined('DEV_MODE') AND DEV_MODE || $expnad_ext != 1)
+			$cache_items = null;
+
+		if (empty($navi_print_level))
 		{
-			//-- Запрос пунктов меню
-			$sql = "
-				SELECT *
-				FROM
-					" . PREFIX . "_navigation_items
-				WHERE
-					status = '1'
-				AND
-					navigation_id = '" . $navi_menu->navigation_id . "'" .
-				$sql_navi_level .
-				$sql_navi_active . "
-				ORDER BY
-					position ASC
-			";
-
-			$sql_navi_items = $AVE_DB->Query($sql);
-
-			while ($row_navi_items = $sql_navi_items->FetchAssocArray())
+			//-- Проверяем есть файл кеша, если есть пропускам запрос к БД
+			if (! file_exists($cache_items))
 			{
-				$navi_items[$row_navi_items['parent_id']][] = $row_navi_items;
-			}
+				//-- Запрос пунктов меню
+				$sql = "
+					SELECT *
+					FROM
+						" . PREFIX . "_navigation_items
+					WHERE
+						status = '1'
+					AND
+						navigation_id = '" . $navi_menu->navigation_id . "'" .
+					$sql_navi_level .
+					$sql_navi_active . "
+					ORDER BY
+						position ASC
+				";
 
-			file_put_contents($cache_items, serialize($navi_items));
+				$sql_navi_items = $AVE_DB->Query($sql);
+
+				while ($row_navi_items = $sql_navi_items->FetchAssocArray())
+					$navi_items[$row_navi_items['parent_id']][] = $row_navi_items;
+
+				if ($cache_items)
+					file_put_contents($cache_items, serialize($navi_items));
+			}
+			else
+				{
+					$navi_items = unserialize(file_get_contents($cache_items));
+				}
 		}
 		else
 			{
-				$navi_items = unserialize(file_get_contents($cache_items));
-			}
+				//-- Запрос пунктов меню
+				$sql = "
+					SELECT *
+					FROM
+						" . PREFIX . "_navigation_items
+					WHERE
+						status = '1'
+					AND
+						navigation_id = '" . $navi_menu->navigation_id . "'" .
+					$sql_navi_level . "
+					ORDER BY
+						position ASC
+				";
 
-		if($navi_print_level)
-		{
-			$keys = array_keys($navi_items);
-			$navi_parent = ! empty($keys)
-				? $keys[0]
-				: 0;
-		}
+				$sql_navi_items = $AVE_DB->Query($sql);
+
+				while ($row_navi_items = $sql_navi_items->FetchAssocArray())
+				{
+					$navi_items[$row_navi_items['parent_id']][] = $row_navi_items;
+				}
+
+				$keys = array_keys($navi_items);
+				$navi_parent = ! empty($keys)
+					? $keys[0]
+					: 0;
+			}
 
 		// Парсим теги в шаблонах пунктов
 		$navi_item_tpl = array(
@@ -248,8 +298,9 @@
 		$navi = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $navi);
 		$navi = str_replace(array("\n","\r"),'',$navi);
 
-		$gen_time = microtime(true) - $gen_time;
-		$GLOBALS['block_generate'][] = array('NAVIGATION_' . $navi_id => $gen_time);
+		$gen_time = Debug::endTime('NAVIAGTION_' . $navi_id);
+
+		$GLOBALS['block_generate']['NAVIAGTIONS'][$navi_id] = $gen_time;
 
 		return $navi;
 	}

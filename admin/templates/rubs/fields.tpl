@@ -124,14 +124,14 @@
 
 	<script language="javascript">
 		$(document).ready(function(){ldelim}
-		AveAdmin.ajax();
-		AveAdmin.modalDialog();
+			AveAdmin.ajax();
+			AveAdmin.modalDialog();
 
-		$('#FieldsList tbody').tableSortable({ldelim}
-		items: '.field_tbody',
-		url: 'index.php?do=rubs&action=fieldssort&cp={$sess}',
-		success: true
-		{rdelim});
+			$('#FieldsList tbody').tableSortable({ldelim}
+				items: '.field_tbody',
+				url: 'index.php?do=rubs&action=fieldssort&cp={$sess}',
+				success: true
+			{rdelim});
 
 		{rdelim});
 	</script>

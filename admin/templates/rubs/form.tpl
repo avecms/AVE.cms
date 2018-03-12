@@ -6,11 +6,7 @@
 <div class="title">
 	<h5>{#RUBRIK_TEMPLATE_EDIT#}</h5>
 	<div class="num">
-		<a class="basicNum" href="index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT#}</a>
-		&nbsp;
-		{if check_permission('rubric_code')}
-		<a class="basicNum" href="index.php?do=rubs&action=code&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_CODE#}</a>
-		{/if}
+		<a class="basicNum" href="index.php?do=rubs&action=tmpls&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TMPLS_BUTTON#}</a>
 	</div>
 </div>
 {/if}
@@ -18,6 +14,33 @@
 <div class="widget" style="margin-top: 0px;">
 	<div class="body">{#RUBRIK_TEMPLATE_TIP#}</div>
 </div>
+
+<table class="first tableButtons" cellpadding="0" cellspacing="0" width="100%" id="rubricButtons">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<col width="20%">
+	<tr>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FIELDS#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=ftlist&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FTEMPLATES#}</a>
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=fieldsgroups&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_FGROUPS#}</a>
+		</td>
+		<td>
+			{if check_permission('rubric_code')}
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=code&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_CODE#}</a>
+			{/if}
+		</td>
+		<td>
+			<a class="button basicBtn topBtn" href="index.php?do=rubs&action=rules&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TABLE_BTN_RULES#}</a>
+		</td>
+	</tr>
+</table>
 
 <div class="breadCrumbHolder module">
 	<div class="breadCrumb module">
@@ -60,6 +83,9 @@
 		</li>
 		<li>
 			<a href="#tab2">{#RUBRIK_HTML_2#}</a>
+		</li>
+		<li>
+			<a href="#tab2_1">{#RUBRIK_HTML_2_1#}</a>
 		</li>
 		<li>
 			<a href="#tab3">{#RUBRIK_HTML_3#}</a>
@@ -468,6 +494,139 @@
 		</div>
 
 
+
+		<div id="tab2_1" class="tab_content" style="display: none;">
+
+			<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
+				<col width="18%" />
+				<col width="82%" />
+				<thead>
+					<tr class="noborder">
+						<td>{#RUBRIK_TAGS#}</td>
+						<td>{#RUBRIK_HTML_T#}</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<strong><a class="rightDir" title="{#RUBRIK_TEMPLATES_TITLE#}" href="javascript:void(0);" onclick="textSelection2_1('[tag:title]','');">[tag:title]</a></strong>
+						</td>
+						<td rowspan="5" colspan="2"><textarea {$read_only} class="{if $php_forbidden==1}tpl_code_readonly{else}{/if}" style="width:100%; height:200px" name="rubric_footer_template" id="rubric_footer_template">{$rubric->rubric_footer_template|default:$prefab|escape:html}</textarea></td>
+					</tr>
+
+					<tr>
+						<td>
+							<strong><a class="rightDir" title="{#RUBRIK_TEMPLATES_CSS#}" href="javascript:void(0);" onclick="textSelection2('[tag:css:]','');">[tag:css:FFF:P]</a></strong>,&nbsp;&nbsp;
+							<strong><a class="rightDir" title="{#RUBRIK_TEMPLATES_JS#}" href="javascript:void(0);" onclick="textSelection2_1('[tag:js:]','');">[tag:js:FFF:P]</a></strong>
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+							<strong><a class="rightDir" title="{#RUBRIK_TEMPLATES_PATH#}" href="javascript:void(0);" onclick="textSelection2_1('[tag:path]','');">[tag:path]</a></strong>
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+							<strong><a class="rightDir" title="{#RUBRIK_TEMPLATES_MEDIAPATH#}" href="javascript:void(0);" onclick="textSelection2_1('[tag:mediapath]','');">[tag:mediapath]</a></strong>
+						</td>
+					</tr>
+					<tr>
+						<td>
+
+						</td>
+					</tr>
+					<tr>
+						<td><strong>HTML Tags</strong></td>
+						<td>
+							|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<ol>', '</ol>');"><strong>OL</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<ul>', '</ul>');"><strong>UL</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<li>', '</li>');"><strong>LI</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2('<p class=&quot;&quot;>', '</p>');"><strong>P</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<strong>', '</strong>');"><strong>B</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<em>', '</em>');"><strong>I</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<h1>', '</h1>');"><strong>H1</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<h2>', '</h2>');"><strong>H2</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<h3>', '</h3>');"><strong>H3</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<h4>', '</h4>');"><strong>H4</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<h5>', '</h5>');"><strong>H5</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<div class=&quot;&quot; id=&quot;&quot;>', '</div>');"><strong>DIV</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<a href=&quot;&quot; title=&quot;&quot;>', '</a>');"><strong>A</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<img src=&quot;&quot; alt=&quot;&quot; &#047;>', '');"><strong>IMG</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<span>', '</span>');"><strong>SPAN</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<pre>', '</pre>');"><strong>PRE</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('<br &#047;>', '');"><strong>BR</strong></a>&nbsp;|&nbsp;
+							<a href="javascript:void(0);" onclick="textSelection2_1('\t', '');"><strong>TAB</strong></a>&nbsp;|
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
+				<col width="3%" />
+				<col width="25%" />
+				<col width="15%" />
+				<col width="15%" />
+				<col width="15%" />
+				<col width="38%" />
+				<thead>
+					<tr>
+						<td align="center"><strong>{#RUBRIK_ID#}</strong></td>
+						<td align="center"><strong>{#RUBRIK_FIELD_NAME#}</strong></td>
+						<td align="center"><strong>{#RUBRIK_TAGS_ID#}</strong></td>
+						<td align="center"><strong>{#RUBRIK_TAGS_ALIAS#}</strong></td>
+						<td align="center"><strong>{#RUBRIK_FIELD_ALIAS#}</strong></td>
+						<td align="center"><strong>{#RUBRIK_FIELD_TYPE#}</strong></td>
+					</tr>
+				</thead>
+				<tbody>
+
+					{foreach from=$fields_list item=field_group}
+
+					{if $groups_count > 1}
+					<tr class="grey">
+						<td colspan="6"><h5>{if $field_group.group_title}{$field_group.group_title}{else}{#RUBRIK_FIELD_G_UNKNOW#}{/if}</h5></td>
+					</tr>
+					{/if}
+
+					{foreach  from=$field_group.fields item=field}
+					<tr>
+						<td align="center">
+							<strong class="code">{$field.Id}</strong>
+						</td>
+						<td>
+							<strong>{$field.rubric_field_title}</strong>
+						</td>
+						<td>
+							<a class="rightDir" title="{#RUBRIK_INSERT_HELP#}" href="javascript:void(0);" onclick="textSelection2('[tag:rfld:{$field.Id}][0]', '');"><strong>[tag:rfld:{$field.Id}][150]</strong></a>
+						</td>
+						<td>
+							{if $field.rubric_field_alias}
+							<a class="rightDir" title="{#RUBRIK_INSERT_HELP#}" href="javascript:void(0);" onclick="textSelection2('[tag:rfld:{$field.rubric_field_alias}][0]', '');"><strong>[tag:rfld:{$field.rubric_field_alias}][0]</strong></a>
+							{/if}
+						</td>
+						<td align="center">
+							{if $field.rubric_field_alias}<strong class="code">{$field.rubric_field_alias}</strong>{/if}
+						</td>
+						<td>
+							{section name=field_name loop=$field_array}
+								{if $field.rubric_field_type == $field_array[field_name].id}{$field_array[field_name].name}{/if}
+							{/section}
+						</td>
+					</tr>
+					{/foreach}
+
+					{/foreach}
+
+				</tbody>
+			</table>
+
+			<div class="fix"></div>
+
+		</div>
+
+
 		<div id="tab3" class="tab_content" style="display: none;">
 
 			<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
@@ -785,6 +944,7 @@
 {include file="$codemirror_connect"}
 {include file="$codemirror_editor" conn_id="" textarea_id='rubric_template' ctrls='$("#RubricTpl").ajaxSubmit(sett_options);' height=500}
 {include file="$codemirror_editor" conn_id="2" textarea_id='rubric_header_template' ctrls='$("#RubricTpl").ajaxSubmit(sett_options);' height=420}
+{include file="$codemirror_editor" conn_id="2_1" textarea_id='rubric_footer_template' ctrls='$("#RubricTpl").ajaxSubmit(sett_options);' height=420}
 {include file="$codemirror_editor" conn_id="3" textarea_id='rubric_teaser_template' ctrls='$("#RubricTpl").ajaxSubmit(sett_options);' height=420}
 {include file="$codemirror_editor" conn_id="4" textarea_id='rubric_admin_teaser_template' ctrls='$("#RubricTpl").ajaxSubmit(sett_options);' height=420}
 

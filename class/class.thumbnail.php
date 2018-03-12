@@ -161,7 +161,8 @@ class Image_Toolbox {
 	 * <i>integer</i> <b>$height</b> imageheight of new image to be created<br>
 	 * <i>string</i> <b>$fillcolor</b> optional fill the new image with this color (hexformat, e.g. '#FF0000')<br>
 	 */
-	function Image_Toolbox() {
+	function __construct()
+	{
 		$args = func_get_args();
 		$argc = func_num_args();
 

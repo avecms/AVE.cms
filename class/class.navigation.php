@@ -193,7 +193,8 @@
 
 					// Выполняем запрос к БД и получаем всю информацию о данном меню
 					$row = $AVE_DB->Query("
-						SELECT *
+						SELECT
+							*
 						FROM
 							" . PREFIX . "_navigation
 						WHERE
@@ -241,7 +242,8 @@
 					");
 
 					//-- Стираем кеш навигации
-					$this->clearCahe($navigation_id, $_REQUEST['alias']);
+					$this->clearCache($navigation_id, $_REQUEST['alias']);
+					$this->clearCacheId($navigation_id, $_REQUEST['alias']);
 
 					if ($sql === false)
 					{
@@ -362,7 +364,7 @@
 				")->FetchRow();
 
 				//-- Стираем кеш навигации
-				$this->clearCahe($navigation_id, $sql->alias);
+				$this->clearCache($navigation_id, $sql->alias);
 
 				//-- Выполняем запрос к БД на удаление общей информации и шаблона оформления меню
 				$AVE_DB->Query("DELETE FROM " . PREFIX . "_navigation WHERE navigation_id = '" . $navigation_id . "'");
@@ -630,7 +632,7 @@
 					")->GetCell();
 
 					//-- Стираем кеш навигации
-					$this->clearCahe($_REQUEST['navigation_id'], $alias);
+					$this->clearCache($_REQUEST['navigation_id'], $alias);
 
 					$AVE_Template->assign('select_tpl', 'navigation/select.tpl');
 					$AVE_Template->assign('items', $items);
@@ -714,7 +716,7 @@
 						")->GetCell();
 
 						//-- Стираем кеш навигации
-						$this->clearCahe($_REQUEST['navigation_id'], $alias);
+						$this->clearCache($_REQUEST['navigation_id'], $alias);
 					}
 					else
 						{
@@ -756,7 +758,7 @@
 							")->GetCell();
 
 							//-- Стираем кеш навигации
-							$this->clearCahe($_REQUEST['navigation_id'], $alias);
+							$this->clearCache($_REQUEST['navigation_id'], $alias);
 						}
 
 					$message = 'Пункт меню успешно сохранен';
@@ -939,7 +941,7 @@
 			")->FetchRow();
 
 			//-- Стираем кеш навигации
-			$this->clearCahe($nav->navigation_id, $nav->alias);
+			$this->clearCache($nav->navigation_id, $nav->alias);
 
 			// Выполняем обновление страницы
 			header('Location:' . get_referer_admin_link());
@@ -995,7 +997,7 @@
 				")->FetchRow();
 
 				//-- Стираем кеш навигации
-				$this->clearCahe($nav->navigation_id, $nav->alias);
+				$this->clearCache($nav->navigation_id, $nav->alias);
 
 				// Сохраняем системное сообщение в журнал
 				reportLog($AVE_Template->get_config_vars('NAVI_REPORT_ACT') . " (id: $row->navigation_item_id)");
@@ -1054,7 +1056,7 @@
 				")->FetchRow();
 
 				//-- Стираем кеш навигации
-				$this->clearCahe($nav->navigation_id, $nav->alias);
+				$this->clearCache($nav->navigation_id, $nav->alias);
 
 				// Сохраняем системное сообщение в журнал
 				reportLog($AVE_Template->get_config_vars('NAVI_REPORT_DEACT') . " (id: $row->navigation_item_id)");
@@ -1103,7 +1105,7 @@
 			")->FetchRow();
 
 			//-- Стираем кеш навигации
-			$this->clearCahe($nav->navigation_id, $nav->alias);
+			$this->clearCache($nav->navigation_id, $nav->alias);
 
 			$AVE_Template->assign('item', $item);
 			$AVE_Template->assign('content', $AVE_Template->fetch('navigation/item.tpl'));
@@ -1152,7 +1154,7 @@
 			")->FetchRow();
 
 			//-- Стираем кеш навигации
-			$this->clearCahe($nav->navigation_id, $nav->alias);
+			$this->clearCache($nav->navigation_id, $nav->alias);
 
 			if (isAjax())
 			{
@@ -1248,7 +1250,7 @@
 			")->FetchRow();
 
 			//-- Стираем кеш навигации
-			$this->clearCahe($nav->navigation_id, $nav->alias);
+			$this->clearCache($nav->navigation_id, $nav->alias);
 
 			echo json_encode(
 				array(
@@ -1260,7 +1262,7 @@
 		}
 
 
-		function clearCahe($id, $alias = '')
+		function clearCache($id, $alias = '')
 		{
 			if (file_exists(BASE_DIR . '/cache/sql/nav/template-' . $id . '.cache'))
 				unlink(BASE_DIR . '/cache/sql/nav/template-' . $id . '.cache');
@@ -1275,5 +1277,27 @@
 				unlink(BASE_DIR . '/cache/sql/nav/items-' . $alias . '.cache');
 		}
 
+
+		function clearCacheId($id, $alias = '')
+		{
+			$dir_id = BASE_DIR . '/cache/sql/nav_' . $id;
+			$dir_alias = BASE_DIR . '/cache/sql/nav_' . $alias;
+
+			if (file_exists($dir_id))
+			{
+				foreach (glob($dir_id . '/*') as $file)
+				{
+					unlink($file);
+				}
+			}
+
+			if (file_exists($dir_alias))
+			{
+				foreach (glob($dir_alias . '/*') as $file)
+				{
+					unlink($file);
+				}
+			}
+		}
 	}
 ?>

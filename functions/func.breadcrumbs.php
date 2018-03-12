@@ -62,8 +62,17 @@
 
 			$lang_home_alias = $AVE_DB->Query($sql)->FetchRow();
 
-			$search = array('[name]', '[link]', '[count]');
-			$replace = array($lang_home_alias->document_breadcrum_title, $bread_show_host ? HOST . '/' . ltrim($lang_home_alias->document_alias, '/') : $lang_home_alias->document_alias, 1);
+			$search = array(
+				'[name]',
+				'[link]',
+				'[count]'
+			);
+
+			$replace = array(
+				$lang_home_alias->document_breadcrum_title,
+				$bread_show_host ? HOST . '/' . ltrim($lang_home_alias->document_alias, '/') : $lang_home_alias->document_alias,
+				1
+			);
 
 			$link = str_replace($search, $replace, $bread_link_template);
 
@@ -74,7 +83,7 @@
 			if ($bread_sepparator_use)
 				$bread_crumb .= $bread_sepparator;
 
-			unset($search, $replace, $link, $sql, $lang_home_alias);
+			unset ($search, $replace, $link, $sql, $lang_home_alias);
 		}
 
 		if ($curent_document == 1 || $curent_document == PAGE_NOT_FOUND_ID)
@@ -195,7 +204,9 @@
 		}
 
 		// Последний элемент
-		if (get_settings('bread_link_box_last') == 1 || (isset($AVE_Core->curentdoc->bread_link_box_last) && $AVE_Core->curentdoc->bread_link_box_last == 1))
+		if ((isset($AVE_Core->curentdoc->bread_link_box_last) && $AVE_Core->curentdoc->bread_link_box_last == 0))
+			$bread_crumb .= '';
+		else if (get_settings('bread_link_box_last') == 1 || (isset($AVE_Core->curentdoc->bread_link_box_last) && $AVE_Core->curentdoc->bread_link_box_last == 1))
 			$bread_crumb .= sprintf($bread_self_box, $current->document_breadcrum_title);
 
 		if (! $noprint)

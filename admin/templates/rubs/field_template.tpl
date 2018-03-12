@@ -24,7 +24,7 @@
 			<tr>
 				<td>
 					<div class="pr12">
-						<input name="rubric_field_default" type="text" id="rubric_field_default" value="{$rubric_field_default|escape}" style="width:100%;" />
+						<input class="mousetrap" name="rubric_field_default" type="text" id="rubric_field_default" value="{$rubric_field_default|escape}" style="width:100%;" />
 					</div>
 				</td>
 			</tr>

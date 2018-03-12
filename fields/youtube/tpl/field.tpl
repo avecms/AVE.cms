@@ -1,22 +1,22 @@
 <div class="mb10">
-	Ссылка:
+	{#f_url#}:
 	<input type="text" style="width: 100%;" name="feld[{$field_id}][url]" value="{$video.0}" class="mousetrap" />
 </div>
 
 <div class="mb10">
-	Ширина: <input type="text" style="width: 50px;" name="feld[{$field_id}][width]" value="{$video.1}" class="mousetrap" /> px
+	{#f_width#}: <input type="text" style="width: 50px;" name="feld[{$field_id}][width]" value="{$video.1}" class="mousetrap" /> px
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	Высота: <input type="text" style="width: 50px;" name="feld[{$field_id}][height]" value="{$video.2}" class="mousetrap" /> px
+	{#f_height#}: <input type="text" style="width: 50px;" name="feld[{$field_id}][height]" value="{$video.2}" class="mousetrap" /> px
 </div>
 
 <div class="mb10">
-	Полноэкранный режим:
+	{#f_fullscreen#}:
 	<select name="feld[{$field_id}][fullscreen]">
-		<option value="true" {if $video.3 == 'true'}selected{/if}>Разрешить</option>
-		<option value="false" {if $video.3 == 'false'}selected{/if}>Запретить</option>
+		<option value="true" {if $video.3 == 'true'}selected{/if}>{#f_allow#}</option>
+		<option value="false" {if $video.3 == 'false'}selected{/if}>{#f_forbidden#}</option>
 	</select>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	Метод вставки:
+	{#f_metod#}:
 	<select name="feld[{$field_id}][source]">
 		<option value="embed" {if $video.4 == 'embed'}selected{/if}>Embed</option>
 		<option value="iframe" {if $video.4 == 'iframe'}selected{/if}>Iframe</option>
