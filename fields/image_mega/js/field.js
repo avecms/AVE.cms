@@ -117,7 +117,7 @@ var Mega = {
 
 							iid = Mega.mega_maxid(c_id, d_id);
 							var field_value = data['dir'] + data.files[p];
-							var img_path = '../index.php?thumb=' + field_value + '&mode=f&width=128&height=128';
+							var img_path = data.thumbs[p];
 
 							$('#mega_' + d_id + '_' + c_id + ' > .mega_sortable:last').prepend(
 								'<div class="mega_item ui-state-default" id="mega_image_' + c_id + '_' + d_id + '_' + iid + '" data-id="' + iid + '" data-doc="' + d_id + '">' +

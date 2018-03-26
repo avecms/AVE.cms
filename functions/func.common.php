@@ -605,6 +605,11 @@
 
 		$dir = BASE_DIR . "/" . $path;
 
+		$dir_abs = "/" . $path;
+
+		$files = array();
+		$thumbs = array();
+
 		if ($handle = opendir($dir))
 		{
 			while (false !== ($file = readdir($handle)))
@@ -612,14 +617,23 @@
 				$nameParts = explode('.', $file);
 				$ext = strtolower(end($nameParts));
 
-				if ($file != "." && $file != ".." && $ext == "png" || $ext == "jpg" || $ext == "gif")
+				if ($file != "." && $file != ".." && in_array($ext, $images_ext))
 				{
-				  if (! is_dir($dir . "/" . $file))
-					$files[] = $file;
+					if (! is_dir($dir . "/" . $file))
+					{
+						$files[] = $file;
+						$thumbs[] = make_thumbnail(array('link' => $dir_abs . $file, 'size' => 'f128x128'));
+					}
 				}
 			}
 			closedir($handle);
 		}
+
+		$return = array(
+			'files' => $files,
+			'thumbs' => $thumbs
+		);
+
 		return $files;
 	}
 
@@ -631,7 +645,7 @@
 	 */
 	function file_multi_import($path)
 	{
-		$dir = BASE_DIR."/".$path;
+		$dir = BASE_DIR . "/" . $path;
 
 		if ($handle = opendir($dir))
 		{
@@ -642,8 +656,8 @@
 
 				if ($file != "." && $file != ".." && $ext == "php" || $ext == "inc")
 				{
-				  if (! is_dir($dir . "/" . $file))
-					$files[] = $file;
+					if (! is_dir($dir . "/" . $file))
+						$files[] = $file;
 				}
 			}
 			closedir($handle);

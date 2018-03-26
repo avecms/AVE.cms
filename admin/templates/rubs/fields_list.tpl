@@ -199,7 +199,7 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 								</div>
 							</td>
 							<td align="center">
-								<a data-dialog="rft-{$field.Id}" href="index.php?do=rubs&action=field_template&field_id={$field.Id}&rubric_id={$smarty.request.Id|escape}&cp={$sess}&pop=1&onlycontent=1" data-height="700" data-modal="true" data-title="{#RUBRIK_ALIAS_HEAD#}" class="openDialog icon_sprite ico_template"></a>
+								<a data-dialog="rft-{$field.Id}" href="index.php?do=rubs&action=field_template&field_id={$field.Id}&rubric_id={$smarty.request.Id|escape}&cp={$sess}&pop=1&onlycontent=1" data-height="700" data-modal="true" data-title="{#RUBRIK_FILED_TEMPLATE_H#}" class="openDialog icon_sprite ico_template topleftDir" title="{#RUBRIK_FILED_TEMPLATE_H#}"></a>
 							</td>
 						</tr>
 						{/foreach}
@@ -290,10 +290,9 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 			<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
 				<col width="10">
 				<col width="10">
-				<col width="350">
+				<col>
 				<col width="220">
 				<col width="100">
-				<col>
 				<thead>
 					<tr>
 						<td align="center"><a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_NUMERIC_TIP#}">[?]</a></td>
@@ -301,7 +300,6 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 						<td>{#RUBRIK_FIELD_NAME#}</td>
 						<td>{#RUBRIK_FIELD_TYPE#}</td>
 						<td>{#RUBRIK_FIELD_GROUP#}</td>
-						<td>{#RUBRIK_FIELD_DEFAULT#}</td>
 					</tr>
 				</thead>
 				<tbody>
@@ -327,11 +325,6 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 								<option value="{$f_group->Id}">{$f_group->group_title|escape}</option>
 								{/foreach}
 							</select>
-						</td>
-						<td>
-							<div class="pr12">
-								<input name="default_value" type="text" id="default_value" value="" style="width:100%;" />
-							</div>
 						</td>
 					</tr>
 				</tbody>
@@ -631,8 +624,7 @@ $(document).ready(function(){ldelim}
 
 	function resetForms(){ldelim}
 		$('#newfld').find('a.jqTransformCheckbox').removeClass('jqTransformChecked');
-		$('#newfld').find('select').prop('selectedIndex',0);
-		$('#newfld').find('select').trigger('refresh');
+		$('#newfld').find('input[type="checkbox"]').prop('checked', false).trigger('refresh');
 		$('#newfld input[type=text]').val('');
 		$('#newfld').trigger('refresh');
 	{rdelim}

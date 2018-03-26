@@ -150,6 +150,16 @@
 
 	$render = str_replace('[tag:rubheader]', $rubheader, $render);
 
+	// Тут заменяем [tag:rubfooter]
+	// на собранный $GLOBALS["user_footer"]
+	$rubfooter = (empty($GLOBALS['user_footer'])
+		? ''
+		: implode(chr(10), $GLOBALS['user_footer']));
+
+	$render = str_replace('[tag:rubfooter]', $rubfooter, $render);
+
+	unset ($rubheader, $rubfooter);
+
 	//-- Header Engine
 	header('X-Engine: AVE.cms');
 	header('X-Engine-Copyright: 2007-' . date('Y') . ' (c) AVE.cms');
@@ -161,4 +171,8 @@
 
 	//Вывод конечного результата
 	output_compress($render);
+
+	//Debug::_print($GLOBALS['block_generate']);
+
+	//$AVE_DB->showAllQueries();
 ?>

@@ -30,12 +30,13 @@
 			//
 		}
 
+
 		/**
 		 * Функция для вывода переменной (для отладки)
 		 *
 		 * @param mixed $var любая переменная
 		 */
-		public static function _echo($var, $exit = false)
+		public static function _echo($var, $exit = false, $bg = null)
 		{
 			$backtrace = debug_backtrace();
 
@@ -52,13 +53,13 @@
 			$line = 0;
 
 			while (++$line <= $backtrace['line'])
-			{
 				$code = fgets($fh);
-			}
 
 			fclose($fh);
 
 			preg_match('/' . __FUNCTION__ . '\s*\((.*)\)\s*;/u', $code, $name);
+
+			unset ($code, $backtrace);
 
 			ob_start();
 
@@ -70,17 +71,31 @@
 
 			$var_dump = htmlspecialchars($var_dump);
 
-			$var_dump = preg_replace('/(=&gt; )+([a-zA-Z]+\(\d+\))/', '$1<span style="color: #FF8C00;">$2</span>', $var_dump);
+			$var_dump = preg_replace('/(=&gt;)/', '<span style="color: #FF8C00;">$1</span>', $var_dump);
 
 			ob_end_clean();
 
-			$fn_name = ! empty($name)
-				? $name[1]
-				: 'EVAL';
+			if (! empty($name))
+			{
+				$fn_name = explode(',', $name[1]);
+				$fn_name = array_shift($fn_name);
+			}
+			else
+				$fn_name = 'EVAL';
+
+			if (! $bg)
+			{
+				$br = '2a5885';
+				$bg = '43648c';
+			}
+			else
+				{
+					$br = $bg;
+				}
 
 			$var_dump = '
-				<div style="border: 1px solid #2a5885; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">
-					<div style="background:#43648c; color: #fff; margin: 0; padding: 5px;">
+				<div style="border: 1px solid #'.$br.'; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">
+					<div style="background:#'.$bg.'; color: #fff; margin: 0; padding: 5px;">
 						var_dump(<strong>' . trim($fn_name) . '</strong>) - ' . self::_trace() .
 					'</div>
 					<pre style="background:#f5f5f5; color: #000; margin: 0; padding: 5px; border: 0; font-size: 11px; font-family: Consolas, Verdana, Arial;">'
@@ -91,7 +106,8 @@
 
 			echo $var_dump;
 
-			if ($exit) exit;
+			if ($exit)
+				exit;
 		}
 
 
@@ -100,7 +116,7 @@
 		 *
 		 * @param mixed $var любая переменная
 		 */
-		public static function _print($var, $exit = false)
+		public static function _print($var, $exit = false, $bg = null)
 		{
 			$backtrace = debug_backtrace();
 
@@ -135,13 +151,27 @@
 
 			ob_end_clean();
 
-			$fn_name = !empty($name)
-				? $name[1]
-				: 'EVAL';
+			if (! empty($name))
+			{
+				$fn_name = explode(',', $name[1]);
+				$fn_name = array_shift($fn_name);
+			}
+			else
+				$fn_name = 'EVAL';
+
+			if (! $bg)
+			{
+				$br = '365899';
+				$bg = '4e5665';
+			}
+			else
+				{
+					$br = $bg;
+				}
 
 			$var_dump = '
-				<div style="border: 1px solid #365899; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">
-					<div style="background:#4e5665; color: #fff; margin: 0; padding: 5px;">
+				<div style="border: 1px solid #'.$br.'; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">
+					<div style="background:#'.$bg.'; color: #fff; margin: 0; padding: 5px;">
 						print_r(<strong>' . trim($fn_name) . '</strong>) - ' . self::_trace() .
 					'</div>
 					<pre style="background:#f0f0f0; color: #000; margin: 0; padding: 5px; border: 0; font-size: 11px; font-family: Consolas, Verdana, Arial;">'
@@ -152,7 +182,8 @@
 
 			echo $var_dump;
 
-			if ($exit) exit;
+			if ($exit)
+				exit;
 		}
 
 
@@ -161,7 +192,7 @@
 		 *
 		 * @param mixed $var любая переменная
 		 */
-		public static function _exp($var, $exit = false)
+		public static function _exp($var, $exit = false, $bg = null)
 		{
 			$backtrace = debug_backtrace();
 
@@ -190,9 +221,23 @@
 
 			var_export($var);
 
-			$fn_name = !empty($name)
-				? $name[1]
-				: 'EVAL';
+			if (! empty($name))
+			{
+				$fn_name = explode(',', $name[1]);
+				$fn_name = array_shift($fn_name);
+			}
+			else
+				$fn_name = 'EVAL';
+
+			if (! $bg)
+			{
+				$br = 'bbb';
+				$bg = 'ccc';
+			}
+			else
+				{
+					$br = $bg;
+				}
 
 			$var_export = htmlspecialchars(ob_get_contents());
 
@@ -201,8 +246,8 @@
 			ob_end_clean();
 
 			$var_dump = '
-				<div style="border: 1px solid #bbb; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">
-					<div style="background:#ccc; color: #000; margin: 0; padding: 5px;">var_export(<strong>'
+				<div style="border: 1px solid #'.$br.'; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">
+					<div style="background:#'.$bg.'; color: #000; margin: 0; padding: 5px;">var_export(<strong>'
 						. trim($fn_name) . '</strong>) - ' . self::_trace() .
 					'</div>
 					<pre style="background:#f0f0f0; color: #000; margin: 0; padding: 5px; border: 0; font-size: 11px; font-family: Consolas, Verdana, Arial;">'
@@ -213,7 +258,8 @@
 
 			echo $var_dump;
 
-			if ($exit) exit;
+			if ($exit)
+				exit;
 		}
 
 
@@ -277,14 +323,13 @@
 		}
 
 
-
 		/**
 		 * Функция для записи переменной в файл (для отладки)
 		 *
 		 * @param mixed $var любая переменная
 		 * @param bool $exit true - остановливает дальнейшее выполнение скрипта, false - продолжает выполнять скрипт
 		 */
-		public static function _dump($var, $append = true, $exit = false)
+		public static function _dump($var, $append = true, $exit = false, $bg = null)
 		{
 			$backtrace = debug_backtrace();
 
@@ -323,13 +368,27 @@
 
 			ob_end_clean();
 
-			$fn_name = ! empty($name)
-				? $name[1]
-				: 'EVAL';
+			if (! empty($name))
+			{
+				$fn_name = explode(',', $name[1]);
+				$fn_name = array_shift($fn_name);
+			}
+			else
+				$fn_name = 'EVAL';
+
+			if (! $bg)
+			{
+				$br = '2a5885';
+				$bg = '43648c';
+			}
+			else
+				{
+					$br = $bg;
+				}
 
 			$var_dump = '
-				<div style="border: 1px solid #2a5885; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">
-					<div style="background:#43648c; color: #fff; margin: 0; padding: 5px;">
+				<div style="border: 1px solid #'.$br.'; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">
+					<div style="background:#'.$bg.'; color: #fff; margin: 0; padding: 5px;">
 						<strong>' . date("j F Y, H:i:s") . '</strong> - var_dump(<strong>' . trim($fn_name) . '</strong>) - ' . self::_trace() .
 					'</div>
 					<pre style="background:#f5f5f5; color: #000; margin: 0; padding: 5px; border: 0; font-size: 11px; font-family: Consolas, Verdana, Arial;">'
@@ -386,6 +445,7 @@
 			return sprintf('Class: <strong>%s</strong> | Type: <strong>%s</strong> | Function: <strong>%s</strong> | File: <strong>%s</strong> line <strong>%s</strong>', $class, $type, $function, $file, $line);
 		}
 
+
 		/**
 		 * Функция отвечает за начало таймера
 		 *
@@ -395,6 +455,7 @@
 		{
 			Debug::$time[$name] = microtime(true);
 		}
+
 
 		/**
 		 * Функция отвечает за окончание таймера
@@ -408,6 +469,7 @@
 				return sprintf("%01.4f", microtime(true) - Debug::$time[$name]) . ' sec';
 		}
 
+
 		/**
 		 * Функция отвечает за начало подсчета используеой памяти
 		 *
@@ -417,6 +479,7 @@
 		{
 			Debug::$memory[$name] = memory_get_usage();
 		}
+
 
 		/**
 		 * Функция отвечает за окончание подсчета используемой памяти
@@ -429,6 +492,7 @@
 			if (isset(Debug::$memory[$name]))
 				return Debug::formatSize(memory_get_usage() - Debug::$memory[$name]);
 		}
+
 
 		/**
 		 * Форматированный вывод размера
@@ -457,6 +521,7 @@
 
 			return $size;
 		}
+
 
 		/**
 		 * Форматированный вывод чисел

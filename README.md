@@ -1,4 +1,4 @@
-# AVE.cms v3.2
+# AVE.cms v3.24
 ###### Многофункциональная, система управления сайтом.
 
 ## Оглавление
@@ -75,4 +75,4 @@ Google+: [Google+](https://plus.google.com/106406255345948508717)
 
 
 ---
-Copyright © 2007-2017 [Ave-Cms.Ru](https://ave-cms.ru) | [AVE.cms 3.2](https://ave-cms.ru)
+Copyright © 2007-2018 [Ave-Cms.Ru](https://ave-cms.ru) | [AVE.cms 3.24](https://ave-cms.ru)

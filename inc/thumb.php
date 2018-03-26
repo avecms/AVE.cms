@@ -75,14 +75,14 @@
 	$allowedExt = array('jpg', 'jpeg', 'png', 'gif', 'JPG', 'JPEG', 'PNG', 'GIF');
 
 	//-- Разрешенные размеры миниатюр
-	$allowedSize = THUMBNAIL_SIZES
+	$allowedSize = (defined(THUMBNAIL_SIZES) && THUMBNAIL_SIZES != '')
 		? explode(',', trim(THUMBNAIL_SIZES))
 		: array();
 
 	//-- Разрешения для админпанели
 	$allowedAdmin = array(
 		't128x128',
-		'f128x128',
+		'f128x128'
 	);
 
 	//-- Ссылка на файл
@@ -191,7 +191,7 @@
 
 	if (! file_exists("$imagePath/$imageName"))
 	{
-		$l= "$imagePath/$imageName";
+		$l = "$imagePath/$imageName";
 
 		if (file_exists($l . '.tmp'))
 		{
@@ -218,21 +218,20 @@
 
 			@unlink($l . '.tmp');
 		}
-
 	}
 
 	if (! file_exists("$imagePath/$imageName"))
 	{
 		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
 
-		$imageName = 'noimage.gif';
+		$imageName = 'default.png';
 
-		if (!file_exists("$imagePath/$imageName"))
+		if (! file_exists("$imagePath/$imageName"))
 		{
 			$imagePath = $baseDir . '/' . UPLOAD_DIR . '/images';
 		}
 
-		if (!file_exists("$imagePath/$imageName"))
+		if (! file_exists("$imagePath/$imageName"))
 			exit(0);
 
 		$save = false;

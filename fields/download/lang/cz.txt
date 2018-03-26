@@ -1,2 +1,0 @@
-[admin]
-name = "Soubor ke stažení"

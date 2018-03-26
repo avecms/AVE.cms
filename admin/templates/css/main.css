@@ -152,22 +152,22 @@ select { overflow: auto; }
 
 .userNav { float: right; z-index: 10000; position: relative; font-size: 11px; }
 .userNav .lastNav { width: 2px; height: 30px; position: absolute; top: 0; right: 0; }
-.userNav ul { margin-right: 2px; }
-.userNav ul li { display: inline; float: left; position: relative; cursor: pointer; border-right: 1px solid #3F3F3F; }
-.userNav ul li:first-child { border-left: 1px solid #3F3F3F; }
-.userNav ul li a { color: #eeeeee; text-decoration: none; display: block; float: left; }
-.userNav ul li:hover, .selected { background: #212121; }
-.userNav ul li span { display: block; padding: 8px 12px 8px 8px; float: left; }
-.userNav ul li img { float: left; display: block; margin: 13px 2px 11px 14px; }
+.userNav > ul { margin-right: 2px; }
+.userNav > ul > li { display: inline; float: left; position: relative; cursor: pointer; border-left: 1px solid #3F3F3F; }
+.userNav > ul > li:last-child { border-right: 1px solid #3F3F3F; }
+.userNav > ul > li a { color: #eeeeee; text-decoration: none; display: block; float: left; }
+.userNav > ul > li:hover, .selected { background: #212121; }
+.userNav > ul > li span { display: block; padding: 8px 12px 8px 8px; float: left; }
+.userNav > ul > li img { float: left; display: block; margin: 13px 2px 11px 14px; }
 
-.userNav ul li ul { position: absolute; left: -1px; display: none; top: 35px; margin-top: 0px; background: #2f2f2f; padding: 0 1px 1px 1px; border: 1px solid #1d1d1d; z-index: 100; }
-.userNav ul li ul li { display: block; float: none; border-top: 1px solid #2f2f2f; background: #212121; border-right: none; }
-.userNav ul li ul li:first-child { border-left: none!important; }
-.userNav ul li ul li a { width: 162px; padding: 6px 10px 6px 15px; font-size: 11px; text-transform: none; color: #a4a4a4; font-weight: normal; background: none; float: none; }
-.userNav ul li ul li a:hover { background: none; font-weight: normal; color: #fff; }
-.userNav ul li ul li:hover { background: url(../images/titleBg.png) repeat-x; background-position: 0 -39px; }
-.userNav ul li ul li span { display: block; padding: 0; float: none; }
-.userNav ul li ul li a.active {background: url(../images/titleBg.png) repeat-x; background-position: 0 -39px; color: #fff;}
+.userNav > ul > li > ul { position: absolute; left: -1px; display: none; top: 35px; margin-top: 0px; background: #2f2f2f; padding: 0 1px 1px 1px; border: 1px solid #1d1d1d; z-index: 100; }
+.userNav > ul > li > ul > li { display: block; float: none; border-top: 1px solid #2f2f2f; background: #212121; border-right: none; }
+.userNav > ul > li > ul > li:first-child { border-left: none!important; }
+.userNav > ul > li > ul > li a { width: 162px; padding: 6px 10px 6px 15px; font-size: 11px; text-transform: none; color: #a4a4a4; font-weight: normal; background: none; float: none; }
+.userNav > ul > li > ul > li a:hover { background: none; font-weight: normal; color: #fff; }
+.userNav > ul > li > ul > li:hover { background: url(../images/titleBg.png) repeat-x; background-position: 0 -39px; }
+.userNav > ul > li > ul > li span { display: block; padding: 0; float: none; }
+.userNav > ul > li > ul > li a.active {background: url(../images/titleBg.png) repeat-x; background-position: 0 -39px; color: #fff;}
 
 #menu {width: 180px;}
 /* ===== Left navigation ===== */
@@ -511,9 +511,9 @@ a.button, span.button { padding: 4px 10px; }
 .mainForm input[type=text]:hover, .mainForm input[type=password]:hover, .mainForm textarea:hover { border-color: #DCE7EF; background: #fdfdfd; }
 .mainForm input[type=text]:focus, .mainForm input[type=password]:focus, .mainForm textarea:focus { border-color: #DCE7EF; background: #fff; -webkit-box-shadow: 0 0 0 2px #F1F4FA; box-shadow: 0 0 0 2px #F1F4FA; -moz-box-shadow: 0 0 0 2px #F1F4FA; }
 
-.mainForm input[readonly], .mainForm input[disabled], .mainForm textarea[readonly], .mainForm textarea[disabled] { background: #f5f5f5; border: 1px solid #DADADA; color: #aaa; }
-.mainForm input[readonly]:hover, .mainForm input[disabled]:hover, .mainForm textarea[readonly]:hover, .mainForm textarea[disabled]:hover { background: #f5f5f5; border: 1px solid #aaa; color: #aaa; }
-.mainForm input[readonly]:focus, .mainForm input[disabled]:focus, .mainForm textarea[readonly]:focus, .mainForm textarea[disabled]:focus { background: #f5f5f5; border: 1px solid #aaa; color: #aaa; }
+.mainForm input[readonly], .mainForm input[disabled], .mainForm textarea[readonly], .mainForm textarea[disabled], .mainForm button[disabled] { background: #f5f5f5; border: 1px solid #DADADA; color: #aaa; }
+.mainForm input[readonly]:hover, .mainForm input[disabled]:hover, .mainForm textarea[readonly]:hover, .mainForm textarea[disabled]:hover, .mainForm button[disabled]:hover { background: #f5f5f5; border: 1px solid #aaa; color: #aaa; cursor: not-allowed}
+.mainForm input[readonly]:focus, .mainForm input[disabled]:focus, .mainForm textarea[readonly]:focus, .mainForm textarea[disabled]:focus, .mainForm button[disabled]:focus { background: #f5f5f5; border: 1px solid #aaa; color: #aaa; cursor: not-allowed}
 
 .mainForm input[type=text], .mainForm input[type=password], .mainForm textarea {width: 100%; box-sizing: content-box;}
 

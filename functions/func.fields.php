@@ -15,7 +15,7 @@
 	/**
 	 * Определяем пустое изображение
 	 */
-	@$img_pixel = 'templates/images/blanc.gif';
+	$img_pixel = 'templates/images/default.png';
 
 
 	/**
@@ -30,7 +30,9 @@
 			$field_dir = $d->path . '/' . $entry;
 
 			if (is_dir($field_dir) && file_exists($field_dir . '/field.php'))
-				require_once($field_dir . '/field.php');
+			{
+				require_once ($field_dir . '/field.php');
+			}
 		}
 
 		$d->Close();
@@ -68,12 +70,12 @@
 	 *
 	 * @return string
 	 */
-	function get_field_default($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null)
+	function get_field_default($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null, $_tpl=null)
 	{
 		switch ($action)
 		{
 			case 'edit':
-					return '<input type="text" style="width: 400px" name="feld[' . $field_id . ']" value="' . $field_value . '">';
+					return '<input type="text" style="width: 100%" name="feld[' . $field_id . ']" value="' . $field_value . '">';
 			case 'doc':
 			case 'req':
 				if (! $tpl_empty)
@@ -101,7 +103,7 @@
 	 *
 	 * @return mixed
 	 */
-	function get_field_type($type = '')
+	function get_field_type ($type = '')
 	{
 		static $fields;
 
@@ -133,6 +135,8 @@
 						? $fields_vars[$name]
 						: $name));
 			}
+			else
+				continue;
 		}
 
 		$fields = msort($fields, array('name'));
@@ -156,7 +160,7 @@
 		static $alias_field_id = array();
 
 		if (isset($alias_field_id[$id]))
-				return $alias_field_id[$id];
+			return $alias_field_id[$id];
 
 		$alias_field_id[$id] = $AVE_DB->Query("SELECT rubric_field_alias FROM " . PREFIX . "_rubric_fields WHERE Id=".intval($id))->GetCell();
 
@@ -183,10 +187,13 @@
 
 		$sql = "
 			SELECT Id
-			FROM " . PREFIX . "_rubric_fields
-			WHERE (rubric_field_alias = '".addslashes($alias)."'
-			OR Id = '".intval($alias)."')
-			AND rubric_id = ".intval($rubric_id)
+			FROM
+				" . PREFIX . "_rubric_fields
+			WHERE
+				(rubric_field_alias = '".addslashes($alias)."'
+				OR Id = '".intval($alias)."')
+			AND
+				rubric_id = ".intval($rubric_id)
 		;
 
 		$alias_field_id[$rubric_id][$alias] = $AVE_DB->Query($sql)->GetCell();
@@ -213,9 +220,12 @@
 			return $alias_field_id[$id];
 
 		$sql = "
-			SELECT rubric_field_default
-			FROM " . PREFIX . "_rubric_fields
-			WHERE Id = ".intval($id)
+			SELECT
+				rubric_field_default
+			FROM
+				" . PREFIX . "_rubric_fields
+			WHERE
+				Id = ".intval($id)
 		;
 
 		$alias_field_id[$id] = $AVE_DB->Query($sql)->GetCell();
@@ -227,50 +237,41 @@
 	/**
 	 * Возвращаем шаблон tpl или пусто
 	 *
-	 * @param string $dir
+	 * @param string $dir папка шаблона
 	 * @param int    $field_id идентификатор поля
-	 * @param string $type
+	 * @param string $type тип поля
+	 * @param int    $_tpl номер шаблона
 	 *
 	 * @return string
 	 */
-	function get_field_tpl($dir='', $field_id=0, $type='admin')
+	function get_field_tpl($dir = '', $field_id = 0, $type = 'admin', $_tpl = null)
 	{
+		if (! $type)
+			return false;
+
 		$alias_field_id = get_field_alias($field_id);
 
-		switch ($type)
-		{
-			case '':
-			case 'admin':
-			default:
-				$tpl = (file_exists($dir.'field-'.$field_id.'.tpl'))
-					? $dir.'field-'.$field_id.'.tpl'
-					: ((file_exists($dir.'field-'.$alias_field_id.'.tpl'))
-						? $dir.'field-'.$alias_field_id.'.tpl'
-						: $dir.'field.tpl');
-
-				$tpl = (@filesize($tpl)) ? $tpl : '';
-				break;
-
-			case 'doc':
-				$tpl = (file_exists($dir.'field-doc-'.$field_id.'.tpl'))
-					? $dir.'field-doc-'.$field_id.'.tpl'
-					: ((file_exists($dir.'field-doc-'.$alias_field_id.'.tpl'))
-						? $dir.'field-doc-'.$alias_field_id.'.tpl'
-						: $dir.'field-doc.tpl');
-
-				$tpl = (@filesize($tpl)) ? $tpl : '';
-				break;
-
-			case 'req':
-				$tpl = (file_exists($dir.'field-req-'.$field_id.'.tpl'))
-					? $dir.'field-req-'.$field_id.'.tpl'
-					: ((file_exists($dir.'field-req-'.$alias_field_id.'.tpl'))
-						? $dir.'field-req-'.$alias_field_id.'.tpl'
-						: $dir.'field-req.tpl');
-
-				$tpl = (@filesize($tpl)) ? $tpl : '';
-				break;
-		}
+		// Если существет файл с ID поля и ID шаблона
+		if (file_exists($dir.'field-'.$type.'-'.$field_id.'-'.$_tpl.'.tpl'))
+			$tpl = $dir.'field-'.$type.'-'.$field_id.'-'.$_tpl.'.tpl';
+		// Если существет файл с аласом поля и ID шаблона
+		else if (file_exists($dir.'field-'.$type.'-'.$alias_field_id.'-'.$_tpl.'.tpl'))
+			$tpl = $dir.'field-'.$type.'-'.$alias_field_id.'-'.$_tpl.'.tpl';
+		// Если существет файл с ID поля
+		else if (file_exists($dir.'field-'.$type.'-'.$field_id.'.tpl'))
+			$tpl = $dir.'field-'.$type.'-'.$field_id.'.tpl';
+		// Если существет файл с алиасом поля
+		else if (file_exists($dir.'field-'.$type.'-'.$alias_field_id.'.tpl'))
+			$tpl = $dir.'field-'.$type.'-'.$alias_field_id.'.tpl';
+		// Если существет файл c типом поля
+		else if (file_exists($dir.'field-'.$type.'.tpl'))
+			$tpl = $dir.'field-'.$type.'.tpl';
+		// Если существет файл c ID поля
+		else if (file_exists($dir.'field-'.$field_id.'.tpl'))
+			$tpl = $dir.'field-'.$field_id.'.tpl';
+		// Иначе
+		else
+			$tpl = $dir.'field.tpl';
 
 		return $tpl;
 	}
@@ -284,9 +285,12 @@
 	 *
 	 * @return string
 	 */
-	function document_get_field($field_id, $document_id = null)
+	function document_get_field($field_id, $document_id = null, $_tpl = null)
 	{
 		global $AVE_Core;
+
+		if (! $_tpl && is_array($field_id))
+			$_tpl = $field_id[2];
 
 		if (is_array($field_id))
 			$field_id = $field_id[1];
@@ -321,7 +325,7 @@
 		if (! is_callable($func))
 			$func = 'get_field_default';
 
-		$field_value = $func($field_value, 'doc', $field_id, $rubric_field_template, $tpl_field_empty, $maxlength, $document_fields, RUB_ID, $rubric_field_default);
+		$field_value = $func($field_value, 'doc', $field_id, $rubric_field_template, $tpl_field_empty, $maxlength, $document_fields, RUB_ID, $rubric_field_default, $_tpl);
 
 		return $field_value;
 	}
@@ -416,7 +420,6 @@
 			$where = "WHERE doc_field.document_id = '" . $document_id . "'";
 
 			$query="
-
 				SELECT
 					doc_field.Id,
 					doc_field.document_id,
@@ -444,7 +447,7 @@
 						ON doc.Id = doc_field.document_id
 				" . $where;
 
-			$sql = $AVE_DB->Query($query,-1,'doc_'.$document_id);
+			$sql = $AVE_DB->Query($query, -1, 'doc_'.$document_id);
 
 			//Вдруг памяти мало!!!!
 			if (memory_panic() && (count($document_fields) > 3))
@@ -681,11 +684,20 @@
 	 *
 	 * @return string
 	 */
-	function return_element()
+	function get_field_element()
 	{
 		$param = func_get_args();
 
-		$return = get_element($param[0][1], $param[0][2], $param[0][3]);
+		// Field ID
+		$param_1 = isset($param[0]) ? $param[0] : null;
+		// Item ID
+		$param_2 = isset($param[1]) ? $param[1] : null;
+		// Param ID
+		$param_3 = isset($param[2]) ? $param[2] : null;
+		// Document ID
+		$param_4 = isset($param[3]) ? $param[3] : null;
+
+		$return = get_element($param_1, $param_2, $param_3, $param_4);
 
 		return $return;
 	}

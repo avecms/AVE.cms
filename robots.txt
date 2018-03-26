@@ -3,12 +3,14 @@ Disallow: /admin/
 Disallow: /backup/
 Disallow: /cache/
 Disallow: /class/
+Disallow: /fields/
 Disallow: /functions/
 Disallow: /inc/
 Disallow: /lib/
 #Disallow: /modules/
 Disallow: /session/
 Disallow: /*?sysblock
+Disallow: /*?request
 Disallow: /*index.php?module
 #Disallow: /templates/
 #

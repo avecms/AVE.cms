@@ -1,7 +1,5 @@
 <script language="Javascript" type="text/javascript">
-
-var sess = '{$sess}';
-
+	var sess = '{$sess}';
 </script>
 
 <div class="title {if $smarty.request.pop}first{/if}">

@@ -18,36 +18,39 @@
 <form name="alias_check" id="field_tpl" method="post" action="index.php?do=rubs&action=field_template_save&onlycontent=1&cp={$sess}" class="mainForm">
 
 <div class="widget first">
-<div class="head"><h5 class="iFrames">{#RUBRIK_FIELD_DEFAULT#}</h5></div>
 	<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
-		<tbody>
-			<tr>
-				<td>
-					<div class="pr12">
-						<input class="mousetrap" name="rubric_field_default" type="text" id="rubric_field_default" value="{$rubric_field_default|escape}" style="width:100%;" />
-					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-
-<div class="widget first">
-	<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
+		<col width="50%">
 		<col>
 		<thead>
 			<tr>
+				<td>{#RUBRIK_FIELD_DEFAULT#}</td>
 				<td>{#RUBRIK_FILED_TEMPLATE_DESCR#}</td>
 			</tr>
 		</thead>
 		<tr>
 			<td>
 				<div class="pr12">
-					<textarea wrap="off" placeholder="" id="rubric_field_description" style="width:100%; height:40px" name="rubric_field_description">{$rubric_field_description|escape}</textarea>
+					<textarea
+						wrap="off"
+						placeholder=""
+						id="rubric_field_default"
+						style="width:100%; height:40px"
+						name="rubric_field_default">{$rubric_field_default|escape}</textarea>
+				</div>
+			</td>
+			<td>
+				<div class="pr12">
+					<textarea
+						wrap="off"
+						placeholder=""
+						id="rubric_field_description"
+						style="width:100%; height:40px"
+						name="rubric_field_description">{$rubric_field_description|escape}</textarea>
 				</div>
 			</td>
 		</tr>
 		<tr>
+			<td>INT, STRING, JSON</td>
 			<td>
 				|&nbsp;
 				<a href="javascript:void(0);" onclick="textSelectionrftd('<div>', '</div>');"><strong>DIV</strong></a>&nbsp;|&nbsp;
@@ -250,6 +253,7 @@ $(document).ready(function(){ldelim}
 	{rdelim});
 
 {literal}
+	setTimeout(function(){editorrftdf.refresh();}, 20);
 	setTimeout(function(){editorrft.refresh();}, 20);
 	setTimeout(function(){editorrftr.refresh();}, 20);
 	setTimeout(function(){editorrftd.refresh();}, 20);
@@ -258,6 +262,7 @@ $(document).ready(function(){ldelim}
 {rdelim});
 </script>
 
-{include file="$codemirror_editor" conn_id="rftd" textarea_id='rubric_field_description' ctrls='$(".SaveEditFieldTemplate").trigger("click");' height=80}
-{include file="$codemirror_editor" conn_id="rft" textarea_id='rubric_field_template' ctrls='$(".SaveEditFieldTemplate").trigger("click");' height=130}
-{include file="$codemirror_editor" conn_id="rftr" textarea_id='rubric_field_template_request' ctrls='$(".SaveEditFieldTemplate").trigger("click");' height=130}
+{include file="$codemirror_editor" conn_id="rftd" textarea_id='rubric_field_description' ctrls='$(".SaveEditFieldTemplate").trigger("click");' height=120}
+{include file="$codemirror_editor" conn_id="rftdf" textarea_id='rubric_field_default' ctrls='$(".SaveEditFieldTemplate").trigger("click");' height=120}
+{include file="$codemirror_editor" conn_id="rft" textarea_id='rubric_field_template' ctrls='$(".SaveEditFieldTemplate").trigger("click");' height=180}
+{include file="$codemirror_editor" conn_id="rftr" textarea_id='rubric_field_template_request' ctrls='$(".SaveEditFieldTemplate").trigger("click");' height=180}

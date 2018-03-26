@@ -49,6 +49,9 @@ $(document).ready(function(){ldelim}
 </div>
 
 <div class="widget first">
+	<div class="num">
+		<a class="basicNum topDir" href="index.php?do=modules&action=aliases&cp={$sess}">Редактирование алиасов</a>
+	</div>
 	<ul class="tabs">
 		<li class="activeTab"><a href="#tab1">{#MODULES_INSTALLED#}</a></li>
 		<li class=""><a href="#tab2">{#MODULES_NOT_INSTALLED#}</a></li>

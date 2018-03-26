@@ -24,7 +24,7 @@
 
 
 	// Изображение (Каскад)
-	function get_field_image_mega($field_value, $action, $field_id = 0, $tpl = '', $tpl_empty = 0, &$maxlength = null, $document_fields = array(), $rubric_id = 0, $default = null)
+	function get_field_image_mega($field_value, $action, $field_id = 0, $tpl = '', $tpl_empty = 0, &$maxlength = null, $document_fields = array(), $rubric_id = 0, $default = null, $_tpl=null)
 	{
 
 		global $AVE_Template, $img_pixel;
@@ -91,9 +91,9 @@
 
 				$default = explode('|', $default);
 
-				list($path, $watermark, $position, $transparency) = $default;
+				list ($path, $watermark, $position, $transparency) = $default;
 
-				if(preg_match("/%id/i", $path))
+				if (preg_match("/%id/i", $path))
 				{
 					if ($_REQUEST['action'] != 'new')
 					{
@@ -122,7 +122,7 @@
 					? $path_upload . '/'
 					: '');
 
-				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin');
+				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin', $_tpl);
 
 				$AVE_Template->assign('max_files', $AVE_Template->get_config_vars('max_f_f') . $iniset_count);
 				$AVE_Template->assign('dir_upload', $AVE_Template->get_config_vars('upl_dir') . $dir_upload);
@@ -194,7 +194,7 @@
 					}
 				}
 
-				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'doc');
+				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'doc', $_tpl);
 
 				if ($tpl_empty && $tpl_file)
 				{
@@ -268,7 +268,7 @@
 					}
 				}
 
-				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'req');
+				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'req', $_tpl);
 
 				if ($tpl_empty && $tpl_file)
 				{
@@ -301,13 +301,9 @@
 				}
 
 				if (isset($field_value_new))
-				{
 					return serialize($field_value_new);
-				}
 				else
-					{
-						return $field_value_new = '';
-					}
+					return $field_value_new = '';
 
 				break;
 
@@ -365,6 +361,9 @@
 				if (! is_dir($dir_abs))
 					mkdir($dir_abs, 0777, true);
 
+				$new_files = array();
+				$thumbs = array();
+
 				foreach ($_FILES[$files_unput]['name'] as $name => $value)
 				{
 					$filename = strtolower(stripslashes(prepare_url($_FILES[$files_unput]['name'][$name])));
@@ -382,6 +381,8 @@
 						if (@move_uploaded_file($_FILES[$files_unput]['tmp_name'][$name], $dir_abs . $filename))
 						{
 							$new_files[] = $filename;
+
+							$thumbs[] = make_thumbnail(array('link' => $dir . $filename, 'size' => 'f128x128'));
 
 							if ((bool)$watermark)
 							{
@@ -409,6 +410,7 @@
 				{
 					echo json_encode(array(
 						'files' => $new_files,
+						'thumbs' => $thumbs,
 						'dir' => $dir,
 						'respons' => 'succes',
 						'message' => $AVE_Template->get_config_vars('resp_s_m'),
@@ -433,3 +435,4 @@
 
 		return ($res ? $res : $field_value);
 	}
+?>

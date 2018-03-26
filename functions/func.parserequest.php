@@ -389,6 +389,17 @@
 			// Парсим теги системных блоков
 			$item = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_sysblock', $item);
 
+			// Парсим элементы полей
+			$item = preg_replace_callback(
+				'/\[tag:rfld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
+					create_function(
+						'$m',
+						'return get_field_element($m[1], $m[2], $m[3], ' . $row->Id . ');'
+					),
+				$item
+			);
+
+			// Парсим теги полей
 			$item = preg_replace_callback(
 				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/',
 					create_function(
@@ -398,7 +409,17 @@
 				$item
 			);
 
-			// Возвращаем поле из БД документа
+			// Повторно парсим теги полей
+			$item = preg_replace_callback(
+				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/',
+					create_function(
+						'$m',
+						'return request_get_document_field($m[1], ' . $row->Id . ', $m[2], ' . (int)$row->rubric_id . ');'
+					),
+				$item
+			);
+
+			// Возвращаем поле документа из БД (document_***)
 			$item = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
 				function ($match) use ($row)
 				{
@@ -421,7 +442,10 @@
 				$item
 			);
 
+			// Абсолютный путь
 			$item = str_replace('[tag:path]', ABS_PATH, $item);
+
+			// Путь к папке шаблона
 			$item = str_replace('[tag:mediapath]', ABS_PATH . 'templates/' . ((defined('THEME_FOLDER') === false)
 				? DEFAULT_THEME_FOLDER
 				: THEME_FOLDER)
@@ -437,12 +461,14 @@
 				$item
 			);
 
-			// Удаляем ошибочные теги полей документа в шаблоне рубрики
+			// Удаляем ошибочные теги полей документа и языковые, в шаблоне рубрики
 			$item = preg_replace('/\[tag:doc:\d*\]/', '', $item);
 			$item = preg_replace('/\[tag:langfile:\d*\]/', '', $item);
 
+			// Делаем линки на миниатюры
 			$item = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $item);
 
+			// Если был вызов тизера, ищем параметры
 			if ($tparams != '')
 			{
 				// Заменяем tparam в тизере
@@ -511,7 +537,7 @@
 			if (isset($use_cache) && $use_cache == 1)
 			{
 				// Кеширование элементов запроса
-				if(! file_exists(dirname($cachefile_docid)))
+				if (! file_exists(dirname($cachefile_docid)))
 					@mkdir(dirname($cachefile_docid), 0777, true);
 
 				file_put_contents($cachefile_docid, $item);
@@ -522,8 +548,8 @@
 				$item = file_get_contents($cachefile_docid);
 			}
 
+		// Кол-во просмотров
 		$item = str_replace('[tag:docviews]', $row->document_count_view, $item);
-		$item = str_replace('[tag:doccomments]', isset($row->nums) ? $row->nums : '', $item);
 
 		unset($row);
 
@@ -1079,6 +1105,7 @@
 
 		return $return;
 	}
+
 
 	/**
 	 * Функция получения содержимого поля для обработки в шаблоне запроса

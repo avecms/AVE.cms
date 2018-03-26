@@ -16,11 +16,6 @@
 
 	class AVE_Core
 	{
-
-	/**
-	 *	Свойства класса
-	 */
-
 		/**
 		 * Текущий документ
 		 *
@@ -70,9 +65,6 @@
 		 */
 		public $_module_not_found = 'Запрашиваемый модуль не найден.';
 
-	/**
-	 *	Внутренние методы класса
-	 */
 
 		/**
 		 * Получение основных настроек сисблока
@@ -268,6 +260,9 @@
 		{
 			global $AVE_DB;
 
+			if (isset($_REQUEST['module']) && ! preg_match('/^[A-Za-z0-9-_]{1,20}$/i', $_REQUEST['module']))
+				return '';
+
 			// Если папка, с запрашиваемым модулем не существует, выполняем редирект
 			// на главную страницу и отображаем сообщение с ошибкой
 			if (! is_dir(BASE_DIR . '/modules/' . $_REQUEST['module']))
@@ -368,6 +363,7 @@
 			}
 		}
 
+
 		/**
 		 * Метод, предназначенный для обработки события 404 Not Found, т.е. когда страница не найдена.
 		 *
@@ -403,6 +399,7 @@
 			exit;
 		}
 
+
 		/**
 		 * Метод, предназначенный для формирования хэша страницы
 		 *
@@ -417,6 +414,7 @@
 
 			return md5($hash);
 		}
+
 
 		/**
 		 * Метод, предназначенный для проверки существования документа в БД
@@ -520,7 +518,7 @@
 
 		/**
 		 * Метод, предназначенный для получения МЕТА-тегов для различных модулей.
-		 *
+		 * ToDo
 		 * @return boolean
 		 */
 		function _coreModuleMetatagsFetch()
@@ -649,9 +647,134 @@
 			return $combine;
 		}
 
-	/**
-	 *	Внешние методы класса
-	 */
+
+		function _main_content ($main_content, $id, $rubTmpl)
+		{
+			global $AVE_DB, $AVE_Template;
+
+			// Проверяем теги полей в шаблоне рубрики на условие != ''
+			$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.'?'.'>', $rubTmpl);
+			$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.'?'.'>', $main_content);
+			$main_content = str_replace('[tag:if:else]', '<?php }else{ ?>', $main_content);
+			$main_content = str_replace('[tag:/if]', '<?php } ?>', $main_content);
+
+			// Парсим элементы полей
+			$main_content = preg_replace_callback(
+				'/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
+					create_function(
+						'$m',
+						'return get_field_element($m[1], $m[2], $m[3], ' . $this->curentdoc->Id . ');'
+					),
+				$main_content
+			);
+
+			// Парсим теги полей документа в шаблоне рубрики
+			$main_content = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)(|[:(\d)])+?\]/', 'document_get_field', $main_content);
+
+			// Повторно парсим элементы полей
+			$main_content = preg_replace_callback(
+				'/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
+					create_function(
+						'$m',
+						'return get_field_element($m[1], $m[2], $m[3], ' . $this->curentdoc->Id . ');'
+					),
+				$main_content
+			);
+
+			// Повторно парсим теги полей документа в шаблоне рубрики
+			$main_content = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)(|[:(\d)])+?\]/', 'document_get_field', $main_content);
+
+			// Watermarks
+			$main_content = preg_replace_callback('/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/', 'watermarks', $main_content);
+
+			// Thumbnail
+			$main_content = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $main_content);
+
+			// Возвращаем поле из БД документа
+			$main_content = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
+				function ($match)
+				{
+					return isset($this->curentdoc->{$match[1]})
+						? $this->curentdoc->{$match[1]}
+						: null;
+				},
+				$main_content
+			);
+
+			// Если пришел вызов на активацию языковых файлов
+			$main_content = preg_replace_callback(
+				'/\[tag:langfile:([a-zA-Z0-9-_]+)\]/u',
+				function ($match)
+				{
+					global $AVE_Template;
+
+					return $AVE_Template->get_config_vars($match[1]);
+				},
+				$main_content
+			);
+
+			// Удаляем ошибочные теги полей документа в шаблоне рубрики
+			$main_content = preg_replace('/\[tag:watermark:\w*\]/', '', $main_content);
+			$main_content = preg_replace('/\[tag:fld:\d*\]/', '', $main_content);
+			$main_content = preg_replace('/\[tag:doc:\w*\]/', '', $main_content);
+			$main_content = preg_replace('/\[tag:langfile:\w*\]/', '', $main_content);
+
+			// парсим теги в шаблоне рубрики
+			$main_content = preg_replace_callback(
+				'/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
+					create_function('$m','return translate_date(date($m[1], '.$this->curentdoc->document_published.'));
+				'),
+				$main_content
+			);
+
+			$main_content = str_replace('[tag:docdate]', pretty_date(strftime(DATE_FORMAT, $this->curentdoc->document_published)), $main_content);
+			$main_content = str_replace('[tag:doctime]', pretty_date(strftime(TIME_FORMAT, $this->curentdoc->document_published)), $main_content);
+			$main_content = str_replace('[tag:humandate]', human_date($this->curentdoc->document_published), $main_content);
+			$main_content = str_replace('[tag:docauthorid]', $this->curentdoc->document_author_id, $main_content);
+
+			if (preg_match('[tag:docauthor]', $main_content))
+				$main_content = str_replace('[tag:docauthor]', get_username_by_id($this->curentdoc->document_author_id), $main_content);
+
+			if (CACHE_DOC_TPL && empty($_POST))
+			{
+				$cache_id = (int)$this->curentdoc->Id;
+				$cache_id = 'compiled/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+
+				$cache_file = $this->_get_cache_hash();
+
+				$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+					? trim($cache_id) . '/'
+					: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
+
+				// кэширование разрешено
+				// сохраняем скомпилированный шаблон в кэш
+				if (CACHE_DOC_FILE)
+				{
+					if (! is_dir($cache_dir))
+						mkdir($cache_dir, 0766, true);
+
+					file_put_contents($cache_dir . $cache_file, $main_content);
+				}
+
+				// кэширование разрешено
+				// сохраняем скомпилированный шаблон в кэш
+				$AVE_DB->Query("
+					INSERT INTO
+						" . PREFIX . "_rubric_template_cache
+					SET
+						hash			= '" . $cache_file . "',
+						rub_id			= '" . RUB_ID . "',
+						rub_tmpl_id		= '" . $this->curentdoc->rubric_tmpl_id . "',
+						grp_id			= '" . UGROUP . "',
+						doc_id			= '" . $id . "',
+						compiled		= '" . addslashes($main_content) . "'
+				");
+
+				unset ($cache_id, $cache_file, $cache_dir);
+			}
+
+			return $main_content;
+		}
 
 		/**
 		 * Метод, предназначенный для обработки системных тегов модулей. Здесь подключаются только те файлы модулей,
@@ -663,10 +786,13 @@
 		 */
 		function coreModuleTagParse($template)
 		{
-			global $AVE_DB, $AVE_Template;
+			global $AVE_DB, $AVE_Template, $AVE_Module;
 
 			$pattern = array();  // Массив системных тегов
 			$replace = array();  // Массив функций, на которые будут заменены системные теги
+
+			if (null !== $AVE_Module->moduleListGet())
+				$this->install_modules = $AVE_Module->moduleListGet();
 
 			// Если уже имеются данные об установленных модулях
 			if (null !== $this->install_modules)
@@ -752,7 +878,7 @@
 								// получаем php код функции, в противном случае формируем сообщение с ошибкой
 								$replace[] = function_exists($row->ModuleFunction)
 									? $row->ModulePHPTag
-									: ($this->_module_error . ' &quot;' . $row->ModuleName . '&quot;');
+									: ($this->_module_error . ' &quot;' . $row->ModuleSysName . '&quot;');
 							}
 							// Сохряняем информацию о модуле
 							$this->install_modules[$row->ModuleSysName] = $row;
@@ -760,7 +886,7 @@
 						elseif ($row->ModuleAveTag) // Если файла module.php не существует, формируем сообщение с ошибкой
 							{
 								$pattern[] = $row->ModuleAveTag;
-								$replace[] = $this->_module_error . ' &quot;' . $row->ModuleName . '&quot;';
+								$replace[] = $this->_module_error . ' &quot;' . $row->ModuleSysName . '&quot;';
 							}
 					}
 					else
@@ -768,6 +894,7 @@
 							$this->install_modules[$row->ModuleSysName] = $row;
 						}
 				}
+
 				// Выполняем замену систеного тега на php код и возвращаем результат
 				return preg_replace($pattern, $replace, $template);
 			}
@@ -946,7 +1073,7 @@
 						}
 					}
 
-					if (CACHE_DOC_TPL && empty ($_POST) && !(isset ($_SESSION['user_adminmode']) && $_SESSION['user_adminmode'] == 1))
+					if (CACHE_DOC_TPL && empty ($_POST))
 					{
 						// Кэширование разрешено
 						// Извлекаем скомпилированный шаблон документа из кэша
@@ -1036,109 +1163,17 @@
 						}
 						else
 						{
-							// Проверяем теги полей в шаблоне рубрики на условие != ''
-							$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.'?'.'>', $rubTmpl);
-							$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.'?'.'>', $main_content);
-							$main_content = str_replace('[tag:if:else]', '<?php }else{ ?>', $main_content);
-							$main_content = str_replace('[tag:/if]', '<?php } ?>', $main_content);
-
-							// Парсим теги полей документа в шаблоне рубрики
-							$main_content = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/', 'return_element', $main_content);
-							$main_content = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)\]/', 'document_get_field', $main_content);
-							$main_content = preg_replace_callback('/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/', 'return_element', $main_content);
-							$main_content = preg_replace_callback('/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/', 'watermarks', $main_content);
-							$main_content = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $main_content);
-
-							// Возвращаем поле из БД документа
-							$main_content = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
-								function ($match)
-								{
-									return isset($this->curentdoc->{$match[1]})
-										? $this->curentdoc->{$match[1]}
-										: null;
-								},
-								$main_content
-							);
-
-							// Если пришел вызов на активацию языковых файлов
-							$main_content = preg_replace_callback(
-								'/\[tag:langfile:([a-zA-Z0-9-_]+)\]/u',
-								function ($match)
-								{
-									global $AVE_Template;
-
-									return $AVE_Template->get_config_vars($match[1]);
-								},
-								$main_content
-							);
-
-							// Удаляем ошибочные теги полей документа в шаблоне рубрики
-							$main_content = preg_replace('/\[tag:watermark:\w*\]/', '', $main_content);
-							$main_content = preg_replace('/\[tag:fld:\d*\]/', '', $main_content);
-							$main_content = preg_replace('/\[tag:doc:\w*\]/', '', $main_content);
-							$main_content = preg_replace('/\[tag:langfile:\w*\]/', '', $main_content);
-
-							if (CACHE_DOC_TPL && empty ($_POST) && !(isset ($_SESSION['user_adminmode']) && $_SESSION['user_adminmode'] == 1))
-							{
-								$cache_id = (int)$this->curentdoc->Id;
-								$cache_id = 'compiled/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-
-								$cache_file = $this->_get_cache_hash();
-
-								$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
-									? trim($cache_id) . '/'
-									: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
-
-								// кэширование разрешено
-								// сохраняем скомпилированный шаблон в кэш
-								if (CACHE_DOC_FILE)
-								{
-									if(! is_dir($cache_dir))
-											mkdir($cache_dir, 0777, true);
-
-									file_put_contents($cache_dir . $cache_file, $main_content);
-								}
-
-								// кэширование разрешено
-								// сохраняем скомпилированный шаблон в кэш
-								$AVE_DB->Query("
-									INSERT " . PREFIX . "_rubric_template_cache
-									SET
-										hash			= '" . $cache_file . "',
-										rub_id			= '" . RUB_ID . "',
-										rub_tmpl_id		= '" . $this->curentdoc->rubric_tmpl_id . "',
-										grp_id			= '" . UGROUP . "',
-										doc_id			= '" . $id . "',
-										compiled		= '" . addslashes($main_content) . "'
-								");
-
-								unset($cache_id, $cache_file, $cache_dir);
-							}
+							// Обрабатываем основные поля рубрики
+							$main_content = $this->_main_content($main_content, $id, $rubTmpl);
 						}
 					}
-
-					// парсим теги в шаблоне рубрики
-					$main_content = preg_replace_callback(
-						'/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
-							create_function('$m','return translate_date(date($m[1], '.$this->curentdoc->document_published.'));
-						'),
-						$main_content
-					);
-
-					$main_content = str_replace('[tag:docdate]', pretty_date(strftime(DATE_FORMAT, $this->curentdoc->document_published)), $main_content);
-					$main_content = str_replace('[tag:doctime]', pretty_date(strftime(TIME_FORMAT, $this->curentdoc->document_published)), $main_content);
-					$main_content = str_replace('[tag:humandate]', human_date($this->curentdoc->document_published), $main_content);
-					$main_content = str_replace('[tag:docauthorid]', $this->curentdoc->document_author_id, $main_content);
-
-					if (preg_match('[tag:docauthor]', $main_content))
-						$main_content = str_replace('[tag:docauthor]', get_username_by_id($this->curentdoc->document_author_id), $main_content);
 				}
 
 				$out = str_replace('[tag:maincontent]', $main_content, $out);
 
-				unset($this->curentdoc->rubric_template, $this->curentdoc->template);
+				unset ($this->curentdoc->rubric_template, $this->curentdoc->template);
 			}
-			// Конец вывода документа
+			//-- Конец вывода документа
 
 			//Работа с условиями
 			/*
@@ -1519,6 +1554,9 @@
 					$get_url = implode('/', $get_url);
 				}
 
+			//-- Экранируем поступающий URL
+			$get_url = $AVE_DB->ClearUrl($get_url);
+
 			//-- Проверяем есть ли данный URL в таблице алиасов модулей
 			$sql = "
 				SELECT
@@ -1554,14 +1592,9 @@
 						Id = '" . (int)$_REQUEST['id'] . "'
 				")->GetCell();
 			}
+
 			// Выполняем запрос к БД на получение всей необходимой
 			// информации о документе
-
-			// Экранируем поступающий URL
-			$get_url = $AVE_DB->EscStr($get_url);
-
-			if (mb_strlen($get_url) > 255)
-				$get_url = '';
 
 			// Забираем нужные данные
 			$sql = $AVE_DB->Query("

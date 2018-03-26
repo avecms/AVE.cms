@@ -15,11 +15,6 @@
 	 */
 	class AVE_Rubric
 	{
-
-	/**
-	 *	СВОЙСТВА
-	 */
-
 		/**
 		 * Количество рубрик на странице
 		 *
@@ -27,9 +22,6 @@
 		 */
 		public $_limit = 30;
 
-	/**
-	 *	ВНУТРЕННИЕ МЕТОДЫ
-	 */
 
 		function get_rubric_fields_group($rubric_id)
 		{
@@ -57,10 +49,6 @@
 			return $groups;
 		}
 
-
-	/**
-	 *	ВНЕШНИЕ МЕТОДЫ
-	 */
 
 		/**
 		 * Вывод списка рубрик
@@ -219,6 +207,7 @@
 			}
 		}
 
+
 		/**
 		 * Запись настроек рубрики
 		 *
@@ -307,6 +296,7 @@
 				}
 			}
 		}
+
 
 		/**
 		 * Копирование рубрики
@@ -440,6 +430,7 @@
 			}
 		}
 
+
 		/**
 		 * Удаление рубрики
 		 *
@@ -495,6 +486,7 @@
 			exit;
 		}
 
+
 		/**
 		 * Вывод списка полей рубрики
 		 *
@@ -504,12 +496,15 @@
 		{
 			global $AVE_DB, $AVE_Template;
 
-			if(check_permission_acp('rubric_edit'))
+			if (check_permission_acp('rubric_edit'))
 			{
 				// Поля
 				$sql = $AVE_DB->Query("
 					SELECT
-						a.*, b.group_title, b.group_description, b.group_position
+						a.*,
+						b.group_title,
+						b.group_description,
+						b.group_position
 					FROM
 						" . PREFIX . "_rubric_fields AS a
 					LEFT JOIN
@@ -551,18 +546,18 @@
 
 				$sql = $AVE_DB->Query("
 					SELECT *
-					FROM " . PREFIX . "_rubric_fields_group
-					WHERE rubric_id = '" . $rubric_id . "'
-					ORDER BY group_position ASC
+					FROM
+						" . PREFIX . "_rubric_fields_group
+					WHERE
+						rubric_id = '" . $rubric_id . "'
+					ORDER BY
+						group_position ASC
 				");
 
 				while ($row = $sql->FetchRow())
-				{
 					array_push($fields_groups, $row);
-				}
 
 				$AVE_Template->assign('fields_groups', $fields_groups);
-
 
 				// Права
 				$groups = array();
@@ -575,10 +570,14 @@
 					$row->doall_h = ($row->user_group == 1) ? 1 : '';
 
 					$rubric_permission = $AVE_DB->Query("
-						SELECT rubric_permission
-						FROM " . PREFIX . "_rubric_permissions
-						WHERE user_group_id = '" . $row->user_group . "'
-						AND rubric_id = '" . $rubric_id . "'
+						SELECT
+							rubric_permission
+						FROM
+							" . PREFIX . "_rubric_permissions
+						WHERE
+							user_group_id = '" . $row->user_group . "'
+						AND
+							rubric_id = '" . $rubric_id . "'
 					")->GetCell();
 
 					$row->permissions = @explode('|', $rubric_permission);
@@ -587,15 +586,22 @@
 				}
 
 				$sql = $AVE_DB->Query("
-					SELECT rubric_title, rubric_linked_rubric, rubric_description
-					FROM " . PREFIX . "_rubrics
-					WHERE id = '" . $rubric_id . "'
+					SELECT
+						rubric_title,
+						rubric_linked_rubric,
+						rubric_description
+					FROM
+						" . PREFIX . "_rubrics
+					WHERE
+						id = '" . $rubric_id . "'
 					LIMIT 1
 				");
 
 				$rubrik = $sql->FetchRow();
 
-				$rubrik->rubric_linked_rubric = ($rubrik->rubric_linked_rubric != '0') ? unserialize($rubrik->rubric_linked_rubric) : array();
+				$rubrik->rubric_linked_rubric = ($rubrik->rubric_linked_rubric != '0')
+					? unserialize($rubrik->rubric_linked_rubric)
+					: array();
 
 				$AVE_Template->assign('rubric', $rubrik);
 				$AVE_Template->assign('groups', $groups);
@@ -691,14 +697,17 @@
 		{
 			global $AVE_DB;
 
-			if ($RubLink!==null) {
+			if ($RubLink !== null)
+			{
 				$AVE_DB->Query("
-					UPDATE " . PREFIX . "_rubrics
+					UPDATE
+						" . PREFIX . "_rubrics
 					SET
 						rubric_linked_rubric = '" . serialize($_REQUEST['rubric_linked']) . "'
 					WHERE
 						Id = '" . (int)$_REQUEST['Id'] . "'
 				");
+
 				header('Location:index.php?do=rubs&action=edit&Id=' . (int)$_REQUEST['Id'] . '&cp=' . SESSION);
 				exit;
 			}
@@ -706,15 +715,18 @@
 			{
 				$rubs = array();
 				$sql = $AVE_DB->Query("
-					SELECT rubric_title, Id
-					FROM " . PREFIX . "_rubrics
-					ORDER BY rubric_position ASC
+					SELECT
+						rubric_title,
+						Id
+					FROM
+						" . PREFIX . "_rubrics
+					ORDER BY
+						rubric_position ASC
 				");
 
 				while ($row = $sql->FetchRow())
-				{
-					array_push($rubs,$row);
-				}
+					array_push($rubs, $row);
+
 				return $rubs;
 			}
 		}

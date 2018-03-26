@@ -1,5 +1,5 @@
 {if $smarty.request.action == 'change'}
-	<div id="rub_field_{$rf.rubric_id}_{$rf.Id}">
+	<div id="rub_field_{$rf.rubric_id}_{$rf.Id}" style="text-align: left;">
 		<form name="field_save_{$rf.rubric_id}_{$rf.Id}" id="field_save_{$rf.rubric_id}_{$rf.Id}" method="post" action="index.php?do=rubs&action=changesave&field_id={$rf.Id|escape}&rubric_id={$rf.rubric_id|escape}&pop=1&onlycontent=1&cp={$sess}" class="mainForm">
 			<select class="mousetrap" name="rubric_field_type" id="rubric_field_type_{$field_id|escape}" style="width: 200px;">
 				{section name=field loop=$fields}

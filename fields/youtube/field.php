@@ -1,31 +1,30 @@
-<?
+<?php
 
-/**
- * AVE.cms
- *
- * @package AVE.cms
- * @version 3.x
- * @filesource
- * @field YouTube
- * @copyright © 2007-2016 AVE.cms, http://www.ave-cms.ru
- *
- * @license GPL v.2
- *
- * @param $field_value
- * @param $action
- * @param int $field_id
- * @param string $tpl
- * @param int $tpl_empty
- * @param null $maxlength
- * @param array $document_fields
- * @param int $rubric_id
- * @param null $default
- * @return array|int|mixed|string
- */
+	/**
+	 * AVE.cms
+	 *
+	 * @package AVE.cms
+	 * @version 3.x
+	 * @filesource
+	 * @field YouTube
+	 * @copyright © 2007-2016 AVE.cms, http://www.ave-cms.ru
+	 *
+	 * @license GPL v.2
+	 *
+	 * @param $field_value
+	 * @param $action
+	 * @param int $field_id
+	 * @param string $tpl
+	 * @param int $tpl_empty
+	 * @param null $maxlength
+	 * @param array $document_fields
+	 * @param int $rubric_id
+	 * @param null $default
+	 * @return array|int|mixed|string
+	 */
 
-// YouTube
-
-	function get_field_youtube($field_value, $action, $field_id = 0, $tpl = '', $tpl_empty = 0, &$maxlength = null, $document_fields = array(), $rubric_id = 0, $default = null)
+	// YouTube
+	function get_field_youtube($field_value, $action, $field_id = 0, $tpl = '', $tpl_empty = 0, &$maxlength = null, $document_fields = array(), $rubric_id = 0, $default = null, $_tpl=null)
 	{
 		global $AVE_Template;
 
@@ -80,7 +79,7 @@
 					);
 				}
 
-				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'doc');
+				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'doc', $_tpl);
 
 				if($tpl_empty && $tpl_file)
 				{
@@ -112,7 +111,7 @@
 					);
 				}
 
-				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'req');
+				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'req', $_tpl);
 
 				if($tpl_empty && $tpl_file)
 				{
@@ -144,62 +143,65 @@
 	}
 
 	// Check YouTube link
-	function youtube_url_parser($url, $source = 'embed')
+	if (! function_exists('youtube_url_parser'))
 	{
-		// Parse URL
-		$p_url = parse_url($url);
+		function youtube_url_parser($url, $source = 'embed')
+		{
+			// Parse URL
+			$p_url = parse_url($url);
 
-		// Find host
-		$host = $p_url['host'];
+			// Find host
+			$host = $p_url['host'];
 
-		// Check if youtube
-		if ($host == 'www.youtube.com') {
+			// Check if youtube
+			if ($host == 'www.youtube.com') {
 
-			if (preg_match('/[\\?\\&]v=([^\\?\\&]+)/', $url, $match))
-			 {
-				$vid = $match[1];
+				if (preg_match('/[\\?\\&]v=([^\\?\\&]+)/', $url, $match))
+				 {
+					$vid = $match[1];
 
-				if ($source == 'embed')
-				{
-					return 'http://www.youtube.com/v/'.$vid;
+					if ($source == 'embed')
+					{
+						return 'http://www.youtube.com/v/'.$vid;
+					}
+					else
+					{
+						return 'http://www.youtube.com/embed/'.$vid;
+					}
+
 				}
 				else
 				{
-					return 'http://www.youtube.com/embed/'.$vid;
+					return $url;
 				}
 
+			// Check the new video url
 			}
+			else if ($host == 'youtu.be')
+			{
+				if (preg_match('/^(http|https):\/\/youtu\.be\/(.*)/i', $url, $match))
+				{
+					$vid = $match[2];
+
+					if ($source == 'embed')
+					{
+						return 'http://www.youtube.com/v/'.$vid;
+					}
+					else
+					{
+						return 'http://www.youtube.com/embed/'.$vid;
+					}
+				}
+				else
+				{
+					return $url;
+				}
+			}
+			// Nothing just return the url
 			else
 			{
 				return $url;
 			}
-
-		// Check the new video url
-		}
-		else if ($host == 'youtu.be')
-		{
-			if (preg_match('/^(http|https):\/\/youtu\.be\/(.*)/i', $url, $match))
-			{
-				$vid = $match[2];
-
-				if ($source == 'embed')
-				{
-					return 'http://www.youtube.com/v/'.$vid;
-				}
-				else
-				{
-					return 'http://www.youtube.com/embed/'.$vid;
-				}
-			}
-			else
-			{
-				return $url;
-			}
-		}
-		// Nothing just return the url
-		else
-		{
-			return $url;
 		}
 	}
 ?>

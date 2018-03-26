@@ -163,19 +163,20 @@ class AVE_Document
 		$func = 'get_field_'.$field_type;
 
 		if (! is_callable($func))
-			$func='get_field_default';
+			$func = 'get_field_default';
 
 		$field = $func($field_value, 'edit', $field_id, '', 0, $x, 0, 0, $default);
 
 		return $field;
 	}
 
+
 	function _documentFieldSave($field_type, $field_value, $field_id, $default = '')
 	{
 		$func = 'get_field_'.$field_type;
 
 		if (! is_callable($func))
-			$func='get_field_default';
+			$func = 'get_field_default';
 
 		$field = $func($field_value, 'save', $field_id, '', 0, $x, 0, 0, $default);
 
@@ -340,7 +341,9 @@ class AVE_Document
 				 AND
 				 	(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
 				 	AND
-				 	UPPER(CONCAT_WS('', df1.field_value, NULLIF(df2.field_value, '')) = '" . mb_strtoupper($_REQUEST['field_search']) . "'))
+				 	UPPER(CONCAT_WS('', df1.field_value, NULLIF(df2.field_value, '')) = '" . mb_strtoupper($_REQUEST['field_search']) . "')
+				 	OR
+				 	df1.field_number_value = '" . mb_strtoupper($_REQUEST['field_search']) . "')
 				 ";
 			}
 			else if ($_REQUEST['field_request'] == 'like')
@@ -349,7 +352,9 @@ class AVE_Document
 					 AND
 						(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
 						AND
-						UPPER(CONCAT_WS('', df1.field_value, NULLIF(df2.field_value, '')) LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%'))
+						UPPER(CONCAT_WS('', df1.field_value, NULLIF(df2.field_value, '')) LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%')
+						OR
+						df1.field_number_value LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%')
 					";
 			}
 

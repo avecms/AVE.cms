@@ -22,8 +22,8 @@
 		{if check_permission('cache_thumb')}<a class="button redBtn clearThumb" href="javascript:void(0);">{#MAIN_STAT_CLEAR_THUMB#}</a>&nbsp;{/if}
 		{if check_permission('document_revisions')}<a class="button redBtn clearRev" href="javascript:void(0);">{#MAIN_STAT_CLEAR_REV#}</a>&nbsp;{/if}
 		{if check_permission('gen_settings')}<a class="button redBtn clearCount" href="javascript:void(0);">{#MAIN_STAT_CLEAR_COUNT#}</a>&nbsp;{/if}
-		{if check_permission('gen_settings_robots')}<a data-dialog="robots" data-height="650" data-modal="true" class="button greenBtn openDialog" href="index.php?do=settings&action=robots&cp={$sess}">{#SETTINGS_FILE_ROBOTS#}</a>&nbsp;{/if}
-		{if check_permission('gen_settings_fcustom')}<a data-dialog="custom" data-height="650" data-modal="true" class="button greenBtn openDialog" href="index.php?do=settings&action=custom&cp={$sess}">{#SETTINGS_FILE_CUSTOM#}</a>{/if}
+		{if check_permission('gen_settings_robots')}<a data-dialog="robots" data-title="{#SETTINGS_FILE_ROBOTS#}" data-height="650" data-modal="true" class="button greenBtn openDialog" href="index.php?do=settings&action=robots&cp={$sess}">{#SETTINGS_FILE_ROBOTS#}</a>&nbsp;{/if}
+		{if check_permission('gen_settings_fcustom')}<a data-dialog="custom" data-title="{#SETTINGS_FILE_CUSTOM#}" data-height="650" data-modal="true" class="button greenBtn openDialog" href="index.php?do=settings&action=custom&cp={$sess}">{#SETTINGS_FILE_CUSTOM#}</a>{/if}
 	</div>
 </div>
 

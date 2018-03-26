@@ -2,7 +2,7 @@
 	/**
 	 *	Teasers
 	 */
-	function get_field_teasers($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength = '', $doc_fields=array(), $rubric_id=0, $default='')
+	function get_field_teasers($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength = '', $doc_fields=array(), $rubric_id=0, $default='', $_tpl=null)
 	{
 		global $AVE_DB, $AVE_Template;
 
@@ -36,7 +36,7 @@
 					$items = $list;
 				}
 
-				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin');
+				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin', $_tpl);
 
 				$AVE_Template->assign('doc_id', $_REQUEST['Id']);
 				$AVE_Template->assign('items', $items);

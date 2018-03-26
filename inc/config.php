@@ -150,6 +150,7 @@
 	$GLOBALS['CMS_CONFIG']['REQUEST_STRIP_TAGS'] = array('DESCR' => 'При - у поля, оставляем теги в результате', 'default'=>'', 'TYPE'=>'string', 'VARIANT'=>'');
 
 	$GLOBALS['CMS_CONFIG']['DEV_MODE'] = array('DESCR' => 'Режим разработчика (Отключено кеширование SQL)', 'default'=>false, 'TYPE'=>'bool', 'VARIANT'=>'');
+	$GLOBALS['CMS_CONFIG']['SQL_QUERY_SANITIZE'] = array('DESCR' => 'Принудительно проверять SQL запросы', 'default'=>false, 'TYPE'=>'bool', 'VARIANT'=>'');
 
 	include_once(dirname(dirname(__FILE__)) . '/inc/config.inc.php');
 

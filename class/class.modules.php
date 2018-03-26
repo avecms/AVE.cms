@@ -14,10 +14,12 @@
 	{
 		public $_modules = array();
 
+
 		function __construct()
 		{
 			$this->_modules = $this->getModules();
 		}
+
 
 		/**
 		 * Метод, который обрабатывает все module.php и записывает как свойство класса списки модулей
@@ -61,7 +63,7 @@
 
 				$module = array();
 
-				if (! (is_file($module_dir . '/info.php') && @include($module_dir . '/info.php')))
+				if (! (is_file($module_dir . '/info.php') && @include_once($module_dir . '/info.php')))
 				{
 					// Если не удалось подключить основной файл модуля module.php - Фиксируем ошибку
 					$modules['errors'][] = $entry;
@@ -112,6 +114,7 @@
 
 			return $modules;
 		}
+
 
 		/**
 		 * Метод, преданзначеный для выода модулей
@@ -196,25 +199,38 @@
 
 			$modules = array();
 
-			// Условие, определяющее статус документа для запроса к БД
-			$where_status = ($status !== null)
-				? "WHERE ModuleStatus = '" . (int)$status . "'"
-				: '';
+			if (! empty($this->_modules))
+			{
+				foreach ($this->_modules AS $k => $v)
+				{
+					if ($status && $v['status'] != $status)
+						continue;
 
-			// Выполняем запрос к БД и получаем список документов,
-			// согласно статусу, либо все модули, если статус не указан
-			$sql = $AVE_DB->Query("
-				SELECT
-					*
-				FROM
-					" . PREFIX . "_module
-				" . $where_status . "
-				ORDER BY
-					ModuleName ASC
-			");
+					$modules[$k] = $v;
+				}
+			}
+			else
+				{
+					// Условие, определяющее статус документа для запроса к БД
+					$where_status = ($status !== null)
+						? "WHERE ModuleStatus = '" . (int)$status . "'"
+						: '';
 
-			while ($row = $sql->FetchRow())
-				$modules[$row->ModuleSysName] = $row;
+					// Выполняем запрос к БД и получаем список документов,
+					// согласно статусу, либо все модули, если статус не указан
+					$sql = $AVE_DB->Query("
+						SELECT
+							*
+						FROM
+							" . PREFIX . "_module
+						" . $where_status . "
+						ORDER BY
+							ModuleName ASC
+					");
+
+					while ($row = $sql->FetchRow())
+						$modules[$row->ModuleSysName] = $row;
+				}
 
 			// Возвращаем список модулей
 			return $modules;
@@ -247,6 +263,7 @@
 			header('Location:index.php?do=modules&cp=' . SESSION);
 			exit;
 		}
+
 
 		/**
 		 * Метод, предназанченный для установки или переустановки модуля
@@ -328,6 +345,7 @@
 			exit;
 		}
 
+
 		/**
 		 * Метод, предназначенный для обновления модуля при увеличении номера версии модуля
 		 *
@@ -385,6 +403,7 @@
 			exit;
 		}
 
+
 		/**
 		 * Метод, предназанченный для удаление модуля
 		 *
@@ -424,6 +443,7 @@
 			header('Location:index.php?do=modules&cp=' . SESSION);
 			exit;
 		}
+
 
 		/**
 		 * Метод, предназначенный для отключения/включение модуля в Панели управления
