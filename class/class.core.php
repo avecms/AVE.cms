@@ -100,13 +100,58 @@
 		}
 
 
+		function _getMainTemplate($rubric_id, $template_id)
+		{
+			global $AVE_DB;
+
+			$return =  null;
+
+			if (is_numeric($template_id))
+			{
+				$cache = 'template_' . $template_id;
+
+				$cache_file = BASE_DIR . '/tmp/cache/templates/' . $cache . '.inc';
+
+				// Если включен DEV MODE, то отключаем кеширование
+				if (defined('DEV_MODE') AND DEV_MODE)
+					$cache_file = null;
+
+				if (! file_exists(dirname($cache_file)))
+					mkdir(dirname($cache_file), 0766, true);
+
+				if (file_exists($cache_file))
+				{
+					$return = file_get_contents($cache_file);
+				}
+				else
+					{
+						$return = $AVE_DB->Query("
+							SELECT
+								template_text
+							FROM
+								" . PREFIX . "_templates
+							WHERE
+								Id = '" . $template_id . "'
+							LIMIT 1
+						")->GetCell();
+
+						$return = stripslashes($return);
+
+						if ($cache_file)
+							file_put_contents($cache_file, $return);
+					}
+			}
+
+			return $return;
+		}
+
+
 		/**
 		 * Получение основных настроек сисблока
 		 *
 		 * @param string $param параметр настройки, если не указан - все параметры
 		 * @return mixed
 		 */
-
 		function _requestGet($id, $param = '')
 		{
 			global $AVE_DB;
@@ -141,7 +186,7 @@
 		 * @param string $fetched шаблон модуля
 		 * @return string
 		 */
-		function _coreDocumentTemplateGet($rubric_id = '', $template = '', $fetched = '')
+		function _coreDocumentTemplateGet($rubric_id = null, $template = null, $fetched = null, $template_id = null)
 		{
 			global $AVE_DB;
 
@@ -200,18 +245,7 @@
 							}
 
 							// Выполняем запрос к БД на получение основного шаблона, а также шаблона рубрики
-							$tpl = $AVE_DB->Query("
-								SELECT
-									template_text
-								FROM
-									" . PREFIX . "_templates AS tpl
-								LEFT JOIN
-									" . PREFIX . "_rubrics AS rub
-									ON tpl.Id = rubric_template_id
-								WHERE
-									rub.Id = '" . $rubric_id . "'
-								LIMIT 1
-							")->GetCell();
+							$tpl = $this->_getMainTemplate($rubric_id, $template_id);
 
 							// Если запрос выполнился с нулевым результатом, возвращаем пустую строку
 							$out = $tpl
@@ -742,7 +776,7 @@
 
 				$cache_file = $this->_get_cache_hash();
 
-				$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+				$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 					? trim($cache_id) . '/'
 					: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
 
@@ -800,41 +834,53 @@
 				// Циклически обрабатываем каждый модуль
 				foreach ($this->install_modules as $row)
 				{
+					if ($row['ModuleStatus'] != 1)
+						continue;
+
 					// Если в запросе пришел вызов модуля или у модуля есть функция вызываемая тегом,
 					// который присутствует в шаблоне
-					if ((isset($_REQUEST['module']) && $_REQUEST['module'] == $row->ModuleSysName) ||
-						(1 == $row->ModuleIsFunction && !empty($row->ModuleAveTag) && 1 == preg_match($row->ModuleAveTag, $template)))
+					if (
+						(isset($_REQUEST['module']) && $_REQUEST['module'] == $row['ModuleSysName'])
+						||
+							(
+								1 == $row['ModuleIsFunction']
+								&&
+								(isset($row['ModuleAveTag']) && !empty($row['ModuleAveTag']))
+								&&
+								1 == @preg_match($row['ModuleAveTag'], $template)
+							)
+						)
 					{
 						// Проверяем, существует ли для данного модуля функция. Если да,
 						// получаем php код функции.
-						if (function_exists($row->ModuleStatus))
+						if (function_exists($row['ModuleFunction']))
 						{
-							$pattern[] = $row->ModuleAveTag;
-							$replace[] = $row->ModulePHPTag;
+							$pattern[] = $row['ModuleAveTag'];
+							$replace[] = $row['ModulePHPTag'];
 						}
 						else // В противном случае
 							{
 								// Проверяем, существует ли для данного модуля файл module.php в его персональной директории
-								$mod_file = BASE_DIR . '/modules/' . $row->ModuleSysName . '/module.php';
+								$mod_file = BASE_DIR . '/modules/' . $row['ModuleSysName'] . '/module.php';
 
 								if (is_file($mod_file) && include_once($mod_file))
 								{
 									// Если файл модуля найден, тогда
-									if ($row->ModuleAveTag)
+									if ($row['ModuleAveTag'])
 									{
-										$pattern[] = $row->ModuleAveTag;  // Получаем его системный тег
+										$pattern[] = $row['ModuleAveTag'];  // Получаем его системный тег
 
 										// Проверяем, существует ли для данного модуля функция. Если да,
 										// получаем php код функции, в противном случае формируем сообщение с ошибкой
-										$replace[] = function_exists($row->ModuleFunction)
-											? $row->ModulePHPTag
-											: ($this->_module_error . ' &quot;' . $row->ModuleName . '&quot;');
+										$replace[] = function_exists($row['ModuleFunction'])
+											? $row['ModulePHPTag']
+											: ($this->_module_error . ' &quot;' . $row['ModuleName'] . '&quot;');
 									}
 								}
 								// Если файла module.php не существует, формируем сообщение с ошибкой
-								elseif ($row->ModuleAveTag)
-									{	$pattern[] = $row->ModuleAveTag;
-										$replace[] = $this->_module_error . ' &quot;' . $row->ModuleName . '&quot;';
+								elseif ($row['ModuleAveTag'])
+									{	$pattern[] = $row['ModuleAveTag'];
+										$replace[] = $this->_module_error . ' &quot;' . $row['ModuleName'] . '&quot;';
 									}
 							}
 					}
@@ -998,11 +1044,11 @@
 
 				// Выполняем Код рубрики До загрузки документа
 				ob_start();
-				eval('?>' . $this->curentdoc->rubric_start_code . '<?');
+				eval(' ?>' . $this->curentdoc->rubric_start_code . '<?php ');
 				ob_end_clean();
 
 				// Получаем шаблон
-				$out = $this->_coreDocumentTemplateGet(RUB_ID);
+				$out = $this->_coreDocumentTemplateGet(RUB_ID, null, null, $this->curentdoc->rubric_template_id);
 
 				if (! ((isset ($_SESSION[RUB_ID . '_docread']) && $_SESSION[RUB_ID . '_docread'] == 1)
 					|| (isset ($_SESSION[RUB_ID . '_alles']) && $_SESSION[RUB_ID . '_alles'] == 1)) )
@@ -1084,7 +1130,7 @@
 
 						$cache_file = $this->_get_cache_hash();
 
-						$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+						$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 							? trim($cache_id) . '/'
 							: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
 
@@ -1245,7 +1291,7 @@
 			// проверяем установлен и активен ли модуль
 			if (isset($_REQUEST['module'])
 				&& ! (isset($this->install_modules[$_REQUEST['module']])
-					&& '1' == $this->install_modules[$_REQUEST['module']]->ModuleStatus) )
+					&& '1' == $this->install_modules[$_REQUEST['module']]['ModuleStatus']) )
 			{
 				// Выводим сообщение о том что такого модуля нет
 				display_notice($this->_module_error);
@@ -1596,26 +1642,27 @@
 			// Выполняем запрос к БД на получение всей необходимой
 			// информации о документе
 
+			$document_id = (! empty($_REQUEST['id'])
+				? intval($_REQUEST['id'])
+				: 1);
+
 			// Забираем нужные данные
-			$sql = $AVE_DB->Query("
+			$sql = "
 				SELECT
 					doc.*,
 					rubric_permission,
 					rubric_template,
 					rubric_meta_gen,
+					rubric_template_id,
 					rub.rubric_header_template,
 					rub.rubric_footer_template,
 					rub.rubric_start_code,
-					template_text,
 					other.template
 				FROM
 					" . PREFIX . "_documents AS doc
 				JOIN
 					" . PREFIX . "_rubrics AS rub
 						ON rub.Id = doc.rubric_id
-				JOIN
-					" . PREFIX . "_templates AS tpl
-						ON tpl.Id = rubric_template_id
 				JOIN
 					" . PREFIX . "_rubric_permissions AS prm
 						ON doc.rubric_id = prm.rubric_id
@@ -1625,15 +1672,19 @@
 				WHERE
 					user_group_id = '" . UGROUP . "'
 				AND
-					" . (! empty ($get_url)
+					" . (! empty ($get_url) && ! isset($_REQUEST['module'])
 							? "document_alias = '" . str_ireplace("'", "\'", $get_url) . "'"
 							: (! empty($_REQUEST['id'])
 								? "doc.Id =" . intval($_REQUEST['id'])
 								: "doc.Id = 1")) . "
 				LIMIT 1
-			");
+			";
 
-			if ($this->curentdoc = $sql->FetchRow())
+			$hash_url = md5($get_url);
+
+			$query = $AVE_DB->Query($sql, CACHE_DOC_SQL, 'url_' . $hash_url);
+
+			if ($this->curentdoc = $query->FetchRow())
 			{
 				if ($this->curentdoc->rubric_tmpl_id != 0)
 				{
@@ -1692,16 +1743,22 @@
 
 					$redirect_alias = $AVE_DB->Query($sql)->GetCell();
 
+					$redirect_alias = ABS_PATH . $redirect_alias . URL_SUFF;
+
+					$redirect_alias = str_replace('//', '/', $redirect_alias);
+
 					if (! empty($redirect_alias))
 					{
 						header('HTTP/1.1 301 Moved Permanently');
-						header('Location:' . ABS_PATH . $redirect_alias . URL_SUFF);
+						header('Location:' . $redirect_alias);
 						exit();
 					}
 
 					if (! (! empty($_REQUEST['sysblock']) || ! empty($_REQUEST['module']) || ! empty($_REQUEST['request'])))
 						$_GET['id'] = $_REQUEST['id'] = PAGE_NOT_FOUND_ID;
 				}
+
+			unset ($sql, $query);
 		}
 	}
 ?>

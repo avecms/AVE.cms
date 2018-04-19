@@ -221,51 +221,20 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 		</div>
 	</div>
 </form>
-
 {else}
-
 <form action="index.php?do=rubs&action=edit&Id={$smarty.request.Id|escape}&cp={$sess}" method="post" class="mainForm" id="Rubric">
 	<div class="widget first">
 		<div class="head">
 			<h5 class="iFrames">{#RUBRIK_FIELDS_TITLE#}</h5>
 			<div class="num">
-				<a class="basicNum" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_TEMPLATE#}</a>
+				<a class="basicNum greenNum" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_TEMPLATE#}</a>
 			</div>
 		</div>
 		<div id="fields_list">
 		<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic" id="FieldsList">
-			<col width="10">
-			<col width="10">
-			<col width="10">
-			<col width="10">
-			<col width="10">
-			<col width="100">
-			<col>
-			<col width="280">
-			<col width="280">
-			<col width="10">
-			<thead>
-				<tr>
-					<td align="center" title="{#RUBRIK_MARK_DEL_ALL#}" class="topDir">
-						<div align="center">
-							<input type="checkbox" id="selall" value="1" />
-						</div>
-					</td>
-					<td align="center"><a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_F_SORT_TIP#}">[?]</a></td>
-					<td align="center"><a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_NUMERIC_TIP#}">[?]</a></td>
-					<td align="center"><a href="javascript:void(0);" class="topDir link" style="cursor: help;" title="{#RUBRIK_SEARCH_TIP#}">[?]</a></td>
-					<td>{#RUBRIK_ID#}</td>
-					<td>{#RUBRIK_FIELD_ALIAS#}</td>
-					<td>{#RUBRIK_FIELD_NAME#}</td>
-					<td>{#RUBRIK_FIELD_TYPE#}</td>
-					<td>{#RUBRIK_FIELD_GROUP#}</td>
-					<td align="center"></td>
-				</tr>
-			</thead>
-
 			<tbody class="field_tbody">
 				<tr>
-					<td align="center" colspan="10">
+					<td align="center">
 						<ul class="messages">
 							<li class="highlight red">{#RUBRIK_NO_FIELDS#}</li>
 						</ul>

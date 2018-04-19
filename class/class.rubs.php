@@ -869,17 +869,24 @@
 
 					$sql = $AVE_DB->Query("
 						SELECT
-							Id
+							Id,
+							document_alias
 						FROM
 							" . PREFIX . "_documents
 						WHERE
 							rubric_id = " . $rubric_id . "
 					");
 
-					while ($row = $sql->GetCell())
+					while ($row = $sql->FetchRow())
 					{
-						$AVE_DB->clearcache('doc_' . $row);
-						$AVE_DB->clearcompile('doc_' . $row);
+						if ($row->Id == 1)
+							$hash_url = md5('');
+						else
+							$hash_url = md5($row->document_alias);
+
+						$AVE_DB->clearCacheUrl('url_'.$hash_url);
+						$AVE_DB->clearcache('doc_' . $row->Id);
+						$AVE_DB->clearcompile('doc_' . $row->Id);
 					}
 
 					if ($sql->_result === false)
@@ -1003,10 +1010,16 @@
 						WHERE rub_id = '" . $rubric_id . "'
 					");
 
-					$sql = $AVE_DB->Query("SELECT Id FROM " . PREFIX . "_documents WHERE rubric_id = ".$rubric_id);
+					$sql = $AVE_DB->Query("SELECT Id,document_alias FROM " . PREFIX . "_documents WHERE rubric_id = ".$rubric_id);
 
 					while ($row = $sql->FetchRow())
 					{
+						if ($row->Id == 1)
+							$hash_url = md5('');
+						else
+							$hash_url = md5($row->document_alias);
+
+						$AVE_DB->clearCacheUrl('url_'.$hash_url);
 						$AVE_DB->clearcache('doc_'.$row->Id);
 						$AVE_DB->clearcompile('doc_'.$row->Id);
 						$AVE_DB->clearcacherequest('doc_'.$row->Id);
@@ -1044,10 +1057,16 @@
 
 			$AVE_DB->clearcache('rub_'.$rubric_id);
 
-			$sql = $AVE_DB->Query("SELECT Id FROM " . PREFIX . "_documents WHERE rubric_id = ".$rubric_id);
+			$sql = $AVE_DB->Query("SELECT Id,document_alias FROM " . PREFIX . "_documents WHERE rubric_id = ".$rubric_id);
 
 			while ($row = $sql->FetchRow())
 			{
+				if ($row->Id == 1)
+					$hash_url = md5('');
+				else
+					$hash_url = md5($row->document_alias);
+
+				$AVE_DB->clearCacheUrl('url_'.$hash_url);
 				$AVE_DB->clearcache('doc_'.$row->Id);
 				$AVE_DB->clearcompile('doc_'.$row->Id);
 			}
@@ -1272,10 +1291,16 @@
 				reportLog($AVE_Template->get_config_vars('RUBRIK_REPORT_TEMPL_RUB') . ' (' . stripslashes(htmlspecialchars($this->rubricNameByIdGet($rubric_id)->rubric_title)) . ') (Id:' . $rubric_id . ')');
 			}
 
-			$sql = $AVE_DB->Query("SELECT Id FROM " . PREFIX . "_documents WHERE rubric_id = ".$rubric_id);
+			$sql = $AVE_DB->Query("SELECT Id, document_alias FROM " . PREFIX . "_documents WHERE rubric_id = ".$rubric_id);
 
 			while ($row = $sql->FetchRow())
 			{
+				if ($row->Id == 1)
+					$hash_url = md5('');
+				else
+					$hash_url = md5($row->document_alias);
+
+				$AVE_DB->clearCacheUrl('url_'.$hash_url);
 				$AVE_DB->clearcache('doc_'.$row->Id);
 				$AVE_DB->clearcompile('doc_'.$row->Id);
 			}
@@ -1532,7 +1557,9 @@
 			$AVE_Template->assign('content', $AVE_Template->fetch('rubs/field_template.tpl'));
 		}
 
-		function rubricFieldTemplateSave($id, $rubric_id) {
+
+		function rubricFieldTemplateSave($id, $rubric_id)
+		{
 			global $AVE_DB, $AVE_Template;
 
 			$sql = $AVE_DB->Query("
@@ -1546,7 +1573,8 @@
 					Id = '" . $id . "'
 			");
 
-			if ($sql->_result === false) {
+			if ($sql->_result === false)
+			{
 				$message = $AVE_Template->get_config_vars('RUBRIC_SAVED_FLDTPL_ERR');
 				$header = $AVE_Template->get_config_vars('RUBRIK_ERROR');
 				$theme = 'error';
@@ -1559,14 +1587,21 @@
 					exit;
 				}
 
-			}else{
-
+			}
+			else
+			{
 				$AVE_DB->clearcache('rub_'.$rubric_id);
 
-				$sql = $AVE_DB->Query("SELECT Id FROM " . PREFIX . "_documents");
+				$sql = $AVE_DB->Query("SELECT Id, document_alias FROM " . PREFIX . "_documents WHERE rubric_id = '".$rubric_id."'");
 
 				while ($row = $sql->FetchRow())
 				{
+					if ($row->Id == 1)
+						$hash_url = md5('');
+					else
+						$hash_url = md5($row->document_alias);
+
+					$AVE_DB->clearCacheUrl('url_'.$hash_url);
 					$AVE_DB->clearcache('doc_'.$row->Id);
 					$AVE_DB->clearcompile('doc_'.$row->Id);
 					$AVE_DB->clearcacherequest('doc_'.$row->Id);
@@ -2072,7 +2107,8 @@
 
 			$sql = $AVE_DB->Query("
 				SELECT
-					Id
+					Id,
+					document_alias
 				FROM
 					" . PREFIX . "_documents
 				WHERE
@@ -2083,6 +2119,12 @@
 
 			while ($row = $sql->FetchRow())
 			{
+				if ($row->Id == 1)
+					$hash_url = md5('');
+				else
+					$hash_url = md5($row->document_alias);
+
+				$AVE_DB->clearCacheUrl('url_'.$hash_url);
 				$AVE_DB->clearcache('doc_'.$row->Id);
 				$AVE_DB->clearcompile('doc_'.$row->Id);
 			}

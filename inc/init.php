@@ -16,26 +16,32 @@
 	if (! defined('BASE_DIR'))
 		exit;
 
-	// Подключаем файл настроек
+	//-- Подключаем файл настроек
 	require_once (BASE_DIR . '/inc/config.php');
 
 	if (PHP_DEBUGGING_FILE && ! defined('ACP'))
 		include_once BASE_DIR . '/inc/errors.php';
 
-	/**
-	 * Удаление глобальных массивов
-	 *
-	 */
+	//-- Удаление глобальных массивов
 	function unsetGlobals()
 	{
 		if (! ini_get('register_globals'))
 			return;
 
-		$allowed = array('_ENV'=>1, '_GET'=>1, '_POST'=>1, '_COOKIE'=>1, '_FILES'=>1, '_SERVER'=>1, '_REQUEST'=>1, 'GLOBALS'=>1);
+		$allowed = array(
+			'_ENV'		=> 1,
+			'_GET'		=> 1,
+			'_POST'		=> 1,
+			'_COOKIE'	=> 1,
+			'_FILES'	=> 1,
+			'_SERVER'	=> 1,
+			'_REQUEST'	=> 1,
+			'GLOBALS'	=> 1
+		);
 
 		foreach ($GLOBALS as $key => $value)
 		{
-			if (!isset($allowed[$key]))
+			if (! isset($allowed[$key]))
 				unset($GLOBALS[$key]);
 		}
 	}
@@ -44,10 +50,10 @@
 
 	if (isset($HTTP_POST_VARS))
 	{
-		$_GET     = $HTTP_GET_VARS;
-		$_POST    = $HTTP_POST_VARS;
-		$_REQUEST = array_merge($_POST, $_GET);
-		$_COOKIE  = $HTTP_COOKIE_VARS;
+		$_GET		= $HTTP_GET_VARS;
+		$_POST		= $HTTP_POST_VARS;
+		$_REQUEST	= array_merge($_POST, $_GET);
+		$_COOKIE 	= $HTTP_COOKIE_VARS;
 	}
 
 	/**
@@ -75,14 +81,14 @@
 
 	if (! get_magic_quotes_gpc())
 	{
-		$_GET     = add_slashes($_GET);
-		$_POST    = add_slashes($_POST);
-		$_REQUEST = array_merge($_POST, $_GET);
-		$_COOKIE  = add_slashes($_COOKIE);
+		$_GET		= add_slashes($_GET);
+		$_POST		= add_slashes($_POST);
+		$_REQUEST	= array_merge($_POST, $_GET);
+		$_COOKIE	= add_slashes($_COOKIE);
 	}
 
 
-	function is_ssl()
+	function isSSL()
 	{
 		if (isset($_SERVER['HTTPS']))
 		{
@@ -93,21 +99,22 @@
 				return true;
 		}
 		elseif (isset($_SERVER['SERVER_PORT']) && ('443' == $_SERVER['SERVER_PORT']))
-		{
-			return true;
-		}
+			{
+				return true;
+			}
 
 		return false;
 	}
 
 
-	function set_host()
+	function setHost()
 	{
 		if (isset($_SERVER['HTTP_HOST']))
 		{
 			// Все символы $_SERVER['HTTP_HOST'] приводим к строчным и проверяем
 			// на наличие запрещённых символов в соответствии с RFC 952 и RFC 2181.
 			$_SERVER['HTTP_HOST'] = strtolower($_SERVER['HTTP_HOST']);
+
 			if (! preg_match('/^\[?(?:[a-z0-9-:\]_]+\.?)+$/', $_SERVER['HTTP_HOST']))
 			{
 				// $_SERVER['HTTP_HOST'] не соответствует спецификациям.
@@ -121,7 +128,7 @@
 				$_SERVER['HTTP_HOST'] = '';
 			}
 
-		$ssl = is_ssl();
+		$ssl = isSSL();
 		$schema = ($ssl) ? 'https://' : 'http://';
 		$host = str_replace(':' . $_SERVER['SERVER_PORT'], '', $_SERVER['HTTP_HOST']);
 		$port = ($_SERVER['SERVER_PORT'] == '80' || $_SERVER['SERVER_PORT'] == '443' || $ssl)
@@ -136,10 +143,11 @@
 
 		if (defined('ACP'))
 			$abs_path = dirname($abs_path);
+
 		define('ABS_PATH', rtrim(str_replace("\\", "/", $abs_path), '/') . '/');
 	}
 
-	set_host();
+	setHost();
 
 	set_include_path (get_include_path() . '/' . BASE_DIR . '/lib');
 
@@ -153,11 +161,10 @@
 	ini_set ('url_rewriter.tags',        '');
 
 
-	// Переключение для нормальной работы с русскими буквами в некоторых функциях
+	//-- Переключение для нормальной работы с русскими буквами в некоторых функциях
 	mb_internal_encoding("UTF-8");
 
-
-	// Вкл/Выкл отображения ошибок php
+	//-- Вкл/Выкл отображения ошибок php
 	if (! PHP_DEBUGGING_FILE)
 	{
 		if (! PHP_DEBUGGING)
@@ -172,10 +179,15 @@
 			}
 	}
 
+	//-- Debug Class
+	require (BASE_DIR . '/class/class.debug.php');
+	$Debug = new Debug;
 
-	/**
-	 * Подкючаем необходимые файлы функций
-	 */
+	//-- Hooks Class
+	require (BASE_DIR . '/class/class.hooks.php');
+	$Hooks = new Hooks;
+
+	//-- Подкючаем необходимые файлы функций
 	require_once (BASE_DIR . '/functions/func.breadcrumbs.php');	// Хлебные крошки
 	require_once (BASE_DIR . '/functions/func.common.php');			// Основные функции
 	require_once (BASE_DIR . '/functions/func.locale.php');			// Языковые функции
@@ -196,44 +208,38 @@
 	require_once (BASE_DIR . '/functions/func.watermarks.php');		// Функции по работе с водными знаками
 
 
-	/**
-	 * Создание папок и файлов
-	 */
-	foreach (array('cache', 'backup', 'session') as $dir)
-	{
-		write_htaccess_deny(BASE_DIR . '/' . $dir);
-	}
+	//-- Создание папок и файлов
+	foreach (array(ATTACH_DIR, 'cache', 'backup', 'logs', 'session', 'update') as $dir)
+		write_htaccess_deny(BASE_DIR . '/tmp/' . $dir);
 
-	foreach (array('attachments', 'combine', 'module', 'redactor', 'smarty', 'sql', 'tpl') as $dir)
-	{
-		write_htaccess_deny(BASE_DIR . '/cache/' . $dir);
-	}
+	foreach (array('combine', 'module', 'redactor', 'smarty', 'sql', 'templates', 'tpl') as $dir)
+		write_htaccess_deny(BASE_DIR . '/tmp/cache/' . $dir);
 
 	global $AVE_DB;
 
-	// Класс для работы с MySQL (Global $AVE_DB)
+	//-- Класс для работы с MySQL (Global $AVE_DB)
 	require_once (BASE_DIR . '/class/class.database.php');
 
-	// Если не существует объекта по работе с БД
+	//-- Если не существует объекта по работе с БД
 	if (! isset($AVE_DB))
 	{
-		// Подключаем конфигурационный файл с параметрами подключения
-		require_once (BASE_DIR . '/inc/db.config.php');
+		//-- Подключаем конфигурационный файл с параметрами подключения
+		require_once (BASE_DIR . '/config/db.config.php');
 
-		// Если параметры не указаны, прерываем работу
+		//-- Если параметры не указаны, прерываем работу
 		if (! isset($config))
 			exit;
 
-		// Если константа префикса таблиц не задана, принудительно определяем ее на основании параметров в файле db.config.php
+		//-- Если константа префикса таблиц не задана, принудительно определяем ее на основании параметров в файле db.config.php
 		if (! defined('PREFIX'))
 			define('PREFIX', $config['dbpref']);
 
-		// Создаем объект для работы с БД
+		//-- Создаем объект для работы с БД
 		try {
 			$AVE_DB = AVE_DB::getInstance($config)
-				// Назначаем кодировку
+				//-- Назначаем кодировку
 				->setCharset('utf8')
-				// Назначаем БД
+				//-- Назначаем БД
 				->setDatabaseName($config['dbname']);
 		}
 		catch (AVE_DB_Exception $e)
@@ -250,10 +256,10 @@
 		unset ($config);
 	}
 
-	// Устанавливаем обновления системы
+	//-- Устанавливаем обновления системы
 	if ($AVE_DB)
 	{
-		$updaters = (glob(BASE_DIR . "/cache/*.update.php"));
+		$updaters = (glob(BASE_DIR . '/tmp/update/*.update.php'));
 
 		if ($updaters)
 		{
@@ -261,9 +267,9 @@
 
 			foreach ($updaters as $ufile)
 			{
-				@eval('?>' . @file_get_contents($ufile) . '<?');
+				@eval(' ?'.'>' . @file_get_contents($ufile) . '<?'.'php ');
 
-				if ($ufile != BASE_DIR . '/cache/debug.update.php')
+				if ($ufile != BASE_DIR . '/tmp/update/debug.update.php')
 				{
 					@unlink($ufile);
 					@reportLog('Установил обновления (' . $ufile . ')');
@@ -274,21 +280,21 @@
 
 	set_cookie_domain();
 
-	// Работа с сессиями
+	//-- Работа с сессиями
 	if (! SESSION_SAVE_HANDLER)
 	{
-		// Класс для работы с сессиями
+		//-- Класс для работы с сессиями
 		require (BASE_DIR . '/class/class.session.files.php');
 		$ses_class = new AVE_Session();
 	}
 	else
 		{
-			// Класс для работы с сессиями
+			//-- Класс для работы с сессиями
 			require (BASE_DIR . '/class/class.session.php');
 			$ses_class = new AVE_Session_DB();
 		}
 
-	/* Изменяем save_handler, используем функции класса */
+	//-- Изменяем save_handler, используем функции класса
 	session_set_save_handler (
 		array(&$ses_class, '_open'),
 		array(&$ses_class, '_close'),
@@ -298,13 +304,14 @@
 		array(&$ses_class, '_gc')
 	);
 
-	/* Страт сессии */
+	//-- Страт сессии
 	session_start();
 
 	if (isset($HTTP_SESSION_VARS))
 		$_SESSION = $HTTP_SESSION_VARS;
 
 
+	//-- Logout
 	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'logout')
 	{
 		user_logout();
@@ -314,15 +321,18 @@
 	}
 
 
+	//-- Если нет авторизации
 	if (! defined('ACPL') && ! auth_sessions())
 	{
 		if (! auth_cookie())
 		{
-			// чистим данные авторизации в сессии
+			//-- Чистим данные авторизации в сессии
 			unset($_SESSION['user_id'], $_SESSION['user_pass']);
-			// считаем пользователя Гостем
+
+			//-- Считаем пользователя Гостем
 			$_SESSION['user_group'] = 2;
 			$_SESSION['user_name'] = get_username();
+
 			define('UID', 0);
 			define('UGROUP', 2);
 			define('UNAME', $_SESSION['user_name']);
@@ -330,7 +340,7 @@
 	}
 
 
-	//Запоминаем время последнего визита пользователя
+	//-- Запоминаем время последнего визита пользователя
 	if (! empty($_SESSION['user_id']))
 	{
 		$AVE_DB->Query("
@@ -343,7 +353,7 @@
 		");
 	}
 
-	//Запоминаем язык браузера
+	//-- Запоминаем язык браузера
 	$browlang = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 	$browlang = explode('-', $browlang);
 	$browlang = $browlang[0];
@@ -372,43 +382,31 @@
 		}
 	}
 
-
+	//-- Язык пользователя
 	$_SESSION['user_language'] = (! empty($_SESSION['user_language'])
 		? $_SESSION['user_language']
 		:(isset($_SESSION['accept_langs'][$browlang])
 			? $browlang
 			: DEFAULT_LANGUAGE));
 
-
 	define('DATE_FORMAT', get_settings('date_format'));
 	define('TIME_FORMAT', get_settings('time_format'));
-	define('PAGE_NOT_FOUND_ID', intval(get_settings('page_not_found_id')));
+	define('PAGE_NOT_FOUND_ID', (int)get_settings('page_not_found_id'));
 
-
-	// Вывод данных документа без общего шаблона
+	//-- Вывод данных документа без общего шаблона
 	if (isset($_REQUEST['onlycontent']) && 1 == $_REQUEST['onlycontent'])
-	{
 		define('ONLYCONTENT', 1);
-	}
 
-	// Язык системы
+	//-- Язык системы
 	set_locale();
 
-	// Debug
-	require (BASE_DIR . '/class/class.debug.php');
-	$Debug = new Debug;
-
-	// Hooks
-	require (BASE_DIR . '/class/class.hooks.php');
-	$Hooks = new Hooks;
-
-	// Класс Шаблонов SMARTY
+	//-- Класс Шаблонов SMARTY
 	require (BASE_DIR . '/class/class.template.php');
 
-	// Класс пагинации
+	//-- Класс пагинации
 	require (BASE_DIR . '/class/class.paginations.php');
 
-	// Класс Модулей
+	//-- Класс Модулей
 	require (BASE_DIR . '/class/class.modules.php');
 	$AVE_Module = new AVE_Module;
 ?>

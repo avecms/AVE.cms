@@ -539,5 +539,172 @@
 
 			return '';
 		}
+
+
+		/**
+		 * Вывод статистики
+		 */
+		public static function  getStatistic ($type = null)
+		{
+			global $AVE_DB;
+
+			$stat = null;
+
+			switch ($type)
+			{
+				case 'time':
+					$stat = number_format(microtime_diff(START_MICROTIME, microtime()), 3, ',', ' ');
+					break;
+
+				case 'memory':
+					$stat = Debug::formatSize(memory_get_usage() - START_MEMORY);
+					break;
+
+				case 'peak':
+					$stat = Debug::formatSize(memory_get_peak_usage());
+					break;
+
+				case 'sqlcount':
+					$stat = $AVE_DB->DBProfilesGet('count');
+					break;
+
+				case 'sqltrace':
+					$stat = count($AVE_DB->_query_list);
+					break;
+
+				case 'sqltime':
+					$stat = $AVE_DB->DBProfilesGet('time');
+					break;
+
+				case 'get':
+					$stat = self::_stat_get('get');
+					break;
+
+				case 'post':
+					$stat = self::_stat_get('post');
+					break;
+
+				case 'request':
+					$stat = self::_stat_get('request');
+					break;
+
+				case 'session':
+					$stat = self::_stat_get('session');
+					break;
+
+				case 'server':
+					$stat = self::_stat_get('server');
+					break;
+
+				case 'globals':
+					$stat = self::_stat_get('globals');
+					break;
+			}
+
+			return $stat;
+		}
+
+
+		public static function _stat_get($type = 'get')
+		{
+			$var = '123123';
+
+			ob_start();
+			if ($type == 'get')
+			var_dump($_GET);
+			else if ($type == 'post')
+			var_dump($_POST);
+			else if ($type == 'request')
+			var_dump($_REQUEST);
+			else if ($type == 'session')
+			var_dump($_SESSION);
+			else if ($type == 'server')
+			var_dump($_SERVER);
+			else if ($type == 'globals')
+			var_dump($GLOBALS);
+			$stat = ob_get_contents();
+			$stat = preg_replace('/=>(\s+|\s$)/', ' => ', $stat);
+			$stat = htmlspecialchars($stat);
+			$stat = preg_replace('/(=&gt;)/', '<span style="color: #FF8C00;">$1</span>', $stat);
+			$stat = '<pre style="background:#f5f5f5; color: #000; margin: 0; padding: 5px; border: 0; font-size: 11px; font-family: Consolas, Verdana, Arial;">'. $stat .'</pre>';
+			ob_end_clean();
+
+			return $stat;
+		}
+
+		//
+		public static function displayInfo ()
+		{
+			global $AVE_DB;
+
+			$out = PHP_EOL;
+			$out .= '<link rel="stylesheet" href="/lib/debug/debug.css" />';
+			$out .= PHP_EOL;
+			$out .= '<script src="/lib/debug/debug.js"></script>';
+			$out .= PHP_EOL;
+			$out .= '
+				<div id="debug-panel">
+					<div class="debug-wrapper">
+					<div id="debug-panel-legend" class="legend">
+						<span>Debug console</span>
+						<a id="debugArrowMinimize" class="debugArrow" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsHide()">&times;</a>
+						<span>
+							<a id="tabGeneral" href="javascript:void(\'General\')" onclick="javascript:appExpandTabs(\'auto\', \'General\')">General</a>
+							<a id="tabParams" href="javascript:void(\'Params\')" onclick="javascript:appExpandTabs(\'auto\', \'Params\')">Params</a>
+							<a id="tabGlobals" href="javascript:void(\'Globals\')" onclick="javascript:appExpandTabs(\'auto\', \'Globals\')">Globals</a>
+							<a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')">SQL Queries (' . self::getStatistic('sqlcount') . ')</a>
+							<a id="tabSqlTrace" href="javascript:void(\'SqlTrace\')" onclick="javascript:appExpandTabs(\'auto\', \'SqlTrace\')">SQL Trace (' . self::getStatistic('sqltrace') . ')</a>
+						</span>
+					</div>
+			';
+			$out .= PHP_EOL;
+			$out .= '<div id="contentGeneral" class="items" style="display: none">' . PHP_EOL;
+			$out .= 'Time generation: ' . self::getStatistic('time') . ' sec';
+			$out .= '<br>';
+			$out .= 'Memory usage: ' . self::getStatistic('memory');
+			$out .= '<br>';
+			$out .= 'Memory peak usage: ' . self::getStatistic('peak');
+			$out .= '<br>';
+			$out .= 'SQL Queries: ' . $AVE_DB->DBProfilesGet('count') . ' for ' . $AVE_DB->DBProfilesGet('time') . ' sec';
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div id="contentParams" class="items" style="display: none">' . PHP_EOL;
+			$out .= 'GET:';
+			$out .= self::getStatistic('get');
+			$out .= '<br>';
+			$out .= 'POST:';
+			$out .= self::getStatistic('post');
+			$out .= '<br>';
+			$out .= 'REQUEST:';
+			$out .= self::getStatistic('request');
+			$out .= '<br>';
+			$out .= 'SESSION:';
+			$out .= self::getStatistic('session');
+			$out .= '<br>';
+			$out .= 'SERVER:';
+			$out .= self::getStatistic('server');
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div id="contentGlobals" class="items" style="display: none">' . PHP_EOL;
+			$out .= self::getStatistic('globals');
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div id="contentQueries" class="items" style="display: none">' . PHP_EOL;
+			$out .= $AVE_DB->DBProfilesGet('list');
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div id="contentSqlTrace" class="items" style="display: none">' . PHP_EOL;
+			$out .= $AVE_DB->showAllQueries();
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '</div>';
+
+			echo $out;
+		}
 	}
 ?>

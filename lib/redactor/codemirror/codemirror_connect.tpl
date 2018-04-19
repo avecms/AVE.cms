@@ -16,6 +16,7 @@
 <script src="{$ABS_PATH}lib/redactor/codemirror/mode/clike/clike.js"></script>
 <script src="{$ABS_PATH}lib/redactor/codemirror/mode/php/php.js"></script>
 <script src="{$ABS_PATH}lib/redactor/codemirror/mode/smarty/smarty.js"></script>
+<script src="{$ABS_PATH}lib/redactor/codemirror/mode/smartymixed/smartymixed.js"></script>
 <script src="{$ABS_PATH}lib/redactor/codemirror/mode/htmlmixed/htmlmixed.js"></script>
 
 <script src="{$ABS_PATH}lib/redactor/codemirror/addon/edit/closetag.js"></script>

@@ -48,22 +48,22 @@
 		$log404 = array();
 		$logsql = array();
 
-		$_404dir = BASE_DIR . '/cache/404.php';
-		$_logdir = BASE_DIR . '/cache/log.php';
-		$_sqldir = BASE_DIR . '/cache/sql.php';
+		$_404dir = BASE_DIR . '/tmp/logs/404.php';
+		$_logdir = BASE_DIR . '/tmp/logs/log.php';
+		$_sqldir = BASE_DIR . '/tmp/logs/sql.php';
 
-		if(file_exists($_logdir))
-			@eval('?>' . file_get_contents($_logdir) . '<?');
+		if (file_exists($_logdir))
+			@eval(' ?>' . file_get_contents($_logdir) . '<?php ');
 
 		$logs['logs'] = count($logdata);
 
-		if(file_exists($_404dir))
-			@eval('?>' . file_get_contents($_404dir) . '<?');
+		if (file_exists($_404dir))
+			@eval(' ?>' . file_get_contents($_404dir) . '<?php ');
 
 		$logs['404'] = count($log404);
 
-		if(file_exists($_sqldir))
-			@eval('?>' . file_get_contents($_sqldir) . '<?');
+		if (file_exists($_sqldir))
+			@eval(' ?>' . file_get_contents($_sqldir) . '<?php ');
 
 		$logs['sql'] = count($logsql);
 
@@ -81,7 +81,8 @@
 	 * @param int $onlinetime количество секунд
 	 * @return Array массив из пользователей отсортированный по последней активности
 	 */
-	function get_online_users($onlinetime=USERS_TIME_SHOW){
+	function get_online_users($onlinetime=USERS_TIME_SHOW)
+	{
 		global $AVE_DB, $AVE_Template;
 		$time=(time()-intval($onlinetime));
 		$sql=@$AVE_DB->Query("SELECT * FROM ".PREFIX."_users WHERE last_visit>".$time." ORDER BY last_visit DESC");
@@ -283,7 +284,7 @@
 
 		foreach ($modules AS $module)
 		{
-			if ($module['ModuleAdminEdit'] == 1 && $module['status'])
+			if ($module['ModuleAdminEdit'] == 1 && $module['ModuleStatus'])
 				$modules_instaled[] = array(
 					'ModuleName'		=> $module['ModuleName'],
 					'ModuleSysName'		=> $module['ModuleSysName']
@@ -503,7 +504,7 @@
 				$row->canDelete	   = 0;
 				$row->canEndDel	   = 0;
 				$row->canOpenClose	= 0;
-				$row->rubric_admin_teaser_template=@eval2var('?>'.($row->rubric_admin_teaser_template>'' ? @showrequestelement($row,$row->rubric_admin_teaser_template) : '').'<?');
+				$row->rubric_admin_teaser_template=@eval2var(' ?>'.($row->rubric_admin_teaser_template>'' ? @showrequestelement($row,$row->rubric_admin_teaser_template) : '').'<?php ');
 
 				// разрешаем редактирование и удаление
 				// если автор имеет право изменять свои документы в рубрике

@@ -19,7 +19,7 @@
 
 	define('BASE_DIR', str_replace("\\", "/", dirname(dirname(__FILE__))));
 
-	if (! @filesize(BASE_DIR . '/inc/db.config.php'))
+	if (! @filesize(BASE_DIR . '/config/db.config.php'))
 	{
 		header('Location: ../install/index.php');
 		exit;
@@ -116,7 +116,7 @@
 	header("Cache-Control: no-store, no-cache, must-revalidate");
 	header("Expires: " . date("r"));
 
-	include (BASE_DIR . '/admin/' . $do . '.php');
+	include_once (BASE_DIR . '/admin/' . $do . '.php');
 
 	if (defined('NOPERM'))
 		$AVE_Template->assign('content', $config_vars['MAIN_NO_PERMISSION']);

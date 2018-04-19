@@ -370,7 +370,7 @@
 			"SELECT rubric_teaser_template FROM " . PREFIX . "_rubrics WHERE Id='" . intval($row->rubric_id) . "'"
 		)->GetCell());
 
-		$cachefile_docid = BASE_DIR . '/cache/sql/request/' . $row->Id . '/request-' . md5($template) . '.cache';
+		$cachefile_docid = BASE_DIR . '/tmp/cache/sql/request/' . $row->Id . '/request-' . md5($template) . '.cache';
 
 		// Если включен DEV MODE, то отключаем кеширование запросов
 		if (defined('DEV_MODE') AND DEV_MODE)
@@ -799,6 +799,7 @@
 
 		// Составляем запрос к БД
 		$sql = " ?>
+			#REQUEST = $request->Id
 			SELECT STRAIGHT_JOIN SQL_CALC_FOUND_ROWS
 				a.*
 				" . $request_select_str . "
@@ -1026,8 +1027,8 @@
 		$main_template = str_replace('[tag:docauthorid]', $AVE_Core->curentdoc->document_author_id, $main_template);
 
 		//-- Имя автора
-		if (preg_match('[tag:docauthor]', $main_content))
-			$main_content = str_replace('[tag:docauthor]', get_username_by_id($AVE_Core->curentdoc->document_author_id), $main_content);
+		if (preg_match('[tag:docauthor]', $main_template))
+			$main_template = str_replace('[tag:docauthor]', get_username_by_id($AVE_Core->curentdoc->document_author_id), $main_template);
 
 		//-- Время - 1 день назад
 		$main_template = str_replace('[tag:humandate]', human_date($AVE_Core->curentdoc->document_published), $main_template);
@@ -1128,8 +1129,8 @@
 	 */
 	function request_get_document_field_value($rubric_id, $document_id, $maxlength = 0)
 	{
-
-		if (! is_numeric($rubric_id) || $rubric_id < 1 || ! is_numeric($document_id) || $document_id < 1) return '';
+		if (! is_numeric($rubric_id) || $rubric_id < 1 || ! is_numeric($document_id) || $document_id < 1)
+			return '';
 
 		$document_fields = get_document_fields($document_id);
 
@@ -1153,7 +1154,9 @@
 				$maxlength = abs($maxlength);
 			}
 
-			$field_value = mb_substr($field_value, 0, $maxlength) . (strlen($field_value) > $maxlength ? '... ' : '');
+			$field_value = mb_substr($field_value, 0, $maxlength) . (strlen($field_value) > $maxlength
+				? '... '
+				: '');
 		}
 
 		return $field_value;

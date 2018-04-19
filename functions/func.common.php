@@ -84,8 +84,10 @@
 			{
 				if ($object != '.' && $object != '..')
 				{
-					if (filetype($dir . '/' . $object) == 'dir') rrmdir($dir . '/' . $object, $result);
-					else $result = $result + (unlink($dir . '/' . $object) ? 0 : 1);
+					if (filetype($dir . '/' . $object) == 'dir')
+						rrmdir($dir . '/' . $object, $result);
+					else
+						$result = $result + (unlink($dir . '/' . $object) ? 0 : 1);
 				}
 			}
 
@@ -93,6 +95,7 @@
 
 			$result = $result + (rmdir($dir) ? 0 : 1);
 		}
+
 		return $result > 0 ? false : true;
 	}
 
@@ -105,7 +108,7 @@
 	 */
 	function clean_php($text)
 	{
-		return str_replace(array('<?', '?>', '<script'), '', $text);
+		return str_replace(array('<?php', '<?', '?>', '<script'), '', $text);
 	}
 
 
@@ -128,7 +131,7 @@
 	 * @internal param int $id идентификатор запроса
 	 * @return string
 	 */
-	function eval2var( $expression )
+	function eval2var($expression)
 	{
 		global $AVE_DB, $AVE_Core, $AVE_Template;
 
@@ -151,7 +154,7 @@
 	 * @param mixed $offset с какого символа в haystack начинать поиск.
 	 * @return int числовая позиция
 	 */
-	if (!function_exists("stripos"))
+	if (! function_exists("stripos"))
 	{
 		function stripos($haystack, $needle, $offset = 0)
 		{
@@ -767,7 +770,7 @@
 	{
 		$object = (array)$object;
 
-		if($object === array())
+		if ($object === array())
 			return;
 
 		foreach($object as $key => &$value)
@@ -1063,6 +1066,7 @@
 		return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && (strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
 	}
 
+
 	/**
 	 * Функция делает html в 1 строчку, удаляет лишние пробелы, комментарии и т.д.
 	 *
@@ -1124,7 +1128,4 @@
 
 		echo $content;
 	}
-
-
-
 ?>

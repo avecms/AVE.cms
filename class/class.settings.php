@@ -103,7 +103,7 @@ class AVE_Settings
 
 			$set .= '?>';
 
-			$result = file_put_contents(BASE_DIR . '/inc/config.inc.php', $set);
+			$result = file_put_contents(BASE_DIR . '/config/config.inc.php', $set);
 
 			if ($result > 0)
 			{
@@ -227,12 +227,15 @@ class AVE_Settings
 				reportLog($AVE_Template->get_config_vars('SETTINGS_SAVE_MAIN'));
 			}
 
-		if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] = '1') {
+		if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] = '1')
+		{
 			echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
-		} else {
-			$AVE_Template->assign('message', $message);
-			header('Location:index.php?do=settings&cp=' . SESSION);
 		}
+		else
+			{
+				$AVE_Template->assign('message', $message);
+				header('Location:index.php?do=settings&cp=' . SESSION);
+			}
 
 		exit;
 	}
@@ -253,6 +256,7 @@ class AVE_Settings
 		);
 
 		$countries = array();
+
 		while ($row = $sql->FetchAssocArray())
 		{
 			array_push($countries, $row);
@@ -599,7 +603,7 @@ class AVE_Settings
 	 */
 	function clearSettingsCache()
 	{
-		$cache_dir = BASE_DIR . '/cache/sql/settings/';
+		$cache_dir = BASE_DIR . '/tmp/cache/sql/settings/';
 
 		return rrmdir($cache_dir);
 	}

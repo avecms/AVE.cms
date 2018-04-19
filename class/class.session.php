@@ -58,7 +58,7 @@ class AVE_Session_DB
 	function __construct()
 	{
 		// Подключаем конфигурационный файл с параметрами подключения
-		require (BASE_DIR . '/inc/db.config.php');
+		require (BASE_DIR . '/config/db.config.php');
 
 		$this->db_host = $config['dbhost'];
 		$this->db_user = $config['dbuser'];

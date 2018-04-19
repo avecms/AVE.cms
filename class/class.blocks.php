@@ -78,7 +78,9 @@
 			{
 				$_REQUEST['block_visual'] = (isset($_REQUEST['block_visual'])) ? $_REQUEST['block_visual'] : 0;
 
-				$block_alias = isset($_REQUEST['block_alias']) ? $_REQUEST['block_alias'] : '';
+				$block_alias = isset($_REQUEST['block_alias'])
+					? $_REQUEST['block_alias']
+					: '';
 
 				$sql = $AVE_DB->Query("
 					UPDATE
@@ -105,11 +107,7 @@
 						$theme = 'accept';
 
 						//-- Стираем кеш блока
-						if (file_exists(BASE_DIR . '/cache/sql/block/' . $block_id . '.cache'))
-							unlink(BASE_DIR . '/cache/sql/block/' . $block_id . '.cache');
-
-						if ($block_alias != '' && file_exists(BASE_DIR . '/cache/sql/block/' . $block_alias . '.cache'))
-							unlink(BASE_DIR . '/cache/sql/block/' . $block_alias . '.cache');
+						$this->clearCache($block_id, $block_alias);
 
 						//-- Сохраняем системное сообщение в журнал
 						reportLog($AVE_Template->get_config_vars('BLOCK_SQLUPDATE') . " (" . stripslashes($_REQUEST['block_name']) . ") (id: $block_id)");
@@ -249,18 +247,30 @@
 						id = '" . $block_id . "'
 				");
 
-				//-- Стираем кеш сисблока
-				if (file_exists(BASE_DIR . '/cache/sql/block-' . $block_id . '.cache'))
-					unlink(BASE_DIR . '/cache/sql/block/' . $block_id . '.cache');
-
-				if ($row->block_alias != '')
-					unlink(BASE_DIR . '/cache/sql/block/' . $row->block_alias . '.cache');
+				//-- Стираем кеш блока
+				$this->clearCache($block_id, $row->block_alias);
 
 				//-- Сохраняем системное сообщение в журнал
 				reportLog($AVE_Template->get_config_vars('BLOCK_SQLDEL') . " (" . stripslashes($row->block_name) . ") (id: $block_id)");
 			}
 
 			header('Location:index.php?do=blocks&cp=' . SESSION);
+		}
+
+
+		function clearCache ($id, $alias = null)
+		{
+			$cache_id = md5('block' . $id);
+			$cache_alias = md5('block' . $alias);
+
+			$cache_id_file = BASE_DIR . '/tmp/cache/sql/block/' . $cache_id . '.cache';
+			$cache_alias_file = BASE_DIR . '/tmp/cache/sql/block/' . $cache_alias . '.cache';
+
+			if (file_exists($cache_id_file))
+				unlink($cache_id_file);
+
+			if (file_exists($cache_alias_file))
+				unlink($cache_alias_file);
 		}
 	}
 ?>

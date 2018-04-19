@@ -92,7 +92,7 @@
 	$GLOBALS['CMS_CONFIG']['ADMIN_CAPTCHA'] = array('DESCR' => 'Использовать капчу при входе в админку','default'=>false,'TYPE'=>'bool','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['ADMIN_EDITMENU'] = array('DESCR' => 'Использовать всплывающие "Действия" в системе','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
 
-	$GLOBALS['CMS_CONFIG']['ATTACH_DIR'] = array('DESCR' => 'Директория для хранения вложений','default'=>'cache/attachments','TYPE'=>'string','VARIANT'=>'');
+	$GLOBALS['CMS_CONFIG']['ATTACH_DIR'] = array('DESCR' => 'Директория для хранения вложений','default'=>'attachments','TYPE'=>'string','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['UPLOAD_DIR'] = array('DESCR' => 'Директория для хранения файлов','default'=>'uploads','TYPE'=>'string','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['UPLOAD_SHOP_DIR'] = array('DESCR' => 'Директория для хранения миниатюр Магазина','default'=>'uploads/shop','TYPE'=>'string','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['UPLOAD_GALLERY_DIR'] = array('DESCR' => 'Директория для хранения миниатюр Галерей','default'=>'uploads/gallery','TYPE'=>'string','VARIANT'=>'');
@@ -124,6 +124,7 @@
 	$GLOBALS['CMS_CONFIG']['SMARTY_USE_SUB_DIRS'] = array('DESCR' => 'Создание папок для кэширования Установите это в false если ваше окружение PHP не разрешает создание директорий от имени Smarty. Поддиректории более эффективны, так что используйте их, если можете.','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['CACHE_DOC_TPL'] = array('DESCR' => 'Кэширование скомпилированных шаблонов документов','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['CACHE_DOC_FILE'] = array('DESCR' => 'Кэширование скомпилированных шаблонов документов в файлах','default'=>true,'TYPE'=>'bool','VARIANT'=>'');
+	$GLOBALS['CMS_CONFIG']['CACHE_DOC_SQL'] = array('DESCR' => 'Кэширование SQL запроса информации о документе','default'=>0,'TYPE'=>'integer','VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['SYSTEM_CACHE_LIFETIME'] = array('DESCR' => 'Время жизни кеша запроса к настройкам системы (60*60*24*14 - 2 недели)','default'=>0,'TYPE'=>'integer','VARIANT'=>'');
 
 	$GLOBALS['CMS_CONFIG']['YANDEX_MAP_API_KEY'] = array('DESCR' => 'Yandex MAP API REY','default'=>'','TYPE'=>'string','VARIANT'=>'');
@@ -152,7 +153,8 @@
 	$GLOBALS['CMS_CONFIG']['DEV_MODE'] = array('DESCR' => 'Режим разработчика (Отключено кеширование SQL)', 'default'=>false, 'TYPE'=>'bool', 'VARIANT'=>'');
 	$GLOBALS['CMS_CONFIG']['SQL_QUERY_SANITIZE'] = array('DESCR' => 'Принудительно проверять SQL запросы', 'default'=>false, 'TYPE'=>'bool', 'VARIANT'=>'');
 
-	include_once(dirname(dirname(__FILE__)) . '/inc/config.inc.php');
+	if (file_exists(dirname(dirname(__FILE__)) . '/config/config.inc.php'))
+		include_once(dirname(dirname(__FILE__)) . '/config/config.inc.php');
 
 	foreach($GLOBALS['CMS_CONFIG'] as $k => $v)
 		if(! defined($k))

@@ -1,0 +1,48 @@
+/* == Debug Panel == */
+#debug-panel {
+  font-size: 12px;
+  opacity: 0.9;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 2000;
+  width: 100%;
+}
+#debug-panel .debug-wrapper {
+  padding: 0px .875em;
+  background-color: #fff;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-bottom: 0;
+  margin: 0px auto 0px auto;
+}
+#debug-panel .items {
+  padding: 10px;
+  height: 350px;
+  padding-top: 1em;
+  font-size: 12px;
+  color: #888;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace
+}
+#debug-panel .debug-wrapper .legend {
+  background-color: #f9f9f9;
+  padding: .25em;
+  border: 1px solid rgba(0,0,0,0.2);
+  width: auto;
+  margin-top: -1.25em;
+}
+#debug-panel .debug-wrapper .legend span {
+  color: #999;
+  font-weight: 300
+}
+#debug-panel a {
+  text-decoration: none;
+  color: rgba(0,0,0,0.5);
+  font-size: 12px;
+  margin: 0 .25em;
+}
+#debug-panel pre {
+  border: 0px;
+}
+#debugArrowMinimize {
+	float: right;
+}

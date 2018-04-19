@@ -15,15 +15,15 @@
 	define ('START_MEMORY', memory_get_usage());
 	define ('BASE_DIR', str_replace("\\", "/", dirname(__FILE__)));
 
-	// Проверяем уставлена ли CMS
-	if (! @filesize(BASE_DIR . '/inc/db.config.php'))
+	//-- Проверяем уставлена ли CMS
+	if (! @filesize(BASE_DIR . '/config/db.config.php'))
 	{
 		header ('Location:install/index.php');
 		exit;
 	}
 
-	// Если в запросе пришел вызов thumbnail
-	// подключаем файл обработки thumbnail
+	//-- Если в запросе пришел вызов thumbnail
+	//-- подключаем файл обработки thumbnail
 	if (! empty($_REQUEST['thumb']))
 	{
 		require (BASE_DIR . '/inc/thumb.php');
@@ -32,41 +32,47 @@
 
 	ob_start();
 
-	// Подключаем файл определения мобильных устройств
-	// далее пользуемся $MDetect
+	//-- Подключаем файл определения мобильных устройств
+	//-- далее пользуемся $MDetect
 	require_once (BASE_DIR . '/lib/mobile_detect/Mobile_Detect.php');
 	$MDetect = new Mobile_Detect;
 
-	// Подключаем файл инициализации
+	//-- Подключаем файл инициализации
 	require (BASE_DIR . '/inc/init.php');
 
 	unset ($GLOBALS['CMS_CONFIG']);
 
-	// Проверяем нет ли в запросе папки UPLOADS_DIR
-	// подключаем файл для работы thumbsnail
+	//-- Проверяем нет ли в запросе папки UPLOADS_DIR
+	//-- подключаем файл для работы thumbsnail
 	if (strpos ($_SERVER['REQUEST_URI'], ABS_PATH . UPLOAD_DIR . '/') === 0)
 	{
 		require (BASE_DIR . '/inc/thumb.php');
 		exit;
 	}
 
-	// Папка с шаблонами для Smarty
+	//-- Папка с шаблонами для Smarty
 	$AVE_Template = new AVE_Template(BASE_DIR . '/templates/');
 
-	// Подключаем ядро системы
+	//-- Подключаем ядро системы
 	require (BASE_DIR . '/class/class.core.php');
 	$AVE_Core = new AVE_Core;
 
-	// Проверям на вызов внешних модулей и системных блоков
-	if (empty ($_REQUEST['module']) || empty ($_REQUEST['sysblock']) || empty ($_REQUEST['request']))
+	//-- Проверям на вызов внешних модулей и системных блоков
+	if (
+		empty ($_REQUEST['module'])
+		||
+		empty ($_REQUEST['sysblock'])
+		||
+		empty ($_REQUEST['request'])
+	)
 		$AVE_Core->coreUrlParse($_SERVER['REQUEST_URI']);
 
 	$GLOBALS['page_id'] = array((isset($_REQUEST['id'])
 		? $_REQUEST['id']
 		: '')
-			=> array('apage' => floatval(0)));
+			=> array('page' => floatval(0)));
 
-	// Если пришел вызов на показ ревизии документа
+	//-- Если пришел вызов на показ ревизии документа
 	if (! empty($_REQUEST['revission']))
 	{
 		$res =	$AVE_DB->Query("
@@ -86,7 +92,7 @@
 		$flds =	get_document_fields((int)$_REQUEST['id'], $res);
 	}
 
-	// Собираем страницу
+	//-- Собираем страницу
 	$AVE_Core->coreSiteFetch(get_current_document_id());
 
 	$content = ob_get_clean();
@@ -98,20 +104,20 @@
 	else
 		ob_start();
 
-	eval ('?>' . $content . '<?');
+	eval (' '.'?>' . $content . '<?'.'php ');
 
 	$render = ob_get_clean();
 
 	unset ($content);
 
-	// Ловим 404 ошибку
+	//-- Ловим 404 ошибку
 	if (isset($_REQUEST['id']) AND ($_REQUEST['id']) == PAGE_NOT_FOUND_ID)
 	{
 		report404();
 		header ($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
 	}
 
-	// Постраничка
+	//-- Постраничка
 	if (
 		empty($_REQUEST['module']) &&
 		(
@@ -142,16 +148,16 @@
 		exit;
 	}
 
-	// Тут заменяем [tag:rubheader]
-	// на собранный $GLOBALS["user_header"]
+	//-- Тут заменяем [tag:rubheader]
+	//-- на собранный $GLOBALS["user_header"]
 	$rubheader = (empty($GLOBALS['user_header'])
 		? ''
 		: implode(chr(10), $GLOBALS['user_header']));
 
 	$render = str_replace('[tag:rubheader]', $rubheader, $render);
 
-	// Тут заменяем [tag:rubfooter]
-	// на собранный $GLOBALS["user_footer"]
+	//-- Тут заменяем [tag:rubfooter]
+	//-- на собранный $GLOBALS["user_footer"]
 	$rubfooter = (empty($GLOBALS['user_footer'])
 		? ''
 		: implode(chr(10), $GLOBALS['user_footer']));
@@ -165,14 +171,16 @@
 	header('X-Engine-Copyright: 2007-' . date('Y') . ' (c) AVE.cms');
 	header('X-Engine-Site: https://ave-cms.ru');
 
-	//Вывод статистики загрузки и запросов SQL (только для администраторов)
-	if (! defined('ONLYCONTENT') && UGROUP == 1 && defined('PROFILING') && PROFILING)
-		$render .= get_statistic(1, 1, 1, 1);
-
-	//Вывод конечного результата
+	//-- Вывод конечного результата
 	output_compress($render);
 
-	//Debug::_print($GLOBALS['block_generate']);
-
-	//$AVE_DB->showAllQueries();
+	//-- Вывод статистики загрузки и запросов SQL (только для администраторов)
+	if (
+		! defined('ONLYCONTENT')
+		&&
+		UGROUP == 1
+		&&
+		defined('PROFILING') && PROFILING
+	)
+		Debug::displayInfo();
 ?>

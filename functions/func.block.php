@@ -29,7 +29,7 @@
 		{
 			$cache = md5('block' . $id);
 
-			$cache_file = BASE_DIR . '/cache/sql/block/' . $cache . '.cache';
+			$cache_file = BASE_DIR . '/tmp/cache/sql/block/' . $cache . '.cache';
 
 			// Если включен DEV MODE, то отключаем кеширование запросов
 			if (defined('DEV_MODE') AND DEV_MODE)

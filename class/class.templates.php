@@ -142,6 +142,12 @@
 		{
 			global $AVE_DB, $AVE_Template;
 
+			$template_id = (int)$_REQUEST['Id'];
+
+			$cache = 'template_' . $template_id;
+
+			$cache_file = BASE_DIR . '/tmp/cache/templates/' . $cache . '.inc';
+
 			$row = $AVE_DB->Query("
 				SELECT
 					*
@@ -159,8 +165,15 @@
 				$AVE_Template->assign('read_only', 'readonly');
 			}
 
-			$row->template_text = pretty_chars($row->template_text);
-			$row->template_text = stripslashes($row->template_text);
+			if (file_exists($cache_file) && filesize($cache_file))
+			{
+				$row->template_text = file_get_contents($cache_file);
+			}
+			else
+				{
+					$row->template_text = pretty_chars($row->template_text);
+					$row->template_text = stripslashes($row->template_text);
+				}
 
 			$AVE_Template->assign('row', $row);
 			$AVE_Template->assign('content', $AVE_Template->fetch('templates/form.tpl'));
@@ -173,6 +186,8 @@
 
 			if (isset($_REQUEST['Id']) AND is_numeric($_REQUEST['Id']))
 			{
+				$template_id = $_REQUEST['Id'];
+
 				$ok = true;
 
 				$check_code = strtolower($_REQUEST['template_text']);
@@ -189,6 +204,10 @@
 					$header = $AVE_Template->get_config_vars('TEMPLATES_ERROR');
 					$theme = 'error';
 				}
+
+				$cache = 'template_' . $template_id;
+
+				$cache_file = BASE_DIR . '/tmp/cache/templates/' . $cache . '.inc';
 
 				if ($ok === false)
 				{
@@ -212,7 +231,7 @@
 								template_title = '" . $_REQUEST['template_title'] . "',
 								template_text  = '" . addslashes(pretty_chars($_REQUEST['template_text'])) . "'
 							WHERE
-								Id = '" . (int)$_REQUEST['Id'] . "'
+								Id = '" . $template_id . "'
 						");
 
 						if ($sql === false)
@@ -223,6 +242,11 @@
 						}
 						else
 							{
+								if (! file_exists(dirname($cache_file)))
+									mkdir(dirname($cache_file), 0766, true);
+
+								file_put_contents($cache_file, stripslashes(pretty_chars($_REQUEST['template_text'])));
+
 								$message = $AVE_Template->get_config_vars('TEMPLATES_SAVED');
 								$header = $AVE_Template->get_config_vars('TEMPLATES_SUCCESS');
 								$theme = 'accept';
@@ -294,6 +318,15 @@
 							");
 
 							$iid = $AVE_DB->InsertId();
+
+							$cache = 'template_' . $iid;
+
+							$cache_file = BASE_DIR . '/tmp/cache/templates/' . $cache . '.inc';
+
+							if (! file_exists(dirname($cache_file)))
+								mkdir(dirname($cache_file), 0766, true);
+
+							file_put_contents($cache_file, stripslashes(pretty_chars($_REQUEST['template_text'])));
 
 							reportLog($AVE_Template->get_config_vars('TEMPLATES_REPORT_NEW') . '(' . stripslashes(htmlspecialchars($_REQUEST['template_text'], ENT_QUOTES)) . ') (Id:' . (int)$iid . ')');
 
@@ -440,7 +473,7 @@
 			{
 
 				case 'save':
-					$dir = BASE_DIR.'/templates/'.DEFAULT_THEME_FOLDER.'/css/'.$_REQUEST['name_file'];
+					$dir = BASE_DIR . '/templates/' . DEFAULT_THEME_FOLDER . '/css/' . $_REQUEST['name_file'];
 
 					$check_code = stripcslashes($_REQUEST['code_text']);
 

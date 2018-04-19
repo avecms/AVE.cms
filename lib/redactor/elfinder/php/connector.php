@@ -1,16 +1,19 @@
 <?php
 
-error_reporting(0); // Set E_ALL for debuging
+define ('START_MICROTIME', microtime());
+define ('START_MEMORY', memory_get_usage());
 
 define('ACP', 1);
 
 define('BASE_DIR', str_replace("\\", "/", dirname(dirname(dirname(dirname(dirname(__FILE__)))))));
 
+define('SESSION', session_id());
+
 include_once BASE_DIR . '/inc/init.php';
 
 if (! check_permission('mediapool_finder'))
 {
-	exit;
+	die('No permission');
 }
 
 // load composer autoload before load elFinder autoload If you need composer
@@ -161,4 +164,3 @@ $opts = array(
 // run elFinder
 $connector = new elFinderConnector(new elFinder($opts));
 $connector->run();
-

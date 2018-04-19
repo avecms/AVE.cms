@@ -1,4 +1,4 @@
-<?
+<?php
 
 	/**
 	 * AVE.cms
@@ -31,7 +31,7 @@
 		switch ($action)
 		{
 			case 'edit':
-				$blanc = '/uploads/images/noimage.gif';
+				$blanc = '/uploads/images/noimage.png';
 				$image = explode('|', $field_value);
 				$img = $image[0];
 				unset($image[0]);

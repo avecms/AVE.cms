@@ -1,4 +1,4 @@
-<?
+<?php
 	// Язык системы
 	function set_locale()
 	{

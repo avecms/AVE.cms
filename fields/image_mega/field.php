@@ -91,7 +91,15 @@
 
 				$default = explode('|', $default);
 
-				list ($path, $watermark, $position, $transparency) = $default;
+				if (count($default) > 1)
+					list ($path, $watermark, $position, $transparency) = $default;
+				else
+					{
+						list ($path) = $default;
+						$watermark = false;
+						$position = null;
+						$transparency = null;
+					}
 
 				if (preg_match("/%id/i", $path))
 				{
@@ -288,15 +296,18 @@
 				break;
 
 			case 'save':
-				foreach ($field_value as $v)
+				if (is_array($field_value))
 				{
-					if (! empty($v['url']))
+					foreach ($field_value as $v)
 					{
+						if (! empty($v['url']))
+						{
 
-						$field_value_new[] = $v['url']
-						. ($v['title'] ? '|' . stripslashes(htmlspecialchars($v['title'], ENT_QUOTES)) : '|')
-						. ($v['description'] ? '|' . stripslashes(htmlspecialchars($v['description'], ENT_QUOTES)) : '|')
-						. ($v['link'] ? '|' . ltrim($v['link'], '/') : '|');
+							$field_value_new[] = $v['url']
+							. ($v['title'] ? '|' . stripslashes(htmlspecialchars($v['title'], ENT_QUOTES)) : '|')
+							. ($v['description'] ? '|' . stripslashes(htmlspecialchars($v['description'], ENT_QUOTES)) : '|')
+							. ($v['link'] ? '|' . ltrim($v['link'], '/') : '|');
+						}
 					}
 				}
 

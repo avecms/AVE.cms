@@ -40,10 +40,10 @@ var SingleImage = {
 
 			if (input.val() == '') {
 				$('#preview__' + image_id + '_' + doc_id).attr({
-					'src': '/uploads/images/' + thumbdir + '/noimage-f128x128.gif'
+					'src': '/uploads/images/' + thumbdir + '/noimage-f128x128.png'
 				});
 				$('.preview__' + image_id + '_' + doc_id).attr({
-					'href': '/uploads/images/noimage.gif'
+					'href': '/uploads/images/noimage.png'
 				});
 			}
 		});

@@ -322,7 +322,7 @@ class AVE_Document
 		$sql_where_field = '';
 		$field_link = '';
 
-		if ($_REQUEST['field_id'] && (int)$_REQUEST['field_id'] > 0)
+		if (isset($_REQUEST['field_id']) && (int)$_REQUEST['field_id'] > 0)
 		{
 			$sql_join_field = "
 				LEFT JOIN
@@ -415,6 +415,8 @@ class AVE_Document
 
 			$nav_lang = '&lang_id=' . $_REQUEST['lang_id'];
 		}
+		else
+			$nav_lang = '';
 
 		// Поиск с выводом всех результатов из всех рубрик
 		if (@$_REQUEST['rubric_id'] == 'all')
@@ -699,9 +701,9 @@ class AVE_Document
 			$row->canDelete       = 0;
 			$row->canEndDel       = 0;
 			$row->canOpenClose    = 0;
-			$row->rubric_admin_teaser_template = @eval2var('?>'.($row->rubric_admin_teaser_template>''
+			$row->rubric_admin_teaser_template = @eval2var(' ?>'.($row->rubric_admin_teaser_template>''
 				? @showrequestelement($row, $row->rubric_admin_teaser_template)
-				: '').'<?');
+				: '').'<?php ');
 
 			$row->document_title  = stripslashes(htmlspecialchars_decode($row->document_title));
 			$row->document_breadcrum_title  = stripslashes(htmlspecialchars_decode($row->document_breadcrum_title));
@@ -915,7 +917,7 @@ class AVE_Document
 			{
 				$key = trim(mb_substr($v, 0, 254));
 
-				$res= $AVE_DB->Query("INSERT INTO ".PREFIX."_document_keywords
+				$res = $AVE_DB->Query("INSERT INTO ".PREFIX."_document_keywords
 					(
 						document_id,
 						keyword
@@ -1511,7 +1513,7 @@ class AVE_Document
 			}
 		}
 
-		unset($sql, $query);
+		unset ($sql, $query);
 
 		$where = ($oper == 'UPDATE' ? 'WHERE Id = ' . $document_id : '');
 		$author = ($oper != 'UPDATE' ? 'document_author_id = ' . $_SESSION['user_id'] . ',' : '');
@@ -1519,6 +1521,10 @@ class AVE_Document
 
 		$breadcrumb_title = (isset($data['document_breadcrum_title']) && $data['document_breadcrum_title'] != '')
 			? $data['document_breadcrum_title']
+			: '';
+
+		$document_tags = isset($data['document_tags'])
+			? $data['document_tags']
 			: '';
 
 		// Сохраняем все параметры документа
@@ -1531,7 +1537,7 @@ class AVE_Document
 				document_title				= '" . htmlspecialchars(clean_no_print_char($data['document_title']), ENT_QUOTES) . "',
 				document_breadcrum_title	= '" . htmlspecialchars(clean_no_print_char($breadcrumb_title), ENT_QUOTES) . "',
 				document_alias				= '" . $data['document_alias'] . "',
-				document_alias_history		= '" . $data['document_alias_log'] . "',
+				document_alias_history		= '" . $data['document_alias_history'] . "',
 				document_published			= '" . $data["document_published"] . "',
 				document_expire				= '" . $data["document_expire"] . "',
 				document_changed			= '" . $data["document_changed"] . "',
@@ -1544,7 +1550,7 @@ class AVE_Document
 				document_sitemap_pr			= '" . $data['document_sitemap_pr'] . "',
 				document_status				= '" . $data['document_status'] . "',
 				document_linked_navi_id		= '" . (int)$data['document_linked_navi_id'] . "',
-				document_tags				= '" . addslashes(htmlspecialchars(clean_no_print_char($data['document_tags']))). "',
+				document_tags				= '" . addslashes(htmlspecialchars(clean_no_print_char($document_tags))). "',
 				document_lang				= '" . (empty($data['document_lang']) ? DEFAULT_LANGUAGE : $data['document_lang']). "',
 				document_lang_group			= '" . (empty($data['document_lang_group']) ? '0' : (int)$data['document_lang_group']). "',
 				document_property			= '" . (empty($data['document_property']) ? '' : $data['document_property']). "'
@@ -1757,17 +1763,27 @@ class AVE_Document
 				doc_id = '" . $document_id . "'
 		");
 
+		$field_module = isset($data['field_module'])
+			? $data['field_module']
+			: '';
+
 		// Запускаем триггер после сохранения
-		Hooks::trigger('DocumentAfterSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data, 'field_module' => $data['field_module']));
+		Hooks::trigger('DocumentAfterSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data, 'field_module' => $field_module));
 
 		// Выполняем код рубрики, после сохранения
 		if ($rubric_code)
-			eval ('?>' . $_rubric->rubric_code_end . '<?');
+			eval (' ?>' . $_rubric->rubric_code_end . '<?php ');
+
+		if ($document_id == 1)
+			$hash_url = md5('');
+		else
+			$hash_url = md5($data['document_alias']);
 
 		// Чистим кеш
 		$AVE_DB->clearcache('rub_' . $rubric_id);
 		$AVE_DB->clearcache('doc_' . $document_id);
 		$AVE_DB->clearcompile('doc_' . $document_id);
+		$AVE_DB->clearCacheUrl('url_' . $hash_url);
 		$AVE_DB->clearcacherequest('doc_' . $document_id);
 
 		unset ($_rubric, $fields);

@@ -47,7 +47,7 @@
 
 		$navi = '';
 
-		$cache_file = BASE_DIR . '/cache/sql/nav/template-' . $navi_id . '.cache';
+		$cache_file = BASE_DIR . '/tmp/cache/sql/nav/template-' . $navi_id . '.cache';
 
 		// Если включен DEV MODE, то отключаем кеширование запросов
 		if (defined('DEV_MODE') AND DEV_MODE || $expnad_ext != 1)
@@ -201,7 +201,7 @@
 			}
 		}
 
-		$cache_items = BASE_DIR . '/cache/sql/nav/items-' . $navi_id . '.cache';
+		$cache_items = BASE_DIR . '/tmp/cache/sql/nav/items-' . $navi_id . '.cache';
 
 		$navi_items = array();
 
@@ -464,7 +464,7 @@
 			if (empty($navi))
 				$navi = '';
 
-			$navi .= eval2var('?>' . $item . '<?');
+			$navi .= eval2var(' ?>' . $item . '<?php ');
 		}
 
 		// Вставляем все пункты уровня в шаблон уровня

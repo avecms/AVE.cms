@@ -248,7 +248,10 @@ INSERT INTO `%%PRFX%%_documents` VALUES
 	(2, 1, 0, 0, '404-not-found', '0', '404 - Документ не найден', 'Ошибка 404', 0, 0, 0, 1, '0', '', '', 'noindex,nofollow', '6', '0', '1', '0', 0, 0, 0, '', '', 'ru', '2', '');#inst#
 
 INSERT INTO `%%PRFX%%_navigation` VALUES
-	(1, 'main', 'Основное меню', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '1,2,3,4,5', '1');#inst#
+	(1,'main','Основное меню','<li class=\"nav-item\">\n	<a class=\"nav-link\" href=\"[tag:link]\">[tag:linkname]</a>\n</li>','','','<li class=\"nav-item active\">\n	<a class=\"nav-link\" href=\"[tag:link]\">[tag:linkname]</a>\n</li>','','','<ul class=\"navbar-nav mr-auto\">\n[tag:content]\n</ul>','','','','','','','','1,2,3,4,5','1');#inst#
+
+INSERT INTO `%%PRFX%%_navigation_items` VALUES
+	(1,1,1,'/','Главная','','_self','','','','',0,'1',0,'1');#inst#
 
 INSERT INTO `%%PRFX%%_rubric_fields` VALUES
 	(1, 1, 0, 'header', 'Заголовок', 'single_line', 0, 1, '', '', '', '', ''),
@@ -262,7 +265,7 @@ INSERT INTO `%%PRFX%%_rubric_permissions` VALUES
 	(5, 1, 5, 'docread');#inst#
 
 INSERT INTO `%%PRFX%%_rubrics` VALUES
-	(1, 'Основные страницы', '', '0', '<h1>[tag:fld:header]</h1>[tag:fld:text]', 1, 1, 0, 1, '', '', '', '', '', '', '', '0', '', '0', '');#inst#
+	(1,'Основные страницы','','0','<h1 class=\"mt-5\">[tag:fld:header]</h1>\n[tag:fld:text]',1,1,0,1,'','','','','','','','0','','0',0);#inst#
 
 INSERT INTO `%%PRFX%%_settings` VALUES
 	(
@@ -280,9 +283,9 @@ INSERT INTO `%%PRFX%%_settings` VALUES
 		'%%EMAIL%%',
 		'%%USERNAME%%',
 		'Здравствуйте %NAME%,\r\nВаша регистрация на сайте %HOST%. \r\n\r\nТеперь Вы можете войти на %HOST% со следующими данными:: \r\n\r\nПароль: %PASSWORD%\r\nE-Mail: %EMAIL%\r\n\r\n--------------------------------------------------\r\n%EMAILSIGNATURE%\r\n\r\n',
-		'С уважением,\r\nслужба поддержки AVE.CMS\r\nsupport@ave-cms.ru | www.ave-cms.ru',
+		'С уважением,\r\nслужба поддержки',
 		'2',
-		'<h2>Ошибка...</h2>\r\n<br />\r\nУ Вас нет прав на просмотр этого документа!.',
+		'<h2>Ошибка...</h2>\r\n<p>\r\nУ Вас нет прав на просмотр этого документа!.\r\n</p>',
 		'<ul class=\"page_nav\">%s</ul>',
 		'Первая «',
 		'» Последняя',
@@ -299,22 +302,22 @@ INSERT INTO `%%PRFX%%_settings` VALUES
 		'0',
 		'<li>&nbsp;&rarr;&nbsp;</li>',
 		'0',
-		'<li itemprop=\"itemListElement\" itemscope itemtype=\"http://schema.org/ListItem\">%s</li>',
+		'<li class="breadcrumb-item" itemprop=\"itemListElement\" itemscope itemtype=\"http://schema.org/ListItem\">%s</li>',
 		'<a itemprop=\"item\" href=\"[link]\"><span itemprop=\"name\">[name]</span></a><meta itemprop=\"position\" content=\"[count]\" />',
-		'<li class=\"active\">%s</li>',
+		'<li class=\"breadcrumb-item active\">%s</li>',
 		'1',
 		'%d %B %Y',
 		'%d %B %Y, %H:%M',
 		'RU',
 		'0',
 		'0',
-		'<div class=\"hidden_box\">\n Содержимое скрыто. Пожалуйста, <a href=\"index.php?module=login&action=register\">зарегистрируйтесь</a>\n</div>'
+		'<div class=\"hidden_box\">\n	Содержимое скрыто.\n</div>'
 );#inst#
 
 INSERT INTO `%%PRFX%%_settings_lang` VALUES
 	(1, 'ru', 'Русский', 'ru', '1', '1'),
-	(2, 'en', 'English', 'en', '0', '1'),
-	(3, 'ua', 'Українська', 'ua', '0', '1'),
+	(2, 'en', 'English', 'en', '0', '0'),
+	(3, 'ua', 'Українська', 'ua', '0', '0'),
 	(4, 'de', 'Deutsch', 'de', '0', '0'),
 	(5, 'it', 'Italian', 'it', '0', '0'),
 	(6, 'fr', 'France', 'fr', '0', '0'),
@@ -325,14 +328,13 @@ INSERT INTO `%%PRFX%%_settings_lang` VALUES
 	(11, 'bg', 'Български', 'bg', '0', '0');#inst#
 
 INSERT INTO `%%PRFX%%_templates` VALUES
-	(1, 'Основной шаблон', '<!DOCTYPE html>\n<html xmlns=\\\"http://www.w3.org/1999/xhtml\\\" lang=\\\"ru\\\">\n	<head>\n		<title>[tag:title] - [tag:sitename]</title>\n\n		<meta http-equiv=\\\"content-type\\\" content=\\\"text/html; charset=UTF-8\\\" />\n\n		<meta name=\\\"robots\\\" content=\\\"[tag:robots]\\\" />\n		<meta name=\\\"keywords\\\" content=\\\"[tag:keywords]\\\" />\n		<meta name=\\\"description\\\" content=\\\"[tag:description]\\\" />\n\n		<link href=\\\"[tag:canonical]\\\" rel=\\\"canonical\\\" />\n\n		<link rel=\\\"stylesheet\\\" href=\\\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css\\\" />\n		<link rel=\\\"stylesheet\\\" href=\\\"[tag:mediapath]css/styles.css\\\" />\n\n		[tag:rubheader]\n\n	</head>\n	<body>\n\n		<div class=\\\"container\\\">\n			<div class=\\\"row\\\">\n				<!--Page content-->\n				<div class=\\\"col-md-12\\\">\n					[tag:maincontent]\n				</div>\n			</div>\n		</div>\n\n		<script src=\\\"https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js\\\"></script>\n		<script src=\\\"https://cdnjs.cloudflare.com/ajax/libs/jquery-migrate/3.0.0/jquery-migrate.min.js\\\"></script>\n		<script src=\\\"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js\\\"></script>\n		<script src=\\\"[tag:mediapath]js/main.js\\\"></script>\n	</body>\n</html>', 1, 0);#inst#
+	(1,'Основной шаблон','<!DOCTYPE html>\n<html lang=\\\"ru\\\">\n	<head>\n		<meta charset=\\\"utf-8\\\">\n\n		<meta name=\\\"robots\\\" content=\\\"[tag:robots]\\\">\n		<meta name=\\\"keywords\\\" content=\\\"[tag:keywords]\\\">\n		<meta name=\\\"description\\\" content=\\\"[tag:description]\\\">\n\n		<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1, shrink-to-fit=no\\\">\n\n		<link href=\\\"[tag:canonical]\\\" rel=\\\"canonical\\\">\n\n		<!-- Bootstrap CSS -->\n		<link rel=\\\"stylesheet\\\" href=\\\"https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css\\\">\n		<!-- Font awesome CSS -->\n		<link rel=\\\"stylesheet\\\" href=\\\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\\\">\n		<!-- Custom styles -->\n		<link rel=\\\"stylesheet\\\" href=\\\"[tag:mediapath]css/styles.css\\\">\n\n		[tag:rubheader]\n\n		<title>[tag:title] - [tag:sitename]</title>\n	</head>\n	<body>\n		<!--Header-->\n		<header>\n			<nav class=\\\"navbar navbar-expand-md navbar-dark fixed-top bg-dark\\\">\n				<a class=\\\"navbar-brand\\\" href=\\\"[tag:path]\\\">[tag:sitename]</a>\n				<button class=\\\"navbar-toggler\\\" type=\\\"button\\\" data-toggle=\\\"collapse\\\" data-target=\\\"#navbarCollapse\\\" aria-controls=\\\"navbarCollapse\\\" aria-expanded=\\\"false\\\" aria-label=\\\"Toggle navigation\\\">\n					<span class=\\\"navbar-toggler-icon\\\"></span>\n				</button>\n				<div class=\\\"collapse navbar-collapse\\\" id=\\\"navbarCollapse\\\">\n					[tag:navigation:main]\n				</div>\n			</nav>\n		</header><!--./Header-->\n\n		<!--Page content-->\n		<main role=\\\"main\\\" class=\\\"container\\\">\n			<div class=\\\"row\\\">\n				<div class=\\\"col-12\\\">\n					[tag:maincontent]\n				</div>\n			</div>\n		</main><!--./Page content-->\n\n		<!--Footer-->\n		<footer class=\\\"footer\\\">\n			<div class=\\\"container\\\">\n				<span class=\\\"text-muted\\\">Создано при помощи [tag:version]</span>\n			</div>\n		</footer><!--./Footer-->\n\n		<!-- JavaScript\n		================================================== -->\n		<script src=\\\"https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js\\\"></script>\n		<script src=\\\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js\\\"></script>\n		<script src=\\\"https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js\\\"></script>\n		<script src=\\\"https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js\\\"></script>\n		<script src=\\\"[tag:mediapath]js/main.js\\\"></script>\n\n		[tag:rubfooter]\n	</body>\n</html>',1,0);#inst#
 
 INSERT INTO `%%PRFX%%_user_groups` VALUES
 	(1, 'Администраторы', '1', '0', '', 'alles'),
 	(2, 'Анонимные пользователи', '1', '0', '', ''),
 	(3, 'Модераторы', '1', '0', '', ''),
-	(4, 'Зарегистрированные', '1', '0', '', ''),
-	(5, 'Через логинзу', '1', '0', '', '');#inst#
+	(4, 'Зарегистрированные', '1', '0', '', '');#inst#
 
 INSERT INTO `%%PRFX%%_users` VALUES
 	(1, '%%PASS%%', '%%EMAIL%%', '', '', '', '', '', '', '', '', '', '%%USERNAME%%', 1, '', '', '1', '', 'RU', '', '0', '0', '0', '0', '', '', '', '%%SALT%%', '', 0);#inst#

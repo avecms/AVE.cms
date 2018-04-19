@@ -39,7 +39,7 @@ $(function() {
 			{title : "Image files", extensions : "jpg,jpeg,jpe,gif,png"},
 			{title : "Video files", extensions : "mp4,avi,mov,wmv,wmf"},
 			{title : "Music files", extensions : "mp3"},
-			{title : "Documents", extensions : "doc,xls,pdf"},
+			{title : "Documents", extensions : "doc,docx,xls,xlsx,pdf"},
 			{title : "Zip files", extensions : "zip,rar"}
 		],
 		// Flash settings

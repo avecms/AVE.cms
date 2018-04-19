@@ -224,7 +224,7 @@
 	{
 		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
 
-		$imageName = 'default.png';
+		$imageName = 'noimage.png';
 
 		if (! file_exists("$imagePath/$imageName"))
 		{

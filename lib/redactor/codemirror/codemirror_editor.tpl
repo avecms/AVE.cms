@@ -50,7 +50,8 @@ editor{$conn_id} = CodeMirror.fromTextArea(document.getElementById('{$textarea_i
 	enterMode: 'keep',
 	tabMode: 'shift',
 	autoCloseTags: true,
-	styleActiveLine: true
+	styleActiveLine: true,
+	smartyVersion  : 2
 {rdelim});
 
 editor{$conn_id}.setSize('{$width|default:'100%'}', '{$height|default:'400px'}');

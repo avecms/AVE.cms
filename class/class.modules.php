@@ -63,9 +63,9 @@
 
 				$module = array();
 
+				// Если не удалось подключить основной файл модуля module.php - Фиксируем ошибку
 				if (! (is_file($module_dir . '/info.php') && @include_once($module_dir . '/info.php')))
 				{
-					// Если не удалось подключить основной файл модуля module.php - Фиксируем ошибку
 					$modules['errors'][] = $entry;
 					continue;
 				}
@@ -89,18 +89,20 @@
 				// установленные модули
 				if ($row)
 				{
-					$module['status']			= $row->ModuleStatus;
 					$module['id']				= $row->Id;
 					$module['need_update']		= ($row->ModuleVersion != $module['ModuleVersion']);
 					$module['template']			= ($row->ModuleTemplate ? $row->ModuleTemplate : 0);
+					$module['ModuleAveTag']		= $row->ModuleAveTag;
+					$module['ModulePHPTag']		= $row->ModulePHPTag;
+					$module['ModuleStatus']		= $row->ModuleStatus;
 					$module['ModuleVersion']	= $row->ModuleVersion;
 				}
 				// неустановленные модули
 				else
 					{
-						$module['status']			= false;
 						$module['id']				= $module['ModuleSysName'];
 						$module['template']			= (! empty($module['ModuleTemplate']) ? $module['ModuleTemplate'] : '');
+						$module['ModuleStatus']		= false;
 					}
 
 				// записываем в массив
@@ -151,7 +153,7 @@
 					? '<br /><br />'
 					: "<br /><br /><strong>$author_title</strong><br />" . $module['ModuleAutor'] . "<br />") . '<br /><em>' . $module['ModuleCopyright'] . '</em>';
 				// установленные модули
-				if ($module['status'] !== false)
+				if ($module['ModuleStatus'] !== false)
 					$installed_modules[$module['ModuleSysName']] = $module;
 				// неустановленные модули
 				else
@@ -203,7 +205,7 @@
 			{
 				foreach ($this->_modules AS $k => $v)
 				{
-					if ($status && $v['status'] != $status)
+					if ($status && $v['ModuleStatus'] != $status)
 						continue;
 
 					$modules[$k] = $v;
@@ -218,7 +220,7 @@
 
 					// Выполняем запрос к БД и получаем список документов,
 					// согласно статусу, либо все модули, если статус не указан
-					$sql = $AVE_DB->Query("
+					$sql = "
 						SELECT
 							*
 						FROM
@@ -226,9 +228,11 @@
 						" . $where_status . "
 						ORDER BY
 							ModuleName ASC
-					");
+					";
 
-					while ($row = $sql->FetchRow())
+					$query = $AVE_DB->Query($sql, SYSTEM_CACHE_LIFETIME, 'modules');
+
+					while ($row = $query->FetchRow())
 						$modules[$row->ModuleSysName] = $row;
 				}
 
@@ -259,6 +263,8 @@
 				");
 			}
 
+			$this->clearModulesCache();
+
 			// Выполянем обновление страницы со списком модулей
 			header('Location:index.php?do=modules&cp=' . SESSION);
 			exit;
@@ -276,7 +282,7 @@
 			// Получаем данные модуля
 			$modules = $this->_modules;
 
-			$modul = $modules[MODULE_PATH];
+			$module = $modules[MODULE_PATH];
 
 			// Удаляем информацию о модуле в таблице module
 			$AVE_DB->Query("
@@ -288,13 +294,13 @@
 			");
 
 			// Определяем, имеет ли модуль возможность настройки в Панели управления
-			$modul['ModuleAdminEdit'] = (!empty($modul['ModuleAdminEdit']))
-				? $modul['ModuleAdminEdit']
+			$module['ModuleAdminEdit'] = (!empty($module['ModuleAdminEdit']))
+				? $module['ModuleAdminEdit']
 				: 0;
 
 			// Определяем, имеет ли модуль возможность смены шаблона
-			$modul['ModuleTemplate'] = ($modul['ModuleTemplate'])
-				? $modul['ModuleTemplate']
+			$module['ModuleTemplate'] = ($module['ModuleTemplate'])
+				? $module['ModuleTemplate']
 				: 0;
 
 			// Добавляем информацию о модуле в таблицу module
@@ -302,16 +308,16 @@
 				INSERT INTO
 					" . PREFIX . "_module
 				SET
-					ModuleName			= '" . $modul['ModuleName'] . "',
+					ModuleName			= '" . $module['ModuleName'] . "',
 					ModuleStatus		= '1',
-					ModuleAveTag		= '" . $modul['ModuleAveTag'] . "',
-					ModulePHPTag		= '" . $modul['ModulePHPTag'] . "',
-					ModuleFunction		= '" . $modul['ModuleFunction'] . "',
-					ModuleIsFunction	= '" . $modul['ModuleIsFunction'] . "',
+					ModuleAveTag		= '" . $module['ModuleAveTag'] . "',
+					ModulePHPTag		= '" . $module['ModulePHPTag'] . "',
+					ModuleFunction		= '" . $module['ModuleFunction'] . "',
+					ModuleIsFunction	= '" . $module['ModuleIsFunction'] . "',
 					ModuleSysName		= '" . MODULE_PATH . "',
-					ModuleVersion		= '" . $modul['ModuleVersion'] . "',
-					ModuleTemplate		= '" . $modul['ModuleTemplate'] . "',
-					ModuleAdminEdit		= '" . $modul['ModuleAdminEdit'] . "'
+					ModuleVersion		= '" . $module['ModuleVersion'] . "',
+					ModuleTemplate		= '" . $module['ModuleTemplate'] . "',
+					ModuleAdminEdit		= '" . $module['ModuleAdminEdit'] . "'
 			");
 
 			// Подключаем файл с запросами к БД для данного модуля
@@ -325,20 +331,22 @@
 				// из массива $module_sql_deinstall файла sql.php
 				foreach ($module_sql_deinstall as $sql)
 				{
-					$AVE_DB->Query(str_replace('CPPREFIX', PREFIX, $sql));
+					$AVE_DB->Query(str_replace('%%PRFX%%', PREFIX, $sql));
 				}
 
 				// Выполняем запросы создания таблиц и данных модуля
 				// из массива $module_sql_install файла sql.php
 				foreach ($module_sql_install as $sql)
 				{
-					$AVE_DB->Query(str_replace('CPPREFIX', PREFIX, $sql));
+					$AVE_DB->Query(str_replace('%%PRFX%%', PREFIX, $sql));
 				}
 			}
 			// Сохраняем системное сообщение в журнал
 			($_REQUEST['action'] == "reinstall")
-				? reportLog($AVE_Template->get_config_vars('MODULES_ACTION_REINSTALL') . ' (' . $modul['ModuleName'] . ')')
-				: reportLog($AVE_Template->get_config_vars('MODULES_ACTION_INSTALL') . ' (' . $modul['ModuleName'] . ')');
+				? reportLog($AVE_Template->get_config_vars('MODULES_ACTION_REINSTALL') . ' (' . $module['ModuleName'] . ')')
+				: reportLog($AVE_Template->get_config_vars('MODULES_ACTION_INSTALL') . ' (' . $module['ModuleName'] . ')');
+
+			$this->clearModulesCache();
 
 			// Выполняем обновление страницы со списком модулей
 			header('Location:index.php?do=modules&cp=' . SESSION);
@@ -359,44 +367,46 @@
 
 			$sql_file = BASE_DIR . '/modules/' . MODULE_PATH . '/sql.php';
 
-			$mod_file = BASE_DIR . '/modules/' . MODULE_PATH . '/module.php';
+			$mod_file = BASE_DIR . '/modules/' . MODULE_PATH . '/info.php';
 
 			if (file_exists($mod_file) && file_exists($sql_file))
 			{
-				include($mod_file);
-				include($sql_file);
+				include ($mod_file);
+				include ($sql_file);
+
 				// Выполняем запросы обновления модуля
 				// из массива $module_sql_update файла sql.php
 				foreach ($module_sql_update as $sql)
 				{
-					$AVE_DB->Query(str_replace('CPPREFIX', PREFIX, $sql));
+					$AVE_DB->Query(str_replace('%%PRFX%%', PREFIX, $sql));
 				}
 			}
 			// Обновляем модуль, если в нем не применяется (отсутствует) файл sql.php
 			elseif (file_exists($mod_file) && file_exists($sql_file) === false)
 			{
-				include($mod_file);
+				include_once ($mod_file);
 
 				$AVE_DB->Query("
 					UPDATE
 						" . PREFIX . "_module
 					SET
-						ModuleName			= '" . $modul['ModuleName'] . "',
-						ModuleStatus		= '1',
-						ModuleAveTag		= '" . $modul['ModuleAveTag'] . "',
-						ModulePHPTag		= '" . $modul['ModulePHPTag'] . "',
-						ModuleFunction		= '" . $modul['ModuleFunction'] . "',
-						ModuleIsFunction	= '" . $modul['ModuleIsFunction'] . "',
+						ModuleAveTag		= '" . $module['ModuleAveTag'] . "',
+						ModulePHPTag		= '" . $module['ModulePHPTag'] . "',
+						ModuleFunction		= '" . $module['ModuleFunction'] . "',
+						ModuleIsFunction	= '" . $module['ModuleIsFunction'] . "',
 						ModuleSysName		= '" . MODULE_PATH . "',
-						ModuleVersion		= '" . $modul['ModuleVersion'] . "',
-						ModuleTemplate		= '" . $modul['ModuleTemplate'] . "',
-						ModuleAdminEdit		= '" . $modul['ModuleAdminEdit'] . "'
+						ModuleVersion		= '" . $module['ModuleVersion'] . "',
+						ModuleTemplate		= '" . $module['ModuleTemplate'] . "',
+						ModuleAdminEdit		= '" . $module['ModuleAdminEdit'] . "',
+						ModuleStatus		= '1'
 					WHERE
 						ModuleSysName = '" . MODULE_PATH . "'
 				");
 			}
 			// Сохраняем системное сообщение в журнал
 			reportLog ($AVE_Template->get_config_vars('MODULES_ACTION_UPDATE') . ' (' . MODULE_PATH . ')');
+
+			$this->clearModulesCache();
 
 			// Выполянем обновление страницы со списком модулей
 			header('Location:index.php?do=modules&cp=' . SESSION);
@@ -423,7 +433,7 @@
 				// из массива $module_sql_deinstall файла sql.php
 				foreach ($module_sql_deinstall as $sql)
 				{
-					$AVE_DB->Query(str_replace('CPPREFIX', PREFIX, $sql));
+					$AVE_DB->Query(str_replace('%%PRFX%%', PREFIX, $sql));
 				}
 			}
 
@@ -435,6 +445,8 @@
 				WHERE
 					ModuleSysName = '" . MODULE_PATH . "'
 			");
+
+			$this->clearModulesCache();
 
 			// Сохраняем системное сообщение в журнал
 			reportLog ($AVE_Template->get_config_vars('MODULES_ACTION_DELETE') .' (' . MODULE_PATH . ')');
@@ -477,6 +489,8 @@
 					ModuleSysName = '" . MODULE_PATH . "'
 			");
 
+			$this->clearModulesCache();
+
 			// Сохраняем системное сообщение в журнал
 			reportLog ((($ModuleStatus == "0")
 				? $AVE_Template->get_config_vars('MODULES_ACTION_OFFLINE')
@@ -506,12 +520,26 @@
 
 			rrmdir ($directory);
 
+			$this->clearModulesCache();
+
 			// Сохраняем системное сообщение в журнал
 			reportLog ($AVE_Template->get_config_vars('MODULES_ACTION_REMOVE') . ' (' . $dir . ')');
 
 			// Выполянем обновление страницы со списком модулей
 			header('Location:index.php?do=modules&cp=' . SESSION);
 			exit;
+		}
+
+
+		/**
+		 * Функция очищает кеш системных настроек
+		 *
+		 */
+		function clearModulesCache()
+		{
+			$cache_dir = BASE_DIR . '/tmp/cache/sql/modules/';
+
+			return rrmdir($cache_dir);
 		}
 	}
 ?>

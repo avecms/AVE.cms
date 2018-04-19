@@ -42,32 +42,32 @@ class AVE_Template extends Smarty
 		/**
 		 * Имя каталога, в котором хранятся компилированные шаблоны.
 		 */
-		$this->compile_dir = BASE_DIR . '/cache/smarty';
+		$this->compile_dir = BASE_DIR . '/tmp/cache/smarty';
 
 		/**
 		 * Имя каталога, в котором хранится кэш.
 		 */
-		$this->cache_dir_root = BASE_DIR . '/cache';
+		$this->cache_dir_root = BASE_DIR . '/tmp/cache';
 
 		/**
 		 * Имя каталога, в котором хранится кэш шаблонов.
 		 */
-		$this->cache_dir = BASE_DIR . '/cache/tpl';
+		$this->cache_dir = BASE_DIR . '/tmp/cache/tpl';
 
 		/**
 		 * Имя каталога, в котором хранится кэш модулей.
 		 */
-		$this->module_cache_dir = BASE_DIR . '/cache/module';
+		$this->module_cache_dir = BASE_DIR . '/tmp/cache/module';
 
 		/**
 		 * Имя каталога, в котором хранится сессии пользователей.
 		 */
-		$this->session_dir = BASE_DIR . '/session';
+		$this->session_dir = BASE_DIR . '/tmp/session';
 
 		/**
 		 * Имя каталога, в котором хранится сессии пользователей.
 		 */
-		$this->sql_cache_dir = BASE_DIR . '/cache/sql';
+		$this->sql_cache_dir = BASE_DIR . '/tmp/cache/sql';
 
 		/**
 		 * Использование поддиректорий для хранения кэша и скомпилированных шаблонов.
@@ -217,13 +217,14 @@ class AVE_Template extends Smarty
 		{
 			$this->clear_all_cache();
 
-			foreach (glob($this->cache_dir_root."/cache_*") as $filename)
+			foreach (glob($this->cache_dir_root . "/cache_*") as $filename)
 			{
 				@unlink($filename);
 			}
 
 			$filename = $this->cache_dir . '/.htaccess';
-			if (!file_exists($filename))
+
+			if (! file_exists($filename))
 			{
 				$fp = @fopen($filename, 'w');
 				if ($fp)
@@ -233,7 +234,7 @@ class AVE_Template extends Smarty
 				}
 			}
 
-			if($_REQUEST['ajax'] && Memcached_Server && Memcached_Port)
+			if ($_REQUEST['ajax'] && Memcached_Server && Memcached_Port)
 			{
 				$memcache = new Memcache;
 				$memcache->connect(Memcached_Server, Memcached_Port);

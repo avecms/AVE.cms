@@ -59,7 +59,7 @@
 
 </form>
 
-{include file="$codemirror_editor" conn_id="ftpl" textarea_id='code_text' ctrls='$("#code_templ").ajaxSubmit(sett_options);' height=400}
+{include file="$codemirror_editor" conn_id="ftpl" textarea_id='code_text' ctrls='$("#code_templ").ajaxSubmit(sett_options);' height=400 mode='smartymixed'}
 
 <script language="javascript">
 	$(document).ready(function(){ldelim}

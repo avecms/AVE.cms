@@ -319,6 +319,7 @@ AddDefaultCharset utf-8
 
 	# Файл sitemap.xml
 	RewriteRule ^sitemap.xml$ inc/sitemap.php [QSA,L]
+	RewriteRule ^sitemap-([0-9]+).xml$ inc/sitemap.php?id=$1 [QSA,L]
 
 #--start-ave-editor--#
 

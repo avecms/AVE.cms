@@ -243,20 +243,20 @@
 
 			if (isset($_REQUEST['server']) && $_REQUEST['server'] == 1)
 			{
-				if(! is_dir(BASE_DIR . '/backup/'))
+				if (! is_dir(BASE_DIR . '/tmp/backup/'))
 				{
-					@mkdir(BASE_DIR . '/backup/', 0777);
-					write_htaccess_deny(BASE_DIR . '/backup/');
+					@mkdir(BASE_DIR . '/tmp/backup/', 0777, true);
+					write_htaccess_deny(BASE_DIR . '/tmp/backup/');
 				}
 
-				@file_put_contents(BASE_DIR . '/backup/'. $file_name . '.sql'. (defined('DB_EXPORT_GZ') && DB_EXPORT_GZ ? '.gz' : ''), $dump);
+				@file_put_contents(BASE_DIR . '/tmp/backup/'. $file_name . '.sql'. (defined('DB_EXPORT_GZ') && DB_EXPORT_GZ ? '.gz' : ''), $dump);
 
-				@chmod(BASE_DIR . '/backup/'. $file_name . '.sql', 0777);
+				@chmod(BASE_DIR . '/tmp/backup/'. $file_name . '.sql', 0777);
 
 				if (! $exit)
 					header('Location:index.php?do=dbsettings&cp=' . SESSION);
 				else
-					return BASE_DIR . '/backup/'. $file_name . '.sql'. (defined('DB_EXPORT_GZ') && DB_EXPORT_GZ ? '.gz' : '');
+					return BASE_DIR . '/tmp/backup/'. $file_name . '.sql'. (defined('DB_EXPORT_GZ') && DB_EXPORT_GZ ? '.gz' : '');
 			}
 			else
 			{
@@ -288,7 +288,7 @@
 		{
 			global $AVE_Template;
 
-			$file = BASE_DIR . '/backup/'. $file;
+			$file = BASE_DIR . '/tmp/backup/'. $file;
 
 			// Если дамп не удалось создать, тогда завершаем работу
 			if (! is_file($file))
@@ -454,7 +454,7 @@
 
 			$insert = false;
 
-			$file = BASE_DIR . '/backup/'. $file;
+			$file = BASE_DIR . '/tmp/backup/'. $file;
 
 			// Если дамп не удалось создать, тогда завершаем работу
 			if (! is_file($file)) $insert = false;
@@ -611,7 +611,7 @@
 		 */
 		function databaseFilesGet()
 		{
-			$dir = BASE_DIR . '/backup/';
+			$dir = BASE_DIR . '/tmp/backup/';
 
 			if($handle = opendir($dir))
 			{

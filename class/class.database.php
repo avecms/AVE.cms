@@ -616,6 +616,12 @@
 			if (! is_array($this->_query_list))
 				return false;
 
+			$div = '';
+
+			include_once BASE_DIR . '/lib/debug/sql.php';
+
+			$SqlFormatter = new SqlFormatter();
+
 			foreach ($this->_query_list AS $k => $v)
 			{
 				$_caller = '';
@@ -633,15 +639,15 @@
 
 				$_ttl = $v['ttl'] > 0 ? $v['ttl'] : 'None';
 
-				if ($v['cache'])
+				if (isset($v['cache']))
 					$_ttl .= PHP_EOL . $v['cache'];
 
-				$_query = $this->prepareQuery($v['query']);
+				$_query = SqlFormatter::format($v['query']);
 
-				$div = '
-					<div style="border: 1px solid #aaa; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">' .
+				$div .= '
+					<div style="border: 1px solid #f0f0f0; margin: 5px 0; font-size: 11px; font-family: Consolas, Verdana, Arial; border-radius: 3px;">' .
 						'<div style="background:#aaa; color: #fff; margin: 0; padding: 5px;">' .
-							'<strong>' . $k . '</strong>' .
+							'<strong>' . ($k+1) . '</strong>' .
 						'</div>' .
 						'<pre style="background:#f5f5f5; color: #000; margin: 0; padding: 5px; border: 0; font-size: 11px; font-family: Consolas, Verdana, Arial;">' .
 						'<strong>Trace:</strong>' . PHP_EOL .
@@ -656,9 +662,9 @@
 						'</pre>' .
 					'</div>
 				';
-
-				echo($div);
 			}
+
+			return $div;
 		}
 
 		/**
@@ -702,7 +708,7 @@
 
 			foreach ((array)$stack as $call)
 			{
-				if (@$call['class'] == __CLASS__)
+				if (isset($call['class']) && $call['class'] == __CLASS__)
 					continue;
 
 				$function = $call['function'];
@@ -711,6 +717,7 @@
 				{
 					$function = $call['class'] . "->$function";
 				}
+
 				$caller[] =
 					(array (
 						'call_file' => (isset($call['file']) ? $call['file'] : 'Unknown'),
@@ -760,6 +767,33 @@
 		}
 
 
+		public function cacheFile($cache_id)
+		{
+			// Если это документ, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'doc')
+			{
+				$cache_id = (int)str_replace('doc_', '', $cache_id);
+				$cache_id = 'doc/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+			}
+
+			// Если это
+			if (substr($cache_id, 0, 3) == 'url')
+			{
+				$cache_id = str_replace('url_', '', $cache_id);
+				$cache_id = 'url/' . substr($cache_id, 0, 3);
+			}
+
+			// Если это
+			if (substr($cache_id, 0, 3) == 'nav')
+			{
+				$cache_id = str_replace('nav_', '', $cache_id);
+				$cache_id = 'nav/' . substr($cache_id, 0, 3);
+			}
+
+			return $cache_id;
+		}
+
+
 		/**
 		 * Метод, предназначенный для выполнения запроса к MySQL и возвращение результата в виде асоциативного массива с поддержкой кеша
 		 *
@@ -771,12 +805,7 @@
 		 */
 		public function Query($query, $TTL = null, $cache_id = '', $log = true)
 		{
-			// Если это документ, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'doc')
-			{
-				$cache_id = (int)str_replace('doc_', '', $cache_id);
-				$cache_id = 'doc/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-			}
+			$cache_id = $this->cacheFile($cache_id);
 
 			// Принудительная фильтрация запроса
 			if (defined(SQL_QUERY_SANITIZE) && SQL_QUERY_SANITIZE)
@@ -793,17 +822,16 @@
 			if (defined('DEV_MODE') AND DEV_MODE)
 				$TTL = null;
 
-
 			if ($TTL && ($TTL != 'nocache' AND $TTL != null))
 			{
 				$cache_file = md5($query);
 
-				$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+				$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 					? trim($cache_id) . '/'
 					: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
 
 				if (! file_exists($cache_dir))
-					mkdir($cache_dir, 0777, true);
+					mkdir($cache_dir, 0766, true);
 
 				// Если стоит в настройках, запоминать все запросы
 				if (defined('SQL_PROFILING') && SQL_PROFILING)
@@ -1005,7 +1033,7 @@
 				// Кол-во
 				$cache_file = md5($query) . '.count';
 
-				$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+				$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 					? trim($cache_id) . '/'
 					: substr($cache_file, 0, 2) . '/'. substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
 
@@ -1020,7 +1048,7 @@
 					}
 					else
 						{
-							$res = (int)$this->Query("SELECT FOUND_ROWS();")->GetCell();
+							$res = (int)$this->Query('SELECT FOUND_ROWS();')->GetCell();
 
 							file_put_contents($cache_dir . $cache_file, $res);
 						}
@@ -1033,7 +1061,7 @@
 					}
 			}
 
-			return (int)$this->Query("SELECT FOUND_ROWS();")->GetCell();
+			return (int)$this->Query('SELECT FOUND_ROWS();')->GetCell();
 		}
 
 
@@ -1294,7 +1322,45 @@
 				? 'doc/' . intval(floor((int)substr($cache_id, 4)) / 1000) . '/' . (int)substr($cache_id, 4)
 				: $cache_id);
 
-			$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
+				? trim($cache_id) . '/'
+				: '');
+
+			return rrmdir($cache_dir);
+		}
+
+
+		/**
+		 * Метод, предназначенный для очищения кеша документов
+		 *
+		 * @param $cache_id
+		 * @return bool
+		 */
+		public function clearCacheUrl($cache_id)
+		{
+			$cache_id = str_replace('url_', '', $cache_id);
+			$cache_id = 'url/' . substr($cache_id, 0, 3);
+
+			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
+				? trim($cache_id) . '/'
+				: '');
+
+			return rrmdir($cache_dir);
+		}
+
+
+		/**
+		 * Метод, предназначенный для очищения кеша документов
+		 *
+		 * @param $cache_id
+		 * @return bool
+		 */
+		public function clearCacheNav($cache_id)
+		{
+			$cache_id = str_replace('nav_', '', $cache_id);
+			$cache_id = 'nav/' . substr($cache_id, 0, 3);
+
+			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 				? trim($cache_id) . '/'
 				: '');
 
@@ -1314,7 +1380,7 @@
 				? 'request/' . (int)substr($cache_id, 4)
 				: $cache_id);
 
-			$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 				? trim($cache_id) . '/'
 				: '');
 
@@ -1334,7 +1400,7 @@
 				? 'compiled/' . intval(floor((int)substr($cache_id, 4)) / 1000) . '/' . (int)substr($cache_id, 4)
 				: $cache_id);
 
-			$cache_dir = BASE_DIR . '/cache/sql/' . (trim($cache_id) > ''
+			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 				? trim($cache_id) . '/'
 				: '');
 
@@ -1352,11 +1418,11 @@
 		{
 			$request = request_get_settings($cache_id);
 
-			$cache_from_id = BASE_DIR . '/cache/sql/request/settings/' . (trim($request->Id) > ''
+			$cache_from_id = BASE_DIR . '/tmp/cache/sql/request/settings/' . (trim($request->Id) > ''
 				? trim($request->Id) . '/'
 				: '');
 
-			$cache_from_alias = BASE_DIR . '/cache/sql/request/settings/' . (trim($request->request_alias) > ''
+			$cache_from_alias = BASE_DIR . '/tmp/cache/sql/request/settings/' . (trim($request->request_alias) > ''
 				? trim($request->request_alias) . '/'
 				: '');
 

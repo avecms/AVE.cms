@@ -114,7 +114,7 @@ if ( ! function_exists('send_mail'))
 		// Сохраняем вложения в ATTACH_DIR, если просили
 		if ($attach && $saveattach)
 		{
-			$attach_dir = BASE_DIR . '/' . ATTACH_DIR . '/';
+			$attach_dir = BASE_DIR . '/tmp/' . ATTACH_DIR . '/';
 			foreach ($attach as $file_path)
 			{
 				if ($file_path && file_exists($file_path))

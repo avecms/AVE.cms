@@ -88,7 +88,7 @@ $(document).ready(function(){ldelim}
 
 				<td nowrap="nowrap">
 				{if check_permission('modules_admin')}
-					{if $module.ModuleAdminEdit && $module.status && $module.permission}
+					{if $module.ModuleAdminEdit && $module.ModuleStatus && $module.permission}
 						<strong><a href="index.php?do=modules&action=modedit&mod={$module.ModuleSysName}&moduleaction=1&cp={$sess}" title="{#MODULES_SETUP#}" class="toprightDir link">{$module.ModuleName}</a></strong>
 						{if (isset($module.ModuleTagLink) && $module.ModuleTagLink  != "")}
 							<br /><span class="dgrey doclink">{$module.ModuleTagLink}</span>
@@ -104,7 +104,7 @@ $(document).ready(function(){ldelim}
 				<td>
 					{if $module.template}
 						{assign var=module_id value=$module.id}
-						{if $module.status && $module.permission}
+						{if $module.ModuleStatus && $module.permission}
 							{html_options name=Template[$module_id] options=$all_templates selected=$module.template style="width: 200px"}
 						{else}
 							{html_options name=Template[$module_id] options=$all_templates selected=$module.template style="width: 200px" disabled="disabled"}
@@ -120,7 +120,7 @@ $(document).ready(function(){ldelim}
 
 				{if check_permission('modules_system')}
 					<td align="center" width="20">
-						{if $module.status}
+						{if $module.ModuleStatus}
 							<a title="{#MODULES_STOP#}" href="index.php?do=modules&action=onoff&module={$module.ModuleSysName}&cp={$sess}" class="topDir icon_sprite ico_stop"></a>
 						{else}
 							<a title="{#MODULES_START#}" href="index.php?do=modules&action=onoff&module={$module.ModuleSysName}&cp={$sess}" class="topDir icon_sprite ico_start"></a>

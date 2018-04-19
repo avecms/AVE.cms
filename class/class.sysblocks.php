@@ -111,11 +111,7 @@
 						$theme = 'accept';
 
 						//-- Стираем кеш сисблока
-						if (file_exists(BASE_DIR . '/cache/sql/sysblock/' . $sysblock_id . '.cache'))
-							unlink(BASE_DIR . '/cache/sql/sysblock/' . $sysblock_id . '.cache');
-
-						if ($sysblock_alias != '' && file_exists(BASE_DIR . '/cache/sql/sysblock/' . $sysblock_alias . '.cache'))
-							unlink(BASE_DIR . '/cache/sql/sysblock/' . $sysblock_alias . '.cache');
+						$this->clearCache($sysblock_id, $_REQUEST['sysblock_alias']);
 
 						//-- Сохраняем системное сообщение в журнал
 						reportLog($AVE_Template->get_config_vars('SYSBLOCK_SQLUPDATE') . " (" . stripslashes($_REQUEST['sysblock_name']) . ") (id: $sysblock_id)");
@@ -275,17 +271,29 @@
 				");
 
 				//-- Стираем кеш сисблока
-				if (file_exists(BASE_DIR . '/cache/sql/sysblock-' . $sysblock_id . '.cache'))
-					unlink(BASE_DIR . '/cache/sql/sysblock/' . $sysblock_id . '.cache');
-
-				if ($row->sysblock_alias != '')
-					unlink(BASE_DIR . '/cache/sql/sysblock/' . $row->sysblock_alias . '.cache');
+				$this->clearCache($sysblock_id, $row->sysblock_alias);
 
 				//-- Сохраняем системное сообщение в журнал
 				reportLog($AVE_Template->get_config_vars('SYSBLOCK_SQLDEL') . " (" . stripslashes($row->sysblock_name) . ") (id: $sysblock_id)");
 			}
 
 			header('Location:index.php?do=sysblocks&cp=' . SESSION);
+		}
+
+
+		function clearCache ($id, $alias = null)
+		{
+			$cache_id = md5('sysblock' . $id);
+			$cache_alias = md5('sysblock' . $alias);
+
+			$cache_id_file = BASE_DIR . '/tmp/cache/sql/sysblock/' . $cache_id . '.cache';
+			$cache_alias_file = BASE_DIR . '/tmp/cache/sql/sysblock/' . $cache_alias . '.cache';
+
+			if (file_exists($cache_id_file))
+				unlink($cache_id_file);
+
+			if (file_exists($cache_alias_file))
+				unlink($cache_alias_file);
 		}
 	}
 ?>
