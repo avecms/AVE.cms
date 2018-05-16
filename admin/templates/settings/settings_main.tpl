@@ -28,13 +28,8 @@
 	</div>
 </div>
 
-{if $smarty.const.SYSTEM_CACHE_LIFETIME > 0}
-	<ul class="messages first">
-		<li class="highlight red"><strong>{#SETTINGS_CACHE_LIFETIME#}</strong></li>
-	</ul>
-{/if}
-
 <form id="settings" name="settings" method="post" action="index.php?do=settings&cp={$sess}&sub=save" class="mainForm">
+
 <fieldset>
 
 <div class="widget first">

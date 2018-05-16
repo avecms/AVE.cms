@@ -17,7 +17,7 @@
 
 	define ('BASE_DIR', str_replace("\\", "/", rtrim($_SERVER['DOCUMENT_ROOT'],'/')));
 
-	if (! @filesize(BASE_DIR . '/inc/db.config.php'))
+	if (! @filesize(BASE_DIR . '/config/db.config.php'))
 	{
 		header ('Location: Location:install/index.php');
 		exit;
@@ -31,15 +31,6 @@
 	require_once (BASE_DIR . '/inc/init.php');
 
 	$abs_path = str_ireplace(BASE_DIR, '/', str_replace("\\", "/", dirname(dirname(__FILE__))));
-
-	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')
-	{
-		$domain = 'https://'.$_SERVER['SERVER_NAME'];
-	}
-	else
-		{
-			$domain = 'http://'.$_SERVER['SERVER_NAME'];
-		}
 
 	// Проверяем настройку на публикацию документов
 	$publish = get_settings('use_doctime')
@@ -67,7 +58,7 @@
 	// Вытаскиваем кол-во документов
 	$sql = "
 		SELECT STRAIGHT_JOIN SQL_CALC_FOUND_ROWS
-			COUNT(doc.Id)
+			COUNT(doc.Id) AS count
 		FROM
 			" . PREFIX . "_documents doc
 		LEFT JOIN
@@ -86,7 +77,7 @@
 			AND (rubperm.user_group_id = 2 AND rubperm.rubric_permission LIKE '%docread%')
 	";
 
-	$num = $AVE_DB->Query($sql)->GetCell();
+	$num = $AVE_DB->Query($sql, SITEMAP_CACHE_LIFETIME, 'sitemap')->GetCell();
 
 	if ($num > $_end)
 		$parts = ceil($num/$_end);
@@ -98,7 +89,7 @@
 	for ($i = 1; $i <= $parts; $i++):
 ?>
 	<sitemap>
-		<loc><?= $domain . '/sitemap-' . $i . '.xml'; ?></loc>
+		<loc><?= HOST . '/sitemap-' . $i . '.xml'; ?></loc>
 		<lastmod><?= date("c"); ?></lastmod>
 	</sitemap>
 <? endfor;
@@ -127,6 +118,7 @@
 			AND doc.document_status = 1
 			AND doc.document_deleted = 1
 			$publish
+			AND doc.Id != 1
 			AND doc.Id != " . PAGE_NOT_FOUND_ID . "
 			AND (document_meta_robots NOT LIKE '%noindex%' or document_meta_robots NOT LIKE '%nofollow%')
 			AND (rubperm.user_group_id = 2 AND rubperm.rubric_permission LIKE '%docread%')
@@ -134,14 +126,14 @@
 		LIMIT ".$_start.",".$_end."
 	";
 
-	$res = $AVE_DB->Query($sql);
+	$res = $AVE_DB->Query($sql, SITEMAP_CACHE_LIFETIME, 'sitemap');
 
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
 	echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
 	if ((int)$_REQUEST['id'] == 1):
 ?>
 	<url>
-		<loc><? echo $domain . '/'; ?></loc>
+		<loc><? echo HOST . '/'; ?></loc>
 		<lastmod><? echo date("c", time()); ?></lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.8</priority>
@@ -150,7 +142,7 @@
 <?
 	while($row = $res->FetchAssocArray()):
 		$document_alias = $abs_path . $row['document_alias'] . URL_SUFF;
-		$document_alias = $domain . str_ireplace($abs_path . '/' . URL_SUFF, '/', $document_alias);
+		$document_alias = HOST . str_ireplace($abs_path . '/' . URL_SUFF, '/', $document_alias);
 		$date = $row["document_published"] ? date("c", $row["document_published"]) : date("c");
 ?>
 	<url>

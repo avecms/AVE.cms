@@ -244,18 +244,18 @@ INSERT INTO `%%PRFX%%_document_fields` VALUES
 	(4, 2, 2, 0, 'Извините, запрошенный Вами документ не найден.', '0');#inst#
 
 INSERT INTO `%%PRFX%%_documents` VALUES
-	(1, 1, 0, 0, '/', '0','Главная', 'Главная страница', 0, 0, 0, 1, '0', '', '', 'index,follow', '3', '0.5', '1', '0', 0, 0, 0, '', '', 'ru', '1', ''),
-	(2, 1, 0, 0, '404-not-found', '0', '404 - Документ не найден', 'Ошибка 404', 0, 0, 0, 1, '0', '', '', 'noindex,nofollow', '6', '0', '1', '0', 0, 0, 0, '', '', 'ru', '2', '');#inst#
+	(1, 1, 0, 0, '/', '0', '', 'Главная', 'Главная страница', '0', '0', '0', '1', '0', '', '', 'index,follow', '3', '0.5', '1', '0', '0', '0', '0', '', '', 'ru', '1', ''),
+	(2, 1, 0, 0, '404-dokument-ne-najden', '0', '', '404 - Документ не найден', 'Ошибка 404', '0', '0', '0', '1', '0', '', '', 'noindex,nofollow', '6', '0', '1', '0', '0', '0', '0', '', '', 'ru', '2', '');#inst#
 
 INSERT INTO `%%PRFX%%_navigation` VALUES
 	(1,'main','Основное меню','<li class=\"nav-item\">\n	<a class=\"nav-link\" href=\"[tag:link]\">[tag:linkname]</a>\n</li>','','','<li class=\"nav-item active\">\n	<a class=\"nav-link\" href=\"[tag:link]\">[tag:linkname]</a>\n</li>','','','<ul class=\"navbar-nav mr-auto\">\n[tag:content]\n</ul>','','','','','','','','1,2,3,4,5','1');#inst#
 
 INSERT INTO `%%PRFX%%_navigation_items` VALUES
-	(1,1,1,'/','Главная','','_self','','','','',0,'1',0,'1');#inst#
+	(1,1,1,'/','Главная','','_self','','','','','0','1','0','1');#inst#
 
 INSERT INTO `%%PRFX%%_rubric_fields` VALUES
-	(1, 1, 0, 'header', 'Заголовок', 'single_line', 0, 1, '', '', '', '', ''),
-	(2, 1, 0, 'text', 'Текст', 'multi_line', 0, 2, '', '', '', '', '');#inst#
+	(1, 1, 0, 'header', 'Заголовок', 'single_line', '0', '1', '', '0', '', '', ''),
+	(2, 1, 0, 'text', 'Текст', 'multi_line', '0', '2', '', '0', '', '', '');#inst#
 
 INSERT INTO `%%PRFX%%_rubric_permissions` VALUES
 	(1, 1, 1, 'alles'),
@@ -265,7 +265,7 @@ INSERT INTO `%%PRFX%%_rubric_permissions` VALUES
 	(5, 1, 5, 'docread');#inst#
 
 INSERT INTO `%%PRFX%%_rubrics` VALUES
-	(1,'Основные страницы','','0','<h1 class=\"mt-5\">[tag:fld:header]</h1>\n[tag:fld:text]',1,1,0,1,'','','','','','','','0','','0',0);#inst#
+	(1,'Основные страницы','','0','<h1 class=\"mt-5\">[tag:fld:header]</h1>\n[tag:fld:text]','1','1','0','1','','','','','','','','0','','0','0','0','0');#inst#
 
 INSERT INTO `%%PRFX%%_settings` VALUES
 	(

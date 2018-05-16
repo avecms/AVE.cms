@@ -235,7 +235,10 @@
 			}
 
 			// Готовим шаблон имени файла
-			$file_name = preg_replace_ru(array("/%SERVER%/", "/%DATE%/", "/%TIME%/"), array($_SERVER['SERVER_NAME'], date('d.m.y'), date('H.i.s')), DB_EXPORT_TPL);
+			if (isset($_REQUEST['file_name']) AND $_REQUEST['file_name'] != '')
+				$file_name = prepare_fname($_REQUEST['file_name']);
+			else
+				$file_name = preg_replace_ru(array("/%SERVER%/", "/%DATE%/", "/%TIME%/"), array($_SERVER['SERVER_NAME'], date('d.m.y'), date('H.i.s')), DB_EXPORT_TPL);
 
 			$dump = (defined('DB_EXPORT_GZ') && DB_EXPORT_GZ
 				? gzencode($this->_database_dump)
@@ -329,7 +332,7 @@
 			{
 				// Получаем имя файла и его расширение (должно быть sql)
 				$fupload_name = $_FILES['file']['name'];
-				$gz = substr($fupload_name, -3)=='.gz';
+				$gz = substr($fupload_name, -3) == '.gz';
 				$end = substr($fupload_name, -3);
 
 				// Если расширение sql, тогда
@@ -426,7 +429,7 @@
 		{
 			global $AVE_DB, $AVE_Template;
 
-			$file = BASE_DIR . '/backup/'. $file;
+			$file = BASE_DIR . '/tmp/backup/'. $file;
 
 			if (! is_file($file))
 				return false;
@@ -436,9 +439,9 @@
 				reportLog($AVE_Template->get_config_vars('DB_REPORT_DUMP_DEL_OK') . ' ('.basename($file).')');
 			}
 			else
-			{
-				reportLog($AVE_Template->get_config_vars('DB_REPORT_DUMP_DEL_ER') . ' ('.basename($file).')');
-			}
+				{
+					reportLog($AVE_Template->get_config_vars('DB_REPORT_DUMP_DEL_ER') . ' ('.basename($file).')');
+				}
 
 			header('Location:index.php?do=dbsettings&cp=' . SESSION);
 		}
@@ -474,10 +477,10 @@
 					$insert = true;
 				}
 				else
-				{
-					// В противном случае, если расширение файла НЕ sql, формируем сообщение с ошибкой
-					$AVE_Template->assign('msg', '<li class="highlight red"><strong>Ошибка:</strong> ' . $AVE_Template->get_config_vars('MAIN_SQL_FILE_ERROR') . '</li>');
-				}
+					{
+						// В противном случае, если расширение файла НЕ sql, формируем сообщение с ошибкой
+						$AVE_Template->assign('msg', '<li class="highlight red"><strong>Ошибка:</strong> ' . $AVE_Template->get_config_vars('MAIN_SQL_FILE_ERROR') . '</li>');
+					}
 			}
 
 			// Если флаг готовности записи установлен, тогда

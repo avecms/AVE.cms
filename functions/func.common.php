@@ -258,7 +258,13 @@
 		static $settings = null;
 
 		if ($settings === null)
-			$settings = $AVE_DB->Query("SELECT * FROM " . PREFIX . "_settings", SYSTEM_CACHE_LIFETIME, 'settings')->FetchAssocArray();
+			$settings = $AVE_DB->Query("
+				SELECT
+					# SETTINGS
+					*
+				FROM
+					" . PREFIX . "_settings
+			", -1, 'settings', true, '.settings')->FetchAssocArray();
 
 		if ($field == '')
 			return $settings;
@@ -1101,6 +1107,8 @@
 	 */
 	function output_compress($data)
 	{
+		global $AVE_DB;
+
 		$Gzip = strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false;
 
 		if (HTML_COMPRESSION)
@@ -1108,6 +1116,20 @@
 
 		if ($Gzip && GZIP_COMPRESSION)
 		{
+			if (
+				! defined('ONLYCONTENT')
+				&&
+				UGROUP == 1
+				&&
+				defined('PROFILING') && PROFILING
+			)
+			{
+				$data .= "\r\n" . "<!-- ------ Time generation: ".Debug::getStatistic('time')." sec ----- -->";
+				$data .= "\r\n" . "<!-- ------ Memory usage: ".Debug::getStatistic('memory')." ----- -->";
+				$data .= "\r\n" . "<!-- ------ Memory peak usage: ".Debug::getStatistic('peak')." ----- -->";
+				$data .= "\r\n" . "<!-- ------ SQL Queries: ".$AVE_DB->DBProfilesGet('count')." for ".$AVE_DB->DBProfilesGet('time')." sec ----- -->";
+			}
+
 			$content = gzencode($data, 9);
 			header ('Content-Encoding: gzip');
 		}
@@ -1127,5 +1149,81 @@
 		header ('Vary: Accept-Encoding');
 
 		echo $content;
+	}
+
+
+	/**
+	 * Функция создает короткий URL документа для редиректа
+	 * После выполения функции нужно очистить кеш данного документа
+	 *
+	 * @return
+	 */
+	function gen_short_link ($length = 1, $doc_id)
+	{
+		global $AVE_DB;
+
+		if (! is_numeric($doc_id))
+			return false;
+
+		// Проврека на существование редиректа для данного документа
+		$check_doc = $AVE_DB->Query("
+			SELECT
+				id
+			FROM
+				" . PREFIX . "_document_alias_history
+			WHERE
+				document_id = '" . $doc_id . "'
+		")->GetCell();
+
+		// Если редирект отсутствует
+		if (! $check_doc)
+		{
+			$characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+			$short_link = '';
+
+			for ($i = 0; $i < $length; $i++)
+				$short_link .= $characters[rand(0, strlen($characters) - 1)];
+
+			// Проеряем есть такое редирект уже
+			$exists = $AVE_DB->Query("
+				SELECT
+					id
+				FROM
+					" . PREFIX . "_document_alias_history
+				WHERE
+					document_alias = '" . $short_link . "'
+			")->GetCell();
+
+			// Если есть, повторяем генерацию
+			if ($exists)
+			{
+				gen_short_link($length, $doc_id);
+			}
+			// Иначе заносим в БД
+			else
+				{
+					$AVE_DB->Query("
+						INSERT INTO
+							" . PREFIX . "_document_alias_history
+						SET
+							document_id				= '" . $doc_id . "',
+							document_alias			= '" . $short_link . "',
+							document_alias_author	= '" . $_SESSION['user_id'] . "',
+							document_alias_changed	= '" . time() . "'
+					");
+
+					$AVE_DB->Query("
+						UPDATE
+							" . PREFIX . "_documents
+						SET
+							document_short_alias	= '" . $short_link . "'
+						WHERE
+							Id = '" . $doc_id . "'
+					");
+				}
+		}
+
+		return true;
 	}
 ?>

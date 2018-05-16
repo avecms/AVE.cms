@@ -33,12 +33,6 @@
 	</div>
 </div>
 
-{if $smarty.const.SYSTEM_CACHE_LIFETIME > 0}
-	<ul class="messages first">
-		<li class="highlight red"><strong>{#SETTINGS_CACHE_LIFETIME#}</strong></li>
-	</ul>
-{/if}
-
 <div class="widget first">
 	<ul class="inact_tabs">
 		{if check_permission('gen_settings')}<li><a href="index.php?do=settings&cp={$sess}">{#SETTINGS_MAIN_SETTINGS#}</a></li>{/if}

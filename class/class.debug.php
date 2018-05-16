@@ -541,6 +541,19 @@
 		}
 
 
+		public static function _errorSql ($header, $body, $caller, $exit = false)
+		{
+
+			Debug::_echo(preg_replace('/(\s)+/s', ' ', $header));
+			Debug::_echo(DB::queryList($body));
+			Debug::_echo($caller);
+
+			if ($exit)
+				exit;
+		}
+
+
+
 		/**
 		 * Вывод статистики
 		 */

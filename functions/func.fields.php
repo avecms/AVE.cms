@@ -42,17 +42,20 @@
 	/**
 	 * Проверка папок /fields/ в модулях, на наличие полей
 	 */
-	$d = dir(BASE_DIR . '/modules');
-
-	while (false !== ($entry = $d->read()))
+	if (is_dir(BASE_DIR . '/modules/'))
 	{
-		$module_dir = $d->path . '/' . $entry;
+		$d = dir(BASE_DIR . '/modules');
 
-		if (is_dir($module_dir) && file_exists($module_dir . '/field.php'))
-			require_once($module_dir . '/field.php');
+		while (false !== ($entry = $d->read()))
+		{
+			$module_dir = $d->path . '/' . $entry;
+
+			if (is_dir($module_dir) && file_exists($module_dir . '/field.php'))
+				require_once($module_dir . '/field.php');
+		}
+
+		$d->Close();
 	}
-
-	$d->Close();
 
 
 	/**
@@ -216,7 +219,7 @@
 
 		static $alias_field_id = array();
 
-		if(isset($alias_field_id[$id]))
+		if (isset($alias_field_id[$id]))
 			return $alias_field_id[$id];
 
 		$sql = "
@@ -352,7 +355,7 @@
 
 		if ($field_value != '')
 		{
-			$field_value = strip_tags($field_value, "<br /><strong><em><p><i>");
+			$field_value = strip_tags($field_value); // "<br /><strong><em><p><i>"
 
 			if (is_numeric($length) && $length != 0)
 			{
@@ -406,7 +409,7 @@
 	 */
 	function get_document_fields($document_id, $values = null)
 	{
-		global $AVE_DB, $request_documents;
+		global $AVE_DB, $request_documents, $AVE_Core;
 
 		static $document_fields = array();
 
@@ -419,41 +422,63 @@
 
 			$where = "WHERE doc_field.document_id = '" . $document_id . "'";
 
-			$query="
+			$query = "
 				SELECT
+					# DOC FIELDS = $document_id
+					doc.document_author_id,
 					doc_field.Id,
 					doc_field.document_id,
 					doc_field.rubric_field_id,
+					doc_field.field_value,
+					text_field.field_value as field_value_more,
 					rub_field.rubric_field_alias,
 					rub_field.rubric_field_type,
 					rub_field.rubric_field_default,
-					doc_field.field_value,
-					text_field.field_value as field_value_more,
-					doc.document_author_id,
 					rub_field.rubric_field_title,
 					rub_field.rubric_field_template,
 					rub_field.rubric_field_template_request
 				FROM
 					" . PREFIX . "_document_fields AS doc_field
-
 				JOIN
 					" . PREFIX . "_rubric_fields AS rub_field
 						ON doc_field.rubric_field_id = rub_field.Id
 				LEFT JOIN
 					" . PREFIX . "_document_fields_text AS text_field
-						ON (doc_field.rubric_field_id = text_field.rubric_field_id AND doc_field.document_id = text_field.document_id)
+					ON (doc_field.rubric_field_id = text_field.rubric_field_id AND doc_field.document_id = text_field.document_id)
 				JOIN
 					" . PREFIX . "_documents AS doc
-						ON doc.Id = doc_field.document_id
+					ON doc.Id = doc_field.document_id
 				" . $where;
 
-			$sql = $AVE_DB->Query($query, -1, 'doc_'.$document_id);
+			$cache_id = (int)$AVE_Core->curentdoc->Id;
+			$cache_id = 'documents/fields/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 
-			//Вдруг памяти мало!!!!
-			if (memory_panic() && (count($document_fields) > 3))
+			$cache_file = md5($query) . '.fields';
+
+			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
+				? trim($cache_id) . '/'
+				: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
+
+			// Наличие файла
+			if (file_exists($cache_dir . $cache_file))
 			{
-				$document_fields = array();
+				// Получаем время создания файла
+				$file_time = filemtime($cache_dir . $cache_file);
+
+				// Получаем время для проверки
+				$cache_time = $AVE_Core->curentdoc->rubric_changed_fields;
+
+				// Сравниваем временные метки
+				if (! $cache_time || $cache_time > $file_time)
+					unlink ($cache_dir . $cache_file);
 			}
+
+			// Безусловный кеш
+			$sql = $AVE_DB->Query($query, -1, 'fld_' . $document_id, true, '.fields');
+
+			// Вдруг памяти мало!!!!
+			if (memory_panic() && (count($document_fields) > 3))
+				$document_fields = array();
 
 			while ($row = $sql->FetchAssocArray())
 			{

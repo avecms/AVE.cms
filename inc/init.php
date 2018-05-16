@@ -6,7 +6,7 @@
 	 * @package AVE.cms
 	 * @version 3.x
 	 * @filesource
-	 * @copyright © 2007-2016 AVE.cms, http://www.ave-cms.ru
+	 * @copyright © 2007-2018 AVE.cms, http://www.ave-cms.ru
 	 *
 	 * @license GPL v.2
 	 */
@@ -212,8 +212,11 @@
 	foreach (array(ATTACH_DIR, 'cache', 'backup', 'logs', 'session', 'update') as $dir)
 		write_htaccess_deny(BASE_DIR . '/tmp/' . $dir);
 
-	foreach (array('combine', 'module', 'redactor', 'smarty', 'sql', 'templates', 'tpl') as $dir)
+	foreach (array('check', 'combine', 'module', 'redactor', 'smarty', 'sql', 'tpl') as $dir)
 		write_htaccess_deny(BASE_DIR . '/tmp/cache/' . $dir);
+
+	//-- Шаблоны
+	write_htaccess_deny(BASE_DIR . '/templates/' . DEFAULT_THEME_FOLDER . '/include/');
 
 	global $AVE_DB;
 
@@ -362,6 +365,7 @@
 
 	$sql = $AVE_DB->Query("
 		SELECT
+			# LANGS
 			*
 		FROM
 			" . PREFIX . "_settings_lang
@@ -369,7 +373,7 @@
 			lang_status = '1'
 		ORDER BY
 			lang_default ASC
-	", SYSTEM_CACHE_LIFETIME, 'langs');
+	", -1, 'langs', true, '.langs');
 
 	while ($row = $sql->FetchRow())
 	{
@@ -405,6 +409,12 @@
 
 	//-- Класс пагинации
 	require (BASE_DIR . '/class/class.paginations.php');
+
+	// Класс UTM
+	require (BASE_DIR . '/class/class.utm.php');
+	$AVE_Utm = new UTMCookie;
+
+	$AVE_Utm->save_parameters();
 
 	//-- Класс Модулей
 	require (BASE_DIR . '/class/class.modules.php');

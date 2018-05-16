@@ -14,7 +14,7 @@
 	// Многострочное
 	function get_field_multi_line($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null, $_tpl = null)
 	{
-		global $AVE_Template, $AVE_Document;
+		global $AVE_Template;
 
 		$fld_dir  = dirname(__FILE__) . '/';
 
@@ -31,23 +31,16 @@
 		switch ($action)
 		{
 			case 'edit':
-				if (isset($_COOKIE['no_wysiwyg']) && $_COOKIE['no_wysiwyg'] == 1)
+				if (isset($_REQUEST['multiedit']) && ($_REQUEST['multiedit'] === true))
 				{
-					$field  = '<a name="' . $field_id . '"></a>';
-					$field .= '<textarea style="width: 98%" name="feld[' . $field_id . ']">' . $field_value . '</textarea>';
+					$oCKeditor = new CKeditor();
+					$oCKeditor->returnOutput = true;
+					$oCKeditor->config['toolbar'] = 'Verysmall';
+					$oCKeditor->config['height'] = 250;
+					$config = array();
+					$field = $oCKeditor->editor('data['.$_REQUEST['Id'].'][feld][' . $field_id . ']', $field_value, $config);
 				}
 				else
-				{
-					if (isset($_REQUEST['outside']) && ($_REQUEST['outside'] === true))
-					{
-						$oCKeditor = new CKeditor();
-						$oCKeditor->returnOutput = true;
-						$oCKeditor->config['toolbar'] = 'Verysmall';
-						$oCKeditor->config['height'] = 250;
-						$config = array();
-						$field = $oCKeditor->editor('data['.$_REQUEST['Id'].'][feld][' . $field_id . ']', $field_value, $config);
-					}
-					else
 					{
 						$oCKeditor = new CKeditor();
 						$oCKeditor->returnOutput = true;
@@ -56,15 +49,17 @@
 						$config = array();
 						$field = $oCKeditor->editor('feld[' . $field_id . ']', $field_value, $config);
 					}
-				}
 
 				$res = $field;
 				break;
 
 			case 'doc':
-			case 'req':
 				$res = get_field_default($field_value, $action, $field_id, $tpl, $tpl_empty, $maxlength, $document_fields, $rubric_id);
 				$res = document_pagination($res);
+				break;
+
+			case 'req':
+				$res = get_field_default($field_value, $action, $field_id, $tpl, $tpl_empty, $maxlength, $document_fields, $rubric_id);
 				break;
 
 			case 'name' :

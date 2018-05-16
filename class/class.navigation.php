@@ -243,7 +243,6 @@
 
 					//-- Стираем кеш навигации
 					$this->clearCache($navigation_id, $_REQUEST['alias']);
-					$this->clearCacheId($navigation_id, $_REQUEST['alias']);
 					$this->clearCacheNav($navigation_id, $_REQUEST['alias']);
 
 					if ($sql === false)
@@ -1267,47 +1266,24 @@
 
 		function clearCache($id, $alias = '')
 		{
-			if (file_exists(BASE_DIR . '/tmp/cache/sql/nav/template-' . $id . '.cache'))
-				unlink(BASE_DIR . '/tmp/cache/sql/nav/template-' . $id . '.cache');
+			if (file_exists(BASE_DIR . '/tmp/cache/sql/navigations/' . $id . '/template.cache'))
+				unlink(BASE_DIR . '/tmp/cache/sql/navigations/' . $id . '/template.cache');
 
-			if (file_exists(BASE_DIR . '/tmp/cache/sql/nav/template-' . $alias . '.cache'))
-				unlink(BASE_DIR . '/tmp/cache/sql/nav/template-' . $alias . '.cache');
+			if (file_exists(BASE_DIR . '/tmp/cache/sql/navigations/' . $alias . '/template.cache'))
+				unlink(BASE_DIR . '/tmp/cache/sql/navigations/' . $alias . '/template.cache');
 
-			if (file_exists(BASE_DIR . '/tmp/cache/sql/nav/items-' . $id . '.cache'))
-				unlink(BASE_DIR . '/tmp/cache/sql/nav/items-' . $id . '.cache');
+			if (file_exists(BASE_DIR . '/tmp/cache/sql/navigations/' . $id . '/items.cache'))
+				unlink(BASE_DIR . '/tmp/cache/sql/navigations/' . $id . '/items.cache');
 
-			if (file_exists(BASE_DIR . '/tmp/cache/sql/nav/items-' . $alias . '.cache'))
-				unlink(BASE_DIR . '/tmp/cache/sql/nav/items-' . $alias . '.cache');
-		}
-
-
-		function clearCacheId($id, $alias = '')
-		{
-			$dir_id = BASE_DIR . '/tmp/cache/sql/nav_' . $id;
-			$dir_alias = BASE_DIR . '/tmp/cache/sql/nav_' . $alias;
-
-			if (file_exists($dir_id))
-			{
-				foreach (glob($dir_id . '/*') as $file)
-				{
-					unlink($file);
-				}
-			}
-
-			if (file_exists($dir_alias))
-			{
-				foreach (glob($dir_alias . '/*') as $file)
-				{
-					unlink($file);
-				}
-			}
+			if (file_exists(BASE_DIR . '/tmp/cache/sql/navigations/' . $alias . '/items.cache'))
+				unlink(BASE_DIR . '/tmp/cache/sql/navigations/' . $alias . '/items.cache');
 		}
 
 
 		function clearCacheNav($id, $alias)
 		{
-			$cache_id = str_replace('nav_', '', $id);
-			$cache_id = 'nav/' . substr($cache_id, 0, 3);
+			$cache_id = explode('_', $id);
+			$cache_id = 'navigations/' . $cache_id[1];
 
 			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 				? trim($cache_id) . '/'
@@ -1315,9 +1291,8 @@
 
 			rrmdir($cache_dir);
 
-
-			$cache_id = str_replace('nav_', '', $alias);
-			$cache_id = 'nav/' . substr($cache_id, 0, 3);
+			$cache_id = explode('_', $alias);
+			$cache_id = 'navigations/' . $cache_id[1];
 
 			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
 				? trim($cache_id) . '/'

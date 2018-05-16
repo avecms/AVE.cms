@@ -12,6 +12,40 @@
 
 	class AVE_Templates
 	{
+
+		public static function setTemplate($template_id)
+		{
+			$cache_file = BASE_DIR . '/templates/' . DEFAULT_THEME_FOLDER . '/include/templates/' . $template_id . '/template.inc';
+
+			if (isset($_REQUEST['template_text']) && $_REQUEST['template_text'] != '')
+				$template = stripslashes(pretty_chars($_REQUEST['template_text']));
+			else
+				return false;
+
+			// Проверяем наличие папки шаблона
+			if (! file_exists(dirname($cache_file)))
+				mkdir(dirname($cache_file), 0766, true);
+
+			// Сохраняем данные в фвйл
+			file_put_contents($cache_file, $template);
+
+			return true;
+		}
+
+
+		public static function getTemplate($template_id)
+		{
+			$cache_file = BASE_DIR . '/templates/' . DEFAULT_THEME_FOLDER . '/include/templates/' . $template_id . '/template.inc';
+
+			if (file_exists($cache_file) && filesize($cache_file))
+				$template = file_get_contents($cache_file);
+			else
+				$template = false;
+
+			return $template;
+		}
+
+
 		public static function templatesList()
 		{
 			global $AVE_DB, $AVE_Template;
@@ -144,10 +178,6 @@
 
 			$template_id = (int)$_REQUEST['Id'];
 
-			$cache = 'template_' . $template_id;
-
-			$cache_file = BASE_DIR . '/tmp/cache/templates/' . $cache . '.inc';
-
 			$row = $AVE_DB->Query("
 				SELECT
 					*
@@ -165,9 +195,11 @@
 				$AVE_Template->assign('read_only', 'readonly');
 			}
 
-			if (file_exists($cache_file) && filesize($cache_file))
+			$template = self::getTemplate($template_id);
+
+			if ($template)
 			{
-				$row->template_text = file_get_contents($cache_file);
+				$row->template_text = $template;
 			}
 			else
 				{
@@ -205,13 +237,9 @@
 					$theme = 'error';
 				}
 
-				$cache = 'template_' . $template_id;
-
-				$cache_file = BASE_DIR . '/tmp/cache/templates/' . $cache . '.inc';
-
 				if ($ok === false)
 				{
-					if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] = '1')
+					if (isAjax())
 					{
 						echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
 						exit;
@@ -242,10 +270,8 @@
 						}
 						else
 							{
-								if (! file_exists(dirname($cache_file)))
-									mkdir(dirname($cache_file), 0766, true);
-
-								file_put_contents($cache_file, stripslashes(pretty_chars($_REQUEST['template_text'])));
+								// Сохраняем шаблон в файле
+								self::setTemplate($template_id);
 
 								$message = $AVE_Template->get_config_vars('TEMPLATES_SAVED');
 								$header = $AVE_Template->get_config_vars('TEMPLATES_SUCCESS');
@@ -317,27 +343,17 @@
 									template_created   = '" . time() . "'
 							");
 
-							$iid = $AVE_DB->InsertId();
+							$template_id = $AVE_DB->InsertId();
 
-							$cache = 'template_' . $iid;
-
-							$cache_file = BASE_DIR . '/tmp/cache/templates/' . $cache . '.inc';
-
-							if (! file_exists(dirname($cache_file)))
-								mkdir(dirname($cache_file), 0766, true);
-
-							file_put_contents($cache_file, stripslashes(pretty_chars($_REQUEST['template_text'])));
+							// Сохраняем шаблон в файле
+							self::setTemplate($template_id);
 
 							reportLog($AVE_Template->get_config_vars('TEMPLATES_REPORT_NEW') . '(' . stripslashes(htmlspecialchars($_REQUEST['template_text'], ENT_QUOTES)) . ') (Id:' . (int)$iid . ')');
 
-							if (!$_REQUEST['next_edit'])
-							{
+							if (! $_REQUEST['next_edit'])
 								header('Location:index.php?do=templates&cp=' . SESSION);
-							}
 							else
-								{
-									header('Location:index.php?do=templates&action=edit&Id=' . (int)$template_new . '&cp=' . SESSION);
-								}
+								header('Location:index.php?do=templates&action=edit&Id=' . (int)$template_new . '&cp=' . SESSION);
 
 							exit;
 						}

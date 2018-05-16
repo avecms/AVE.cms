@@ -29,6 +29,7 @@
 		// Достаем для проверки тип меню
 		$sql = "
 			SELECT
+				# NAVIGATION = $navi_id
 				expand_ext
 			FROM
 				".PREFIX."_navigation
@@ -38,7 +39,7 @@
 				alias = '" . $navi_id . "'
 		";
 
-		$expnad_ext = $AVE_DB->Query($sql, SYSTEM_CACHE_LIFETIME, 'nav_' . $navi_id)->GetCell();
+		$expnad_ext = $AVE_DB->Query($sql, -1, 'nav_' . $navi_id, true, '.naviagtion')->GetCell();
 
 		// извлекаем level из аргумента
 		$navi_print_level = (! empty($navi_tag[2]))
@@ -47,7 +48,7 @@
 
 		$navi = '';
 
-		$cache_file = BASE_DIR . '/tmp/cache/sql/nav/template-' . $navi_id . '.cache';
+		$cache_file = BASE_DIR . '/tmp/cache/sql/navigations/' . $navi_id . '/template.cache';
 
 		// Если включен DEV MODE, то отключаем кеширование запросов
 		if (defined('DEV_MODE') AND DEV_MODE || $expnad_ext != 1)
@@ -108,18 +109,28 @@
 		// запрос для выборки по текущему алиасу
 		$sql_doc_active_alias = '';
 
-		if ($AVE_Core->curentdoc->Id == $doc_active_id)
+		$url_suff = '';
+
+		if (defined('URL_SUFF') AND URL_SUFF)
 		{
-			$sql_doc_active_alias = "
-				OR nav.alias = '" . $alias . "'
-				OR nav.alias = '/" . $alias . "'
+			$url_suff = "
 				OR nav.alias = '" . $alias . URL_SUFF . "'
 				OR nav.alias = '/" . $alias . URL_SUFF . "'
 			";
 		}
 
+		if ($AVE_Core->curentdoc->Id == $doc_active_id)
+		{
+			$sql_doc_active_alias = "
+				OR nav.alias = '" . $alias . "'
+				OR nav.alias = '/" . $alias . "'
+				" . $url_suff . "
+			";
+		}
+
 		$navi_active = $AVE_DB->Query("
-			SELECT CONCAT_WS(
+			SELECT
+				CONCAT_WS(
 					';',
 					CONCAT_WS(',', nav.navigation_item_id, nav.parent_id, nav2.parent_id),
 					CONCAT_WS(',', nav.level),
@@ -201,7 +212,7 @@
 			}
 		}
 
-		$cache_items = BASE_DIR . '/tmp/cache/sql/nav/items-' . $navi_id . '.cache';
+		$cache_items = BASE_DIR . '/tmp/cache/sql/navigations/' . $navi_id . '/items.cache';
 
 		$navi_items = array();
 
@@ -216,7 +227,8 @@
 			{
 				//-- Запрос пунктов меню
 				$sql = "
-					SELECT *
+					SELECT
+						*
 					FROM
 						" . PREFIX . "_navigation_items
 					WHERE
@@ -246,7 +258,8 @@
 			{
 				//-- Запрос пунктов меню
 				$sql = "
-					SELECT *
+					SELECT
+						*
 					FROM
 						" . PREFIX . "_navigation_items
 					WHERE
@@ -464,7 +477,7 @@
 			if (empty($navi))
 				$navi = '';
 
-			$navi .= eval2var(' ?>' . $item . '<?php ');
+			$navi .= eval2var(' ?'.'>' . $item . '<'.'?php ');
 		}
 
 		// Вставляем все пункты уровня в шаблон уровня

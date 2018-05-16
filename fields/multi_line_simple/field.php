@@ -18,34 +18,29 @@
 
 		$fld_dir  = dirname(__FILE__) . '/';
 
-		$lang_file = $fld_dir . 'lang/' . (defined('ACP') ? $_SESSION['admin_language'] : $_SESSION['user_language']) . '.txt';
+		$lang_file = $fld_dir . 'lang/' . (defined('ACP')
+			? $_SESSION['admin_language']
+			: $_SESSION['user_language']) . '.txt';
 
 		$AVE_Template->config_load($lang_file, 'lang');
 		$AVE_Template->assign('config_vars', $AVE_Template->get_config_vars());
 		$AVE_Template->config_load($lang_file, 'admin');
 
-		$res=0;
+		$res = null;
 
 		switch ($action)
 		{
 			case 'edit':
-				if (isset($_COOKIE['no_wysiwyg']) && $_COOKIE['no_wysiwyg'] == 1)
+				if (isset($_REQUEST['multiedit']) && ($_REQUEST['multiedit'] === true))
 				{
-					$field  = '<a name="' . $field_id . '"></a>';
-					$field .= '<textarea style="width: 98%" name="feld[' . $field_id . ']">' . $field_value . '</textarea>';
+					$oCKeditor = new CKeditor();
+					$oCKeditor->returnOutput = true;
+					$oCKeditor->config['toolbar'] = 'Verysmall';
+					$oCKeditor->config['height'] = 250;
+					$config = array();
+					$field = $oCKeditor->editor('data['.$_REQUEST['Id'].'][feld][' . $field_id . ']', $field_value, $config);
 				}
 				else
-				{
-					if (isset($_REQUEST['outside']) && ($_REQUEST['outside'] === true))
-					{
-						$oCKeditor = new CKeditor();
-						$oCKeditor->returnOutput = true;
-						$oCKeditor->config['toolbar'] = 'Verysmall';
-						$oCKeditor->config['height'] = 250;
-						$config = array();
-						$field = $oCKeditor->editor('data['.$_REQUEST['Id'].'][feld][' . $field_id . ']', $field_value, $config);
-					}
-					else
 					{
 						$oCKeditor = new CKeditor();
 						$oCKeditor->returnOutput = true;
@@ -54,21 +49,24 @@
 						$config = array();
 						$field = $oCKeditor->editor('feld[' . $field_id . ']', $field_value, $config);
 					}
-				}
 
 				$res = $field;
 				break;
 
 			case 'doc':
-			case 'req':
 				$res = get_field_default($field_value,$action,$field_id,$tpl,$tpl_empty,$maxlength,$document_fields,$rubric_id);
 				$res = document_pagination($res);
+				break;
+
+			case 'req':
+				$res = get_field_default($field_value,$action,$field_id,$tpl,$tpl_empty,$maxlength,$document_fields,$rubric_id);
 				break;
 
 			case 'name' :
 				return $AVE_Template->get_config_vars('name');
 				break;
 		}
+
 		return ($res ? $res : $field_value);
 	}
 ?>

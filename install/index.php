@@ -227,7 +227,7 @@
 
 	define('BASE_DIR', str_replace("\\", "/", dirname(dirname(__FILE__))));
 
-	if (! is_writable(BASE_DIR . '/cache/smarty/'))
+	if (! is_writable(BASE_DIR . '/tmp/cache/smarty/'))
 		die('Cache folder is not writeable!');
 
 	include(BASE_DIR . '/config/db.config.php');
@@ -247,7 +247,8 @@
 	$db_connect = check_db_connect($config['dbhost'], $config['dbuser'], $config['dbpass'], $config['dbname']);
 	$check_installed = check_installed($config['dbpref']);
 
-	if ((true === $db_connect) && $_REQUEST['step'] != 'finish' && check_installed($config['dbpref'])) {
+	if ((true === $db_connect) && $_REQUEST['step'] != 'finish' && check_installed($config['dbpref']))
+	{
 		echo '<pre>' . $AVE_Template->get_config_vars('installed') . '</pre>';
 		exit;
 	};
@@ -260,14 +261,15 @@
 	// include_once(BASE_DIR . '/inc/errors.php');
 
 	$count_error = sizeof((array) $error_is_required);
+
 	if (1 == $count_error)
 	{
 		$AVE_Template->assign('error_header', $AVE_Template->get_config_vars('erroro'));
 	}
 	elseif ($count_error > 1)
-	{
-		$AVE_Template->assign('error_header', $AVE_Template->get_config_vars('erroro_more'));
-	}
+		{
+			$AVE_Template->assign('error_header', $AVE_Template->get_config_vars('erroro_more'));
+		}
 
 	if ($count_error > 0 && ! (isset($_REQUEST['force']) && 1 == $_REQUEST['force']))
 	{
@@ -482,9 +484,9 @@
 					$filename = BASE_DIR . '/install/data_demo.sql';
 				}
 				else
-				{
-					$filename = BASE_DIR . '/install/data_base.sql';
-				}
+					{
+						$filename = BASE_DIR . '/install/data_base.sql';
+					}
 
 				$mysql_connect = @mysqli_connect($config['dbhost'], $config['dbuser'], $config['dbpass']);
 				@mysqli_select_db($mysql_connect, $config['dbname']);
@@ -514,11 +516,9 @@
 					@mysqli_query($mysql_connect, "SET COLLATION_CONNECTION = 'utf8_general_ci'");
 					@mysqli_query($mysql_connect, $in);
 				}
-	/*
-				$auth = base64_encode(serialize(array('id' => '1', 'hash'=>$hash)));
-				@setcookie('auth', $auth);
-	*/
+
 				$AVE_Template->display('step6.tpl');
+
 				exit;
 			}
 

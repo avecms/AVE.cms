@@ -128,7 +128,7 @@ $(document).ready(function(){ldelim}
 					</td>
 
 					<td align="center" width="20">
-						{if $module.status}
+						{if $module.ModuleStatus}
 							<a title="{#MODULES_REINSTALL#}" href="index.php?do=modules&action=reinstall&module={$module.ModuleSysName}&cp={$sess}" class="topleftDir ConfirmReInstall icon_sprite ico_reinstall"></a>
 						{else}
 							<a title="{#MODULES_DELETE#}" dir="{#MODULES_DELETE#}" name="{#MODULES_DELETE_CONFIRM#}" href="index.php?do=modules&action=delete&module={$module.ModuleSysName}&cp={$sess}" class="topleftDir ConfirmDelete icon_sprite ico_delete"></a>

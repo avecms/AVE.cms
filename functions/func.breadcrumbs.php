@@ -97,7 +97,7 @@
 			FROM
 				" . PREFIX . "_documents
 			WHERE
-				Id = '" . $curent_document . "'", -1, 'doc_' . $curent_document
+				Id = '" . $curent_document . "'", -1, 'brd_' . $curent_document, true, '.breadcrumbs'
 		);
 
 		$row_document = $sql_document->FetchRow();
@@ -131,7 +131,7 @@
 					FROM
 						" . PREFIX . "_documents
 					WHERE
-						Id = '" . $current->document_parent . "'", -1, 'doc_' . $current->document_parent
+						Id = '" . $current->document_parent . "'", -1, 'brd_' . $current->document_parent, true, '.item'
 				);
 
 				$row_doc = $sql_doc->FetchRow();

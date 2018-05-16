@@ -50,6 +50,7 @@
 
 	</div>
 
+	<input type="hidden" name="rubric_id" value="{$smarty.request.rubric_id}" />
 	<input type="hidden" name="func" value="{$params.func}" />
 	{if $params.id}
 	<input type="hidden" name="field_id" value="{$params.id}" />

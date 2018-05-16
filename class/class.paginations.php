@@ -110,12 +110,12 @@
 				}
 			}
 
-			foreach($pages as $page)
+			foreach ($pages as $page)
 			{
 				if ($page >= 1 && $page <= $total_pages)
 				{
 					// Текущий номер страницы (активная страница)
-					if ($curent_page == $page)
+					if ($curent_page == $page && $curent_page != 1)
 					{
 						$search = array('[link]', '[page]', '[name]');
 						$replace = array($template_label, $curent_page, $curent_page);
@@ -222,13 +222,28 @@
 
 			$containers = $AVE_DB->Query("
 				SELECT
+					# PAGINATION = $id
 					*
 				FROM
 					" . PREFIX . "_paginations
 				WHERE
 					id = '" . $id . "'
-			")->FetchAssocArray();
+			", -1, 'paginations', true, '.paginations')->FetchAssocArray();
 
 			return $containers;
+		}
+
+
+		/**
+		 * Очистка кеша постраничной навигации
+		 *
+		 * @param void
+		 * @return
+		 */
+		public static function clearCache()
+		{
+			global $AVE_DB;
+
+			$AVE_DB->clearCache('paginations');
 		}
 	}

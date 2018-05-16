@@ -13,10 +13,6 @@
 	class AVE_Request
 	{
 
-	/**
-	 *	Свойстав класса
-	 */
-
 		/**
 		 * Количество Запросов на странице
 		 *
@@ -24,9 +20,6 @@
 		 */
 		public $_limit = 25;
 
-	/**
-	 *	Внутренние методы
-	 */
 
 		/**
 		 * Метод, предназначенный для получения и вывода списка Запросов
@@ -64,8 +57,10 @@
 			$items = array();
 
 			$sql = $AVE_DB->Query("
-				SELECT *
-				FROM " . PREFIX . "_request
+				SELECT
+					*
+				FROM
+					" . PREFIX . "_request
 				ORDER BY Id ASC
 				" . $limit . "
 			");
@@ -93,15 +88,17 @@
 
 			static $requests = array();
 
-			if (!isset($requests[$request_id]))
+			if (! isset($requests[$request_id]))
 			{
 				$requests[$request_id] = $AVE_DB->Query("
 					SELECT
 						rubric_id,
 						request_title,
 						request_description
-					FROM " . PREFIX . "_request
-					WHERE Id = '" . $request_id . "'
+					FROM
+						" . PREFIX . "_request
+					WHERE
+						Id = '" . $request_id . "'
 					LIMIT 1
 				")->FetchRow();
 			}
@@ -267,6 +264,7 @@
 								request_show_pagination = '" . (isset($_REQUEST['request_show_pagination']) ? (int)$_REQUEST['request_show_pagination'] : 0) . "',
 								request_pagination 		= '" . (isset($_REQUEST['request_pagination']) ? (int)$_REQUEST['request_pagination'] : 1) . "',
 								request_use_query 		= '" . (isset($_REQUEST['request_use_query']) ? (int)$_REQUEST['request_use_query'] : 0) . "',
+								request_count_items 	= '" . (isset($_REQUEST['request_count_items']) ? (int)$_REQUEST['request_count_items'] : 0) . "',
 								request_hide_current	= '" . (int)$_REQUEST['request_hide_current'] . "',
 								request_only_owner	  	= '" . (int)$_REQUEST['request_only_owner'] . "',
 								request_cache_lifetime  = '" . (int)$_REQUEST['request_cache_lifetime'] . "',
@@ -293,12 +291,12 @@
 						else
 						{
 							// В противном случае выполняем переход к списку запросов
-						  if (!$_REQUEST['next_edit']) {
+							if (!$_REQUEST['next_edit'])
 								header('Location:index.php?do=request&cp=' . SESSION);
-							} else {
+							else
 								header('Location:index.php?do=request&action=edit&Id=' . $iid . '&rubric_id='.$_REQUEST['rubric_id'].'&cp=' . SESSION);
-							}
 						}
+
 						exit;
 					}
 				}
@@ -321,8 +319,10 @@
 					// Выполняем запрос к БД и получаем всю информацию о запросе
 					$sql = $AVE_DB->Query("
 						SELECT *
-						FROM " . PREFIX . "_request
-						WHERE Id = '" . $request_id . "'
+						FROM
+							" . PREFIX . "_request
+						WHERE
+							Id = '" . $request_id . "'
 					");
 
 					if ($sql->_result->num_rows == 0)
@@ -345,9 +345,7 @@
 					$paginations = array();
 
 					while ($pages = $sql->FetchRow())
-					{
 						array_push($paginations, $pages);
-					}
 
 					// Передаем данные в шаблон и отображаем страницу с редактированием запроса
 					$AVE_Template->assign('row', $row);
@@ -363,11 +361,14 @@
 
 					$sql = $AVE_DB->Query("
 						SELECT *
-						FROM " . PREFIX . "_request
-						WHERE Id = '" . $request_id . "'
+						FROM
+							" . PREFIX . "_request
+						WHERE
+							Id = '" . $request_id . "'
 					");
 
-					if($sql->_result->num_rows == 0) {
+					if ($sql->_result->num_rows == 0)
+					{
 						header('Location:index.php?do=request&cp=' . SESSION);
 						exit;
 					}
@@ -387,6 +388,7 @@
 					$row->request_show_pagination 	= (isset($_REQUEST['request_show_pagination']) ? $_REQUEST['request_show_pagination'] : 0);
 					$row->request_pagination		= (isset($_REQUEST['request_pagination']) ? (int)($_REQUEST['request_pagination']) : 1);
 					$row->request_use_query 		= (isset($_REQUEST['request_use_query']) ? $_REQUEST['request_use_query'] : 0);
+					$row->request_count_items 		= (isset($_REQUEST['request_count_items']) ? $_REQUEST['request_count_items'] : 0);
 					$row->request_only_owner 		= (isset($_REQUEST['request_only_owner']) ? (int)($_REQUEST['request_only_owner']) : 0);
 					$row->request_cache_lifetime 	= (isset($_REQUEST['request_cache_lifetime']) ? (int)($_REQUEST['request_cache_lifetime']) : 0);
 					$row->request_lang 				= (isset($_REQUEST['request_lang']) ? (int)$_REQUEST['request_lang'] : 0);
@@ -430,7 +432,7 @@
 
 					if ($save === false)
 					{
-						if(isAjax())
+						if (isAjax())
 						{
 							$header = $AVE_Template->get_config_vars('REQUEST_ERROR');
 							echo json_encode(array('message' => $message, 'header' => $header, 'theme' => 'error'));
@@ -461,6 +463,7 @@
 								request_show_pagination = '" . (isset($_REQUEST['request_show_pagination']) ? (int)$_REQUEST['request_show_pagination'] : 0) . "',
 								request_pagination 		= '" . (isset($_REQUEST['request_pagination']) ? (int)$_REQUEST['request_pagination'] : 1) . "',
 								request_use_query       = '" . (isset($_REQUEST['request_use_query']) ? (int)$_REQUEST['request_use_query'] : 0) . "',
+								request_count_items     = '" . (isset($_REQUEST['request_count_items']) ? (int)$_REQUEST['request_count_items'] : 0) . "',
 								request_hide_current	= '" . @(int)$_REQUEST['request_hide_current'] . "',
 								request_only_owner	  	= '" . @(int)$_REQUEST['request_only_owner'] . "',
 								request_cache_lifetime  = '" . (int)($_REQUEST['request_cache_lifetime']>'' ? $_REQUEST['request_cache_lifetime'] : '-1') . "',
@@ -469,19 +472,14 @@
 								request_show_statistic	= '" . (isset($_REQUEST['request_show_statistic']) ? (int)$_REQUEST['request_show_statistic'] : 0). "',
 								request_external		= '" . (isset($_REQUEST['request_external']) ? (int)$_REQUEST['request_external'] : 0). "',
 								request_ajax			= '" . (isset($_REQUEST['request_ajax']) ? (int)$_REQUEST['request_ajax'] : 0). "',
-								request_show_sql		= '" . (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0). "'
+								request_show_sql		= '" . (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0). "',
+								request_changed			= '" . time() . "',
+								request_changed_elements			= '" . time() . "'
 							WHERE
 								Id = '" . $request_id . "'
 						");
 
-						$sql = $AVE_DB->Query("SELECT Id FROM " . PREFIX . "_documents WHERE rubric_id = ".$_REQUEST['rubric_id']);
-
-						$AVE_DB->clear_request($request_id);
-
-						while ($row = $sql->FetchRow())
-						{
-							$AVE_DB->clearcacherequest('doc_' . $row->Id);
-						}
+						$AVE_DB->clearRequest($request_id);
 
 						// Сохраняем системное сообщение в журнал
 						reportLog($AVE_Template->get_config_vars('REQUEST_SAVE_CHA_SUC') . ' (' . stripslashes(htmlspecialchars($_REQUEST['request_title'], ENT_QUOTES)) . ') (Id:' . $request_id . ')');
@@ -491,7 +489,9 @@
 						{
 							header('Location:index.php?do=request&cp=' . SESSION);
 							exit;
-						} else {
+						}
+						else
+						{
 							$message = $AVE_Template->get_config_vars('REQUEST_TEMPLATE_SAVED');
 							$header = $AVE_Template->get_config_vars('REQUEST_SUCCESS');
 							$theme = 'accept';
@@ -515,11 +515,14 @@
 			// Выполняем запрос к БД на получение информации о копиреумом запросе
 			$sql = $AVE_DB->Query("
 				SELECT *
-				FROM " . PREFIX . "_request
-				WHERE Id = '" . $request_id . "'
+				FROM
+					" . PREFIX . "_request
+				WHERE
+					Id = '" . $request_id . "'
 			");
 
-			if($sql->_result->num_rows == 0) {
+			if ($sql->_result->num_rows == 0)
+			{
 				header('Location:index.php?do=request&cp=' . SESSION);
 				exit;
 			}
@@ -543,6 +546,7 @@
 					request_asc_desc		= '" . $row->request_asc_desc . "',
 					request_show_pagination = '" . $row->request_show_pagination . "',
 					request_use_query       = '" . $row->request_use_query . "',
+					request_count_items     = '" . $row->request_count_items . "',
 					request_hide_current	= '" . $row->request_hide_current . "',
 					request_lang			= '" . $row->request_lang . "',
 					request_cache_elements	= '" . (isset($row->request_cache_elements) ? $row->request_cache_elements : 0) . "'
@@ -557,8 +561,10 @@
 			// Выполняем запрос к БД и получаем все условия запроса для копируемого запроса
 			$sql = $AVE_DB->Query("
 				SELECT *
-				FROM " . PREFIX . "_request_conditions
-				WHERE request_id = '" . $request_id . "'
+				FROM
+					" . PREFIX . "_request_conditions
+				WHERE
+					request_id = '" . $request_id . "'
 			");
 
 			// Обрабатываем полученные данные и
@@ -566,7 +572,8 @@
 			{
 				// Выполняем запрос к БД на добавление условий для нового, скопированного запроса
 				$AVE_DB->Query("
-					INSERT " . PREFIX . "_request_conditions
+					INSERT
+						" . PREFIX . "_request_conditions
 					SET
 						request_id			= '" . $iid . "',
 						condition_compare   = '" . $row_cond->condition_compare . "',
@@ -594,17 +601,21 @@
 
 			// Выполняем запрос к БД на удаление общей информации о запросе
 			$AVE_DB->Query("
-				DELETE
-				FROM " . PREFIX . "_request
-				WHERE Id = '" . $request_id . "'
+				DELETE FROM
+					" . PREFIX . "_request
+				WHERE
+					Id = '" . $request_id . "'
 			");
 
 			// Выполняем запрос к БД на удаление условий запроса
 			$AVE_DB->Query("
-				DELETE
-				FROM " . PREFIX . "_request_conditions
-				WHERE request_id = '" . $request_id . "'
+				DELETE FROM
+					" . PREFIX . "_request_conditions
+				WHERE
+					request_id = '" . $request_id . "'
 			");
+
+			$AVE_DB->clearRequest($request_id);
 
 			// Сохраняем системное сообщение в журнал
 			reportLog($AVE_Template->get_config_vars('REQUEST_DELETE_SUC') . ' (' . stripslashes(htmlspecialchars($request_name, ENT_QUOTES)) . ') ( Id:' . $request_id . ' )');
@@ -633,8 +644,10 @@
 					// Выполняем запрос к БД и получаем список полей у той рубрики, к которой относится данный запрос
 					$sql = $AVE_DB->Query("
 						SELECT *
-						FROM " . PREFIX . "_rubric_fields
-						WHERE rubric_id = '" . $_REQUEST['rubric_id'] . "'
+						FROM
+							" . PREFIX . "_rubric_fields
+						WHERE
+							rubric_id = '" . $_REQUEST['rubric_id'] . "'
 						ORDER BY rubric_field_position ASC
 					");
 
@@ -649,27 +662,27 @@
 					// Выполняем запрос к БД и получаем условия запроса
 					$sql = $AVE_DB->Query("
 						SELECT *
-						FROM " . PREFIX . "_request_conditions
-						WHERE request_id = '" . $request_id . "'
+						FROM
+							" . PREFIX . "_request_conditions
+						WHERE
+							request_id = '" . $request_id . "'
 						ORDER BY condition_position ASC
 					");
 
 					// Обрабатываем полученные данные и формируем массив
 					while ($row = $sql->FetchRow())
-					{
 						array_push($conditions, $row);
-					}
 
 					// Передаем данные в шаблон и отображаем страницу с редактированием условий
 					$AVE_Template->assign('request_title', $this->get_request_by_id($request_id)->request_title);
 					$AVE_Template->assign('fields', $fields);
 					$AVE_Template->assign('conditions', $conditions);
 
-					if (isAjax() && (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] == 1)){
+					if (isAjax() && (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] == 1))
 						$AVE_Template->assign('content', $AVE_Template->fetch('request/cond_list.tpl'));
-					} else {
+					else
 						$AVE_Template->assign('content', $AVE_Template->fetch('request/conditions.tpl'));
-					}
+
 					break;
 
 				case 'sort':
@@ -677,7 +690,8 @@
 					foreach ($_REQUEST['sort'] as $position => $cond_id)
 					{
 						$AVE_DB->Query("
-							UPDATE " . PREFIX . "_request_conditions
+							UPDATE
+								" . PREFIX . "_request_conditions
 							SET
 								condition_position = '" . (int)$position . "'
 							WHERE
@@ -685,7 +699,8 @@
 						");
 					}
 
-					if (isAjax()){
+					if (isAjax())
+					{
 						$message = $AVE_Template->get_config_vars('REQUEST_SORTED');
 						$header = $AVE_Template->get_config_vars('REQUEST_SUCCESS');
 						$theme = 'accept';
@@ -756,9 +771,10 @@
 						{
 							// Выполняем запрос к БД на удаление условий
 							$AVE_DB->Query("
-								DELETE
-								FROM " . PREFIX . "_request_conditions
-								WHERE Id = '" . $condition_id . "'
+								DELETE FROM
+									" . PREFIX . "_request_conditions
+								WHERE
+									Id = '" . $condition_id . "'
 							");
 						}
 
@@ -771,14 +787,29 @@
 					// require(BASE_DIR . '/functions/func.parserequest.php');
 					request_get_condition_sql_string($request_id, true);
 
-					if (!isAjax() && $_REQUEST['ajax'] != '1'){
+					$AVE_DB->Query("
+						UPDATE
+							" . PREFIX . "_requests
+						SET
+							request_changed = '" . time() . "'
+						WHERE
+							Id = '" . $request_id . "'
+					");
+
+					$AVE_DB->clearRequest($request_id);
+
+					if (!isAjax() && $_REQUEST['ajax'] != '1')
+					{
 						// Выполняем обновление страницы
 						header('Location:index.php?do=request&action=conditions&rubric_id=' . $_REQUEST['rubric_id'] . '&Id=' . $request_id . '&cp=' . SESSION . ($_REQUEST['pop'] ? '&pop=1' : ''));
 						exit;
-					} else {
+					}
+					else
+					{
 						echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
 						exit;
 					}
+
 					break;
 
 				// Если пользователь добавил новое условие
@@ -787,7 +818,8 @@
 					{
 						// Выполняем запрос к БД на добавление нового условия
 						$sql = $AVE_DB->Query("
-							INSERT " . PREFIX . "_request_conditions
+							INSERT
+								" . PREFIX . "_request_conditions
 							SET
 								request_id			= '" . $request_id . "',
 								condition_compare   = '" . $_POST['new_operator'] . "',
@@ -795,16 +827,22 @@
 								condition_value	 	= '" . $_POST['new_value'] . "',
 								condition_join	  	= '" . $_POST['oper_new'] . "'
 						");
-						if ($sql->_result === false) {
+
+						if ($sql->_result === false)
+						{
 							$message = $AVE_Template->get_config_vars('REQUEST_COND_NEW_ERR');
 							$header = $AVE_Template->get_config_vars('REQUEST_ERROR');
 							$theme = 'error';
-						} else {
+						}
+						else
+						{
 							// Сохраняем системное сообщение в журнал
 							reportLog('' . $AVE_Template->get_config_vars('REQUEST_COND_ADD_SUC') . ' (' . stripslashes(htmlspecialchars($this->get_request_by_id($request_id)->request_title, ENT_QUOTES)) . ') - ( Id: '.$request_id.' )');
 						}
 
-					} else {
+					}
+					else
+					{
 						$message = $AVE_Template->get_config_vars('REQUEST_COND_VALUE_ERR');
 						$header = $AVE_Template->get_config_vars('REQUEST_ERROR');
 						$theme = 'error';
@@ -814,6 +852,17 @@
 					// поэтому формируем SQL-запрос только при изменении условий
 					// require(BASE_DIR . '/functions/func.parserequest.php');
 					request_get_condition_sql_string($request_id, true);
+
+					$AVE_DB->Query("
+						UPDATE
+							" . PREFIX . "_requests
+						SET
+							request_changed = '" . time() . "'
+						WHERE
+							Id = '" . $request_id . "'
+					");
+
+					$AVE_DB->clearRequest($request_id);
 
 					if (! isAjax())
 					{
@@ -828,12 +877,14 @@
 							$header = $AVE_Template->get_config_vars('REQUEST_SUCCESS');
 							$theme = 'accept';
 						}
+
 						echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
 						exit;
 					}
 					break;
 			}
 		}
+
 
 		function conditionFieldChange($field_id, $cond_id)
 		{
@@ -845,12 +896,14 @@
 			$AVE_Template->assign('content', $AVE_Template->fetch('request/change.tpl'));
 		}
 
+
 		function conditionFieldChangeSave($field_id, $cond_id)
 		{
 			global $AVE_DB, $AVE_Template;
 
 			$sql = $AVE_DB->Query("
-				UPDATE " . PREFIX . "_request_conditions
+				UPDATE
+					" . PREFIX . "_request_conditions
 				SET
 					condition_field_id  = '" . $field_id . "'
 				WHERE
@@ -858,6 +911,26 @@
 			");
 
 			request_get_condition_sql_string((int)$_REQUEST['req_id'], true);
+
+			$request_id = $AVE_DB->Query("
+				SELECT
+					request_id
+				FROM
+					" . PREFIX . "_request_conditions
+				WHERE
+					Id = '" . $cond_id . "'
+			")->GetCell();
+
+			$AVE_DB->Query("
+				UPDATE
+					" . PREFIX . "_requests
+				SET
+					request_changed = '" . time() . "'
+				WHERE
+					Id = '" . $request_id . "'
+			");
+
+			$AVE_DB->clearRequest($request_id);
 
 			// Передаем данные в шаблон и отображаем страницу с редактированием условий
 			$AVE_Template->assign('field_id', $field_id);

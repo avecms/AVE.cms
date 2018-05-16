@@ -288,8 +288,10 @@ function changeRub(select) {ldelim}
 					</td>
 				</tr>
 				<tr>
+					<td>{#REQUEST_COUNT_ITEMS#}</td>
+					<td><input class="mousetrap float" name="request_count_items" type="checkbox" id="request_count_items" value="1"{if $row->request_count_items == '1'} checked="checked"{/if} /><label>&nbsp;</label></td>
 					<td>{#REQUEST_USE_QUERY#}</td>
-					<td colspan="3"><input class="mousetrap float" name="request_use_query" type="checkbox" id="request_use_query" value="1"{if $row->request_use_query == '1'} checked="checked"{/if} /><label>&nbsp;</label></td>
+					<td><input class="mousetrap float" name="request_use_query" type="checkbox" id="request_use_query" value="1"{if $row->request_use_query == '1'} checked="checked"{/if} /><label>&nbsp;</label></td>
 				</tr>
 				</tbody>
 

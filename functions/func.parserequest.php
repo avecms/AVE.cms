@@ -16,14 +16,17 @@
 		global $AVE_DB;
 
 		// Получаем информацию о запросе
-		$reqest_settings = $AVE_DB->Query("
+		$sql = "
 			SELECT
+				#REQUEST SETTINGS = $id
 				*
 			FROM
 				" . PREFIX . "_request
 			WHERE
 				" . (is_numeric($id) ? 'Id' : 'request_alias') . " = '" . $id . "'
-		", -1, 'request/settings/' . $id)->FetchRow();
+		";
+
+		$reqest_settings = $AVE_DB->Query($sql, -1, 'rqs_' . $id, true, '.settings')->FetchRow();
 
 		// Выходим, если нет запроса
 		if (! is_object($reqest_settings))
@@ -197,7 +200,7 @@
 					Id = '" . $id . "'
 			");
 
-			$AVE_DB->clear_request($id);
+			$AVE_DB->clearRequest($id);
 		}
 
 		return @$retval;
@@ -275,7 +278,7 @@
 
 		if ($maxlength != '')
 		{
-			if ($maxlength == 'more' || $maxlength == 'esc'|| $maxlength == 'img')
+			if ($maxlength == 'more' || $maxlength == 'esc'|| $maxlength == 'img' || $maxlength == 'strip')
 			{
 				if ($maxlength == 'more')
 				{
@@ -291,6 +294,13 @@
 						{
 							$field_value = getImgSrc($field_value);
 						}
+						elseif ($maxlength == 'strip')
+							{
+								$field_value = str_replace(array("\r\n","\n","\r"), " ", $field_value);
+								$field_value = strip_tags($field_value, REQUEST_STRIP_TAGS);
+								$field_value = preg_replace('/  +/', ' ', $field_value);
+								$field_value = trim($field_value);
+							}
 			}
 			elseif (is_numeric($maxlength))
 				{
@@ -336,22 +346,23 @@
 	// Функция получения элемента запроса
 	function showrequestelement($mixed, $template = '', $tparams = '')
 	{
-		global $AVE_DB, $req_item_num, $params_of_teaser, $use_cache;
+		global
+			$AVE_DB,
+			$req_item_num,
+			$params_of_teaser,
+			$use_cache,
+			$request_id,
+			$request_changed,
+			$request_changed_elements;
 
 		if (is_array($mixed))
-			$mixed = $mixed[1];
+			$row = intval($mixed[1]);
 
-		$row = (is_object($mixed) ? $mixed : $AVE_DB->Query("
-			SELECT
-				a.*
-			FROM
-				" . PREFIX . "_documents AS a
-			WHERE
-				a.Id = '" . intval($mixed) . "'
-			GROUP BY
-				a.Id
-			LIMIT 1
-		")->FetchRow());
+		$row = (is_object($mixed)
+			? $mixed
+			: getDocument($row));
+
+		unset ($mixed);
 
 		if (! $row)
 			return '';
@@ -360,17 +371,47 @@
 
 		if ($tparams != '')
 		{
-			$tparams_id = $row->Id.md5($tparams);								 // Создаем уникальный id для каждого набора параметров
+			$tparams_id = $row->Id . md5($tparams);								 // Создаем уникальный id для каждого набора параметров
 			$params_of_teaser[$tparams_id] = array();							 // Для отмены лишних ворнингов
 			$tparams = trim($tparams,'[]:');									 // Удаляем: слева ':[', справа ']'
 			$params_of_teaser[$tparams_id] = explode('|',$tparams);				 // Заносим параметры в массив уникального id
 		}
 
-		$template = ($template > '' ? $template : $AVE_DB->Query(
-			"SELECT rubric_teaser_template FROM " . PREFIX . "_rubrics WHERE Id='" . intval($row->rubric_id) . "'"
-		)->GetCell());
+		$sql = "
+			SELECT
+				rubric_teaser_template
+			FROM
+				" . PREFIX . "_rubrics
+			WHERE
+				Id = '" . intval($row->rubric_id) . "'
+		";
 
-		$cachefile_docid = BASE_DIR . '/tmp/cache/sql/request/' . $row->Id . '/request-' . md5($template) . '.cache';
+		$template = ($template > ''
+			? $template
+			: $AVE_DB->Query($sql)->GetCell());
+
+		$hash  = 'g-' . UGROUP; // Группа пользователей
+		$hash .= 'r-' . $request_id; // ID Запроса
+		$hash .= 't-' . $row->Id; // ID документа
+
+		$hash = md5($hash);
+
+		$cache_id = 'requests/elements/' . (floor($row->Id / 1000)) . '/' . $row->Id;
+
+		$cachefile_docid = BASE_DIR . '/tmp/cache/sql/' . $cache_id . '/' . $hash . '.element';
+
+		if (file_exists($cachefile_docid) && isset($use_cache) && $use_cache == 1)
+		{
+			$check_file = $request_changed_elements;
+
+			if ($check_file > filemtime($cachefile_docid))
+				unlink ($cachefile_docid);
+		}
+		else
+			{
+				if (file_exists($cachefile_docid))
+					unlink ($cachefile_docid);
+			}
 
 		// Если включен DEV MODE, то отключаем кеширование запросов
 		if (defined('DEV_MODE') AND DEV_MODE)
@@ -378,8 +419,8 @@
 
 		if (! file_exists($cachefile_docid))
 		{
-			$template = preg_replace("/\[tag:if_notempty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(request_get_document_field(\'$1\', '.$row->Id.', \'$2\', '.(int)$row->rubric_id.'), ENT_QUOTES)) != \'\') { '.'?'.'>', $template);
-			$template = preg_replace("/\[tag:if_empty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(request_get_document_field(\'$1\', '.$row->Id.', \'$2\', '.(int)$row->rubric_id.'), ENT_QUOTES)) == \'\') { '.'?'.'>', $template);
+			$template = preg_replace("/\[tag:if_notempty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(request_get_document_field(\'$1\', '.$row->Id.', \'$2\', '.(int)$row->rubric_id.'), ENT_QUOTES)) != \'\') { '.'?'.'>', $template);
+			$template = preg_replace("/\[tag:if_empty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(request_get_document_field(\'$1\', '.$row->Id.', \'$2\', '.(int)$row->rubric_id.'), ENT_QUOTES)) == \'\') { '.'?'.'>', $template);
 			$template = str_replace('[tag:if:else]', '<?php }else{ ?>', $template);
 			$template = str_replace('[tag:/if]', '<?php } ?>', $template);
 
@@ -401,7 +442,7 @@
 
 			// Парсим теги полей
 			$item = preg_replace_callback(
-				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/',
+				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
 					create_function(
 						'$m',
 						'return request_get_document_field($m[1], ' . $row->Id . ', $m[2], ' . (int)$row->rubric_id . ');'
@@ -411,7 +452,7 @@
 
 			// Повторно парсим теги полей
 			$item = preg_replace_callback(
-				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/',
+				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
 					create_function(
 						'$m',
 						'return request_get_document_field($m[1], ' . $row->Id . ', $m[2], ' . (int)$row->rubric_id . ');'
@@ -472,7 +513,6 @@
 			if ($tparams != '')
 			{
 				// Заменяем tparam в тизере
-				// $item = preg_replace('/\[tparam:([0-9]+)\]/', '<'.'?php echo $params_of_teaser["'.$tparams_id.'"][$1]'.'?'.'>', $item); // косячная версия, пока оставил
 				$item = preg_replace_callback(
 					'/\[tparam:([0-9]+)\]/',
 						create_function(
@@ -715,12 +755,9 @@
 			$request_where[] = "a.document_published <= UNIX_TIMESTAMP() AND (a.document_expire = 0 OR a.document_expire >= UNIX_TIMESTAMP())";
 
 		// Условия запроса
-		// если используется выпадающий список, получаем строку без сохранения
-		if (! empty($_POST['req_' . $id]) || ! empty($_SESSION['doc_' . $AVE_Core->curentdoc->Id]['req_' . $id]))
-			$where_cond = request_get_condition_sql_string($request->Id, false);
 		// если условия пустые, получаем строку с сохранением её в бд
-		elseif (! $request->request_where_cond)
-			$where_cond = request_get_condition_sql_string($request->Id, true);
+		if (! $request->request_where_cond)
+			$where_cond = request_get_condition_sql_string($request->Id, false);
 		// иначе, берём из запроса
 		else
 			$where_cond = unserialize($request->request_where_cond);
@@ -795,73 +832,84 @@
 		if ($request_select)
 			$request_select_str = ',' . implode(",\r\n",$request_select);
 
-		unset($a, $t, $v);
+		unset ($a, $t, $v);
 
-		// Составляем запрос к БД
-		$sql = " ?>
-			#REQUEST = $request->Id
-			SELECT STRAIGHT_JOIN SQL_CALC_FOUND_ROWS
-				a.*
-				" . $request_select_str . "
-			FROM
-				" . $where_cond['from'] . "
-				" . (isset($params['USER_FROM']) ? $params['USER_FROM'] : '') . "
-				" . PREFIX . "_documents AS a
-				" . implode(' ', $request_join) . "
-				" . (isset($params['USER_JOIN']) ? $params['USER_FROM'] : '') . "
-			WHERE
-				" . $request_where_str . "
-			GROUP BY a.Id
-			" . $request_order_str . "
-			" . $limit_str . "
-		<? ";
-
-		$sql_request = eval2var($sql);
-
-		unset($sql);
-
-		// Убираем дубли в выборе полей
-		foreach(array_keys($request_join) AS $key)
+		if (! isset($params['SQL_QUERY']))
 		{
-			$search = PREFIX . '_document_fields AS t' . $key . ',';
+			// Составляем запрос к БД
+			$sql = " ?>
+				SELECT STRAIGHT_JOIN SQL_CALC_FOUND_ROWS
+				#REQUEST = $request->Id
+					a.*
+					" . $request_select_str . "
+				FROM
+					" . $where_cond['from'] . "
+					" . (isset($params['USER_FROM']) ? $params['USER_FROM'] : '') . "
+					" . PREFIX . "_documents AS a
+					" . implode(' ', $request_join) . "
+					" . (isset($params['USER_JOIN']) ? $params['USER_FROM'] : '') . "
+				WHERE
+					" . $request_where_str . "
+				GROUP BY a.Id
+				" . $request_order_str . "
+				" . $limit_str . "
+			<?"."php ";
 
-			if (preg_match('/' . $search . '/', $sql_request) > 0)
+			$sql_request = eval2var($sql);
+
+			unset ($sql);
+
+			// Убираем дубли в выборе полей
+			foreach (array_keys($request_join) AS $key)
 			{
-				$sql_request = str_replace($search, '', $sql_request);
+				$search = PREFIX . '_document_fields AS t' . $key . ',';
+
+				if (preg_match('/' . $search . '/', $sql_request) > 0)
+				{
+					$sql_request = str_replace($search, '', $sql_request);
+				}
+			}
+
+			// Если просили просто показать сформированный запрос
+			if ((isset($params['DEBUG']) && $params['DEBUG'] == 1) || $request->request_show_sql == 1)
+			{
+				$return = Debug::_print($sql_request);
+
+				return $return;
 			}
 		}
-
-		// Если просили просто показать сформированный запрос
-		if ((isset($params['DEBUG']) && $params['DEBUG'] == 1) || $request->request_show_sql == 1)
-		{
-			$return = Debug::_print($sql_request);
-
-			return $return;
-		}
+		else
+			{
+				$sql_request = $params['SQL_QUERY'];
+			}
 
 		// Выполняем запрос к бд
-		$sql = $AVE_DB->Query($sql_request, (int)$request->request_cache_lifetime, 'rub_' . $request->rubric_id);
+		$sql = $AVE_DB->Query($sql_request, (int)$request->request_cache_lifetime, 'rqs_' . $id, true, '.request');
 
-		// Если просили просто вернуть запрос, возвращаем результат
+		// Если просили просто вернуть резльтат запроса, возвращаем результат
 		if (isset($params['RETURN_SQL']) && $params['RETURN_SQL'] == 1)
 			return $AVE_DB->GetFoundRows();
 
+		$num_items = 0;
+
 		// Если есть вывод пагинации, то выполняем запрос на получение кол-ва элементов
 		if ($request->request_show_pagination == 1 || (isset($params['SHOW']) && $params['SHOW'] == 1))
-			$num_items = $AVE_DB->NumAllRows($sql_request, (int)$request->request_cache_lifetime, 'rub_' . $request->rubric_id);
+			$num_items = $AVE_DB->NumAllRows($sql_request, (int)$request->request_cache_lifetime, 'rqs_' . $id);
 		else
-			$num_items = $AVE_DB->GetFoundRows();
+			$num_items = ((isset($params['NO_FOUND_ROWS']) && $params['NO_FOUND_ROWS'] == 1) || ! $request->request_count_items
+				? 0
+				: $AVE_DB->GetFoundRows());
 
 		// Если просили просто вернуть кол-во, возвращаем результат
 		if (isset($params['RETURN_COUNT']) && $params['RETURN_COUNT'] == 1)
 			return $num_items;
 
-		unset($sql_request);
+		unset ($sql_request);
 
 		// Приступаем к обработке шаблона
 		$main_template = $request->request_template_main;
 
-		//-- Если кол-во элементов больше 0
+		//-- Если кол-во элементов больше 0, удалаяем лишнее
 		if ($num_items > 0)
 		{
 			$main_template = preg_replace('/\[tag:if_empty](.*?)\[\/tag:if_empty]/si', '', $main_template);
@@ -903,12 +951,13 @@
 			}
 
 			// Запоминаем глобально
-			@$GLOBALS['page_id'][$_REQUEST['id']]['apage'] = (@$GLOBALS['page_id'][$_REQUEST['id']]['apage'] > $num_pages
+			@$GLOBALS['page_id'][$_REQUEST['id']]['apage'] = (isset($GLOBALS['page_id'][$_REQUEST['id']]['apage']) && $GLOBALS['page_id'][$_REQUEST['id']]['apage'] > $num_pages
 				? @$GLOBALS['page_id'][$_REQUEST['id']]['apage']
 				: $num_pages);
 
 			$pagination = '';
 
+			// Если кол-во страниц больше 1й
 			if ($num_pages > 1)
 			{
 				$queries = '';
@@ -976,9 +1025,14 @@
 		//-- Общее число элементов
 		$items_count = count($rows);
 
-		global $req_item_num, $use_cache;
+		global $req_item_num, $use_cache, $request_id, $request_changed, $request_changed_elements;
 
 		$use_cache = $request->request_cache_elements;
+
+		$request_id = $request->Id;
+
+		$request_changed = $request->request_changed;
+		$request_changed_elements = $request->request_changed_elements;
 
 		$item = '';
 

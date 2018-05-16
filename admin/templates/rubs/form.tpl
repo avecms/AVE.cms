@@ -6,7 +6,7 @@
 <div class="title">
 	<h5>{#RUBRIK_TEMPLATE_EDIT#}</h5>
 	<div class="num">
-		<a class="basicNum" href="index.php?do=rubs&action=tmpls&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TMPLS_BUTTON#}</a>
+		<a class="basicNum greenNum" href="index.php?do=rubs&action=tmpls&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TMPLS_BUTTON#}</a>
 	</div>
 </div>
 {/if}

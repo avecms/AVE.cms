@@ -36,7 +36,7 @@ $(document).ready(function(){ldelim}
 <div class="title">
 	<h5>{#RUBRIC_TMPLS_HEAD#}</h5>
 	<div class="num">
-		<a class="basicNum" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_TEMPLATE#}</a>
+		<a class="basicNum greenNum" href="index.php?do=rubs&action=template&Id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIK_EDIT_TEMPLATE#}</a>
 	</div>
 </div>
 
@@ -90,7 +90,7 @@ $(document).ready(function(){ldelim}
 		<li class="activeTab"><a href="#tab1">{#RUBRIC_TMPLS_HEAD#}</a></li>
 		{if check_permission('rubric_edit')}<li class=""><a href="#tab2">{#RUBRIC_TMPLS_ADD#}</a></li>{/if}
 		<div class="num">
-			<a class="basicNum" href="index.php?do=rubs&action=tmpls_from&rubric_id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TMPLS_FROM#}</a>
+			<a class="basicNum greenNum" href="index.php?do=rubs&action=tmpls_from&rubric_id={$smarty.request.Id|escape}&cp={$sess}">{#RUBRIC_TMPLS_FROM#}</a>
 		</div>
 	</ul>
 	<div class="tab_container">

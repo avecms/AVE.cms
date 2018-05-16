@@ -222,6 +222,7 @@
 					// согласно статусу, либо все модули, если статус не указан
 					$sql = "
 						SELECT
+							# MODULES
 							*
 						FROM
 							" . PREFIX . "_module
@@ -230,7 +231,7 @@
 							ModuleName ASC
 					";
 
-					$query = $AVE_DB->Query($sql, SYSTEM_CACHE_LIFETIME, 'modules');
+					$query = $AVE_DB->Query($sql, -1, 'modules', true, '.modules');
 
 					while ($row = $query->FetchRow())
 						$modules[$row->ModuleSysName] = $row;

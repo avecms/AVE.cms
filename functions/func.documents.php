@@ -94,14 +94,9 @@
 
 		if (! isset ($get_documents_data[$doc_id]))
 		{
-			$get_documents_data[$doc_id] = $AVE_DB->Query("
-				SELECT
-					*
-				FROM
-					" . PREFIX . "_documents
-				WHERE
-					Id = '" . $doc_id . "'
-			")->FetchAssocArray();
+			$get_documents_data[$doc_id] = getDocument($doc_id);
+
+			$get_documents_data[$doc_id] = object2array($get_documents_data[$doc_id]);
 
 			$get_documents_data[$doc_id]['doc_title'] = $get_documents_data[$doc_id]['document_title'];
 			$get_documents_data[$doc_id]['feld'] = array();
@@ -111,5 +106,41 @@
 			return $get_documents_data[$doc_id][$key];
 		else
 			return $get_documents_data[$doc_id];
+	}
+
+
+	/**
+	 * Функция отдаёт основные параметры дока
+	 *
+	 * @param int    $doc_id - номер id документа
+	 *
+	 * @return object
+	 */
+	function getDocument ($doc_id)
+	{
+		global $AVE_DB;
+
+		$doc_id = (int)$doc_id;
+
+		if ($doc_id < 1)
+			return false;
+
+		$sql = "
+			SELECT
+				# DOCUMENT = $doc_id
+				*
+			FROM
+				" . PREFIX . "_documents
+			WHERE
+				Id = '" . $doc_id . "'
+		";
+
+		$cache_time = (defined('CACHE_DOC_FILE') && CACHE_DOC_FILE)
+			? -1
+			: 0;
+
+		$data = $AVE_DB->Query($sql, $cache_time, 'dat_' . $doc_id, true, '.data')->FetchRow();
+
+		return $data;
 	}
 ?>

@@ -53,6 +53,14 @@
 				<div class="fix mt10"><input type="checkbox" name="server" value="1" class="float" /><label>{#DB_BACKUP_SERVER#}</label></div>
 			</td>
 		</tr>
+		<tr>
+			<td>
+			{#DB_BACKUP_FILE_NAME#}
+			</td>
+			<td colspan="3">
+				<input type="text" name="file_name" value="" />
+			</td>
+		</tr>
 	</tbody>
 </table>
 <div class="rowElem">

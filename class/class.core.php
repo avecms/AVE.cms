@@ -108,21 +108,21 @@
 
 			if (is_numeric($template_id))
 			{
-				$cache = 'template_' . $template_id;
-
-				$cache_file = BASE_DIR . '/tmp/cache/templates/' . $cache . '.inc';
+				$cache_file = BASE_DIR . '/templates/' . DEFAULT_THEME_FOLDER . '/include/templates/' . $template_id . '/template.inc';
 
 				// Если включен DEV MODE, то отключаем кеширование
 				if (defined('DEV_MODE') AND DEV_MODE)
 					$cache_file = null;
 
-				if (! file_exists(dirname($cache_file)))
-					mkdir(dirname($cache_file), 0766, true);
+				if (! is_dir(dirname($cache_file)))
+					@mkdir(dirname($cache_file), 0766, true);
 
-				if (file_exists($cache_file))
+				// Если файл есть и он не пустой используем его
+				if (file_exists($cache_file) && filesize($cache_file))
 				{
 					$return = file_get_contents($cache_file);
 				}
+				// Иначе лезем в БД и достаем шаблон
 				else
 					{
 						$return = $AVE_DB->Query("
@@ -137,6 +137,7 @@
 
 						$return = stripslashes($return);
 
+						// Сохраняем в файл
 						if ($cache_file)
 							file_put_contents($cache_file, $return);
 					}
@@ -431,22 +432,6 @@
 				}
 
 			exit;
-		}
-
-
-		/**
-		 * Метод, предназначенный для формирования хэша страницы
-		 *
-		 * @return string
-		 */
-		function _get_cache_hash()
-		{
-			$hash  = 'g-' . UGROUP;
-			$hash .= 'r-' . RUB_ID;
-			$hash .= 'u-' . get_redirect_link();
-			$hash .= 't-' . $this->curentdoc->rubric_tmpl_id;
-
-			return md5($hash);
 		}
 
 
@@ -747,12 +732,6 @@
 				$main_content
 			);
 
-			// Удаляем ошибочные теги полей документа в шаблоне рубрики
-			$main_content = preg_replace('/\[tag:watermark:\w*\]/', '', $main_content);
-			$main_content = preg_replace('/\[tag:fld:\d*\]/', '', $main_content);
-			$main_content = preg_replace('/\[tag:doc:\w*\]/', '', $main_content);
-			$main_content = preg_replace('/\[tag:langfile:\w*\]/', '', $main_content);
-
 			// парсим теги в шаблоне рубрики
 			$main_content = preg_replace_callback(
 				'/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
@@ -769,46 +748,131 @@
 			if (preg_match('[tag:docauthor]', $main_content))
 				$main_content = str_replace('[tag:docauthor]', get_username_by_id($this->curentdoc->document_author_id), $main_content);
 
-			if (CACHE_DOC_TPL && empty($_POST))
-			{
-				$cache_id = (int)$this->curentdoc->Id;
-				$cache_id = 'compiled/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+			// Удаляем ошибочные теги полей документа в шаблоне рубрики
+			$main_content = preg_replace('/\[tag:watermark:\w*\]/', '', $main_content);
+			$main_content = preg_replace('/\[tag:fld:\w*\]/', '', $main_content);
+			$main_content = preg_replace('/\[tag:doc:\w*\]/', '', $main_content);
+			$main_content = preg_replace('/\[tag:langfile:\w*\]/', '', $main_content);
 
-				$cache_file = $this->_get_cache_hash();
-
-				$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
-					? trim($cache_id) . '/'
-					: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
-
-				// кэширование разрешено
-				// сохраняем скомпилированный шаблон в кэш
-				if (CACHE_DOC_FILE)
-				{
-					if (! is_dir($cache_dir))
-						mkdir($cache_dir, 0766, true);
-
-					file_put_contents($cache_dir . $cache_file, $main_content);
-				}
-
-				// кэширование разрешено
-				// сохраняем скомпилированный шаблон в кэш
-				$AVE_DB->Query("
-					INSERT INTO
-						" . PREFIX . "_rubric_template_cache
-					SET
-						hash			= '" . $cache_file . "',
-						rub_id			= '" . RUB_ID . "',
-						rub_tmpl_id		= '" . $this->curentdoc->rubric_tmpl_id . "',
-						grp_id			= '" . UGROUP . "',
-						doc_id			= '" . $id . "',
-						compiled		= '" . addslashes($main_content) . "'
-				");
-
-				unset ($cache_id, $cache_file, $cache_dir);
-			}
+			//-- Кеширование скомпилированного документа
+			$this->setCompileDocument($main_content);
 
 			return $main_content;
 		}
+
+
+		/**
+		 * Метод, предназначенный для формирования хэша страницы
+		 *
+		 * @return string
+		 */
+		function _get_cache_hash()
+		{
+			$hash  = 'g-' . UGROUP; // Группа пользователей
+			$hash .= 'r-' . RUB_ID; // ID Рубрики
+			$hash .= 't-' . $this->curentdoc->rubric_tmpl_id; // Шаблон рубрики
+			//$hash .= 'u-' . get_redirect_link(); // ToDo
+
+			return md5($hash);
+		}
+
+
+		function _get_cache_id()
+		{
+			$cache = array();
+
+			$cache['id'] = (int)$this->curentdoc->Id;
+
+			if (! $cache['id'])
+				return false;
+
+			$cache['id'] = (int)$cache['id'];
+			$cache['id'] = 'documents/compiled/' . (floor($cache['id'] / 1000)) . '/' . $cache['id'];
+
+			$cache['file'] = $this->_get_cache_hash() . '.compiled';
+
+			if (! $cache['file'])
+				return false;
+
+			$cache['dir'] = BASE_DIR . '/tmp/cache/sql/' . (trim($cache['id']) > ''
+				? trim($cache['id']) . '/'
+				: substr($cache['file'], 0, 2) . '/' . substr($cache['file'], 2, 2) . '/' . substr($cache['file'], 4, 2) . '/');
+
+			return $cache;
+		}
+
+
+		function setCompileDocument ($main_content)
+		{
+			$cache = $this->_get_cache_id();
+
+			if (! $cache)
+				return false;
+
+			//-- Удаляем файл, если существует
+			if (file_exists($cache['dir'] . $cache['file']))
+				unlink($cache['dir'] . $cache['file']);
+
+			// Если включен DEV MODE, то отключаем кеширование запросов
+			if (defined('DEV_MODE') AND DEV_MODE)
+				return false;
+
+			//-- Кэширование разрешено
+			if (defined('CACHE_DOC_TPL') && CACHE_DOC_TPL)
+			{
+				//-- Если нет папки, создаем
+				if (! is_dir($cache['dir']))
+					@mkdir($cache['dir'], 0766, true);
+
+				//-- Сохраняем скомпилированный шаблон в кэш
+				file_put_contents($cache['dir'] . $cache['file'], $main_content);
+			}
+
+			return true;
+		}
+
+
+		function getCompileDocument ()
+		{
+			$cache = $this->_get_cache_id();
+
+			if (! $cache)
+				return false;
+
+			$content = false;
+
+			//-- Если нет папки, создаем
+			if (! is_dir($cache['dir']))
+				@mkdir($cache['dir'], 0766, true);
+
+			//-- Получаем сразу поля
+			get_document_fields((int)$this->curentdoc->Id);
+
+			// Наличие файла
+			if (file_exists($cache['dir'] . $cache['file']))
+			{
+				// Получаем время создания файла
+				$file_time = filemtime($cache['dir'] . $cache['file']);
+
+				// Получаем время для проверки
+				$cache_time = $this->curentdoc->rubric_changed;
+
+				if (! $cache_time || $cache_time > $file_time)
+				{
+					unlink ($cache['dir'] . $cache['file']);
+				}
+				else if (defined('CACHE_DOC_TPL') && CACHE_DOC_TPL)
+					// Извлекаем скомпилированный шаблон документа из кэша
+					$content = file_get_contents($cache['dir'] . $cache['file']);
+			}
+			else
+				{
+					$content = false;
+				}
+
+			return $content;
+		}
+
 
 		/**
 		 * Метод, предназначенный для обработки системных тегов модулей. Здесь подключаются только те файлы модулей,
@@ -1119,44 +1183,12 @@
 						}
 					}
 
-					if (CACHE_DOC_TPL && empty ($_POST))
-					{
-						// Кэширование разрешено
-						// Извлекаем скомпилированный шаблон документа из кэша
-						// Если там пусто, пробуем достать из бд
-
-						$cache_id = (int)$this->curentdoc->Id;
-						$cache_id = 'compiled/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-
-						$cache_file = $this->_get_cache_hash();
-
-						$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
-							? trim($cache_id) . '/'
-							: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
-
-						if (CACHE_DOC_FILE && file_exists($cache_dir . $cache_file))
-						{
-							$main_content = file_get_contents($cache_dir . $cache_file);
-						}
-						else
-						{
-							$main_content = $AVE_DB->Query("
-								SELECT
-									compiled
-								FROM
-									" . PREFIX . "_rubric_template_cache
-								WHERE
-									hash  = '" . $cache_file . "'
-								LIMIT 1
-							")->GetCell();
-						}
-
-						unset($cache_dir, $cache_file, $cache_id);
-					}
+					// Извлекаем скомпилированный шаблон документа из кэша
+					if (defined('CACHE_DOC_TPL') && CACHE_DOC_TPL) // && empty ($_POST)
+						$main_content = $this->getCompileDocument();
 					else
-					{	// Кэширование запрещено
+						// Кэширование запрещено
 						$main_content = false;
-					}
 
 					// Собираем контент
 					// Если в кеше нет контента, то
@@ -1203,15 +1235,11 @@
 
 						// Собираем шаблон рубрики
 						if (empty($rubTmpl))
-						{
 							// Если не задан шаблон рубрики, выводим сообщение
 							$main_content = $this->_rubric_template_empty;
-						}
 						else
-						{
 							// Обрабатываем основные поля рубрики
 							$main_content = $this->_main_content($main_content, $id, $rubTmpl);
-						}
 					}
 				}
 
@@ -1253,7 +1281,7 @@
 
 			// Парсим поля запроса
 			$out = preg_replace_callback(
-				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/',
+				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
 					create_function(
 						'$m',
 						'return request_get_document_field($m[1], ' . $id . ', $m[2], ' . (defined('RUB_ID') ? RUB_ID : 0) . ');'
@@ -1262,7 +1290,7 @@
 			);
 
 			// Удаляем ошибочные теги полей документа в шаблоне рубрики
-			$out = preg_replace('/\[tag:rfld:\d*\]/', '', $out);
+			$out = preg_replace('/\[tag:rfld:\w*\]/', '', $out);
 
 			// Если в GET запросе пришел параметр print, т.е. страница для печати,
 			// парсим контент, который обрамлен тегами только для печати
@@ -1544,7 +1572,7 @@
 		{
 			global $AVE_DB;
 
-			// Если нужны параметры GET, можно отключить
+			//-- Если нужны параметры GET, можно отключить
 			$get_url = (strpos($get_url, ABS_PATH . '?') === 0
 				? ''
 				: $get_url);
@@ -1555,15 +1583,18 @@
 			$get_url = rawurldecode($get_url);
 			$get_url = mb_substr($get_url, strlen(ABS_PATH));
 
-			// Сохранение старого урла для првоерки использования суффикса
-			$test_url = $get_url;
+			//-- Сохранение старого урла для првоерки использования суффикса
+			$check_url = $get_url;
 
 			if (mb_substr($get_url, - strlen(URL_SUFF)) == URL_SUFF)
 			{
 				$get_url = mb_substr($get_url, 0, - strlen(URL_SUFF));
 			}
 
-			// Разбиваем строку параметров на отдельные части
+			//-- Ложный URL
+			$fake_url = false;
+
+			//-- Разбиваем строку параметров на отдельные части
 			$get_url = explode('/', $get_url);
 
 			if (isset ($get_url['index']))
@@ -1577,7 +1608,7 @@
 				unset ($get_url['print']);
 			}
 
-			// Определяем, используется ли у нас разделение документа по страницам
+			//-- Определяем, используется ли у нас разделение документа по страницам
 			$pages = preg_grep('/^(a|art)?page-\d+$/i', $get_url);
 
 			if (! empty ($pages))
@@ -1594,11 +1625,53 @@
 					$pages
 				);
 			}
-			// В противном случае формируем окончательную ссылку для документа
+			//-- В противном случае формируем окончательную ссылку для документа
 			else
 				{
 					$get_url = implode('/', $get_url);
 				}
+
+			//-- Страница тегов
+			preg_match('/^tags(|(\/.*))+$/is', $get_url, $match);
+
+			//-- Если есть совпадение с tag
+			if ($match)
+			{
+				//-- Смотрим условие
+				if (isset($match[2]))
+				{
+					//-- Отрезаем лишнее
+					$matches = trim($match[2], '/');
+
+					//-- Разбиваем
+					$matches = explode('/', $matches);
+
+					//-- Берем первое значение
+					$matches = urldecode(array_shift($matches));
+
+					//-- Если значение не равно пусто
+					if ($matches != '')
+					{
+						//-- Передаем в _GET условие tag
+						$_GET['tag'] = $_REQUEST['tag'] = $matches;
+
+						//-- Парсим query strings
+						parse_str($_SERVER['QUERY_STRING'], $query_string);
+
+						//-- Назначаем условие
+						$query_string['tag'] = $matches;
+
+						//-- Пересобираем QUERY_STRING
+						$_SERVER['QUERY_STRING'] = http_build_query($query_string);
+
+						//-- Назначаем URL
+						$get_url = 'tags';
+
+						//-- Инициализируем ложный URL
+						$fake_url = true;
+					}
+				}
+			}
 
 			//-- Экранируем поступающий URL
 			$get_url = $AVE_DB->ClearUrl($get_url);
@@ -1606,6 +1679,8 @@
 			//-- Проверяем есть ли данный URL в таблице алиасов модулей
 			$sql = "
 				SELECT
+					# MODULE LINK
+					document_id,
 					module_name,
 					module_action,
 					module_link
@@ -1615,18 +1690,24 @@
 					module_url = '" . str_ireplace("'", "\'", $get_url) . "'
 			";
 
-			$query = $AVE_DB->Query($sql)->FetchRow();
+			$module = $AVE_DB->Query($sql)->FetchAssocArray();
 
-			if ($query)
+			if ($module)
 			{
 				//-- Передаем глобальные перемененные
-				$_GET['module'] = $_REQUEST['module'] = $query->module_name;
-				$_GET['action'] = $_REQUEST['action'] = $query->module_action;
+				$_GET['module'] = $_REQUEST['module'] = $module['module_name'];
+				$_GET['action'] = $_REQUEST['action'] = $module['module_action'];
 
-				$get_url = ABS_PATH . $query->module_link;
+				$get_url = ABS_PATH . $module['module_link'];
+
+				//-- Если есть document_id, назначем его
+				if ($module['document_id'])
+					$_REQUEST['id'] = (int)$module['document_id'];
 			}
 
-			// проверка на наличие id в запросе
+			unset ($sql, $module);
+
+			//-- Проверка на наличие id в запросе
 			if (! empty($_REQUEST['id']))
 			{
 				$get_url = $AVE_DB->Query("
@@ -1646,67 +1727,98 @@
 				? intval($_REQUEST['id'])
 				: 1);
 
-			// Забираем нужные данные
+			//-- Забираем нужные данные
 			$sql = "
 				SELECT
-					doc.*,
-					rubric_permission,
-					rubric_template,
-					rubric_meta_gen,
-					rubric_template_id,
-					rub.rubric_header_template,
-					rub.rubric_footer_template,
-					rub.rubric_start_code,
-					other.template
+					# URL FETCH = $get_url
+					*
 				FROM
-					" . PREFIX . "_documents AS doc
-				JOIN
-					" . PREFIX . "_rubrics AS rub
-						ON rub.Id = doc.rubric_id
-				JOIN
-					" . PREFIX . "_rubric_permissions AS prm
-						ON doc.rubric_id = prm.rubric_id
-				LEFT JOIN
-					" . PREFIX . "_rubric_templates AS other
-						ON doc.rubric_id = other.rubric_id	AND doc.rubric_tmpl_id = other.id
+					" . PREFIX . "_documents
 				WHERE
-					user_group_id = '" . UGROUP . "'
-				AND
 					" . (! empty ($get_url) && ! isset($_REQUEST['module'])
 							? "document_alias = '" . str_ireplace("'", "\'", $get_url) . "'"
 							: (! empty($_REQUEST['id'])
-								? "doc.Id =" . intval($_REQUEST['id'])
-								: "doc.Id = 1")) . "
+								? "Id =" . intval($_REQUEST['id'])
+								: "Id = 1")) . "
 				LIMIT 1
 			";
 
 			$hash_url = md5($get_url);
 
-			$query = $AVE_DB->Query($sql, CACHE_DOC_SQL, 'url_' . $hash_url);
+			$cache_time = 0;
 
-			if ($this->curentdoc = $query->FetchRow())
+			if (defined('CACHE_DOC_FILE') && CACHE_DOC_FILE)
+				$cache_time = -1;
+			else
+				$AVE_DB->clearCacheUrl('url_' . $hash_url);
+
+			$this->curentdoc = $AVE_DB->Query($sql, $cache_time, 'url_' . $hash_url, true, '.fetch')->FetchRow();
+
+			if ($this->curentdoc)
 			{
+				// Получить шаблон рубрики
+				$sql = "
+					SELECT STRAIGHT_JOIN
+						# FETCH RUB = " . $this->curentdoc->rubric_id . "
+						prm.rubric_permission,
+						rub.rubric_template,
+						rub.rubric_meta_gen,
+						rub.rubric_template_id,
+						rub.rubric_header_template,
+						rub.rubric_footer_template,
+						rub.rubric_start_code,
+						rub.rubric_changed,
+						rub.rubric_changed_fields,
+						other.template
+					FROM
+						" . PREFIX . "_rubrics AS rub
+					LEFT JOIN
+						" . PREFIX . "_rubric_permissions AS prm
+						ON rub.Id = prm.rubric_id
+					LEFT JOIN
+						" . PREFIX . "_rubric_templates AS other
+						ON (rub.Id = other.rubric_id AND other.id = '" . $this->curentdoc->rubric_tmpl_id . "')
+					WHERE
+						prm.user_group_id = '" . UGROUP . "'
+						AND
+						rub.Id = '" . $this->curentdoc->rubric_id . "'
+				";
+
+				$query = $AVE_DB->Query($sql, $cache_time, 'rub_' . $this->curentdoc->rubric_id, true, '.fetch')->FetchRow();
+
+				$this->curentdoc = (object) array_merge((array) $query, (array) $this->curentdoc);
+
 				if ($this->curentdoc->rubric_tmpl_id != 0)
 				{
 					$this->curentdoc->rubric_template = (($this->curentdoc->template != '')
 						? $this->curentdoc->template
 						: $this->curentdoc->rubric_template);
 
-					unset($this->curentdoc->template);
+					unset ($this->curentdoc->template);
 				}
 
-				// Глобальные переменные
+				//-- Глобальные переменные
 				$_GET['id']  = $_REQUEST['id']  = $this->curentdoc->Id;
 				$_GET['doc'] = $_REQUEST['doc'] = $this->curentdoc->document_alias;
 
-				// Назначаем язык пользователю, в завивисомтси от языка документа
+				//-- Назначаем язык пользователю, в завивисомтси от языка документа
 				if ($this->curentdoc->Id != PAGE_NOT_FOUND_ID OR $this->curentdoc->document_lang == '--')
 					$_SESSION['user_language'] = $this->curentdoc->document_lang;
 
-				// Перенаправление на адреса с суффиксом
+				//-- Если есть ложный URL указываем его
+				if ($fake_url)
+				{
+					$check_url = preg_replace('/\/(a|art)?page-\d/i', '', $check_url);
+
+					$_GET['doc'] = $_REQUEST['doc'] = $check_url;
+					$this->curentdoc->document_alias = $check_url;
+					$get_url = $check_url;
+				}
+
+				//-- Перенаправление на адреса с суффиксом
 				if (
-					$test_url !== $get_url . URL_SUFF
-					&& ! $pages && $test_url
+					$check_url !== $get_url . URL_SUFF
+					&& ! $pages && $check_url
 					&& ! $_REQUEST['print']
 					&& ! $_REQUEST['module']
 					&& ! $_REQUEST['tag']
@@ -1716,21 +1828,20 @@
 					header('HTTP/1.1 301 Moved Permanently');
 
 					if ($this->curentdoc->Id == 1)
-					{
 						header('Location:' . ABS_PATH);
-						exit();
-					}
 					else
-					{
 						header('Location:' . ABS_PATH . $get_url . URL_SUFF);
-						exit();
-					}
+
+					exit();
 				}
 			}
 			else
 				{
+					$AVE_DB->clearCacheUrl('url_' . $hash_url);
+
 					$sql = "
 						SELECT
+							# REDIRECT = $get_url
 							a.document_alias
 						FROM
 							".PREFIX."_document_alias_history AS h,
@@ -1743,12 +1854,11 @@
 
 					$redirect_alias = $AVE_DB->Query($sql)->GetCell();
 
-					$redirect_alias = ABS_PATH . $redirect_alias . URL_SUFF;
-
-					$redirect_alias = str_replace('//', '/', $redirect_alias);
-
-					if (! empty($redirect_alias))
+					if ($redirect_alias && ! empty($redirect_alias))
 					{
+						$redirect_alias = ABS_PATH . $redirect_alias . URL_SUFF;
+						$redirect_alias = str_replace('//', '/', $redirect_alias);
+
 						header('HTTP/1.1 301 Moved Permanently');
 						header('Location:' . $redirect_alias);
 						exit();

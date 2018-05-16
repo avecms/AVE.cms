@@ -178,6 +178,8 @@
 	if (
 		! defined('ONLYCONTENT')
 		&&
+		! GZIP_COMPRESSION
+		&&
 		UGROUP == 1
 		&&
 		defined('PROFILING') && PROFILING
