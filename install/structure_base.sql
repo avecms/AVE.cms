@@ -120,7 +120,8 @@ CREATE TABLE `%%PRFX%%_documents` (
 	KEY `document_parent` (`document_parent`),
 	KEY `document_status` (`document_status`),
 	KEY `document_published` (`document_published`),
-	KEY `document_expire` (`document_expire`)
+	KEY `document_expire` (`document_expire`),
+	KEY `document_count_view` (`document_count_view`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 

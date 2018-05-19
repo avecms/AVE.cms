@@ -850,6 +850,11 @@
 				return $cache_id = 'navigations/' . $cache_id[1];
 			}
 
+			if (substr_count($cache_id, '__') > 0)
+			{
+				return str_replace('__', '/', $cache_id);
+			}
+
 			return $cache_id;
 		}
 

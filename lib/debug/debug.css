@@ -1,12 +1,13 @@
 /* == Debug Panel == */
 #debug-panel {
-  font-size: 12px;
+  font-size: 12px !important;
   opacity: 0.9;
   position: fixed;
   bottom: 0;
   left: 0;
   z-index: 2000;
   width: 100%;
+  font-family: Consolas, Monaco, Menlo, "Courier New", monospace !important;
 }
 #debug-panel .debug-wrapper {
   padding: 0px .875em;
@@ -19,9 +20,9 @@
   padding: 10px;
   height: 350px;
   padding-top: 1em;
-  font-size: 12px;
+  font-size: 12px !important;
   color: #888;
-  font-family: Monaco, Menlo, Consolas, "Courier New", monospace
+  font-family: Consolas, Monaco, Menlo, "Courier New", monospace !important;
 }
 #debug-panel .debug-wrapper .legend {
   background-color: #f9f9f9;
@@ -32,7 +33,7 @@
 }
 #debug-panel .debug-wrapper .legend span {
   color: #999;
-  font-weight: 300
+  font-weight: 300 !important
 }
 #debug-panel a {
   text-decoration: none;
@@ -42,6 +43,8 @@
 }
 #debug-panel pre {
   border: 0px;
+  font-family: Consolas, Monaco, Menlo, "Courier New", monospace !important;
+  font-size: 12px !important;
 }
 #debugArrowMinimize {
 	float: right;

@@ -160,6 +160,12 @@
 	ini_set ('session.use_trans_sid',    0);
 	ini_set ('url_rewriter.tags',        '');
 
+	if (SESSION_SAVE_HANDLER == 'memcached')
+	{
+		ini_set ('session.lazy_write',		0);
+		ini_set ('session.save_handler',	'memcached');
+		ini_set ('session.save_path',		MEMCACHED_SERVER.':'.MEMCACHED_PORT . '?persistent=1&weight=1&timeout=1&retry_interval=15');
+	}
 
 	//-- Переключение для нормальной работы с русскими буквами в некоторых функциях
 	mb_internal_encoding("UTF-8");
@@ -212,7 +218,7 @@
 	foreach (array(ATTACH_DIR, 'cache', 'backup', 'logs', 'session', 'update') as $dir)
 		write_htaccess_deny(BASE_DIR . '/tmp/' . $dir);
 
-	foreach (array('check', 'combine', 'module', 'redactor', 'smarty', 'sql', 'tpl') as $dir)
+	foreach (array('combine', 'module', 'redactor', 'smarty', 'sql', 'tpl') as $dir)
 		write_htaccess_deny(BASE_DIR . '/tmp/cache/' . $dir);
 
 	//-- Шаблоны
@@ -284,11 +290,18 @@
 	set_cookie_domain();
 
 	//-- Работа с сессиями
-	if (! SESSION_SAVE_HANDLER)
+	if (! SESSION_SAVE_HANDLER || SESSION_SAVE_HANDLER == 'files')
 	{
 		//-- Класс для работы с сессиями
 		require (BASE_DIR . '/class/class.session.files.php');
 		$ses_class = new AVE_Session();
+	}
+	//-- Работа с сессиями
+	else if (SESSION_SAVE_HANDLER == 'memcached')
+	{
+		//-- Класс для работы с сессиями
+		require (BASE_DIR . '/class/class.session.memcached.php');
+		$ses_class = new AVE_Session_Memcached();
 	}
 	else
 		{
@@ -308,7 +321,8 @@
 	);
 
 	//-- Страт сессии
-	session_start();
+	if (session_status() !== PHP_SESSION_ACTIVE)
+		session_start();
 
 	if (isset($HTTP_SESSION_VARS))
 		$_SESSION = $HTTP_SESSION_VARS;

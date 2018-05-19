@@ -33,13 +33,13 @@
 
 			$cache = md5('sysblock' . $id);
 
-			$cache_file = BASE_DIR . '/tmp/cache/sql/sysblock/' . $cache . '.cache';
+			$cache_file = BASE_DIR . '/tmp/cache/sql/sysblocks/' . $id . '/' . $cache . '.code';
 
 			// Если включен DEV MODE, то отключаем кеширование запросов
 			if (defined('DEV_MODE') AND DEV_MODE)
 				$cache_file = null;
 
-			if (! file_exists(dirname($cache_file)))
+			if (! is_dir(dirname($cache_file)))
 				mkdir(dirname($cache_file), 0766, true);
 
 			if (file_exists($cache_file))

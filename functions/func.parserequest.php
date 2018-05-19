@@ -869,19 +869,19 @@
 					$sql_request = str_replace($search, '', $sql_request);
 				}
 			}
-
-			// Если просили просто показать сформированный запрос
-			if ((isset($params['DEBUG']) && $params['DEBUG'] == 1) || $request->request_show_sql == 1)
-			{
-				$return = Debug::_print($sql_request);
-
-				return $return;
-			}
 		}
 		else
 			{
 				$sql_request = $params['SQL_QUERY'];
 			}
+
+		// Если просили просто показать сформированный запрос
+		if ((isset($params['DEBUG']) && $params['DEBUG'] == 1) || $request->request_show_sql == 1)
+		{
+			$return = Debug::_print($sql_request);
+
+			return $return;
+		}
 
 		// Выполняем запрос к бд
 		$sql = $AVE_DB->Query($sql_request, (int)$request->request_cache_lifetime, 'rqs_' . $id, true, '.request');

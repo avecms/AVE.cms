@@ -283,17 +283,14 @@
 
 		function clearCache ($id, $alias = null)
 		{
-			$cache_id = md5('sysblock' . $id);
-			$cache_alias = md5('sysblock' . $alias);
+			$from_id = BASE_DIR . '/tmp/cache/sql/sysblocks/' . $id;
+			rrmdir($from_id);
 
-			$cache_id_file = BASE_DIR . '/tmp/cache/sql/sysblock/' . $cache_id . '.cache';
-			$cache_alias_file = BASE_DIR . '/tmp/cache/sql/sysblock/' . $cache_alias . '.cache';
-
-			if (file_exists($cache_id_file))
-				unlink($cache_id_file);
-
-			if (file_exists($cache_alias_file))
-				unlink($cache_alias_file);
+			if ($alias)
+			{
+				$from_alias = BASE_DIR . '/tmp/cache/sql/sysblocks/' . $alias;
+				rrmdir($from_alias);
+			}
 		}
 	}
 ?>

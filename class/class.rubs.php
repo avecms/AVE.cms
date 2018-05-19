@@ -1410,7 +1410,7 @@
 					SET
 						rubric_changed = '" . time() . "'
 					WHERE
-						rubric_id = '" . $rubric_id . "'
+						Id = '" . $rubric_id . "'
 				");
 
 				$AVE_DB->clearCache('rub_' . $rubric_id);

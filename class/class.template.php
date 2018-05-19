@@ -245,11 +245,11 @@
 				write_htaccess_deny($this->cache_dir . '/');
 
 				// Memcached
-				if ($_REQUEST['ajax'] && Memcached_Server && Memcached_Port)
+				if (MEMCACHED_SERVER && MEMCACHED_PORT)
 				{
-					$memcache = new Memcache;
-					$memcache->connect(Memcached_Server, Memcached_Port);
-					$memcache->flush();
+					$m = new Memcached();
+					$m->addServer(MEMCACHED_SERVER, MEMCACHED_PORT);
+					$m->flush();
 				}
 
 				// Очищаем кэш шаблона документов рубрики
