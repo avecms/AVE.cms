@@ -12,7 +12,7 @@
 	 */
 
 	@define('APP_NAME', 'AVE.cms');
-	@define('APP_VERSION', '3.24');
+	@define('APP_VERSION', '3.25');
 	@define('APP_INFO', '<a target="_blank" href="https://www.ave-cms.ru/">Ave-Cms.Ru</a> '.'&copy; 2007-' . date('Y'));
 
 	$GLOBALS['CMS_CONFIG']['USER_IP'] = array('DESCR' =>'Использовать IP для автологина на сайте','default'=>false,'TYPE'=>'bool','VARIANT'=>'');

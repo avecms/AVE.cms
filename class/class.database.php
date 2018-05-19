@@ -1420,6 +1420,29 @@
 		 * @param $cache_id
 		 * @return bool
 		 */
+		public function clearCurrentCache($cache_id, $sql = '', $ext = '')
+		{
+			$cache_id = $this->cacheId($cache_id);
+
+			$cache_file = md5($sql) . $ext;
+
+			$cache_dir = BASE_DIR . '/tmp/cache/sql/' . (trim($cache_id) > ''
+				? trim($cache_id) . '/'
+				: substr($cache_file, 0, 2) . '/' . substr($cache_file, 2, 2) . '/' . substr($cache_file, 4, 2) . '/');
+
+			if (file_exists($cache_dir . $cache_file))
+				unlink($cache_dir . $cache_file);
+
+			return true;
+		}
+
+
+		/**
+		 * Метод, предназначенный для очищения кеша документов
+		 *
+		 * @param $cache_id
+		 * @return bool
+		 */
 		public function clearCacheUrl($cache_id)
 		{
 			$cache_id = str_replace('url_', '', $cache_id);

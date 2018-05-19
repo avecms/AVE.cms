@@ -22,14 +22,14 @@
 					{rdelim}
 				{rdelim});
 			{rdelim});
-			</script> 
+			</script>
 
 			</li>
 		</ul>
 		{/if}
 		{if $login_menu && $online_users > "1"}
 		<ul class="messages first">
-			<li class="highlight grey">{#MAIN_USERS_LAST_TIME#} 
+			<li class="highlight grey">{#MAIN_USERS_LAST_TIME#}
 			  {foreach from=$online_users item=item name=online_users}
 				<a href="index.php?do=user&action=edit&Id={$item->Id}" class="topDir link" title="{$item->user_group_name}">{if $item->user_group == "1"}<strong>{$item->user_name}</strong>{else}{$item->user_name}{/if}</a>{if !$smarty.foreach.online_users.last}, {/if}
 			  {/foreach}
@@ -164,7 +164,7 @@
 						<tbody>
 							<tr class="noborder">
 								<td>{#MAIN_STAT_DOCUMENTS#}</td>
-								<td align="right"><span class="cmsStats">{$cnts.documents}</span></td>
+								<td align="right"><span class="cmsStats"><a href="javascript:void(0);" class="link showDocs">{#MAIN_STAT_CACHE_SHOW#}</a></span></td>
 							</tr>
 							<tr>
 								<td>{#MAIN_STAT_RUBRICS#}</td>

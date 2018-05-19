@@ -23,7 +23,6 @@
 	get_online_users();
 	getLogRecords();
 
-	//$AVE_Template->config_load(BASE_DIR . '/admin/lang/' . $_SESSION['admin_language'] . '/main.txt', 'index');
 	$AVE_Template->assign('php_version', (@PHP_VERSION != '') ? @PHP_VERSION : 'unknow');
 	$AVE_Template->assign('domain', $_SERVER["HTTP_HOST"]);
 	$AVE_Template->assign('mysql_version', $GLOBALS['AVE_DB']->mysql_version());

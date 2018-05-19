@@ -179,7 +179,7 @@ $(function() {ldelim}
 									</select>
 								{/if}
 							</td>
-							<td align="center"><strong class="code">{$rubric->doc_count}</strong></td>
+							<td align="center"><strong class="code"><a href="javascript:void(0);" class="link showDocs" data-rubric-id="{$rubric->Id}">{#MAIN_STAT_CACHE_SHOW#}</a></strong></td>
 							<td align="center">
 								{if check_permission('rubric_edit')}
 									<input type="checkbox" name="rubric_docs_active[{$rubric->Id}]" value="1" {if $rubric->rubric_docs_active == 1}checked="checked"{/if}>

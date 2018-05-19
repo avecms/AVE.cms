@@ -75,14 +75,11 @@
 			$sql = $AVE_DB->Query("
 				SELECT
 					rub.*,
-					COUNT(doc.Id) AS doc_count,
+					(SELECT 1 FROM " . PREFIX . "_documents WHERE rubric_id = rub.Id LIMIT 1) AS doc_count,
 					(SELECT count(*) FROM " . PREFIX . "_rubric_fields AS fld WHERE fld.rubric_id = rub.Id) AS fld_count,
 					(SELECT count(*) FROM " . PREFIX . "_rubric_templates AS tmpls WHERE tmpls.rubric_id = rub.Id) AS tmpls_count
 				FROM
 					" . PREFIX . "_rubrics AS rub
-				LEFT JOIN
-					" . PREFIX . "_documents AS doc
-						ON rubric_id = rub.Id
 				GROUP BY rub.Id
 				ORDER BY rub.rubric_position
 				LIMIT " . $set_start . "," . $page_limit
@@ -1972,15 +1969,12 @@
 				SELECT
 					rub.*,
 					rubrics.rubric_title,
-					COUNT(doc.Id) AS doc_count
+					(SELECT 1 FROM " . PREFIX . "_documents WHERE rubric_id = rub.rubric_id AND rubric_tmpl_id = rub.id LIMIT 1) AS doc_count
 				FROM
 					" . PREFIX . "_rubric_templates AS rub
 				LEFT JOIN
 					" . PREFIX . "_rubrics AS rubrics
 						ON rubrics.Id = rub.rubric_id
-				LEFT JOIN
-					" . PREFIX . "_documents AS doc
-						ON (doc.rubric_id = rub.rubric_id AND doc.rubric_tmpl_id = rub.id)
 				WHERE
 					rub.rubric_id = '" . (int)$_REQUEST['Id'] . "'
 				GROUP

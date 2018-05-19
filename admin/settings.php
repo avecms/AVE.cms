@@ -148,6 +148,11 @@
 				case 'showcache':
 					cacheShow();
 					exit;
+
+				case 'showcountdocs':
+					$rubric_id = isset($_REQUEST['rubric_id']) ? $_REQUEST['rubric_id'] : null;
+					countDocuments($rubric_id);
+					exit;
 			}
 		break;
 

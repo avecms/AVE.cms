@@ -11,7 +11,6 @@
 	 * @license GPL v.2
 	 */
 
-	header ('Content-type: text/xml');
 
 	define ('START_MICROTIME', microtime());
 
@@ -53,6 +52,8 @@
 		'6' => 'never'
 	);
 
+	if (! isset($_REQUEST['id'])):
+
 	// Вытаскиваем кол-во документов
 	$sql = "
 		SELECT STRAIGHT_JOIN
@@ -91,7 +92,8 @@
 	if ($num > $_end)
 		$parts = ceil($num/$_end);
 
-	if (! isset($_REQUEST['id'])):
+		header ('Content-type: text/xml');
+
 		echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
 		echo '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
 
@@ -149,7 +151,17 @@
 		LIMIT ".$_start.",".$_end.";
 	";
 
-	$res = $AVE_DB->Query($sql, SITEMAP_CACHE_LIFETIME, 'sitemap');
+	$res = $AVE_DB->Query($sql, SITEMAP_CACHE_LIFETIME, 'sitemap', true, '.limit');
+
+	if (! $res->NumRows())
+	{
+		report404();
+		$AVE_DB->clearCurrentCache('sitemap', $sql, '.limit');
+		header ($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
+		exit;
+	}
+
+	header ('Content-type: text/xml');
 
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
 	echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;

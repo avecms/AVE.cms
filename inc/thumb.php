@@ -69,7 +69,10 @@
 	}
 
 	//-- Подгружаем настройки системы
-	require(dirname(__FILE__) . '/config.php');
+	require (dirname(__FILE__) . '/config.php');
+
+	//-- Подгружаем функции логирования
+	require_once BASE_DIR . '/functions/func.logs.php';
 
 	//-- Разрешенные расширения файлов
 	$allowedExt = array('jpg', 'jpeg', 'png', 'gif', 'JPG', 'JPEG', 'PNG', 'GIF');
@@ -130,13 +133,23 @@
 
 		exit;
 	}
+	else
+		{
+			report404();
+
+			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+			exit(0);
+		}
 
 	list(, $thumbPath) = explode('/' . UPLOAD_DIR . '/', dirname($imagefile), 2);
 
 	$lenThumbDir = strlen(THUMBNAIL_DIR);
 
+	// --
 	if ($lenThumbDir && substr($thumbPath, -$lenThumbDir) != THUMBNAIL_DIR)
+	{
 		exit(0);
+	}
 
 	$thumbPath = $baseDir . '/' . UPLOAD_DIR . '/' . $thumbPath;
 	$imagePath = $lenThumbDir ? dirname($thumbPath) : $thumbPath;
@@ -145,7 +158,7 @@
 	$nameParts = explode('.', $thumbName);
 	$countParts = count($nameParts);
 
-	if ($countParts < 2 || !in_array(strtolower(end($nameParts)), $allowedExt))
+	if ($countParts < 2 || ! in_array(strtolower(end($nameParts)), $allowedExt))
 		exit(0);
 
 	$matches = array();
@@ -156,6 +169,8 @@
 	//-- Если нет параметров, отдаем 404
 	if (! isset($matches[0]))
 	{
+		report404();
+
 		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
 		exit(0);
 	}
@@ -167,6 +182,8 @@
 	{
 		if (! in_array($check, $allowedAdmin))
 		{
+			report404();
+
 			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
 			exit(0);
 		}
@@ -223,6 +240,8 @@
 	if (! file_exists("$imagePath/$imageName"))
 	{
 		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+
+		report404();
 
 		$imageName = 'noimage.png';
 
@@ -281,7 +300,7 @@
 	//-- Если можно сохранять миниатюру
 	if ($save)
 	{
-		if (! file_exists($thumbPath) && ! mkdir($thumbPath, 0777))
+		if (! file_exists($thumbPath) && ! mkdir($thumbPath, 0777, true))
 			exit(0);
 
 		if ($thumb->save("$thumbPath/$thumbName"))

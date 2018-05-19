@@ -366,6 +366,7 @@ var AveAdmin = {
 		this.clear_revisions();
 		this.clear_counter();
 		this.cache_show();
+		this.docs_show();
 		this.main_form();
 		this.select_form();
 		this.sticky_panel();
@@ -666,6 +667,45 @@ var AveAdmin = {
 							success: function(data) {
 								$.alerts._overlay('hide');
 								$('#cachesize').html(data[0]);
+							}
+						});
+					}
+				}
+			);
+		});
+
+	},
+
+
+	//Показать размер кэша
+	docs_show: function() {
+
+		$('.showDocs').click(function(event, x) {
+			event.preventDefault();
+
+			var title = cacheShowTitle;
+			var confirm = cacheShowConfirm;
+
+			var rubric_id = $(this).attr('data-rubric-id');
+
+			var block = $(this);
+
+			jConfirm(
+				confirm,
+				title,
+				function(b) {
+					if (b) {
+						$.alerts._overlay('hide');
+						$.alerts._overlay('show');
+						$.ajax({
+							url: ave_path + 'admin/index.php?do=settings&sub=showcountdocs',
+							type: 'POST',
+							data: ({
+								rubric_id: rubric_id
+							}),
+							success: function(data) {
+								$.alerts._overlay('hide');
+								block.before(data).remove();
 							}
 						});
 					}

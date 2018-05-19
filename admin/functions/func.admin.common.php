@@ -8,6 +8,7 @@
 	 * @filesource
 	 */
 
+
 	/**
 	 * Если был referer, то перенапрявляем на него
 	 *
@@ -75,26 +76,33 @@
 		$AVE_Template->assign('logs', $logs);
 	}
 
+
 	/**
 	 * Список пользователей за последние $onlinetime секунд
 	 *
 	 * @param int $onlinetime количество секунд
 	 * @return Array массив из пользователей отсортированный по последней активности
 	 */
-	function get_online_users($onlinetime=USERS_TIME_SHOW)
+	function get_online_users($onlinetime = USERS_TIME_SHOW)
 	{
 		global $AVE_DB, $AVE_Template;
+
 		$time=(time()-intval($onlinetime));
+
 		$sql=@$AVE_DB->Query("SELECT * FROM ".PREFIX."_users WHERE last_visit>".$time." ORDER BY last_visit DESC");
+
 		$online_users=Array();
+
 		while ($row = $sql->FetchRow())
 		{
 			$row->user_name = get_username_by_id($row->Id);
 			$row->user_group_name = get_usergroup_by_id($row->user_group);
 			array_push($online_users,$row);
 		}
+
 		$AVE_Template->assign('online_users', $online_users);
 	}
+
 
 	/**
 	 * Форматированный вывод размера
@@ -105,21 +113,13 @@
 	function format_size($file_size)
 	{
 		if ($file_size >= 1073741824)
-		{
 			$file_size = round($file_size / 1073741824 * 100) / 100 . ' Gb';
-		}
 		elseif ($file_size >= 1048576)
-		{
 			$file_size = round($file_size / 1048576 * 100) / 100 . ' Mb';
-		}
 		elseif ($file_size >= 1024)
-		{
 			$file_size = round($file_size / 1024 * 100) / 100 . ' Kb';
-		}
 		else
-		{
 			$file_size = $file_size . ' b';
-		}
 
 		return $file_size;
 	}
@@ -135,36 +135,49 @@
 		$cnts = array();
 
 		$cnts['templates'] = $AVE_DB->Query("SELECT COUNT(*) FROM " . PREFIX . "_templates")->GetCell();
-		$cnts['documents'] = $AVE_DB->Query("SELECT COUNT(*) FROM " . PREFIX . "_documents")->GetCell();
-		$cnts['request']   = $AVE_DB->Query("SELECT COUNT(*) FROM " . PREFIX . "_request")  ->GetCell();
-		$cnts['rubrics']   = $AVE_DB->Query("SELECT COUNT(*) FROM " . PREFIX . "_rubrics")  ->GetCell();
+		$cnts['request']   = $AVE_DB->Query("SELECT COUNT(*) FROM " . PREFIX . "_request")->GetCell();
+		$cnts['rubrics']   = $AVE_DB->Query("SELECT COUNT(*) FROM " . PREFIX . "_rubrics")->GetCell();
 
 		$sql = $AVE_DB->Query("
 			SELECT
 				`ModuleStatus`,
 				COUNT(`ModuleStatus`) AS cntStatus
-			FROM " . PREFIX . "_module
+			FROM
+				" . PREFIX . "_module
 			GROUP BY `ModuleStatus`
 		");
+
 		while ($row = $sql->FetchRow())
-		{
 			$cnts['modules_' . $row->ModuleStatus] = $row->cntStatus;
-		}
 
 		$sql = $AVE_DB->Query("
 			SELECT
 				status,
 				COUNT(status) AS cntStatus
-			FROM " . PREFIX . "_users
+			FROM
+				" . PREFIX . "_users
 			GROUP BY status
 		");
+
 		while ($row = $sql->FetchRow())
-		{
 			$cnts['users_' . $row->status] = $row->cntStatus;
-		}
 
 		$AVE_Template->assign('cnts', $cnts);
 	}
+
+
+	function countDocuments($rubric_id = null)
+	{
+		global $AVE_DB;
+
+		if (is_numeric($rubric_id) && $rubric_id > 0)
+			$count = $AVE_DB->Query("SELECT COUNT(*) FROM " . PREFIX . "_documents WHERE rubric_id = '".$rubric_id."'")->GetCell();
+		else
+			$count = $AVE_DB->Query("SELECT COUNT(*) FROM " . PREFIX . "_documents")->GetCell();
+
+		echo $count;
+	}
+
 
 	/**
 	 * Размер дириктории
@@ -175,12 +188,16 @@
 	function get_dir_size($directory)
 	{
 		if (!is_dir($directory)) return -1;
+
 		$size = 0;
+
 		if ($DIR = opendir($directory))
 		{
 			while (($dirfile = readdir($DIR)) !== false)
 			{
-				if (@is_link($directory . '/' . $dirfile) || $dirfile == '.' || $dirfile == '..') continue;
+				if (@is_link($directory . '/' . $dirfile) || $dirfile == '.' || $dirfile == '..')
+					continue;
+
 				if (@is_file($directory . '/' . $dirfile))
 				{
 					$size += filesize($directory . '/' . $dirfile);
@@ -188,21 +205,20 @@
 				elseif (@is_dir($directory . '/' . $dirfile))
 				{
 					$dirSize = get_dir_size($directory . '/' . $dirfile);
+
 					if ($dirSize >= 0)
-					{
 						$size += $dirSize;
-					}
 					else
-					{
 						return -1;
-					}
 				}
 			}
+
 			closedir($DIR);
 		}
 
 		return $size;
 	}
+
 
 	/**
 	 * Размер базы данных
@@ -214,11 +230,11 @@
 		global $AVE_DB;
 
 		$mysql_size = 0;
+
 		$sql = $AVE_DB->Query("SHOW TABLE STATUS LIKE '" . PREFIX . "_%'");
+
 		while ($row = $sql->FetchAssocArray())
-		{
 			$mysql_size += $row['Data_length'] + $row['Index_length'];
-		}
 
 		return format_size($mysql_size);
 	}
@@ -392,14 +408,19 @@
 
 		$handle = fopen($filename, 'rb');
 
-		if ($handle === false) return false;
+		if ($handle === false)
+			return false;
 
 		while (!feof($handle))
 		{
 			$buffer = fread($handle, $chunksize);
+
 			echo $buffer;
+
 			flush();
-			if ($retbytes) $cnt += strlen($buffer);
+
+			if ($retbytes)
+				$cnt += strlen($buffer);
 		}
 
 		$status = fclose($handle);
@@ -504,7 +525,9 @@
 				$row->canDelete	   = 0;
 				$row->canEndDel	   = 0;
 				$row->canOpenClose	= 0;
-				$row->rubric_admin_teaser_template=@eval2var(' ?>'.($row->rubric_admin_teaser_template>'' ? @showrequestelement($row,$row->rubric_admin_teaser_template) : '').'<?php ');
+				$row->rubric_admin_teaser_template = @eval2var(' ?>'.($row->rubric_admin_teaser_template > ''
+					? @showrequestelement($row, $row->rubric_admin_teaser_template)
+					: '').'<?php ');
 
 				// разрешаем редактирование и удаление
 				// если автор имеет право изменять свои документы в рубрике
@@ -549,7 +572,7 @@
 
 	function showrubricName($id)
 	{
-		global $AVE_DB, $AVE_Template;
+		global $AVE_DB;
 
 		$sql = $AVE_DB->Query("SELECT rubric_title FROM " . PREFIX . "_rubrics WHERE Id='$id'");
 		$row = $sql->fetchrow();
@@ -558,7 +581,7 @@
 
 	function showuserName($id)
 	{
-		global $AVE_DB, $AVE_Template;
+		global $AVE_DB;
 
 		$sql = $AVE_DB->Query("SELECT user_name FROM " . PREFIX . "_users WHERE Id='$id'");
 		$row = $sql->fetchrow();
@@ -569,13 +592,16 @@
 	{
 		global $AVE_Template;
 
-		$showCache = format_size(get_dir_size($AVE_Template->compile_dir)+get_dir_size($AVE_Template->cache_dir_root));
+		$showCache = format_size(get_dir_size($AVE_Template->cache_dir_root));
 		echo json_encode(array($showCache, 'accept'));
 	}
 
+
+
+
 	function templateName($id)
 	{
-		global $AVE_DB, $AVE_Template;
+		global $AVE_DB;
 
 		$sql = $AVE_DB->Query("
 			SELECT * FROM " . PREFIX . "_templates
@@ -588,7 +614,7 @@
 
 	function groupName($id)
 	{
-		global $AVE_DB, $AVE_Template;
+		global $AVE_DB;
 
 		$sql = $AVE_DB->Query("
 			SELECT * FROM " . PREFIX . "_user_groups
