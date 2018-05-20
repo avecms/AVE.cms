@@ -133,13 +133,6 @@
 
 		exit;
 	}
-	else
-		{
-			report404();
-
-			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
-			exit(0);
-		}
 
 	list(, $thumbPath) = explode('/' . UPLOAD_DIR . '/', dirname($imagefile), 2);
 
@@ -148,6 +141,12 @@
 	// --
 	if ($lenThumbDir && substr($thumbPath, -$lenThumbDir) != THUMBNAIL_DIR)
 	{
+		if (! file_exists($baseDir . $imagefile))
+		{
+			report404();
+
+			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+		}
 		exit(0);
 	}
 
@@ -212,7 +211,7 @@
 
 		if (file_exists($l . '.tmp'))
 		{
-			include_once(BASE_DIR.'/functions/func.common.php');
+			include_once (BASE_DIR . '/functions/func.common.php');
 
 			$abs_path = dirname((!strstr($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_NAME']) && (@php_sapi_name() == 'cgi'))
 				? $_SERVER['PHP_SELF']
@@ -226,7 +225,7 @@
 
 			if ($img)
 			{
-				file_put_contents("$imagePath/$imageName",$img);
+				file_put_contents("$imagePath/$imageName", $img);
 
 				setEXIFF("$imagePath/$imageName");
 
@@ -246,9 +245,7 @@
 		$imageName = 'noimage.png';
 
 		if (! file_exists("$imagePath/$imageName"))
-		{
 			$imagePath = $baseDir . '/' . UPLOAD_DIR . '/images';
-		}
 
 		if (! file_exists("$imagePath/$imageName"))
 			exit(0);
@@ -256,7 +253,7 @@
 		$save = false;
 	}
 
-	require $baseDir.'/class/class.thumbnail.php';
+	require $baseDir . '/class/class.thumbnail.php';
 
 	$thumb = new Image_Toolbox("$imagePath/$imageName");
 
