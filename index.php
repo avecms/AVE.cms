@@ -97,10 +97,8 @@
 
 	$content = ob_get_clean();
 
-	if (substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') && GZIP_COMPRESSION)
-	{
+	if (substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') && (defined('GZIP_COMPRESSION') && GZIP_COMPRESSION))
 		ob_start('ob_gzhandler');
-	}
 	else
 		ob_start();
 
@@ -166,23 +164,6 @@
 
 	unset ($rubheader, $rubfooter);
 
-	//-- Header Engine
-	header('X-Engine: AVE.cms');
-	header('X-Engine-Copyright: 2007-' . date('Y') . ' (c) AVE.cms');
-	header('X-Engine-Site: https://ave-cms.ru');
-
 	//-- Вывод конечного результата
 	output_compress($render);
-
-	//-- Вывод статистики загрузки и запросов SQL (только для администраторов)
-	if (
-		! defined('ONLYCONTENT')
-		&&
-		! GZIP_COMPRESSION
-		&&
-		UGROUP == 1
-		&&
-		defined('PROFILING') && PROFILING
-	)
-		Debug::displayInfo();
 ?>

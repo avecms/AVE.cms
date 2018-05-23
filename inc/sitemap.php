@@ -153,7 +153,7 @@
 
 	$res = $AVE_DB->Query($sql, SITEMAP_CACHE_LIFETIME, 'sitemap', true, '.limit');
 
-	if (! $res->NumRows())
+	if (! $res->NumRows() && (int)$_REQUEST['id'] != 1)
 	{
 		report404();
 		$AVE_DB->clearCurrentCache('sitemap', $sql, '.limit');

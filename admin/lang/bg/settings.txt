@@ -79,7 +79,6 @@ SETTINGS_MAIN_MAIL  	= "Настройки на пощата"
 SETTINGS_MAIN_PAGENAVI  = "Настройки на извеждането на пострничната навигация"
 SETTINGS_NAME           = "Параметър"
 SETTINGS_VALUE          = "Значение"
-SETTINGS_USE_EDITOR      = "Редактор по подразбиране"
 SETTINGS_EDITOR_CKEDITOR = "CKEditor"
 
 SETTINGS_ERROR = "Грешка"

@@ -213,7 +213,6 @@
 	require_once (BASE_DIR . '/functions/func.users.php');			// Функции по работе с пользователями
 	require_once (BASE_DIR . '/functions/func.watermarks.php');		// Функции по работе с водными знаками
 
-
 	//-- Создание папок и файлов
 	foreach (array(ATTACH_DIR, 'cache', 'backup', 'logs', 'session', 'update') as $dir)
 		write_htaccess_deny(BASE_DIR . '/tmp/' . $dir);

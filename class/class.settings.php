@@ -72,33 +72,36 @@
 			{
 				$set = '<?php' . "\r\n\r\n";
 
-				foreach($_REQUEST['GLOB'] as $k => $v)
+				foreach($_REQUEST['GLOB'] as $key => $type)
 				{
-					switch ($GLOBALS['CMS_CONFIG'][$k]['TYPE'])
+					foreach($type as $k => $v)
 					{
-							case 'bool' :
-								$v = $v ? 'true' : 'false';
-							break;
+						switch ($GLOBALS['CMS_CONFIG'][$key][$k]['TYPE'])
+						{
+								case 'bool' :
+									$v = $v ? 'true' : 'false';
+								break;
 
-							case 'integer' :
-								$v = intval($v);
-							break;
+								case 'integer' :
+									$v = intval($v);
+								break;
 
-							case 'string' :
-								$v = "'" . add_slashes($v) . "'";
-							break;
+								case 'string' :
+									$v = "'" . add_slashes($v) . "'";
+								break;
 
-							case 'dropdown' :
-								$v = "'" . add_slashes($v) . "'";
-							break;
+								case 'dropdown' :
+									$v = "'" . add_slashes($v) . "'";
+								break;
 
-							default :
-								$v = "'" . add_slashes($v) . "'";
-							break;
+								default :
+									$v = "'" . add_slashes($v) . "'";
+								break;
+						}
+
+						$set .= "\t" . "// " . $GLOBALS['CMS_CONFIG'][$key][$k]['DESCR'] . "\r\n";
+						$set .= "\t" . "define('" . $k . "', " . $v . ");\r\n\r\n";
 					}
-
-					$set .= "//" . $GLOBALS['CMS_CONFIG'][$k]['DESCR'] . "\r\n";
-					$set .= "define('" . $k . "', " . $v . ");\r\n\r\n";
 				}
 
 				$set .= '?>';
@@ -205,8 +208,7 @@
 					bread_link_box_last  = '" . ($_REQUEST['bread_link_box_last'] != 0 ? 1 : 0) . "',
 					date_format			  = '" . $_REQUEST['date_format'] . "',
 					time_format			  = '" . $_REQUEST['time_format'] . "',
-					use_doctime			  = '" . intval($_REQUEST['use_doctime']) . "',
-					use_editor			  = '" . intval($_REQUEST['use_editor']) . "'
+					use_doctime			  = '" . intval($_REQUEST['use_doctime']) . "'
 				WHERE
 					Id = 1
 			");
@@ -221,7 +223,6 @@
 				{
 					$this->clearSettingsCache();
 
-					$_SESSION['use_editor'] = intval($_REQUEST['use_editor']);
 					$message = $AVE_Template->get_config_vars('SETTINGS_SAVED');
 					$header = $AVE_Template->get_config_vars('SETTINGS_SUCCESS');
 					$theme = 'accept';

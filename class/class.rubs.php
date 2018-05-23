@@ -524,14 +524,6 @@
 						rubric_id = '" . $rubric_id . "'
 				");
 
-				// Очищаем кэш шаблона документов рубрики
-				$AVE_DB->Query("
-					DELETE FROM
-						" . PREFIX . "_rubric_template_cache
-					WHERE
-						rub_id = '" . $rubric_id . "'
-				");
-
 				// Удалить КЕШ
 				$AVE_DB->clearCache('rub_' . $rubric_id);
 

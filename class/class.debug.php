@@ -719,7 +719,7 @@
 			$out .= PHP_EOL;
 			$out .= '</div>';
 
-			echo $out;
+			return $out;
 		}
 	}
 ?>

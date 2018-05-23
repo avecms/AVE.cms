@@ -400,32 +400,6 @@
 
 
 	/**
-	 * Подготовка текста через API Яндекса (перевод с русского на английский)
-	 *
-	 * @param string $text
-	 * @return string
-	 */
-	function y_translate($text)
-	{
-		include_once BASE_DIR.'/lib/translate/Yandex_Translate.php';
-
-		$translator = new Yandex_Translate();
-
-		$translatedText = $translator->yandexTranslate('ru', 'en', $text);
-
-		$translatedText = strtolower($translatedText);
-
-		$translatedText = preg_replace(
-			array('/^[\/-]+|[\/-]+$|^[\/_]+|[\/_]+$|[^\.a-zа-яеёA-ZА-ЯЕЁ0-9\/_-]/u', '/--+/', '/-*\/+-*/', '/\/\/+/'),
-			array('-',													  '-',	 '/',		 '/'),
-			$translatedText
-		);
-
-		return $translatedText;
-	}
-
-
-	/**
 	 * Подготовка URL
 	 *
 	 * @param string $url
@@ -950,7 +924,7 @@
 
 
 	/**
-	 * Функция поиска ключевых слов
+	 * Функция поиска тегов
 	 *
 	 * @param string $string - запрос
 	 * @return string
@@ -1078,7 +1052,8 @@
 	 *
 	 * @return string
 	 */
-	function compress_htlm($data) {
+	function compress_htlm($data)
+	{
 
 		$search = array(
 			'/\>[^\S ]+/s',		// strip whitespaces after tags, except space
@@ -1109,46 +1084,48 @@
 	{
 		global $AVE_DB;
 
-		$Gzip = strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false;
-
-		if (HTML_COMPRESSION)
-			$data = compress_htlm($data);
-
-		if ($Gzip && GZIP_COMPRESSION)
+		//-- Вывод статистики загрузки и запросов SQL (только для администраторов)
+		if (! defined('ONLYCONTENT') && UGROUP == 1)
 		{
-			if (
-				! defined('ONLYCONTENT')
-				&&
-				UGROUP == 1
-				&&
-				defined('PROFILING') && PROFILING
-			)
+			if (defined('PROFILING') && PROFILING == 'light')
 			{
 				$data .= "\r\n" . "<!-- ------ Time generation: ".Debug::getStatistic('time')." sec ----- -->";
 				$data .= "\r\n" . "<!-- ------ Memory usage: ".Debug::getStatistic('memory')." ----- -->";
 				$data .= "\r\n" . "<!-- ------ Memory peak usage: ".Debug::getStatistic('peak')." ----- -->";
-				$data .= "\r\n" . "<!-- ------ SQL Queries: ".$AVE_DB->DBProfilesGet('count')." for ".$AVE_DB->DBProfilesGet('time')." sec ----- -->";
-			}
 
-			$content = gzencode($data, 9);
+				if (defined('SQL_PROFILING') && SQL_PROFILING)
+					$data .= "\r\n" . "<!-- ------ SQL Queries: ".$AVE_DB->DBProfilesGet('count')." for ".$AVE_DB->DBProfilesGet('time')." sec ----- -->";
+			}
+			else if (defined('PROFILING') && PROFILING == 'full')
+				$data .= Debug::displayInfo();
+		}
+
+		$Gzip = strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false;
+
+		if (defined('HTML_COMPRESSION') && HTML_COMPRESSION)
+			$data = compress_htlm($data);
+
+		if ($Gzip && (defined('GZIP_COMPRESSION') && GZIP_COMPRESSION))
+		{
+			$data = gzencode($data, 9);
 			header ('Content-Encoding: gzip');
 		}
-		else
-			{
-				$content = $data;
-			}
+
+		header ('X-Engine: AVE.cms');
+		header ('X-Engine-Copyright: 2007-' . date('Y') . ' (c) AVE.cms');
+		header ('X-Engine-Site: https://www.ave-cms.ru');
 
 		header ('Content-Type: text/html; charset=utf-8');
 		header ('Cache-Control: must-revalidate');
-		if (OUTPUT_EXPIRE)
+		if (defined('OUTPUT_EXPIRE') && OUTPUT_EXPIRE)
 		{
 			$expire = 'Expires: ' . gmdate ("D, d M Y H:i:s", time() + OUTPUT_EXPIRE_OFFSET) . ' GMT';
 			header ($expire);
 		}
-		header ('Content-Length: ' . strlen($content));
+		header ('Content-Length: ' . strlen($data));
 		header ('Vary: Accept-Encoding');
 
-		echo $content;
+		echo $data;
 	}
 
 

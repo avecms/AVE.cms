@@ -1736,15 +1736,6 @@
 					}
 			}
 
-			// Очищаем кэш шаблона
-			$AVE_DB->Query("
-				DELETE
-				FROM
-					" . PREFIX . "_rubric_template_cache
-				WHERE
-					doc_id = '" . $document_id . "'
-			");
-
 			$field_module = isset($data['field_module'])
 				? $data['field_module']
 				: '';
@@ -2838,14 +2829,6 @@
 						f1.document_id = '" . $document_id . "'
 					AND
 						f2.document_id = f1.document_id
-				");
-
-				// Очищаем кэш шаблона
-				$AVE_DB->Query("
-					DELETE FROM
-						" . PREFIX . "_rubric_template_cache
-					WHERE
-						doc_id = '" . $document_id . "'
 				");
 
 				$hash_url = md5($row->document_alias);
@@ -3958,7 +3941,7 @@
 			$alias  = empty($_REQUEST['alias'])  ? '' : prepare_url($_REQUEST['alias']);
 			$prefix = empty($_REQUEST['prefix']) ? '' : prepare_url($_REQUEST['prefix']);
 			$title  = empty($_REQUEST['title'])  ? '' : $_REQUEST['title'];
-			$title  = (URL_YANDEX==true) ? y_translate($title) : prepare_url($title);
+			$title  = prepare_url($title);
 
 			if ($alias != $title && $alias != trim($prefix . '/' . $title, '/'))
 				$alias = trim($alias . '/' . $title, '/');

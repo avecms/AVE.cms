@@ -46,7 +46,7 @@
 				exit;
 
 			case 'restore':
-				$AVE_DB_Service->databaseDumpImport(BASE_DIR . "/tmp/" . ATTACH_DIR . "/");
+				$AVE_DB_Service->databaseDumpImport(BASE_DIR . '/tmp/backup/');
 				break;
 
 			case 'download':

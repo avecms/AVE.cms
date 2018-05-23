@@ -1,8 +1,6 @@
-{if $smarty.session.use_editor == 0}
 <script>
 	CKEDitor_loaded = false;
 </script>
-{/if}
 
 <script type="text/javascript">
 
@@ -766,7 +764,7 @@ $(document).ready(function(){ldelim}
 	{rdelim}
 
 	function SaveAjax () {ldelim}
-		{if $smarty.session.use_editor == '0'}if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();{/if}
+		if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
 		{if $smarty.request.action=='edit'}
 		$('#formDoc').ajaxSubmit(sett_options);
 		{else}
@@ -786,14 +784,14 @@ $(document).ready(function(){ldelim}
 
 		Mousetrap.bind(['ctrl+s', 'command+s'], function(event) {ldelim}
 			event.preventDefault();
-			{if $smarty.session.use_editor == '0'}if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();{/if}
+			if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
 			SaveAjax();
 			return false;
 		{rdelim});
 
 		$('.SaveEdit').click(function (event) {ldelim}
 			event.preventDefault();
-			{if $smarty.session.use_editor == '0'}if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();{/if}
+			if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
 			SaveAjax();
 			return false;
 		{rdelim});
@@ -803,7 +801,7 @@ $(document).ready(function(){ldelim}
 			docLook();
 			return false;
 		{rdelim});
-	{if $smarty.session.use_editor == '0'}
+
 		{literal}
 			window.onload = function(){
 				if (window.CKEDITOR) {
@@ -813,6 +811,6 @@ $(document).ready(function(){ldelim}
 				}
 			}
 		{/literal}
-	{/if}
+
 	{rdelim});
 </script>

@@ -252,12 +252,6 @@
 					$m->flush();
 				}
 
-				// Очищаем кэш шаблона документов рубрики
-				$AVE_DB->Query("
-					DELETE FROM
-						" . PREFIX . "_rubric_template_cache
-				");
-
 				$message[] = $AVE_Template->get_config_vars('TEMPLATES_CACHE_SUCCESS');
 				reportLog($AVE_Template->get_config_vars('TEMPLATES_CACHE_SUCCESS_LOG'));
 

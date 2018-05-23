@@ -45,7 +45,6 @@
 				switch($_REQUEST['sub'])
 				{
 					case 'quicksave':
-						$_SESSION['use_editor'] = get_settings('use_editor');
 						$AVE_Document->quickSave();
 						break;
 				}
@@ -73,7 +72,6 @@
 		case 'edit':
 			if (check_permission_acp('document_view'))
 			{
-				$_SESSION['use_editor'] = get_settings('use_editor');
 				if (isset($_REQUEST['sub']) && $_REQUEST['sub'] != 'save')
 				{
 					$AVE_Navigation->navigationAllItemList();
@@ -86,7 +84,6 @@
 		case 'copy':
 			if (check_permission_acp('document_view'))
 			{
-				$_SESSION['use_editor'] = get_settings('use_editor');
 				$AVE_Navigation->navigationAllItemList();
 				$AVE_Request->requestListFetch();
 				$AVE_Document->documentCopy((int)$_REQUEST['Id']);
@@ -96,8 +93,6 @@
 		case 'new':
 			if (check_permission_acp('document_view'))
 			{
-				$_SESSION['use_editor'] = get_settings('use_editor');
-
 				if (isset($_REQUEST['sub']) && $_REQUEST['sub'] != 'save')
 				{
 					$AVE_Navigation->navigationAllItemList();

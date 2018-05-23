@@ -683,8 +683,8 @@ var AveAdmin = {
 		$('.showDocs').click(function(event, x) {
 			event.preventDefault();
 
-			var title = cacheShowTitle;
-			var confirm = cacheShowConfirm;
+			var title = docsShowTitle;
+			var confirm = docsShowConfirm;
 
 			var rubric_id = $(this).attr('data-rubric-id');
 

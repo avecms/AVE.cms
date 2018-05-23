@@ -672,8 +672,17 @@
 			global $AVE_DB, $AVE_Template;
 
 			// Проверяем теги полей в шаблоне рубрики на условие != ''
-			$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.'?'.'>', $rubTmpl);
-			$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.'?'.'>', $main_content);
+			if (defined('USE_GET_FIELDS') && USE_GET_FIELDS)
+			{
+				$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.'?'.'>', $rubTmpl);
+				$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.'?'.'>', $main_content);
+			}
+			else
+				{
+					$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.'?'.'>', $rubTmpl);
+					$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.'?'.'>', $main_content);
+				}
+
 			$main_content = str_replace('[tag:if:else]', '<?php }else{ ?>', $main_content);
 			$main_content = str_replace('[tag:/if]', '<?php } ?>', $main_content);
 

@@ -5,10 +5,6 @@
 	var clipboard = new Clipboard('.copyBtn');
 </script>
 
-{if $smarty.session.use_editor == 0}
-
-{/if}
-
 <div class="title">
 	<h5>{#BLOCK_INSERT_H#}</h5>
 </div>
@@ -82,9 +78,7 @@
 			<tbody>
 				<tr>
 					<td>
-						{if $smarty.session.use_editor == 0}
-							{$block_text}
-						{/if}
+						{$block_text}
 					</td>
 				</tr>
 			</tbody>
@@ -170,7 +164,7 @@
 	{rdelim}
 
 	function SaveAjax () {ldelim}
-		{if $smarty.session.use_editor == '0'}if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();{/if}
+		if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
 		{if $smarty.request.action=='edit'}
 		$('#block').ajaxSubmit(sett_options);
 		{else}
@@ -182,19 +176,18 @@
 
 		Mousetrap.bind(['ctrl+s', 'command+s'], function(event) {ldelim}
 			event.preventDefault();
-			{if $smarty.session.use_editor == '0'}if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();{/if}
+			if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
 			SaveAjax();
 			return false;
 		{rdelim});
 
 		$('.SaveEdit').click(function (event) {ldelim}
 			event.preventDefault();
-			{if $smarty.session.use_editor == '0'}if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();{/if}
+			if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
 			SaveAjax();
 			return false;
 		{rdelim});
 
-	{if $smarty.session.use_editor == '0'}
 		{literal}
 			window.onload = function(){
 				if (window.CKEDITOR) {
@@ -204,7 +197,7 @@
 				}
 			}
 		{/literal}
-	{/if}
+
 	{rdelim});
 </script>
 {/if}

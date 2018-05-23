@@ -29,7 +29,7 @@
 
 <form id="settings" name="settings" method="post" action="index.php?do=settings&cp={$sess}&sub=save&more=case" class="mainForm">
 <fieldset>
-<div class="widget first">
+	<div class="widget first">
 
 	<ul class="inact_tabs">
 		{if check_permission('gen_settings')}<li><a href="index.php?do=settings&cp={$sess}">{#SETTINGS_MAIN_SETTINGS#}</a></li>{/if}
@@ -39,57 +39,70 @@
 		<li><a href="index.php?do=settings&action=paginations&cp={$sess}">{#SETTINGS_PAGINATION#}</a></li>
 	</ul>
 
-<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
-<col width="300" />
-<col />
 
-<thead>
-<tr>
-	<td>{#SETTINGS_NAME#}</td>
-	<td><div class="pr12">{#SETTINGS_VALUE#}</div></td>
-</tr>
-</thead>
-<tbody>
-	{foreach from=$CMS_CONFIG item=def key=_var}
-	<tr>
-	<td>{$def.DESCR} <br /><small>{$_var}</small></td>
-		<td>
-			{if $def.TYPE=="dropdown"}
-				<select class="mousetrap" name="GLOB[{$_var}]" style="width: 250px;">
-					{foreach from=$def.VARIANT item=elem}
+
+
+</div>
+</fieldset>
+
+{foreach from=$CMS_CONFIG item=category key=type}
+{assign var="header" value=$type|strtolower}
+<div class="widget first">
+	<div class="head">
+		<h5 class="iFrames">{$smarty.config.$header}</h5>
+	</div>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
+		<col width="300" />
+		<col />
+		<thead>
+			<tr>
+				<td>{#SETTINGS_NAME#}</td>
+				<td><div class="pr12">{#SETTINGS_VALUE#}</div></td>
+			</tr>
+		</thead>
+		<tbody>
+		{foreach from=$category item=def key=_var}
+		<tr>
+			<td>
+				<strong><small>{$_var}</small></strong><br />
+				{$def.DESCR}
+			</td>
+			<td>
+				{if $def.TYPE=="dropdown"}
+					<select class="mousetrap" name="GLOB[{$type}][{$_var}]" style="width: 250px;">
+						{foreach from=$def.VARIANT item=elem}
 						<option value="{$elem}"
 							{php}
-								echo (constant($this->_tpl_vars['_var'])==$this->_tpl_vars['elem'] ? 'selected' :'' );
+								echo (constant($this->_tpl_vars['_var']) == $this->_tpl_vars['elem'] ? 'selected' :'' );
 							{/php}>{$elem}
 						</option>
-					{/foreach}
-				</select>
-			{/if}
-			{if $def.TYPE=="string"}
-				<input class="mousetrap" name="GLOB[{$_var}]" type="text" id="{$_var}" style="width:550px" value="{php} echo(constant  ($this->_tpl_vars['_var']));{/php}" size="100" autocomplete="off" />
-			{/if}
-			{if $def.TYPE=="integer"}
-				<input class="mousetrap" name="GLOB[{$_var}]" type="text" id="{$_var}" style="width:550px" value="{php} echo(constant  ($this->_tpl_vars['_var']));{/php}" size="100" autocomplete="off" />
-			{/if}
-			{if $def.TYPE=="bool"}
-				<input type="radio" name="GLOB[{$_var}]" value="1" {php} echo(constant($this->_tpl_vars['_var']) ? 'checked' : "");{/php} /><label style="cursor: pointer;">{#SETTINGS_YES#}</label>
-				<input type="radio" name="GLOB[{$_var}]" value="0" {php} echo(constant($this->_tpl_vars['_var']) ? '' : "checked");{/php} /><label style="cursor: pointer;">{#SETTINGS_NO#}</label>
-			{/if}
-		</td>
-	</tr>
+						{/foreach}
+					</select>
+				{/if}
+				{if $def.TYPE=="string"}
+					<input class="mousetrap" name="GLOB[{$type}][{$_var}]" type="text" id="{$_var}" style="width:550px" value="{php} echo(constant($this->_tpl_vars['_var']));{/php}" size="100" autocomplete="off" />
+				{/if}
+				{if $def.TYPE=="integer"}
+					<input class="mousetrap" name="GLOB[{$type}][{$_var}]" type="text" id="{$_var}" style="width:550px" value="{php} echo(constant($this->_tpl_vars['_var']));{/php}" size="100" autocomplete="off" />
+				{/if}
+				{if $def.TYPE=="bool"}
+					<input type="radio" name="GLOB[{$type}][{$_var}]" value="1" {php} echo(constant($this->_tpl_vars['_var']) ? 'checked' : "");{/php} /><label style="cursor: pointer;">{#SETTINGS_YES#}</label>
+					<input type="radio" name="GLOB[{$type}][{$_var}]" value="0" {php} echo(constant($this->_tpl_vars['_var']) ? '' : "checked");{/php} /><label style="cursor: pointer;">{#SETTINGS_NO#}</label>
+				{/if}
+			</td>
+		</tr>
 		{/foreach}
-	</tbody>
-</table>
+		</tbody>
+	</table>
+</div>
+{/foreach}
+
 
 	<div class="rowElem" id="saveBtn">
 		<div class="saveBtn">
 			<input type="submit" class="basicBtn" value="{#SETTINGS_BUTTON_SAVE#}" />&nbsp;{#SETTINGS_OR#}&nbsp;<input type="submit" class="button blackBtn SaveSettings" value="{#SETTINGS_BUTTON_SAVE_AJAX#}" />
 		</div>
 	</div>
-
-
-</div>
-</fieldset>
 
 </form>
 

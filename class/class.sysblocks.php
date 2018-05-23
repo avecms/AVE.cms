@@ -180,19 +180,14 @@
 
 			if ((isset($_REQUEST['sysblock_visual']) && $_REQUEST['sysblock_visual'] == 1) ||  $row['sysblock_visual'] == 1)
 			{
-				switch ($_SESSION['use_editor'])
-				{
-					case '0': // CKEditor
-					case '1':
-						$oCKeditor = new CKeditor();
-						$oCKeditor->returnOutput = true;
-						$oCKeditor->config['customConfig'] = 'sysblock.js';
-						$oCKeditor->config['toolbar'] = 'Big';
-						$oCKeditor->config['height'] = 400;
-						$config = array();
-						$row['sysblock_text'] = $oCKeditor->editor('sysblock_text', $row['sysblock_text'], $config);
-						break;
-				}
+				$oCKeditor = new CKeditor();
+				$oCKeditor->returnOutput = true;
+				$oCKeditor->config['customConfig'] = 'sysblock.js';
+				$oCKeditor->config['toolbar'] = 'Big';
+				$oCKeditor->config['height'] = 400;
+				$config = array();
+				$row['sysblock_text'] = $oCKeditor->editor('sysblock_text', $row['sysblock_text'], $config);
+
 				$AVE_Template->assign($row);
 				$AVE_Template->assign('content', $AVE_Template->fetch('sysblocks/form_visual.tpl'));
 			}
@@ -219,19 +214,13 @@
 
 			if ((isset($_REQUEST['sysblock_visual']) && $_REQUEST['sysblock_visual'] == 1) ||  $row['sysblock_visual'] == 1)
 			{
-				switch ($_SESSION['use_editor'])
-				{
-					case '0': // CKEditor
-					case '1':
-						$oCKeditor = new CKeditor();
-						$oCKeditor->returnOutput = true;
-						$oCKeditor->config['customConfig'] = 'sysblock.js';
-						$oCKeditor->config['toolbar'] = 'Big';
-						$oCKeditor->config['height'] = 400;
-						$config = array();
-						$row['sysblock_text'] = $oCKeditor->editor('sysblock_text', $row['sysblock_text'], $config);
-						break;
-				}
+				$oCKeditor = new CKeditor();
+				$oCKeditor->returnOutput = true;
+				$oCKeditor->config['customConfig'] = 'sysblock.js';
+				$oCKeditor->config['toolbar'] = 'Big';
+				$oCKeditor->config['height'] = 400;
+				$config = array();
+				$row['sysblock_text'] = $oCKeditor->editor('sysblock_text', $row['sysblock_text'], $config);
 
 				$AVE_Template->assign($row);
 				$AVE_Template->assign('content', $AVE_Template->fetch('sysblocks/form_visual.tpl'));

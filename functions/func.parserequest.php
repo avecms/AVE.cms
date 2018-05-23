@@ -419,8 +419,17 @@
 
 		if (! file_exists($cachefile_docid))
 		{
-			$template = preg_replace("/\[tag:if_notempty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(request_get_document_field(\'$1\', '.$row->Id.', \'$2\', '.(int)$row->rubric_id.'), ENT_QUOTES)) != \'\') { '.'?'.'>', $template);
-			$template = preg_replace("/\[tag:if_empty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(request_get_document_field(\'$1\', '.$row->Id.', \'$2\', '.(int)$row->rubric_id.'), ENT_QUOTES)) == \'\') { '.'?'.'>', $template);
+			if (defined('USE_GET_FIELDS') && USE_GET_FIELDS)
+			{
+				$template = preg_replace("/\[tag:if_notempty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\', '.$row->Id.'), ENT_QUOTES)) != \'\') { '.'?'.'>', $template);
+				$template = preg_replace("/\[tag:if_empty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\', '.$row->Id.'), ENT_QUOTES)) == \'\') { '.'?'.'>', $template);
+			}
+			else
+				{
+					$template = preg_replace("/\[tag:if_notempty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(request_get_document_field(\'$1\', '.$row->Id.', \'$2\', '.(int)$row->rubric_id.'), ENT_QUOTES)) != \'\') { '.'?'.'>', $template);
+					$template = preg_replace("/\[tag:if_empty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(request_get_document_field(\'$1\', '.$row->Id.', \'$2\', '.(int)$row->rubric_id.'), ENT_QUOTES)) == \'\') { '.'?'.'>', $template);
+				}
+
 			$template = str_replace('[tag:if:else]', '<?php }else{ ?>', $template);
 			$template = str_replace('[tag:/if]', '<?php } ?>', $template);
 

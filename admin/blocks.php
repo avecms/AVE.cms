@@ -37,7 +37,6 @@
 		case 'new':
 			if (check_permission_acp('blocks_edit'))
 			{
-				$_SESSION['use_editor'] = get_settings('use_editor');
 				$AVE_Block->blockNew();
 			}
 			break;
@@ -45,7 +44,6 @@
 		case 'edit':
 			if (check_permission_acp('blocks_edit'))
 			{
-				$_SESSION['use_editor'] = get_settings('use_editor');
 				$AVE_Block->blockEdit(isset($_REQUEST['id']) ? $_REQUEST['id'] : null);
 			}
 			break;

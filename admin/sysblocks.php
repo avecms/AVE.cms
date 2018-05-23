@@ -36,7 +36,6 @@
 		case 'new':
 			if (check_permission_acp('sysblocks_edit'))
 			{
-				$_SESSION['use_editor'] = get_settings('use_editor');
 				$AVE_SysBlock->sys_blockNew();
 			}
 			break;
@@ -44,7 +43,6 @@
 		case 'edit':
 			if (check_permission_acp('sysblocks_edit'))
 			{
-				$_SESSION['use_editor'] = get_settings('use_editor');
 				$AVE_SysBlock->sys_blockEdit(isset($_REQUEST['id']) ? $_REQUEST['id'] : null);
 			}
 			break;

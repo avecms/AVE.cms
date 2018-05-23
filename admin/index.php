@@ -75,7 +75,6 @@
 	getInstaledModules();
 	LoginModuleCheck();
 
-	$AVE_Template->assign('use_editor', get_settings('use_editor'));
 	$AVE_Template->assign('user_avatar', getAvatar($_SESSION['user_id'],25));
 
 	if (! isset($_REQUEST['do']))		$_REQUEST['do']     = '';

@@ -109,15 +109,6 @@
 </tr>
 
 <tr>
-	<td>{#SETTINGS_USE_EDITOR#}</td>
-	<td>
-		<div class="pr12">
-			<input type="radio" name="use_editor" value="0"{if $row.use_editor==0} checked{/if} /><label style="cursor: pointer;">{#SETTINGS_EDITOR_CKEDITOR#}</label>
-		</div>
-	</td>
-</tr>
-
-<tr>
 	<td>{#SETTINGS_ERROR_PAGE#}</td>
 	<td>
 		<div class="pr12">

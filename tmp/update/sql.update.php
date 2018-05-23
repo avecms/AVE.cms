@@ -229,7 +229,6 @@
 		");
 	}
 
-
 	// ----------------------------------------------------------------------------------------
 
 	$check = $AVE_DB->Query("
@@ -261,7 +260,68 @@
 		");
 	}
 
+
 	/* -------------------------------------------------------------------------------------------------------------- */
 	/* -------------------------------------------------------3.25---------------------------------------------------- */
 	/* -------------------------------------------------------------------------------------------------------------- */
+
+
+	$check = $AVE_DB->Query("
+		SELECT COUNT(1)
+		FROM INFORMATION_SCHEMA.STATISTICS
+		WHERE
+			TABLE_SCHEMA = DATABASE()
+		AND TABLE_NAME = '" . PREFIX . "_document_fields'
+		AND INDEX_NAME = 'queries';
+	")->GetCell();
+
+	$exist = ($check > 0) ? true : false;
+
+	if ($exist === false)
+	{
+		$AVE_DB->Real_Query("
+			CREATE INDEX queries ON " . PREFIX . "_document_fields(document_id, rubric_field_id)
+		");
+	}
+
+	// ----------------------------------------------------------------------------------------
+
+	$check = $AVE_DB->Query("
+		SELECT 1
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE
+			TABLE_SCHEMA = DATABASE()
+		AND TABLE_NAME = 'ave325_settings'
+		AND COLUMN_NAME = 'use_editor';
+	")->GetCell();
+
+	$exist = ($check) ? true : false;
+
+	if ($exist === true)
+	{
+		$AVE_DB->Real_Query("
+			ALTER TABLE " . PREFIX . "_settings
+			DROP use_editor;
+		");
+	}
+
+	// ----------------------------------------------------------------------------------------
+
+	$check = $AVE_DB->Query("
+		SELECT COUNT(1)
+		FROM INFORMATION_SCHEMA.TABLES
+		WHERE
+			TABLE_SCHEMA = DATABASE()
+		AND TABLE_NAME = '" . PREFIX . "_rubric_template_cache';
+	")->GetCell();
+
+	$exist = ($check > 0) ? true : false;
+
+	if ($exist === true)
+	{
+		$AVE_DB->Real_Query("
+			DROP TABLE " . PREFIX . "_rubric_template_cache;
+		");
+	}
+
 ?>

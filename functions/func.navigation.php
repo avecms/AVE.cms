@@ -54,7 +54,7 @@
 		if (defined('DEV_MODE') AND DEV_MODE || $expnad_ext != 1)
 			$cache_file = null;
 
-		if (! file_exists(dirname($cache_file)))
+		if (! is_dir(dirname($cache_file)))
 			mkdir(dirname($cache_file), 0766, true);
 
 		// получаем меню навигации по id,

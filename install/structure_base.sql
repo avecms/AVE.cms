@@ -31,9 +31,10 @@ CREATE TABLE `%%PRFX%%_document_fields` (
 	`document_in_search` enum('1','0') NOT NULL DEFAULT '1',
 	PRIMARY KEY (`Id`),
 	KEY `document_id` (`document_id`),
-	KEY `rubric_field_id` (`rubric_field_id`),
-	KEY `field_value` (`field_value`),
-	KEY `field_number_value` (`field_number_value`)
+	KEY `field_id` (`rubric_field_id`),
+	KEY `value` (`field_value`),
+	KEY `number_value` (`field_number_value`),
+	KEY `queries` (`document_id`, `rubric_field_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -44,7 +45,7 @@ CREATE TABLE `%%PRFX%%_document_fields_text` (
 	`field_value` longtext NOT NULL,
 	PRIMARY KEY (`Id`),
 	KEY `document_id` (`document_id`),
-	KEY `rubric_field_id` (`rubric_field_id`)
+	KEY `field_id` (`rubric_field_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -115,13 +116,14 @@ CREATE TABLE `%%PRFX%%_documents` (
 	`document_lang_group` int(10) NOT NULL DEFAULT '0',
 	`document_property` text,
 	PRIMARY KEY (`Id`),
-	UNIQUE KEY `document_alias` (`document_alias`),
+	UNIQUE KEY `alias` (`document_alias`),
 	KEY `rubric_id` (`rubric_id`),
-	KEY `document_parent` (`document_parent`),
-	KEY `document_status` (`document_status`),
-	KEY `document_published` (`document_published`),
-	KEY `document_expire` (`document_expire`),
-	KEY `document_count_view` (`document_count_view`)
+	KEY `parent` (`document_parent`),
+	KEY `published` (`document_published`),
+	KEY `expire` (`document_expire`),
+	KEY `status` (`document_status`),
+	KEY `deleted` (`document_deleted`),
+	KEY `count_view` (`document_count_view`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -132,7 +134,7 @@ CREATE TABLE `%%PRFX%%_document_alias_history` (
 	`document_alias_author` mediumint(5) unsigned NOT NULL DEFAULT '1',
 	`document_alias_changed` int(10) unsigned NOT NULL DEFAULT '0',
 	PRIMARY KEY (`Id`),
-	UNIQUE KEY `document_alias` (`document_alias`),
+	UNIQUE KEY `alias` (`document_alias`),
 	KEY `document_id` (`document_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
@@ -163,7 +165,7 @@ CREATE TABLE `%%PRFX%%_module` (
 	`ModuleAdminEdit` enum('0','1') NOT NULL default '0',
 	`ModuleSettings` text default NULL,
 	PRIMARY KEY	(`Id`),
-	UNIQUE KEY `ModuleName` (`ModuleName`)
+	UNIQUE KEY `name` (`ModuleName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -177,8 +179,8 @@ CREATE TABLE `%%PRFX%%_modules_aliases` (
 	`module_url` varchar(255) NOT NULL DEFAULT '',
 	`module_admin` enum('0','1') NOT NULL DEFAULT '1',
 	PRIMARY KEY (`id`),
-	UNIQUE KEY `module_url` (`module_url`),
-	KEY `module_name` (`module_name`)
+	UNIQUE KEY `url` (`module_url`),
+	KEY `name` (`module_name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -226,7 +228,7 @@ CREATE TABLE `%%PRFX%%_navigation_items` (
 	PRIMARY KEY (`navigation_item_id`),
 	KEY `navi_id` (`navigation_id`),
 	KEY `document_alias` (`document_id`),
-	KEY `navi_item_status` (`status`)
+	KEY `status` (`status`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -278,8 +280,8 @@ CREATE TABLE `%%PRFX%%_request` (
 	`request_changed` int(10) unsigned NOT NULL DEFAULT '0', # 3.24
 	`request_changed_elements` int(10) unsigned NOT NULL DEFAULT '0', # 3.24
 	PRIMARY KEY (`Id`),
-	KEY `rubric_id` (`rubric_id`),
-	KEY `request_alias` (`request_alias`)
+	KEY `id` (`rubric_id`),
+	KEY `alias` (`request_alias`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -331,8 +333,8 @@ CREATE TABLE `%%PRFX%%_rubric_fields` (
 	`rubric_field_description` text NOT NULL,
 	PRIMARY KEY (`Id`),
 	KEY `rubric_id` (`rubric_id`),
-	KEY `rubric_field_type` (`rubric_field_type`),
-	KEY `rubric_field_alias` (`rubric_field_alias`)
+	KEY `field_type` (`rubric_field_type`),
+	KEY `field_alias` (`rubric_field_alias`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -354,21 +356,6 @@ CREATE TABLE `%%PRFX%%_rubric_permissions` (
 	`rubric_permission` char(255) NOT NULL,
 	PRIMARY KEY (`Id`),
 	KEY `rubric_id` (`rubric_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
-
-
-CREATE TABLE `%%PRFX%%_rubric_template_cache` (
-	`id` bigint(15) unsigned NOT NULL AUTO_INCREMENT,
-	`hash` char(32) NOT NULL,
-	`rub_id` smallint(3) NOT NULL,
-	`rub_tmpl_id` mediumint(5) NOT NULL,
-	`grp_id` smallint(3) NOT NULL DEFAULT '2',
-	`doc_id` int(10) NOT NULL,
-	`wysiwyg` enum('0','1') NOT NULL DEFAULT '0',
-	`expire` int(10) unsigned DEFAULT '0',
-	`compiled` longtext NOT NULL,
-	PRIMARY KEY (`id`),
-	KEY `rubric_id` (`rub_id`,`doc_id`,`wysiwyg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -396,7 +383,7 @@ CREATE TABLE `%%PRFX%%_rubrics` (
 	`rubric_changed` int(10) NOT NULL DEFAULT '0', # 3.24
 	`rubric_changed_fields` int(10) NOT NULL DEFAULT '0', # 3.24
 	PRIMARY KEY (`Id`),
-	KEY `rubric_template_id` (`rubric_template_id`)
+	KEY `template_id` (`rubric_template_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -465,7 +452,6 @@ CREATE TABLE `%%PRFX%%_settings` (
 	`date_format` varchar(25) NOT NULL DEFAULT '%d.%m.%Y',
 	`time_format` varchar(25) NOT NULL DEFAULT '%d.%m.%Y, %H:%M',
 	`default_country` char(2) NOT NULL DEFAULT 'RU',
-	`use_editor` int(1) unsigned NOT NULL DEFAULT '0',
 	`use_doctime` enum('1','0') NOT NULL DEFAULT '1',
 	`hidden_text` text NOT NULL,
 	PRIMARY KEY (`Id`)
@@ -507,7 +493,7 @@ CREATE TABLE `%%PRFX%%_sysblocks` (
 	`sysblock_author_id` int(10) unsigned NOT NULL DEFAULT '1',
 	`sysblock_created` int(10) unsigned NOT NULL DEFAULT '0',
 	PRIMARY KEY (`id`),
-	KEY `sysblock_alias` (`sysblock_alias`)
+	KEY `alias` (`sysblock_alias`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;#inst#
 
 
@@ -565,8 +551,8 @@ CREATE TABLE `%%PRFX%%_users` (
 	`user_ip` int(10) unsigned NOT NULL DEFAULT '0',
 	PRIMARY KEY (`Id`),
 	UNIQUE KEY `email` (`email`),
-	UNIQUE KEY `user_name` (`user_name`),
-	KEY `user_group` (`user_group`)
+	UNIQUE KEY `name` (`user_name`),
+	KEY `group` (`user_group`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 

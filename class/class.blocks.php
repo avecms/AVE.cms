@@ -171,19 +171,13 @@
 
 			$AVE_Template->assign('sid', $block_id);
 
-			switch ($_SESSION['use_editor'])
-			{
-				case '0': // CKEditor
-				case '1':
-					$oCKeditor = new CKeditor();
-					$oCKeditor->returnOutput = true;
-					$oCKeditor->config['customConfig'] = 'block.js';
-					$oCKeditor->config['toolbar'] = 'Big';
-					$oCKeditor->config['height'] = 400;
-					$config = array();
-					$row['block_text'] = $oCKeditor->editor('block_text', $row['block_text'], $config);
-					break;
-			}
+			$oCKeditor = new CKeditor();
+			$oCKeditor->returnOutput = true;
+			$oCKeditor->config['customConfig'] = 'block.js';
+			$oCKeditor->config['toolbar'] = 'Big';
+			$oCKeditor->config['height'] = 400;
+			$config = array();
+			$row['block_text'] = $oCKeditor->editor('block_text', $row['block_text'], $config);
 
 			$AVE_Template->assign($row);
 			$AVE_Template->assign('content', $AVE_Template->fetch('blocks/form.tpl'));
@@ -202,19 +196,13 @@
 
 			$AVE_Template->assign('sid', 0);
 
-			switch ($_SESSION['use_editor'])
-			{
-				case '0': // CKEditor
-				case '1':
-					$oCKeditor = new CKeditor();
-					$oCKeditor->returnOutput = true;
-					$oCKeditor->config['customConfig'] = 'block.js';
-					$oCKeditor->config['toolbar'] = 'Big';
-					$oCKeditor->config['height'] = 400;
-					$config = array();
-					$row['block_text'] = $oCKeditor->editor('block_text', $row['block_text'], $config);
-					break;
-			}
+			$oCKeditor = new CKeditor();
+			$oCKeditor->returnOutput = true;
+			$oCKeditor->config['customConfig'] = 'block.js';
+			$oCKeditor->config['toolbar'] = 'Big';
+			$oCKeditor->config['height'] = 400;
+			$config = array();
+			$row['block_text'] = $oCKeditor->editor('block_text', $row['block_text'], $config);
 
 			$AVE_Template->assign($row);
 			$AVE_Template->assign('content', $AVE_Template->fetch('blocks/form.tpl'));
