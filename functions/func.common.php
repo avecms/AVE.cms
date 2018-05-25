@@ -1054,7 +1054,6 @@
 	 */
 	function compress_htlm($data)
 	{
-
 		$search = array(
 			'/\>[^\S ]+/s',		// strip whitespaces after tags, except space
 			'/[^\S ]+\</s',		// strip whitespaces before tags, except space
@@ -1084,6 +1083,11 @@
 	{
 		global $AVE_DB;
 
+		$Gzip = strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false;
+
+		if (defined('HTML_COMPRESSION') && HTML_COMPRESSION)
+			$data = compress_htlm($data);
+
 		//-- Вывод статистики загрузки и запросов SQL (только для администраторов)
 		if (! defined('ONLYCONTENT') && UGROUP == 1)
 		{
@@ -1099,11 +1103,6 @@
 			else if (defined('PROFILING') && PROFILING == 'full')
 				$data .= Debug::displayInfo();
 		}
-
-		$Gzip = strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false;
-
-		if (defined('HTML_COMPRESSION') && HTML_COMPRESSION)
-			$data = compress_htlm($data);
 
 		if ($Gzip && (defined('GZIP_COMPRESSION') && GZIP_COMPRESSION))
 		{
