@@ -40,7 +40,7 @@
 					$items = array_values(array_diff($items, array('')));
 				}
 
-				if(! empty($items))
+				if (! empty($items))
 				{
 					foreach($items as $k => $v)
 					{

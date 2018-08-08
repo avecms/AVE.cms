@@ -14,7 +14,6 @@
 	if(! defined('BASE_DIR'))
 		define('BASE_DIR', str_replace("\\", "/", dirname(dirname(__FILE__))));
 
-
 	if (! function_exists('iptc_make_tag'))
 	{
 		function iptc_make_tag($rec, $data, $value)
@@ -78,7 +77,7 @@
 	$allowedExt = array('jpg', 'jpeg', 'png', 'gif', 'JPG', 'JPEG', 'PNG', 'GIF');
 
 	//-- Разрешенные размеры миниатюр
-	$allowedSize = (defined(THUMBNAIL_SIZES) && THUMBNAIL_SIZES != '')
+	$allowedSize = (defined('THUMBNAIL_SIZES') && THUMBNAIL_SIZES != '')
 		? explode(',', trim(THUMBNAIL_SIZES))
 		: array();
 

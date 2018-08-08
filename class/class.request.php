@@ -789,7 +789,7 @@
 
 					$AVE_DB->Query("
 						UPDATE
-							" . PREFIX . "_requests
+							" . PREFIX . "_request
 						SET
 							request_changed = '" . time() . "'
 						WHERE
@@ -855,7 +855,7 @@
 
 					$AVE_DB->Query("
 						UPDATE
-							" . PREFIX . "_requests
+							" . PREFIX . "_request
 						SET
 							request_changed = '" . time() . "'
 						WHERE
@@ -923,7 +923,7 @@
 
 			$AVE_DB->Query("
 				UPDATE
-					" . PREFIX . "_requests
+					" . PREFIX . "_request
 				SET
 					request_changed = '" . time() . "'
 				WHERE

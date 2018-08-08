@@ -54,7 +54,7 @@
 	 * @param int $transparency Прозарчность
 	 * @return string link
 	 */
-	function watermarks($file, $position='center', $transparency=100)
+	function watermarks ($file, $position='center', $transparency=100)
 	{
 		global $AVE_DB;
 
@@ -76,7 +76,7 @@
 		$copyPath = $watermarkDir . '/' . trim($file_info['dirname'], '/');
 		$copyName = $imageName;
 
-		if (! file_exists($watermarkDir . $file))
+		if (file_exists($watermarkDir . $file))
 			return $file;
 
 		if (! is_dir($watermarkDir))

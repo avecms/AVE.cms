@@ -196,6 +196,9 @@
 			// Делаем уникальные значения
 			$field_value = array_unique($tags);
 
+			if (empty($field_value))
+				$field_value = '';
+
 			return $field_value;
 		}
 	}
@@ -205,6 +208,13 @@
 		function afterTagsSave ($data)
 		{
 			global $AVE_Document;
+
+			if (! $AVE_Document)
+			{
+				require_once BASE_DIR . '/class/class.docs.php';
+
+				$AVE_Document = new AVE_Document();
+			}
 
 			foreach ($data['data']['feld'] AS $_k => $_v)
 			{

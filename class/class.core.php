@@ -1817,7 +1817,7 @@
 				//-- Если есть ложный URL указываем его
 				if ($fake_url)
 				{
-					$check_url = preg_replace('/\/(a|art)?page-\d/i', '', $check_url);
+					$check_url = preg_replace('/\/(a|art)?page-\d+/i', '', $check_url);
 
 					$_GET['doc'] = $_REQUEST['doc'] = $check_url;
 					$this->curentdoc->document_alias = $check_url;
