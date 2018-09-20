@@ -120,7 +120,7 @@
 							<td align="center">{$sysblock->sysblock_author_id|escape}</td>
 
 							<td align="center">
-								<span class="date_text dgrey">{$sysblock->sysblock_created|date_format:$TIME_FORMAT|translate_date}</span>
+								<span class="date_text dgrey">{$sysblock->sysblock_created|date_format:$TIME_FORMAT|pretty_date}</span>
 							</td>
 
 							<td>

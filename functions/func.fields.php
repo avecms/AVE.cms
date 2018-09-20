@@ -104,6 +104,8 @@
 	/**
 	 * Возвращаем тип поля
 	 *
+	 * @param string $type
+	 *
 	 * @return mixed
 	 */
 	function get_field_type ($type = '')
@@ -129,14 +131,10 @@
 				$id = substr($v, strlen('get_field_'));
 
 				if ($name != false && is_string($name))
-					$fields[] = array('id' => $id,'name' => (isset($fields_vars[$name])
-						? $fields_vars[$name]
-						: $name));
+					$fields[] = array('id' => $id, 'name' => $name);
 
 				if (! empty($type) && $id == $type)
-					$field =  array('id' => $id,'name' => (isset($fields_vars[$name])
-						? $fields_vars[$name]
-						: $name));
+					$field =  array('id' => $id, 'name' => $name);
 			}
 			else
 				continue;
@@ -165,7 +163,7 @@
 		if (isset($alias_field_id[$id]))
 			return $alias_field_id[$id];
 
-		$alias_field_id[$id] = $AVE_DB->Query("SELECT rubric_field_alias FROM " . PREFIX . "_rubric_fields WHERE Id=".intval($id))->GetCell();
+		$alias_field_id[$id] = $AVE_DB->Query("SELECT rubric_field_alias FROM " . PREFIX . "_rubric_fields WHERE Id=" . intval($id))->GetCell();
 
 		return $alias_field_id[$id];
 	}
@@ -193,10 +191,10 @@
 			FROM
 				" . PREFIX . "_rubric_fields
 			WHERE
-				(rubric_field_alias = '".addslashes($alias)."'
-				OR Id = '".intval($alias)."')
+				(rubric_field_alias = '" . addslashes($alias) . "'
+				OR Id = '" . intval($alias) . "')
 			AND
-				rubric_id = ".intval($rubric_id)
+				rubric_id = " . intval($rubric_id)
 		;
 
 		$alias_field_id[$rubric_id][$alias] = $AVE_DB->Query($sql)->GetCell();
@@ -208,7 +206,6 @@
 	/**
 	 * Возвращаем
 	 *
-	 * @param $rubric_id
 	 * @param $id
 	 *
 	 * @return string
@@ -286,9 +283,11 @@
 	 * @param int  $field_id идентификатор поля
 	 * @param int  $document_id
 	 *
+	 * @param null $_tpl
+	 *
 	 * @return string
 	 */
-	function document_get_field($field_id, $document_id = null, $_tpl = null)
+	function document_get_field($field_id, $document_id = null, $_tpl = null, $maxlength = null)
 	{
 		global $AVE_Core;
 
@@ -409,7 +408,7 @@
 	 */
 	function get_document_fields($document_id, $values = null)
 	{
-		global $AVE_DB, $request_documents, $AVE_Core;
+		global $AVE_DB, $AVE_Core; //$request_documents
 
 		static $document_fields = array();
 
@@ -485,12 +484,10 @@
 				$row['tpl_req_empty'] = (trim($row['rubric_field_template_request']) == '');
 				$row['tpl_field_empty'] = (trim($row['rubric_field_template']) == '');
 
-				$row['field_value']=(string)$row['field_value'].(string)$row['field_value_more'];
+				$row['field_value'] = (string)$row['field_value'] . (string)$row['field_value_more'];
 
-				if($values)
-				{
+				if ($values)
 					$row['field_value']=(isset($values[$row['rubric_field_id']]) ? $values[$row['rubric_field_id']] : $row['field_value']);
-				}
 
 				if ($row['field_value'] === '')
 				{
@@ -731,9 +728,8 @@
 	/**
 	 * Возвращает наименование поля документа по номеру
 	 *
-	 * @param int  $field_id ([tag:fld:X]) - номер поля
-	 * @param int  $doc_id
-	 * @param int  $parametr ([tag:parametr:X]) - часть поля
+	 * @param int $field_id ([tag:fld:X]) - номер поля
+	 * @param int $doc_id
 	 *
 	 * @return string
 	 */

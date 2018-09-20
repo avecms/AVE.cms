@@ -89,7 +89,7 @@
 				last_visit = '" . $time . "',
 				password   = '" . $hash . "',
 				salt       = '" . $salt . "',
-				user_ip    = '" . $u_ip . "'
+				user_ip    = '" . (int)$u_ip . "'
 			WHERE
 				Id = '" . $row->Id . "'
 		");
@@ -129,7 +129,7 @@
 					" . PREFIX . "_users_session
 					(`user_id`,`hash`,`ip`,`agent`,`last_activ`)
 				values
-					('" . $row->Id . "','" . addslashes($auth) . "','" . $u_ip . "','" . addslashes($_SERVER['HTTP_USER_AGENT']) . "','" . time() . "')
+					('" . $row->Id . "','" . addslashes($auth) . "','" . (int)$u_ip . "','" . addslashes($_SERVER['HTTP_USER_AGENT']) . "','" . time() . "')
 				";
 
 			$AVE_DB->Query($sql);
@@ -293,7 +293,7 @@
 				" . PREFIX . "_users_session
 			SET
 				last_activ = '" . time() . "',
-				ip    =  '" . ip2long($_SERVER['REMOTE_ADDR']) . "'
+				ip    =  '" . (int)ip2long($_SERVER['REMOTE_ADDR']) . "'
 			WHERE
 				Id = '" . $row->Id . "'
 		");

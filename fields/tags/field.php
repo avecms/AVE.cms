@@ -196,9 +196,6 @@
 			// Делаем уникальные значения
 			$field_value = array_unique($tags);
 
-			if (empty($field_value))
-				$field_value = '';
-
 			return $field_value;
 		}
 	}

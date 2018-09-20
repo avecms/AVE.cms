@@ -56,8 +56,6 @@
 	 */
 	function watermarks ($file, $position='center', $transparency=100)
 	{
-		global $AVE_DB;
-
 		if (! defined('WATERMARKS_DIR') || ! defined('WATERMARKS_FILE'))
 			return $file;
 
@@ -187,7 +185,7 @@
 
 			if ($watermark->_img['main']['type'] == 2)
 			{
-				$image = getimagesize("$imagePath/$imageName", $info);
+				// $image = getimagesize("$imagePath/$imageName", $info); Not used
 
 				if (! isset($info['APP13']))
 				{

@@ -14,17 +14,19 @@ class Meta
 {
 	private $_keyword_count = 10;
 
-	public function __construct( $keyword_count = false )
+	public function __construct($keyword_count = false)
 	{
-		if( (int) $keyword_count ) $this->_keyword_count = $keyword_count;
+		if ((int)$keyword_count)
+			$this->_keyword_count = $keyword_count;
 	}
 
-	public function setKeywordCount( $keyword_count )
+	public function setKeywordCount($keyword_count)
 	{
-		if( (int) $keyword_count ) $this->_keyword_count = $keyword_count;
+		if ((int)$keyword_count)
+			$this->_keyword_count = $keyword_count;
 	}
 
-	public function generateMeta( $text )
+	public function generateMeta($text)
 	{
 		$newarr = array ();
 
@@ -49,20 +51,24 @@ class Meta
 
 		$arr = explode( " ", $text );
 
-		foreach ( $arr as $word ) {
-			if( mb_strlen( ($word) ) > 4 OR (mb_strtoupper($word)==$word) and mb_strlen( ($word) ) > 1) $newarr[] = $word;
+		foreach ($arr as $word)
+		{
+			if (mb_strlen(($word)) > 4 OR (mb_strtoupper($word) == $word) and mb_strlen(($word)) > 1)
+				$newarr[] = $word;
 		}
 
-		$arr = array_count_values( $newarr );
-		arsort( $arr );
+		$arr = array_count_values($newarr);
 
-		$arr = array_keys( $arr );
+		arsort($arr);
 
-		$total = count( $arr );
+		$arr = array_keys($arr);
+
+		// Не используется
+		// $total = count($arr);
 
 		$offset = 0;
 
-		$arr = array_slice( $arr, $offset, $this->_keyword_count );
+		$arr = array_slice($arr, $offset, $this->_keyword_count);
 
 		$return['keywords'] = implode( ", ", $arr );
 		$return['description'] = trim(mb_substr( trim($text), 0, 220 ),'.').'.';

@@ -79,7 +79,7 @@
 	 * @param int    $doc_id - номер id документа
 	 * @param string $key - параметр документа
 	 *
-	 * @return string
+	 * @return string | bool | array
 	 */
 	function get_document ($doc_id , $key ='')
 	{
@@ -114,7 +114,7 @@
 	 *
 	 * @param int    $doc_id - номер id документа
 	 *
-	 * @return object
+	 * @return object | bool
 	 */
 	function getDocument ($doc_id)
 	{

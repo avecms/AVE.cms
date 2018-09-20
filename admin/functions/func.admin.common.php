@@ -12,23 +12,32 @@
 	/**
 	 * Если был referer, то перенапрявляем на него
 	 *
-	 * @param
-	 * @return $link
+	 * @return mixed|null|string $link
 	 */
 	function get_referer_admin_link()
 	{
 		static $link = null;
+
+		$ok = false;
 
 		if ($link === null)
 		{
 			if (isset($_SERVER['HTTP_REFERER']))
 			{
 				$link = parse_url($_SERVER['HTTP_REFERER']);
-				$ok = (trim($link['host']) == $_SERVER['HTTP_HOST']) ? true : false;
-				$ok = (trim($link['path']) != '/admin/admin.php') ? true : false;
 
+				$ok = (trim($link['host']) == $_SERVER['HTTP_HOST'])
+					? true
+					: false;
+
+				$ok = (trim($link['path']) != '/admin/admin.php')
+					? true
+					: false;
 			}
-			$link = ($ok === true ? $_SERVER['HTTP_REFERER'] : '/admin/index.php');
+
+			$link = ($ok === true
+				? $_SERVER['HTTP_REFERER']
+				: '/admin/index.php');
 		}
 
 		return $link;
@@ -38,11 +47,11 @@
 	/**
 	 * Получаем кол-во записей в журналах событий
 	 *
-	 * @return Array массив из кол-ва записей
+	 * @return void массив из кол-ва записей
 	 */
 	function getLogRecords()
 	{
-		global $AVE_DB, $AVE_Template;
+		global $AVE_Template;
 
 		$logs = array();
 		$logdata = array();
@@ -54,17 +63,17 @@
 		$_sqldir = BASE_DIR . '/tmp/logs/sql.php';
 
 		if (file_exists($_logdir))
-			@eval(' ?>' . file_get_contents($_logdir) . '<?php ');
+			@eval(' ?>' . file_get_contents($_logdir) . '<?'.'php ');
 
 		$logs['logs'] = count($logdata);
 
 		if (file_exists($_404dir))
-			@eval(' ?>' . file_get_contents($_404dir) . '<?php ');
+			@eval(' ?>' . file_get_contents($_404dir) . '<?'.'php ');
 
 		$logs['404'] = count($log404);
 
 		if (file_exists($_sqldir))
-			@eval(' ?>' . file_get_contents($_sqldir) . '<?php ');
+			@eval(' ?>' . file_get_contents($_sqldir) . '<?'.'php ');
 
 		$logs['sql'] = count($logsql);
 
@@ -81,17 +90,18 @@
 	 * Список пользователей за последние $onlinetime секунд
 	 *
 	 * @param int $onlinetime количество секунд
-	 * @return Array массив из пользователей отсортированный по последней активности
+	 *
+	 * @return void массив из пользователей отсортированный по последней активности
 	 */
 	function get_online_users($onlinetime = USERS_TIME_SHOW)
 	{
 		global $AVE_DB, $AVE_Template;
 
-		$time=(time()-intval($onlinetime));
+		$time = (time() - intval($onlinetime));
 
-		$sql=@$AVE_DB->Query("SELECT * FROM ".PREFIX."_users WHERE last_visit>".$time." ORDER BY last_visit DESC");
+		$sql = @$AVE_DB->Query("SELECT * FROM " . PREFIX . "_users WHERE last_visit > " . $time . " ORDER BY last_visit DESC");
 
-		$online_users=Array();
+		$online_users = array();
 
 		while ($row = $sql->FetchRow())
 		{
@@ -123,6 +133,7 @@
 
 		return $file_size;
 	}
+
 
 	/**
 	 * Извлечение из БД статистики по основным компонентам системы
@@ -187,7 +198,8 @@
 	 */
 	function get_dir_size($directory)
 	{
-		if (!is_dir($directory)) return -1;
+		if (! is_dir($directory))
+			return -1;
 
 		$size = 0;
 
@@ -402,7 +414,7 @@
 
 	function file_download($filename, $retbytes = true)
 	{
-		$chunksize = 1*(1024*1024);
+		$chunksize = 1 * (1024 * 1024);
 		$buffer = '';
 		$cnt = 0;
 
@@ -411,7 +423,7 @@
 		if ($handle === false)
 			return false;
 
-		while (!feof($handle))
+		while (! feof($handle))
 		{
 			$buffer = fread($handle, $chunksize);
 
@@ -425,7 +437,8 @@
 
 		$status = fclose($handle);
 
-		if ($retbytes && $status) return $cnt;
+		if ($retbytes && $status)
+			return $cnt;
 
 		return $status;
 	}
@@ -468,16 +481,20 @@
 
 
 	//Проверка на наличие модуля Контакты и новых писем
-	function ContactsModuleCheck() {
+	function ContactsModuleCheck()
+	{
 		global $AVE_DB, $AVE_Template;
 
 	  $sql = $AVE_DB->Query("SELECT * FROM " . PREFIX . "_module WHERE ModuleFunction = 'contact' and  ModuleStatus  = '1'");
-		$enable = $sql->numrows();
-		if ($enable != "0" || $enable != ""){
+		$enable = $sql->NumRows();
+		if ($enable != "0" || $enable != "")
+		{
 			$contacts = "1";
 			$sql_num = $AVE_DB->Query("SELECT * FROM " . PREFIX . "_modul_contact_info WHERE Aw_Zeit = '0'");
-			$num_posts = $sql_num->numrows();
-		} else {
+			$num_posts = $sql_num->NumRows();
+		}
+		else
+		{
 		  $contacts = "0";
 		}
 	  $AVE_Template->assign('num_posts', $num_posts);
@@ -486,21 +503,26 @@
 
 
 	//Проверка на наличие модуля Логин
-	function LoginModuleCheck() {
+	function LoginModuleCheck()
+	{
 		global $AVE_DB, $AVE_Template;
 
-	  $sql = $AVE_DB->Query("SELECT * FROM " . PREFIX . "_module WHERE ModuleFunction = 'mod_login' and  ModuleStatus  = '1'");
-		$enable = $sql->numrows();
-		if ($enable != "0" || $enable != ""){
-			$login_menu = "1";
-		} else {
-		  $login_menu = "0";
-		}
+		$sql = $AVE_DB->Query("SELECT * FROM " . PREFIX . "_module WHERE ModuleFunction = 'mod_login' and  ModuleStatus  = '1'");
+
+		$enable = $sql->NumRows();
+
+		if ($enable != '0' || $enable != '')
+			$login_menu = '1';
+		else
+			$login_menu = '0';
+
 	  $AVE_Template->assign('login_menu', $login_menu);
 	}
 
 
-	//Выводим на главную список последних 15 документов
+	/**
+	 * Выводим на главную список последних 15 документов
+	 */
 	function DisplayMainDocuments()
 	{
 		global $AVE_DB, $AVE_Template;
@@ -516,31 +538,31 @@
 			WHERE 1 = 1
 				AND rub.rubric_docs_active = '1'
 			ORDER BY doc.document_published DESC LIMIT 0,10");
-			while($row = $sql->fetchrow()) {
+			while($row = $sql->FetchRow()) {
 				$row->rubric_title = showrubricName($row->rubric_id);
 				$row->document_title = stripslashes(htmlspecialchars_decode(pretty_chars($row->document_title)));
 				$row->document_breadcrum_title = stripslashes(htmlspecialchars_decode(pretty_chars($row->document_breadcrum_title)));
 				$row->document_author = get_username_by_id($row->document_author_id); // Получаем имя пользователя (Автора)
 				$row->cantEdit		= 0;
-				$row->canDelete	   = 0;
-				$row->canEndDel	   = 0;
+				$row->canDelete		= 0;
+				$row->canEndDel		= 0;
 				$row->canOpenClose	= 0;
 				$row->rubric_admin_teaser_template = @eval2var(' ?>'.($row->rubric_admin_teaser_template > ''
 					? @showrequestelement($row, $row->rubric_admin_teaser_template)
-					: '').'<?php ');
+					: '') . '<?'.'php ');
 
 				// разрешаем редактирование и удаление
 				// если автор имеет право изменять свои документы в рубрике
 				// или пользователю разрешено изменять все документы в рубрике
-				if ( ($row->document_author_id == @$_SESSION['user_id']
+				if (($row->document_author_id == @$_SESSION['user_id']
 					&& isset($_SESSION[$row->rubric_id . '_editown']) && @$_SESSION[$row->rubric_id . '_editown'] == 1)
-					|| (isset($_SESSION[$row->rubric_id . '_editall']) && $_SESSION[$row->rubric_id . '_editall'] == 1) )
+					|| (isset($_SESSION[$row->rubric_id . '_editall']) && $_SESSION[$row->rubric_id . '_editall'] == 1))
 				{
 						$row->cantEdit  = 1;
 						$row->canDelete = 1;
 				}
 				// запрещаем редактирование главной страницы и страницу ошибки 404 если требуется одобрение Администратора
-				if ( ($row->Id == 1 || $row->Id == PAGE_NOT_FOUND_ID)
+				if (($row->Id == 1 || $row->Id == PAGE_NOT_FOUND_ID)
 					&& isset($_SESSION[$row->rubric_id . '_newnow']) && @$_SESSION[$row->rubric_id . '_newnow'] != 1)
 				{
 					$row->cantEdit = 0;
@@ -570,57 +592,93 @@
 		$AVE_Template->assign('doc_start', $doc_start);
 	}
 
+
+	/**
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
 	function showrubricName($id)
 	{
 		global $AVE_DB;
 
-		$sql = $AVE_DB->Query("SELECT rubric_title FROM " . PREFIX . "_rubrics WHERE Id='$id'");
-		$row = $sql->fetchrow();
+		$sql = $AVE_DB->Query("SELECT rubric_title FROM " . PREFIX . "_rubrics WHERE Id = '$id'");
+		$row = $sql->FetchRow();
 		return $row->rubric_title;
 	}
 
+
+	/**
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
 	function showuserName($id)
 	{
 		global $AVE_DB;
 
-		$sql = $AVE_DB->Query("SELECT user_name FROM " . PREFIX . "_users WHERE Id='$id'");
-		$row = $sql->fetchrow();
+		$sql = $AVE_DB->Query("SELECT user_name FROM " . PREFIX . "_users WHERE Id = '$id'");
+		$row = $sql->FetchRow();
 		return $row->user_name;
 	}
 
+
+	/**
+	 *
+	 */
 	function cacheShow()
 	{
 		global $AVE_Template;
 
 		$showCache = format_size(get_dir_size($AVE_Template->cache_dir_root));
+
 		echo json_encode(array($showCache, 'accept'));
 	}
 
 
-
-
+	/**
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
 	function templateName($id)
 	{
 		global $AVE_DB;
 
 		$sql = $AVE_DB->Query("
-			SELECT * FROM " . PREFIX . "_templates
-			WHERE Id = '$id'
-			");
-		$row = $sql->fetchrow();
+			SELECT
+				*
+			FROM
+				" . PREFIX . "_templates
+			WHERE
+				Id = '$id'
+		");
+
+		$row = $sql->FetchRow();
 
 		return $row->template_title;
 	}
 
+
+	/**
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
 	function groupName($id)
 	{
 		global $AVE_DB;
 
 		$sql = $AVE_DB->Query("
-			SELECT * FROM " . PREFIX . "_user_groups
-			WHERE user_group = '$id'
-			");
-		$row = $sql->fetchrow();
+			SELECT
+				*
+			FROM
+				" . PREFIX . "_user_groups
+			WHERE
+				user_group = '$id'
+		");
+
+		$row = $sql->FetchRow();
 
 		return $row->user_group_name;
 	}

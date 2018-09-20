@@ -15,17 +15,19 @@
 	 * Обработка тега системного блока
 	 *
 	 * @param int $id идентификатор системного блока
+	 *
+	 * @return bool|mixed|null|string|string[]
 	 */
 	function parse_sysblock($id)
 	{
-		global $AVE_DB, $AVE_Core;
+		global $AVE_DB;
 
 		if (is_array($id))
 			$id = $id[1];
 
 		Debug::startTime('SYSBLOCK_' . $id);
 
-		$eval_sysblock = false;
+		// $eval_sysblock = false;
 
 		if ($id != '')
 		{
@@ -101,5 +103,7 @@
 
 			return $return;
 		}
+
+		return false;
 	}
 ?>

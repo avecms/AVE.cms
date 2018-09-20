@@ -210,13 +210,9 @@
 			$bread_crumb .= sprintf($bread_self_box, $current->document_breadcrum_title);
 
 		if (! $noprint)
-		{
 			$crumbs[$curent_document] = sprintf($bread_box, $bread_crumb);
-		}
 		else
-			{
-				$crumbs[$curent_document] = '';
-			}
+			$crumbs[$curent_document] = '';
 
 		unset($bread_crumb);
 

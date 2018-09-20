@@ -15,10 +15,12 @@
 	 * Обработка тега блока
 	 *
 	 * @param int $id идентификатор системного блока
+	 *
+	 * @return bool|mixed|null|string|string[]
 	 */
 	function parse_block($id)
 	{
-		global $AVE_DB, $AVE_Core;
+		global $AVE_DB;
 
 		if (is_array($id))
 			$id = $id[1];
@@ -97,5 +99,7 @@
 
 			return $return;
 		}
+
+		return false;
 	}
 ?>

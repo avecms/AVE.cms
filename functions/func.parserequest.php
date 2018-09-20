@@ -11,6 +11,14 @@
 	 * @license GPL v.2
 	 */
 
+
+	/**
+	 * Достаем настройки запроса
+	 *
+	 * @param $id
+	 *
+	 * @return string
+	 */
 	function request_get_settings($id)
 	{
 		global $AVE_DB;
@@ -40,8 +48,10 @@
 	 * Обработка условий запроса.
 	 * Возвращает строку условий в SQL-формате
 	 *
-	 * @param int $id	идентификатор запроса
-	 * @return string
+	 * @param int  $id идентификатор запроса
+	 * @param bool $update_db
+	 *
+	 * @return array
 	 */
 	function request_get_condition_sql_string($id, $update_db = false)
 	{
@@ -101,7 +111,7 @@
 			// значение для условия
 			$val = trim($row_ak->condition_value);
 			// если это поле используется для выпадающего списка или пустое значение для условия, пропускаем
-			if (isset($_POST['req_' . $id]) && isset($_POST['req_' . $id][$fid]) || $val==='')
+			if (isset($_POST['req_' . $id]) && isset($_POST['req_' . $id][$fid]) || $val === '')
 				continue;
 			// И / ИЛИ
 			if (! isset($join) && $row_ak->condition_join)
@@ -122,7 +132,9 @@
 				")->GetCell();
 			}
 
-			$fv = $numeric[$fid] ? "t$fid.field_number_value" : "UPPER(t$fid.field_value)";
+			$fv = $numeric[$fid]
+				? "t$fid.field_number_value"
+				: "UPPER(t$fid.field_value)";
 
 			// подставляем название таблицы в свободные условия
 			$val = addcslashes(str_ireplace(array('[field]','[numeric_field]'),$fv,$val),"'");
@@ -130,7 +142,7 @@
 			// формируем выбор таблицы
 			// первый раз евалом проходим значение и запоминаем это в переменной $v[$i]
 			// как только таблица выбрана, фиксируем это в $t[$fid], чтобы не выбирать по несколько раз одни и те же таблицы
-			$from[] = "<?php \$v[$i] = trim(eval2var(' ?>$val<? ')); \$t = array(); if (\$v[$i]>'' && !isset(\$t[$fid])) {echo \"%%PREFIX%%_document_fields AS t$fid,\"; \$t[$fid]=1;}?>";
+			$from[] = "<?php \$v[$i] = trim(eval2var(' ?>$val<?php ')); \$t = array(); if (\$v[$i]>'' && !isset(\$t[$fid])) {echo \"%%PREFIX%%_document_fields AS t$fid,\"; \$t[$fid]=1;} ?>";
 
 			// обрабатываем условия
 			switch ($type)
@@ -161,8 +173,8 @@
 				case 'IN=': $where[] = "<?=(\$v[$i]>'' && \$v[$i]{0}!=',') ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv IN (\$v[$i]))) $join\" : ''?>"; break;
 				case 'NOTIN=': $where[] = "<?=(\$v[$i]>'' && \$v[$i]{0}!=',') ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv NOT IN (\$v[$i]))) $join\" : ''?>"; break;
 
-				case 'ANY': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv=ANY(\$v[$i]))) $join\" : ''?>"; break;
-				case 'FRE': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND (\$v[$i]))) $join\" : ''?>"; break;
+				case 'ANY': $where[] = "<?php echo \$v[$i] > '' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv=ANY(\$v[$i]))) $join\" : ''; ?>"; break;
+				case 'FRE': $where[] = "<?php echo \$v[$i] > '' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND (\$v[$i]))) $join\" : ''; ?>"; break;
 			}
 
 			$i++;
@@ -177,14 +189,14 @@
 				$from		= (isset($from_dd) ? array_merge($from, $from_dd) : $from);
 				$from		= implode(' ', $from);
 				$where_dd	= (isset($where_dd) ? ' AND ' : '') . implode(' AND ', $where_dd);
-				$where		= implode(' ', $where) . " <?php \$a = array(); echo (!array_sum(\$a) || '$join'=='AND') ? '1=1' : '1=0'?>";
-				$retval		= array('from'=>$from,'where'=> $where.$where_dd);
+				$where		= implode(' ', $where) . " <?php \$a = array(); echo (!array_sum(\$a) || '$join'=='AND') ? '1=1' : '1=0'; ?>";
+				$retval		= array('from' => $from, 'where' => $where . $where_dd);
 			}
 			else
 				{
 					$from	= implode(' ', $from);
-					$where	= implode(' ', $where) . " <?php \$a = array(); echo (!array_sum(\$a) || '$join'=='AND') ? '1=1' : '1=0'?>";
-					$retval	= array('from'=>$from,'where'=> $where);
+					$where	= implode(' ', $where) . " <?php \$a = array(); echo (!array_sum(\$a) || '$join'=='AND') ? '1=1' : '1=0'; ?>";
+					$retval	= array('from' => $from, 'where' => $where);
 				}
 		}
 
@@ -207,14 +219,19 @@
 	}
 
 
-	/*
-	* Функция принимает строку, и возвращает
-	* адрес первого изображения, которую найдет
-	*/
-
+	/**
+	 * Функция принимает строку, и возвращает
+	 * адрес первого изображения, которую найдет
+	 *
+	 * @param $data
+	 *
+	 * @return string
+	 */
 	function getImgSrc($data)
 	{
-		preg_match_all("/(<img )(.+?)( \/)?(>)/u", $data, $images);
+		$_req_exp = '/(<img )(.+?)( \/)?(>)/u';
+
+		preg_match_all($_req_exp, $data, $images);
 
 		$host = $images[2][0];
 
@@ -232,23 +249,22 @@
 				preg_match('/(.+)' . THUMBNAIL_DIR . '\/(.+)-.\d+x\d+(\..+)/u', $host, $matches);
 
 				if (isset($matches[1]))
-				{
 					return $matches[1] . $matches[2] . $matches[3];
-				}
 				else
-					{
-						return $host;
-					}
+					return $host;
 			}
 	}
+
 
 	/**
 	 * Функция обработки тэгов полей с использованием шаблонов
 	 * в соответствии с типом поля
 	 *
-	 * @param int $rubric_id	идентификатор рубрики
-	 * @param int $document_id	идентификатор документа
-	 * @param int $maxlength	максимальное количество символов обрабатываемого поля
+	 * @param        $field_id
+	 * @param int    $document_id идентификатор документа
+	 * @param string $maxlength   максимальное количество символов обрабатываемого поля
+	 * @param int    $rubric_id   идентификатор рубрики
+	 *
 	 * @return string
 	 */
 	function request_get_document_field($field_id, $document_id, $maxlength = '', $rubric_id = 0)
@@ -373,8 +389,8 @@
 		{
 			$tparams_id = $row->Id . md5($tparams);								 // Создаем уникальный id для каждого набора параметров
 			$params_of_teaser[$tparams_id] = array();							 // Для отмены лишних ворнингов
-			$tparams = trim($tparams,'[]:');									 // Удаляем: слева ':[', справа ']'
-			$params_of_teaser[$tparams_id] = explode('|',$tparams);				 // Заносим параметры в массив уникального id
+			$tparams = trim($tparams,'[]:');							 // Удаляем: слева ':[', справа ']'
+			$params_of_teaser[$tparams_id] = explode('|',$tparams);	 // Заносим параметры в массив уникального id
 		}
 
 		$sql = "
@@ -440,41 +456,36 @@
 			$item = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_sysblock', $item);
 
 			// Парсим элементы полей
-			$item = preg_replace_callback(
-				'/\[tag:rfld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
-					create_function(
-						'$m',
-						'return get_field_element($m[1], $m[2], $m[3], ' . $row->Id . ');'
-					),
-				$item
-			);
+			$item = preg_replace_callback('/\[tag:rfld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
+				function ($m) use ($row)
+				{
+					return get_field_element($m[1], $m[2], $m[3], (int)$row->Id);
+				},
+				$item);
 
 			// Парсим теги полей
-			$item = preg_replace_callback(
-				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
-					create_function(
-						'$m',
-						'return request_get_document_field($m[1], ' . $row->Id . ', $m[2], ' . (int)$row->rubric_id . ');'
-					),
-				$item
-			);
+			$item = preg_replace_callback('/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
+				function ($m) use ($row)
+				{
+					return request_get_document_field($m[1], (int)$row->Id, $m[2], (int)$row->rubric_id);
+				},
+				$item);
 
 			// Повторно парсим теги полей
-			$item = preg_replace_callback(
-				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
-					create_function(
-						'$m',
-						'return request_get_document_field($m[1], ' . $row->Id . ', $m[2], ' . (int)$row->rubric_id . ');'
-					),
-				$item
-			);
+			$item = preg_replace_callback('/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
+				function ($m) use ($row)
+				{
+					return request_get_document_field($m[1], (int)$row->Id, $m[2], (int)$row->rubric_id);
+				},
+				$item);
+
 
 			// Возвращаем поле документа из БД (document_***)
 			$item = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
-				function ($match) use ($row)
+				function ($m) use ($row)
 				{
-					return isset($row->{$match[1]})
-						? $row->{$match[1]}
+					return isset($row->{$m[1]})
+						? $row->{$m[1]}
 						: null;
 				},
 				$item
@@ -483,11 +494,11 @@
 			// Если пришел вызов на активацию языковых файлов
 			$item = preg_replace_callback(
 				'/\[tag:langfile:([a-zA-Z0-9-_]+)\]/u',
-				function ($match)
+				function ($m)
 				{
 					global $AVE_Template;
 
-					return $AVE_Template->get_config_vars($match[1]);
+					return $AVE_Template->get_config_vars($m[1]);
 				},
 				$item
 			);
@@ -502,14 +513,12 @@
 			. '/', $item);
 
 			// Watermarks
-			$item = preg_replace_callback(
-				'/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/',
-					create_function(
-						'$m',
-						'watermarks($m[1], $m[2], $m[3]);'
-					),
-				$item
-			);
+			$item = preg_replace_callback('/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/',
+				function ($m)
+				{
+					watermarks($m[1], $m[2], $m[3]);
+				},
+				$item);
 
 			// Удаляем ошибочные теги полей документа и языковые, в шаблоне рубрики
 			$item = preg_replace('/\[tag:doc:\d*\]/', '', $item);
@@ -522,14 +531,12 @@
 			if ($tparams != '')
 			{
 				// Заменяем tparam в тизере
-				$item = preg_replace_callback(
-					'/\[tparam:([0-9]+)\]/',
-						create_function(
-							'$m',
-							'return f_params_of_teaser('.$tparams_id.', $m[1]);'
-						),
-					$item
-				);
+				$item = preg_replace_callback('/\[tparam:([0-9]+)\]/',
+					function ($m) use ($tparams_id)
+					{
+						return f_params_of_teaser($tparams_id, $m[1]);
+					},
+					$item);
 			}
 			else
 				{
@@ -560,28 +567,25 @@
 			$item = str_replace('[tag:docdate]', pretty_date(strftime(DATE_FORMAT, $row->document_published)), $item);
 			$item = str_replace('[tag:doctime]', pretty_date(strftime(TIME_FORMAT, $row->document_published)), $item);
 			$item = str_replace('[tag:humandate]', human_date($row->document_published), $item);
-			$item = preg_replace_callback(
-				'/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
-					create_function('$m','return translate_date(date($m[1], '.$row->document_published.'));
-				'),
-				$item
-			);
+
+			$item = preg_replace_callback('/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
+				function ($m) use ($row)
+				{
+					return translate_date(date($m[1], $row->document_published));
+				},
+				$item);
 
 			if (preg_match('/\[tag:docauthor]/u', $item))
-			{
 				$item = str_replace('[tag:docauthor]', get_username_by_id($row->document_author_id), $item);
-			}
 
 			$item = str_replace('[tag:docauthorid]', $row->document_author_id, $item);
 
-			$item = preg_replace_callback(
-				'/\[tag:docauthoravatar:(\d+)\]/',
-					create_function(
-						'$m',
-						'return getAvatar('.intval($row->document_author_id).', $m[1]);'
-					),
-				$item
-			);
+			$item = preg_replace_callback('/\[tag:docauthoravatar:(\d+)\]/',
+				function ($m) use ($row)
+				{
+					return getAvatar(intval($row->document_author_id), $m[1]);
+				},
+				$item);
 
 			if (isset($use_cache) && $use_cache == 1)
 			{
@@ -610,7 +614,9 @@
 	 * Возвращает список документов удовлетворяющих параметрам запроса
 	 * оформленный с использованием шаблона
 	 *
-	 * @param int $id	идентификатор запроса
+	 * @param int   $id идентификатор запроса
+	 * @param array $params
+	 *
 	 * @return string
 	 */
 	function request_parse($id, $params = array())
@@ -677,7 +683,7 @@
 					$sort = strtolower($sort);
 
 					// Добавляем условие в SQL
-					$request_join[$fid] = "<? if (preg_match('t[]'))?><?=(! isset(\$t[$fid])) ? \"LEFT JOIN " . PREFIX . "_document_fields AS t$fid ON (t$fid.document_id = a.Id AND t$fid.rubric_field_id='$fid')\" : ''?>";
+					$request_join[$fid] = "<?php if (preg_match('t[]'))?><?=(! isset(\$t[$fid])) ? \"LEFT JOIN " . PREFIX . "_document_fields AS t$fid ON (t$fid.document_id = a.Id AND t$fid.rubric_field_id='$fid')\" : ''?>";
 
 					// Если в сортировке указано ASC иначе DESC
 					$asc_desc = strpos(strtolower($sort),'asc') !== false
@@ -695,6 +701,7 @@
 							? 'ASC'
 							: 'DESC';
 
+						// ToDo - ХЗ что это
 						$request_order[$param] = "$fid " . $asc_desc;
 					}
 			}
@@ -705,7 +712,7 @@
 				$fid = (int)$request->request_order_by_nat;
 
 				// Добавляем с учётом переменной $t из условий, чтобы не выбирать те же таблиы заново - это оптимизирует время
-				$request_join[$fid] = "<?= (! isset(\$t[$fid])) ? \"LEFT JOIN " . PREFIX . "_document_fields AS t$fid ON (t$fid.document_id = a.Id AND t$fid.rubric_field_id='$fid')\" : ''?>";
+				$request_join[$fid] = "<?php echo (! isset(\$t[$fid])) ? \"LEFT JOIN " . PREFIX . "_document_fields AS t$fid ON (t$fid.document_id = a.Id AND t$fid.rubric_field_id='$fid')\" : ''?>";
 
 				$request_order['field-' . $fid] = "t$fid.field_value " . $request->request_asc_desc;
 				$request_order_fields[] = $fid;
@@ -899,8 +906,6 @@
 		if (isset($params['RETURN_SQL']) && $params['RETURN_SQL'] == 1)
 			return $AVE_DB->GetFoundRows();
 
-		$num_items = 0;
-
 		// Если есть вывод пагинации, то выполняем запрос на получение кол-ва элементов
 		if ($request->request_show_pagination == 1 || (isset($params['SHOW']) && $params['SHOW'] == 1))
 			$num_items = $AVE_DB->NumAllRows($sql_request, (int)$request->request_cache_lifetime, 'rqs_' . $id);
@@ -1043,8 +1048,6 @@
 		$request_changed = $request->request_changed;
 		$request_changed_elements = $request->request_changed_elements;
 
-		$item = '';
-
 		foreach ($rows as $row)
 		{
 			$x++;
@@ -1053,7 +1056,7 @@
 			$req_item_num = $item_num;
 			$item = showrequestelement($row, $request->request_template_item);
 			$item = '<'.'?php $item_num='.var_export($item_num,1).'; $last_item='.var_export($last_item,1).'?'.'>'.$item;
-			$item = '<?php $req_item_id = ' . $row->Id . ';?>' . $item;
+			$item = '<'.'?php $req_item_id = ' . $row->Id . '; ?>' . $item;
 			$item = str_replace('[tag:if_first]', '<'.'?php if(isset($item_num) && $item_num===1) { ?'.'>', $item);
 			$item = str_replace('[tag:if_not_first]', '<'.'?php if(isset($item_num) && $item_num!==1) { ?'.'>', $item);
 			$item = str_replace('[tag:if_last]', '<'.'?php if(isset($last_item) && $last_item) { ?'.'>', $item);
@@ -1124,7 +1127,7 @@
 
 		//-- Возвращаем параметр документа из БД
 		$main_template = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
-			function ($match)
+			function ($match) use ($row)
 			{
 				return isset($row->{$match[1]})
 					? $row->{$match[1]}

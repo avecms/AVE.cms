@@ -22,6 +22,10 @@
 	/**
 	 * Функция загрузки файлов с удаленного сервера через CURL
 	 * как альтернатива для file_get_conents
+	 *
+	 * @param $sourceFileName
+	 *
+	 * @return mixed
 	 */
 	function CURL_file_get_contents($sourceFileName)
 	{
@@ -32,6 +36,7 @@
 
 		$st = curl_exec($ch);
 		curl_close($ch);
+
 		return ($st);
 	}
 
@@ -131,17 +136,20 @@
 	 * @internal param int $id идентификатор запроса
 	 * @return string
 	 */
-	function eval2var($expression)
+	if (! function_exists("eval2var"))
 	{
-		global $AVE_DB, $AVE_Core, $AVE_Template;
+		function eval2var($expression)
+		{
+			global $AVE_DB, $AVE_Core, $AVE_Template;
 
-		ob_start();
+			ob_start();
 
-		eval($expression);
+			eval($expression);
 
-		$content = ob_get_clean();
+			$content = ob_get_clean();
 
-		return $content;
+			return $content;
+		}
 	}
 
 
@@ -510,6 +518,13 @@
 
 	/**
 	 * Вывод статистики
+	 *
+	 * @param int $t
+	 * @param int $m
+	 * @param int $q
+	 * @param int $l
+	 *
+	 * @return string
 	 */
 	function get_statistic($t=0, $m=0, $q=0, $l=0)
 	{
@@ -538,6 +553,11 @@
 
 	/**
 	 * Комментарии в SMARTY
+	 *
+	 * @param $tpl_source
+	 * @param $smarty
+	 *
+	 * @return string
 	 */
 	function add_template_comment($tpl_source, &$smarty)
 	{
@@ -549,11 +569,11 @@
 	 * Получения списка стран
 	 *
 	 * @param int $status статус стран входящих в список
-	 *                           <ul>
-	 *                           <li>1 - активные страны</li>
-	 *                           <li>0 - неактивные страны</li>
-	 *                           </ul>
-	 *                           если не указано возвращает список стран без учета статуса
+	 * <ul>
+	 *      <li>1 - активные страны</li>
+	 *      <li>0 - неактивные страны</li>
+	 * </ul>
+	 * если не указано возвращает список стран без учета статуса
 	 *
 	 * @return array
 	 */
@@ -612,10 +632,10 @@
 			closedir($handle);
 		}
 
-		$return = array(
-			'files' => $files,
-			'thumbs' => $thumbs
-		);
+		//$return = array(
+		//	'files' => $files,
+		//	'thumbs' => $thumbs
+		//);
 
 		return $files;
 	}
@@ -629,6 +649,8 @@
 	function file_multi_import($path)
 	{
 		$dir = BASE_DIR . "/" . $path;
+
+		$files = array();
 
 		if ($handle = opendir($dir))
 		{
@@ -645,6 +667,7 @@
 			}
 			closedir($handle);
 		}
+
 		return $files;
 	}
 
@@ -685,13 +708,15 @@
 	/**
 	 * Функция записывает в указанную папку .htaccess с содержанием "Deny from all"
 	 *
+	 * @param $dir
 	 */
 	function write_htaccess_deny($dir)
 	{
 		$file = $dir . '/.htaccess';
-		if(! file_exists($file))
+
+		if (! file_exists($file))
 		{
-			if(! is_dir($dir))
+			if (! is_dir($dir))
 				@mkdir($dir);
 
 			@file_put_contents($dir . '/.htaccess','Deny from all');
@@ -751,7 +776,7 @@
 		$object = (array)$object;
 
 		if ($object === array())
-			return;
+			return $object;
 
 		foreach($object as $key => &$value)
 		{
@@ -771,15 +796,15 @@
 	 * msort() can be used to sort a rowset like array on one or more
 	 * 'headers' (keys in the 2th array).
 	 *
-	 * @param array $array The array to sort.
-	 * @param string|array $key The index(es) to sort the array on.
-	 * @param int $sort_flags The optional parameter to modify the sorting
-	 * @param string $sort_way The optional parameter to modify the sorting as DESC or ASC
-	 * behavior. This parameter does not work when
-	 * supplying an array in the $key parameter.
+	 * @param array        $array      The array to sort.
+	 * @param string|array $key        The index(es) to sort the array on.
+	 * @param int          $sort_flags The optional parameter to modify the sorting
+	 * @param int          $sort_way   The optional parameter to modify the sorting as DESC or ASC
+	 *                                 behavior. This parameter does not work when
+	 *                                 supplying an array in the $key parameter.
 	 *
 	 * @return array The sorted array.
-	 */
+    */
 	function msort($array, $key, $sort_flags = SORT_REGULAR, $sort_way = SORT_ASC)
 	{
 		if (is_array($array) && count($array) > 0)
@@ -792,7 +817,7 @@
 				{
 					$sort_key = '';
 
-					if (!is_array($key))
+					if ( !is_array($key))
 					{
 						$sort_key = $v[$key];
 					}
@@ -852,7 +877,6 @@
 	 *
 	 * @param string $string
 	 * @param        $limit
-	 * @return string
 	 */
 	function findautor($string, $limit)
 	{
@@ -878,6 +902,7 @@
 		);
 
 		$users = array();
+
 		while ($row = $sql->FetchRow())
 		{
 			$ava=getAvatar($row->Id,40);
@@ -890,6 +915,7 @@
 				'avatar'=>($ava ? $ava : ABS_PATH.'admin/templates/images/user.png')
 			);
 		}
+
 		echo json_encode($users);
 	}
 
@@ -926,7 +952,6 @@
 	/**
 	 * Функция поиска тегов
 	 *
-	 * @param string $string - запрос
 	 * @return string
 	 */
 	function searchTags()
@@ -942,12 +967,10 @@
 
 		$tags = array();
 
-		$ii = 0;
+		//$ii = 0;
 
 		while ($row = $sql->GetCell())
-		{
 			$tags[]['value'] = $row;
-		}
 
 		echo json_encode($tags);
 		exit;
@@ -1002,6 +1025,8 @@
 
 	/**
 	 * Создание cookie
+	 *
+	 * @param string $cookie_domain
 	 */
 	function set_cookie_domain($cookie_domain = '')
 	{
@@ -1039,7 +1064,7 @@
 	/**
 	 * Функция проверяет наличие Ajax запроса
 	 *
-	 * @return bool true|false - Ajax
+	 * @return bool
 	 */
 	function isAjax()
 	{
@@ -1049,6 +1074,8 @@
 
 	/**
 	 * Функция делает html в 1 строчку, удаляет лишние пробелы, комментарии и т.д.
+	 *
+	 * @param $data
 	 *
 	 * @return string
 	 */
@@ -1077,7 +1104,8 @@
 	/**
 	 * Функция делает компрессию данных
 	 *
-	 * @return string
+	 * @param $data
+	 *
 	 */
 	function output_compress($data)
 	{
@@ -1132,14 +1160,20 @@
 	 * Функция создает короткий URL документа для редиректа
 	 * После выполения функции нужно очистить кеш данного документа
 	 *
-	 * @return
+	 * @param int $length
+	 * @param     $doc_id
+	 *
+	 * @return bool
 	 */
-	function gen_short_link ($length = 1, $doc_id)
+	function gen_short_link ($length, $doc_id)
 	{
 		global $AVE_DB;
 
 		if (! is_numeric($doc_id))
 			return false;
+
+		if (! $length)
+			$length = 1;
 
 		// Проврека на существование редиректа для данного документа
 		$check_doc = $AVE_DB->Query("

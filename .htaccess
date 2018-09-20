@@ -11,7 +11,6 @@ Options -Indexes +FollowSymLinks
 # | PHP Configuration                                                          |
 # ------------------------------------------------------------------------------
 
-<ifModule mod_php5.c>
 	php_value default_charset utf-8
 
   #Отлючаем вывод ошибок
@@ -40,39 +39,6 @@ Options -Indexes +FollowSymLinks
 	php_flag magic_quotes_runtime off
 
 	php_flag register_globals off
-</ifModule>
-
-<ifModule !mod_php5.c>
-	php_value default_charset utf-8
-
-  #Отлючаем вывод ошибок
-	#php_value error_reporting E_NONE
-
-  # Этот параметр устанавливает максимальное время в секундах, позволяющее скрипту запускаться прежде, чем он завершается синтаксическим анализатором.
-	#php_value max_execution_time 300
-
-  # Максимальное время загрузки данных для скрипта, в том числе и файлов из формы
-	#php_value max_input_time 300
-
-  # Ограничивает максимальный объем данных, получаемых от пользователя методом POST
-	#php_value post_max_size 32M
-
-  # Устанавливает максимальный размер файла, который может быть получен методом POST (меньше, чем post_max_size)
-	#php_value upload_max_filesize 32M
-
-  # Максимальное кол-во загружаемых файлов
-	#php_value max_file_uploads 50
-
-  # Включаем у PHP короткие <?
-	#php_value short_open_tag On
-
-	php_flag magic_quotes_gpc off
-
-	php_flag magic_quotes_runtime off
-
-	php_flag register_globals off
-</ifModule>
-
 
 # ------------------------------------------------------------------------------
 # | CORS-enabled images                                                        |

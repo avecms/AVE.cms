@@ -63,16 +63,16 @@
 	 * @param array $array обрабатываемый массив
 	 * @return array обработанный массив
 	 */
-	function add_slashes($array=array())
+	function add_slashes($array = array())
 	{
 		@reset($array);
 
-		while (list($key, $val) = @each($array))
+		foreach ($array AS $_k => $_v)
 		{
-			if (is_string($val))
-				$array[$key] = addslashes($val);
-			elseif (is_array($val))
-				$array[$key] = add_slashes($val);
+			if (is_string($_v))
+				$array[$_k] = addslashes($_v);
+			elseif (is_array($_v))
+				$array[$_k] = add_slashes($_v);
 		}
 
 		return $array;

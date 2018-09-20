@@ -599,11 +599,11 @@
 							<strong>{$field.rubric_field_title}</strong>
 						</td>
 						<td>
-							<a class="rightDir" title="{#RUBRIK_INSERT_HELP#}" href="javascript:void(0);" onclick="textSelection2('[tag:rfld:{$field.Id}][0]', '');"><strong>[tag:rfld:{$field.Id}][150]</strong></a>
+							<a class="rightDir" title="{#RUBRIK_INSERT_HELP#}" href="javascript:void(0);" onclick="textSelection2_1('[tag:rfld:{$field.Id}][0]', '');"><strong>[tag:rfld:{$field.Id}][150]</strong></a>
 						</td>
 						<td>
 							{if $field.rubric_field_alias}
-							<a class="rightDir" title="{#RUBRIK_INSERT_HELP#}" href="javascript:void(0);" onclick="textSelection2('[tag:rfld:{$field.rubric_field_alias}][0]', '');"><strong>[tag:rfld:{$field.rubric_field_alias}][0]</strong></a>
+							<a class="rightDir" title="{#RUBRIK_INSERT_HELP#}" href="javascript:void(0);" onclick="textSelection2_1('[tag:rfld:{$field.rubric_field_alias}][0]', '');"><strong>[tag:rfld:{$field.rubric_field_alias}][0]</strong></a>
 							{/if}
 						</td>
 						<td align="center">

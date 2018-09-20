@@ -310,6 +310,7 @@ INSERT INTO `%%PRFX%%_settings` VALUES
 		'%d %B %Y, %H:%M',
 		'RU',
 		'0',
+		'0',
 		'<div class=\"hidden_box\">\n	Содержимое скрыто.\n</div>'
 );#inst#
 

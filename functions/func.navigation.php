@@ -75,7 +75,7 @@
 		if (! $navi_menu)
 		{
 			echo 'Menu ', $navi_id, ' not found!';
-			return;
+			return '';
 		}
 
 		// выставляем гостевую группу по дефолту

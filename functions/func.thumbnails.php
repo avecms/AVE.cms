@@ -24,6 +24,8 @@
 	 |    <li>size - размер миниатюры</li>
 	 | </ul>
 	 |
+	 | make_thumbnail(array('link' => URL, 'size' => SIZE));
+	 |
 	 | @return string
 	 */
 	function make_thumbnail ($params)
@@ -42,15 +44,13 @@
 				if (! is_dir(dirname($path)))
 					mkdir(dirname($path), 0777, true);
 
-				mkdir($path, 0777);
+				mkdir($path, 0777, true);
 			}
 
 			$link = ABS_PATH . UPLOAD_DIR . '/ext/' . substr($md5, 0, 4) . '/' . $md5 . '.jpg';
 
 			if (! file_exists(BASE_DIR . $link))
-			{
 				file_put_contents(BASE_DIR . $link . '.tmp', $params['link']);
-			}
 
 			$params['link'] = $link;
 		}
