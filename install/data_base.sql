@@ -244,8 +244,8 @@ INSERT INTO `%%PRFX%%_document_fields` VALUES
 	(4, 2, 2, 0, 'Извините, запрошенный Вами документ не найден.', '0');#inst#
 
 INSERT INTO `%%PRFX%%_documents` VALUES
-	(1, 1, 0, 0, '/', '0', '', 'Главная', 'Главная страница', '0', '0', '0', '1', '0', '', '', 'index,follow', '3', '0.5', '1', '0', '0', '0', '0', '', '', 'ru', '1', ''),
-	(2, 1, 0, 0, '404-dokument-ne-najden', '0', '', '404 - Документ не найден', 'Ошибка 404', '0', '0', '0', '1', '0', '', '', 'noindex,nofollow', '6', '0', '1', '0', '0', '0', '0', '', '', 'ru', '2', '');#inst#
+	(1, 1, 0, 0, '/', '0', '', 'Главная', 'Главная страница', '0', '0', '0', '1', '0', '', '', 'index,follow', '3', '0.5', '1', '0', '0', '0', '0', '', '', 'ru', '1', '', '0'),
+	(2, 1, 0, 0, '404-dokument-ne-najden', '0', '', '404 - Документ не найден', 'Ошибка 404', '0', '0', '0', '1', '0', '', '', 'noindex,nofollow', '6', '0', '1', '0', '0', '0', '0', '', '', 'ru', '2', '', '0');#inst#
 
 INSERT INTO `%%PRFX%%_navigation` VALUES
 	(1,'main','Основное меню','<li class=\"nav-item\">\n	<a class=\"nav-link\" href=\"[tag:link]\">[tag:linkname]</a>\n</li>','','','<li class=\"nav-item active\">\n	<a class=\"nav-link\" href=\"[tag:link]\">[tag:linkname]</a>\n</li>','','','<ul class=\"navbar-nav mr-auto\">\n[tag:content]\n</ul>','','','','','','','','1,2,3,4,5','1');#inst#
@@ -335,8 +335,38 @@ INSERT INTO `%%PRFX%%_user_groups` VALUES
 	(3, 'Модераторы', '1', '0', '', ''),
 	(4, 'Зарегистрированные', '1', '0', '', '');#inst#
 
-INSERT INTO `%%PRFX%%_users` VALUES
-	(1, '%%PASS%%', '%%EMAIL%%', '', '', '', '', '', '', '', '', '', '%%USERNAME%%', 1, '', UNIX_TIMESTAMP(), '1', UNIX_TIMESTAMP(), 'RU', '', '0', '0', '0', '0', '', '', '', '%%SALT%%', '', 0);#inst#
+INSERT INTO `%%PRFX%%_users`
+  SET
+    `Id` = 1,
+    `password` = '%%PASS%%',
+    `email` = '%%EMAIL%%',
+    `street` = '',
+    `street_nr` = '',
+    `zipcode` = '',
+    `city` = '',
+    `phone` = '',
+    `telefax` = '',
+    `description` = '',
+    `firstname` = '',
+    `lastname` = '',
+    `user_name` = '%%USERNAME%%',
+    `user_group` = 1,
+    `user_group_extra` = '',
+    `reg_time` = UNIX_TIMESTAMP(),
+    `status` = 1,
+    `last_visit` = UNIX_TIMESTAMP(),
+    `country` = 'RU',
+    `birthday` = '',
+    `deleted` = '0',
+    `del_time` = 0,
+    `emc` = '0',
+    `reg_ip` = '0',
+    `new_pass` = '',
+    `company` = '',
+    `taxpay` = '0',
+    `salt` = '%%SALT%%',
+    `new_salt` = '',
+    `user_ip` = 0;#inst#
 
 INSERT INTO `%%PRFX%%_paginations` (`id`, `pagination_name`, `pagination_box`, `pagination_start_label`, `pagination_end_label`, `pagination_separator_box`, `pagination_separator_label`, `pagination_next_label`, `pagination_prev_label`, `pagination_link_box`, `pagination_active_link_box`, `pagination_link_template`, `pagination_link_active_template`)
 VALUES

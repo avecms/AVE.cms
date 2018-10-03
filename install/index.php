@@ -11,52 +11,85 @@
 	 * @license GPL v.2
 	 */
 
-	/**
-	 * Функции
-	 */
 
-	function check_mysql_connect($dbhost = '', $dbuser = '', $dbpass = '')
+	/**
+	 * Проверка подключения к БД
+	 *
+	 * @param string $dbhost
+	 * @param string $dbuser
+	 * @param string $dbpass
+	 *
+	 * @return bool
+	 */
+	function check_mysql_connect ($dbhost = '', $dbuser = '', $dbpass = '')
 	{
 		if ($dbhost != '' && $dbuser != '')
-		{
-			if (@mysqli_connect($dbhost, $dbuser, $dbpass)) return true;
-		}
+			if (@mysqli_connect($dbhost, $dbuser, $dbpass))
+				return true;
 
 		return false;
 	}
 
-	function check_mysql_query($link = '', $sql = '')
+
+	/**
+	 * Проверка запроса к БД
+	 *
+	 * @param object $mysql_connect
+	 * @param string $sql
+	 *
+	 * @return bool
+	 */
+	function check_mysql_query ($mysql_connect, $sql = '')
 	{
 		if ($sql != '' && $link != '')
-		{
-			if (@mysqli_query($link, $sql)) return true;
-		}
+			if (@mysqli_query($mysql_connect, $sql))
+				return true;
 
 		return false;
 	}
 
-	function check_db_connect($dbhost = '', $dbuser = '', $dbpass = '', $dbname = '')
+
+	/**
+	 * @param string $dbhost
+	 * @param string $dbuser
+	 * @param string $dbpass
+	 * @param string $dbname
+	 *
+	 * @return bool
+	 */
+	function check_db_connect ($dbhost = '', $dbuser = '', $dbpass = '', $dbname = '')
 	{
 		if ($dbhost != '' && $dbuser != '' && $dbname != '')
-		{
-			if (@mysqli_select_db(@mysqli_connect($dbhost, $dbuser, $dbpass), $dbname)) return true;
-		}
+			if (@mysqli_select_db(@mysqli_connect($dbhost, $dbuser, $dbpass), $dbname))
+				return true;
 
 		return false;
 	}
 
-	function check_installed($prefix)
+
+	/**
+	 * @param $prefix
+	 *
+	 * @return bool
+	 */
+	function check_installed ($prefix)
 	{
 		global $config;
 
 		$mysql = @mysqli_connect($config['dbhost'], $config['dbuser'], $config['dbpass'], $config['dbname']);
 		$query = @mysqli_query($mysql, "SELECT 1 FROM " . $prefix . "_users LIMIT 1");
 
-		if (@mysqli_num_rows($query)) return true;
-		else return false;
+		if (@mysqli_num_rows($query))
+			return true;
+		else
+			return false;
 	}
 
-	function check_required()
+
+	/**
+	 *
+	 */
+	function check_required ()
 	{
 		global $error_is_required, $lang_i;
 
@@ -67,23 +100,25 @@
 		foreach ($required as $is_required)
 		{
 			if (@!is_file(BASE_DIR . $is_required))
-			{
 				array_push($error_is_required, $lang_i['error_is_required'] . $is_required . $lang_i['error_is_required_2'] );
-			}
 		}
 
 		$myphp = @PHP_VERSION;
+
 		if ($myphp)
 		{
 			$myphp_v = str_replace('.', '', $myphp);
+
 			if ($myphp_v < $required_php)
-			{
 				array_push($error_is_required, $lang_i['phpversion_toold'] . $required_php);
-			}
 		}
 	}
 
-	function check_writable()
+
+	/**
+	 *
+	 */
+	function check_writable ()
 	{
 		global $error_is_required, $lang_i;
 
@@ -96,25 +131,27 @@
 		foreach ($writeable as $must_writeable)
 		{
 			if (! is_writable(BASE_DIR . $must_writeable))
-			{
 				array_push($error_is_required, $lang_i['error_is_writeable'] . $must_writeable . $lang_i['error_is_writeable_2'] );
-			}
 		}
 	}
 
-	function clean_db ($name="", $prefix="", $mysql_connect)
+
+	/**
+	 * @param string $name
+	 * @param string $prefix
+	 * @param        $mysql_connect
+	 */
+	function clean_db ($name, $prefix, $mysql_connect)
 	{
 		@mysqli_select_db($mysql_connect, $name);
+
 		$query = @mysqli_query($mysql_connect, "SHOW TABLES FROM " . $name);
 
-		while ($row = @mysqli_fetch_array($query, MYSQL_NUM))
-		{
+		while ($row = @mysqli_fetch_array($query, MYSQLI_NUM))
 			if (preg_match("/^" . $prefix . "/", $row[0]))
-			{
 				@mysqli_query($mysql_connect ,"DROP TABLE " . $row[0]);
-			}
-		}
 	}
+
 
 	/**
 	 * Convert size from 10M to bytes
@@ -148,6 +185,7 @@
 		return $size;
 	}
 
+
 	/**
 	 * Get GD version
 	 * @return string
@@ -163,6 +201,7 @@
 		return NULL;
 	}
 
+
 	/**
 	 * Get PCRE version
 	 * @return string
@@ -176,6 +215,7 @@
 		return $version;
 	}
 
+
 	/**
 	 * Get MySQL version
 	 * @return string
@@ -186,6 +226,13 @@
 		return $version[0];
 	}
 
+
+	/**
+	 * @param $level
+	 * @param $text
+	 *
+	 * @return string
+	 */
 	function check_param($level, $text)
 	{
 		$level = intval($level);
@@ -209,15 +256,16 @@
 				$img = 'ico_ok_noproblem';
 			break;
 		}
+
 		return $img;
 	}
 
 
-	/**
-	 * @subpackage install
-	 */
-		error_reporting(E_ERROR);
-		ini_set('display_errors', 7);
+	/* @subpackage install  */
+
+
+	error_reporting(E_ERROR);
+	ini_set('display_errors', 7);
 
 	global $config;
 
@@ -227,14 +275,19 @@
 
 	define('BASE_DIR', str_replace("\\", "/", dirname(dirname(__FILE__))));
 
+	//-- Debug Class
+	require (BASE_DIR . '/class/class.debug.php');
+	$Debug = new Debug;
+
 	if (! is_writable(BASE_DIR . '/tmp/cache/smarty/'))
 		die('Cache folder is not writeable!');
 
-	include(BASE_DIR . '/config/db.config.php');
-	include(BASE_DIR . '/inc/config.php');
-	include(BASE_DIR . '/functions/func.common.php');
-	include(BASE_DIR . '/functions/func.helpers.php');
-	include(BASE_DIR . '/class/class.template.php');
+	include (BASE_DIR . '/config/db.config.php');
+	include (BASE_DIR . '/inc/config.php');
+	include (BASE_DIR . '/functions/func.common.php');
+	include (BASE_DIR . '/functions/func.logs.php');
+	include (BASE_DIR . '/functions/func.helpers.php');
+	include (BASE_DIR . '/class/class.template.php');
 
 	$AVE_Template = new AVE_Template(BASE_DIR . '/install/tpl/');
 
@@ -371,25 +424,24 @@
 				}
 
 				// Создать новую БД
-				if(isset($_REQUEST['dbcreat'])){
-
+				if (isset($_REQUEST['dbcreat']))
+				{
 					$link = check_mysql_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass']);
 
-					if (false === $link) {
+					if (false === $link)
 						$AVE_Template->assign('warning', 'Ошибка соединения: ' . mysqli_error());
-					} else {
+					else
 						$mysqli_connect = @mysqli_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass']);
-					}
 
-					if(false === $db_connect) {
+					if (false === $db_connect)
+					{
 						@mysqli_query($mysqli_connect, "SET collation_server = 'utf8_general_ci'");
 						@mysqli_query($mysqli_connect, "SET character_set_server = 'utf8'");
 
 						$sql = 'CREATE DATABASE ' . $_POST['dbname'];
 
-						if (false === check_mysql_query($mysqli_connect, $sql)) {
+						if (false === check_mysql_query($mysqli_connect, $sql))
 							$AVE_Template->assign('warning', 'Ошибка при создании базы данных: ' . mysqli_error() . "\n");
-						}
 					}
 				}
 
@@ -407,49 +459,87 @@
 					}
 
 					$fp = @fopen(BASE_DIR . '/config/db.config.php', 'w+');
+
+					// Записываем данные для подключения
 					@fwrite($fp, "<?php\n"
-						. "\$config = array();\n"
-						. "\$config['dbhost'] = \"" . stripslashes(trim($_POST['dbhost']))   . "\";\n"
-						. "\$config['dbuser'] = \"" . stripslashes(trim($_POST['dbuser']))   . "\";\n"
-						. "\$config['dbpass'] = \"" . stripslashes(trim($_POST['dbpass']))   . "\";\n"
-						. "\$config['dbname'] = \"" . stripslashes(trim($_POST['dbname']))   . "\";\n"
-						. "\$config['dbpref'] = \"" . stripslashes(trim($_POST['dbprefix'])) . "\";\n"
-						. "\$config['dbport'] = null;\n"
-						. "\$config['dbsock'] = null;\n"
+						. "\t\$config = [\n"
+						. "\t\t'dbhost' => \"" . stripslashes(trim($_POST['dbhost']))   . "\",\n"
+						. "\t\t'dbuser' => \"" . stripslashes(trim($_POST['dbuser']))   . "\",\n"
+						. "\t\t'dbpass' => \"" . stripslashes(trim($_POST['dbpass']))   . "\",\n"
+						. "\t\t'dbname' => \"" . stripslashes(trim($_POST['dbname']))   . "\",\n"
+						. "\t\t'dbpref' => \"" . stripslashes(trim($_POST['dbprefix'])) . "\",\n"
+						. "\t\t'dbport' => null,\n"
+						. "\t\t'dbsock' => null\n"
+						. "\t];\n"
 						. "?>"
 					);
+
 					@fclose($fp);
 
+					// Класс для работы с БД
+					require_once (BASE_DIR . '/class/class.database.php');
+
+					//-- Если не существует объекта по работе с БД
+					if (! isset($AVE_DB))
+					{
+						//-- Подключаем конфигурационный файл с параметрами подключения
+						require_once (BASE_DIR . '/config/db.config.php');
+
+						//-- Если параметры не указаны, прерываем работу
+						if (! isset($config))
+							exit;
+
+						//-- Если константа префикса таблиц не задана, принудительно определяем ее на основании параметров в файле db.config.php
+						if (! defined('PREFIX'))
+							define('PREFIX', $config['dbpref']);
+
+						//-- Создаем объект для работы с БД
+						try {
+							$AVE_DB = AVE_DB::getInstance($config)
+								//-- Назначаем кодировку
+								->setCharset('utf8')
+								//-- Назначаем БД
+								->setDatabaseName($config['dbname']);
+						}
+						catch (AVE_DB_Exception $e)
+						{
+							ob_start();
+							header('HTTP/1.1 503 Service Temporarily Unavailable');
+							header('Status: 503 Service Temporarily Unavailable');
+							header('Retry-After: 3600');
+							header('X-Powered-By:');
+							echo $e->getMessage();
+							die;
+						}
+
+						unset ($config);
+					}
+
+					// Открываем файл структуры БД
 					$filename = BASE_DIR . '/install/structure_base.sql';
 
 					$handle = fopen($filename, 'r');
 					$db_structure = fread($handle, filesize($filename));
+
 					fclose($handle);
 
+					// Подставляем префикс
 					$db_structure = str_replace('%%PRFX%%', $_POST['dbprefix'], $db_structure);
 
-					$mysql_connect = @mysqli_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass'], $_POST['dbname']);
-					@mysqli_select_db($mysql_connect, $_POST['dbname']);
-
+					// Массив запросов
 					$ar = explode('#inst#', $db_structure);
 
-					foreach ($ar as $in)
-					{
-						@mysqli_query($mysql_connect, "$in");
-					}
+					foreach ($ar as $sql)
+						if (! empty($sql))
+							$AVE_DB->Query($sql);
 
 					$AVE_Template->display('step5.tpl');
 					exit;
 				}
 				elseif (true === $connect && true === $check_installed)
-				{
 					$AVE_Template->assign('installed', $AVE_Template->get_config_vars('database_installed'));
-				}
 				else
-				{
 					$AVE_Template->assign('warning', $AVE_Template->get_config_vars('database_not_connect'));
-				}
-
 			}
 			else
 			{
@@ -468,6 +558,43 @@
 			$regex_password = '/[^\x20-\xFF]/';
 			$regex_email = '/^[\w.-]+@[a-z0-9.-]+\.(?:[a-z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)$/i';
 
+			// Класс для работы с БД
+			require_once (BASE_DIR . '/class/class.database.php');
+
+			//-- Если не существует объекта по работе с БД
+			if (! isset($AVE_DB))
+			{
+				//-- Подключаем конфигурационный файл с параметрами подключения
+				require_once (BASE_DIR . '/config/db.config.php');
+
+				//-- Если параметры не указаны, прерываем работу
+				if (! isset($config))
+					exit;
+
+				//-- Если константа префикса таблиц не задана, принудительно определяем ее на основании параметров в файле db.config.php
+				if (! defined('PREFIX'))
+					define('PREFIX', $config['dbpref']);
+
+				//-- Создаем объект для работы с БД
+				try {
+					$AVE_DB = AVE_DB::getInstance($config)
+						//-- Назначаем кодировку
+						->setCharset('utf8')
+						//-- Назначаем БД
+						->setDatabaseName($config['dbname']);
+				}
+				catch (AVE_DB_Exception $e)
+				{
+					ob_start();
+					header('HTTP/1.1 503 Service Temporarily Unavailable');
+					header('Status: 503 Service Temporarily Unavailable');
+					header('Retry-After: 3600');
+					header('X-Powered-By:');
+					echo $e->getMessage();
+					die;
+				}
+			}
+
 			$errors = array();
 			if ($_POST['email'] == '')                                                        array_push($errors, $AVE_Template->get_config_vars('noemail'));
 			if (! preg_match($regex_email, $_POST['email']))                                  array_push($errors, $AVE_Template->get_config_vars('email_no_specialchars'));
@@ -480,16 +607,9 @@
 			if (true === $db_connect && ! sizeof($errors))
 			{
 				if (isset($_POST['demo']) && 1 == $_POST['demo'])
-				{
 					$filename = BASE_DIR . '/install/data_demo.sql';
-				}
 				else
-					{
-						$filename = BASE_DIR . '/install/data_base.sql';
-					}
-
-				$mysql_connect = @mysqli_connect($config['dbhost'], $config['dbuser'], $config['dbpass']);
-				@mysqli_select_db($mysql_connect, $config['dbname']);
+					$filename = BASE_DIR . '/install/data_base.sql';
 
 				$handle = fopen($filename, 'r');
 				$dbin = fread($handle, filesize($filename));
@@ -510,12 +630,9 @@
 
 				$ar = explode('#inst#', $dbin);
 
-				foreach ($ar as $in)
-				{
-					@mysqli_query($mysql_connect, "SET NAMES 'utf8'");
-					@mysqli_query($mysql_connect, "SET COLLATION_CONNECTION = 'utf8_general_ci'");
-					@mysqli_query($mysql_connect, $in);
-				}
+				foreach ($ar as $sql)
+					if (! empty($sql))
+						$AVE_DB->Query($sql);
 
 				$AVE_Template->display('step6.tpl');
 

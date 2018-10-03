@@ -92,7 +92,7 @@
 			else
 				$fn_name = 'EVAL';
 
-			if (! $bg)
+			if (empty($bg))
 				$bg = '43648c';
 
 			$var_dump = '
@@ -101,7 +101,7 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 5px;
+						border-radius: 3px;
 						box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
 						font-family: "Consolas", Verdana, Arial;
 						font-size: 11px;
@@ -114,7 +114,6 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
-						background-color: #' . $bg . ';
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -126,7 +125,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top">
+					<div class="debug_top" style="background-color: #' . $bg . ';">
 						var_dump(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
@@ -212,8 +211,8 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 5px;
-						box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1);
+						border-radius: 3px;
+						box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
 						font-family: Consolas, Verdana, Arial;
 						font-size: 11px;
 					}
@@ -225,7 +224,6 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
-						background-color: #'.$bg.';
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -237,7 +235,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top">
+					<div class="debug_top" style="background-color: #' . $bg . ';">
 						print_r(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
@@ -323,8 +321,8 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 5px;
-						box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1);
+						border-radius: 3px;
+						box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
 						font-family: Consolas, Verdana, Arial;
 						font-size: 11px;
 					}
@@ -336,7 +334,6 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
-						background-color: #'.$bg.';
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -348,7 +345,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top">
+					<div class="debug_top" style="background-color: #' . $bg . ';">
 						var_export(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
@@ -432,10 +429,9 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 5px;
+						border-radius: 3px;
 						box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1);
 						font-family: Consolas, Verdana, Arial;
-						border-radius: 3px;
 						font-size: 11px;
 					}
 					.debug_top {
@@ -446,7 +442,6 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
-						background-color: #'.$bg.';
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -458,7 +453,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top">
+					<div class="debug_top" style="background-color: #' . $bg . ';">
 						var_export(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
@@ -538,14 +533,7 @@
 				$fn_name = 'EVAL';
 
 			if (! $bg)
-			{
-				$br = '2a5885';
 				$bg = '43648c';
-			}
-			else
-				{
-					$br = $bg;
-				}
 
 			$var_dump = '
 				<style>
@@ -553,7 +541,7 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 5px;
+						border-radius: 3px;
 						box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1);
 						font-family: Consolas, Verdana, Arial;
 						font-size: 11px;
@@ -566,7 +554,6 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
-						background-color: #'.$bg.';
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -578,7 +565,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top">
+					<div class="debug_top" style="background-color: #' . $bg . ';">
 						var_dump(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
