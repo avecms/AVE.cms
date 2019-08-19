@@ -66,47 +66,6 @@
 		public $_module_not_found = 'Запрашиваемый модуль не найден.';
 
 
-		/**
-		 * Получение основных настроек сисблока
-		 *
-		 * @param string $param параметр настройки, если не указан - все параметры
-		 * @return mixed
-		 */
-		function _sysBlock($id, $param = '')
-		{
-			global $AVE_DB;
-
-			static $sys_block = null;
-
-			if ($sys_block === null)
-			{
-				$sys_block = $AVE_DB->Query("
-					SELECT
-						*
-					FROM
-						" . PREFIX . "_sysblocks
-					WHERE
-						" . (is_numeric($id) ? 'id' : 'sysblock_alias') . " = '" . $id . "'
-				")->FetchAssocArray();
-			}
-
-			if ($param == '')
-				return $sys_block;
-
-			return isset($sys_block[$param])
-				? $sys_block[$param]
-				: null;
-		}
-
-
-		/**
-		 * Получаем шаблон документа
-		 *
-		 * @param $rubric_id
-		 * @param $template_id
-		 *
-		 * @return bool|null|string
-		 */
 		function _getMainTemplate($rubric_id, $template_id)
 		{
 			global $AVE_DB;
@@ -185,7 +144,6 @@
 				? $request[$param]
 				: null;
 		}
-
 
 		/**
 		 * Метод, предназначенный для получения шаблонов
@@ -294,7 +252,6 @@
 			return $out;
 		}
 
-
 		/**
 		 * Метод, предназначенный для получения шаблона модуля
 		 *
@@ -350,7 +307,6 @@
 			// Возвращаем информацию о полученном шаблоне
 			return stripslashes($out);
 		}
-
 
 		/**
 		 * Метод, предназначенный для получения прав доступа к документам рубрики
@@ -412,7 +368,7 @@
 		/**
 		 * Метод, предназначенный для обработки события 404 Not Found, т.е. когда страница не найдена.
 		 *
-		 * @return void
+		 * @return unknown
 		 */
 		function _coreErrorPage404()
 		{
@@ -501,7 +457,6 @@
 			return (isset($this->curentdoc->Id) && $this->curentdoc->Id == $document_id);
 		}
 
-
 		/**
 		 * Метод, предназначенный для получения содержимого страницы с 404 ошибкой
 		 *
@@ -546,7 +501,6 @@
 			return (isset($this->curentdoc->Id) && $this->curentdoc->Id == $page_not_found_id);
 		}
 
-
 		/**
 		 * Метод, предназначенный для получения МЕТА-тегов для различных модулей.
 		 * ToDo
@@ -576,7 +530,6 @@
 
 			return (isset($this->curentdoc->Id) && $this->curentdoc->Id == 1);
 		}
-
 
 		/**
 		 * Метод, предназначенный для определения статуса документа (доступен ли он к публикации).
@@ -626,7 +579,6 @@
 			}
 			return (! empty($this->curentdoc));
 		}
-
 
 		/**
 		 * Метод парсинга тега [tag:(css|js):files]
@@ -681,13 +633,6 @@
 		}
 
 
-		/**
-		 * @param $main_content
-		 * @param $id
-		 * @param $rubTmpl
-		 *
-		 * @return mixed|null|string|string[]
-		 */
 		function _main_content ($main_content, $id, $rubTmpl)
 		{
 			global $AVE_DB, $AVE_Template;
@@ -695,13 +640,13 @@
 			// Проверяем теги полей в шаблоне рубрики на условие != ''
 			if (defined('USE_GET_FIELDS') && USE_GET_FIELDS)
 			{
-				$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.' ?'.'>', $rubTmpl);
-				$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.' ?'.'>', $main_content);
+				$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.'?'.'>', $rubTmpl);
+				$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.'?'.'>', $main_content);
 			}
 			else
 				{
-					$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.' ?'.'>', $rubTmpl);
-					$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.' ?'.'>', $main_content);
+					$main_content = preg_replace("/\[tag:if_notempty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) != \'\') { '.'?'.'>', $rubTmpl);
+					$main_content = preg_replace("/\[tag:if_empty:fld:([a-zA-Z0-9-_]+)\]/u", '<'.'?php if((htmlspecialchars(document_get_field(\'$1\'), ENT_QUOTES)) == \'\') { '.'?'.'>', $main_content);
 				}
 
 			$main_content = str_replace('[tag:if:else]', '<?php }else{ ?>', $main_content);
@@ -710,10 +655,10 @@
 			// Парсим элементы полей
 			$main_content = preg_replace_callback(
 				'/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
-				function ($m)
-				{
-					return get_field_element($m[1], $m[2], $m[3], $this->curentdoc->Id);
-				},
+					create_function(
+						'$m',
+						'return get_field_element($m[1], $m[2], $m[3], ' . $this->curentdoc->Id . ');'
+					),
 				$main_content
 			);
 
@@ -723,10 +668,10 @@
 			// Повторно парсим элементы полей
 			$main_content = preg_replace_callback(
 				'/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
-				function ($m)
-				{
-					return get_field_element($m[1], $m[2], $m[3], $this->curentdoc->Id);
-				},
+					create_function(
+						'$m',
+						'return get_field_element($m[1], $m[2], $m[3], ' . $this->curentdoc->Id . ');'
+					),
 				$main_content
 			);
 
@@ -765,10 +710,8 @@
 			// парсим теги в шаблоне рубрики
 			$main_content = preg_replace_callback(
 				'/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
-				function ($m)
-				{
-					return translate_date(date($m[1], $this->curentdoc->document_published));
-				},
+					create_function('$m','return translate_date(date($m[1], '.$this->curentdoc->document_published.'));
+				'),
 				$main_content
 			);
 
@@ -809,11 +752,6 @@
 		}
 
 
-		/**
-		 * Получаем ID для кеша документа
-		 *
-		 * @return array|bool
-		 */
 		function _get_cache_id()
 		{
 			$cache = array();
@@ -839,13 +777,6 @@
 		}
 
 
-		/**
-		 * Создаем компилированный документ
-		 *
-		 * @param $main_content
-		 *
-		 * @return bool
-		 */
 		function setCompileDocument ($main_content)
 		{
 			$cache = $this->_get_cache_id();
@@ -876,11 +807,6 @@
 		}
 
 
-		/**
-		 * Получаем скомпилированный документ
-		 *
-		 * @return bool|string
-		 */
 		function getCompileDocument ()
 		{
 			$cache = $this->_get_cache_id();
@@ -1059,7 +985,6 @@
 			}
 		}
 
-
 		/**
 		 * Метод, предназанченный для сборки всей страницы в единое целое.
 		 *
@@ -1088,14 +1013,14 @@
 				}
 
 				// проверяем разрешение на внешнее обращение
-				if (! $this->_sysBlock($_REQUEST['sysblock'], 'sysblock_external'))
+				if (! _getSysBlock($_REQUEST['sysblock'], 'sysblock_external'))
 				{
 					header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
 					exit;
 				}
 
 				// проверяем разрешение на обращение только по Ajax
-				if ($this->_sysBlock($_REQUEST['sysblock'], 'sysblock_ajax'))
+				if (_getSysBlock($_REQUEST['sysblock'], 'sysblock_ajax'))
 				{
 					if (isAjax())
 						$out = parse_sysblock($_REQUEST['sysblock']);
@@ -1158,9 +1083,7 @@
 
 				// Выполняем Код рубрики До загрузки документа
 				ob_start();
-
 				eval(' ?>' . $this->curentdoc->rubric_start_code . '<?php ');
-
 				ob_end_clean();
 
 				// Получаем шаблон
@@ -1341,6 +1264,7 @@
 				$out
 			);
 
+
 			// Удаляем ошибочные теги полей документа в шаблоне рубрики
 			$out = preg_replace('/\[tag:rfld:\w*\]/', '', $out);
 
@@ -1362,7 +1286,22 @@
 			$out = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $out);
 
 			// Парсим теги системных блоков
-			$out = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_sysblock', $out);
+			$out = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)(|:\{(.*?)\})\]/',
+				function ($m)
+				{
+					return parse_sysblock($m[1], $m[2]);
+				},
+				$out);
+
+			// Парсим тизер документа
+			$out = preg_replace_callback(
+				'/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
+				create_function(
+					'$m',
+					'return showteaser($m[1], $m[2]);'
+				),
+				$out
+			);
 
 			// Парсим теги модулей
 			$out = $this->coreModuleTagParse($out);
@@ -1560,10 +1499,10 @@
 			// Парсим тизер документа
 			$out = preg_replace_callback(
 				'/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
-				function ($m)
-				{
-					return showteaser($m[1], $m[2]);
-				},
+					create_function(
+						'$m',
+						'return showteaser($m[1], $m[2]);'
+					),
 				$out
 			);
 
@@ -1571,10 +1510,10 @@
 			if (defined('RUB_ID'))
 				$out = preg_replace_callback(
 					'/\[tag:docauthoravatar:(\d+)\]/',
-					function ($m)
-					{
-						return getAvatar(intval($this->curentdoc->document_author_id), $m[1]);
-					},
+						create_function(
+							'$m',
+							'return getAvatar('.intval($this->curentdoc->document_author_id).', $m[1]);'
+						),
 					$out
 				);
 
@@ -1612,7 +1551,6 @@
 			// Выводим собранный документ
 			echo $out;
 		}
-
 
 		/**
 		 * Метод, предназначенный для формирования ЧПУ, а также для поиска документа и разбора

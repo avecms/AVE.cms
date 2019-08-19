@@ -18,7 +18,7 @@
 	 * 						допустимые значения: page, apage, artpage
 	 * @return int			номер текущей страницы
 	 */
-	function get_current_page($type = 'page')
+	function get_current_page ($type = 'page')
 	{
 		if (!in_array($type, array('page', 'apage', 'artpage'))) return 1;
 
@@ -38,7 +38,7 @@
 	 * @return string					HTML-код постраничной навигации
 	 */
 
-	function get_pagination($total_pages, $type, $template_label, $navi_box = '')
+	function get_pagination ($total_pages, $type, $template_label, $navi_box = '')
 	{
 		$nav = '';
 

@@ -41,7 +41,7 @@
 		 *
 		 * @return false|null|string|string[]
 		 */
-		public static function _echo($var, $exit = false, $bg = null, $echo = true)
+		public static function _echo($var, $exit = false, $_bg = null, $echo = true)
 		{
 			$code = '';
 
@@ -92,8 +92,10 @@
 			else
 				$fn_name = 'EVAL';
 
-			if (empty($bg))
-				$bg = '43648c';
+			if ($_bg)
+				$bg = 'style="background: #' . $_bg . ';"';
+			else
+				$bg = '';
 
 			$var_dump = '
 				<style>
@@ -101,7 +103,7 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 3px;
+						border-radius: 5px;
 						box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
 						font-family: "Consolas", Verdana, Arial;
 						font-size: 11px;
@@ -114,6 +116,7 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
+						background-color: #43648c;
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -125,7 +128,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top" style="background-color: #' . $bg . ';">
+					<div class="debug_top" ' . $bg . '>
 						var_dump(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
@@ -157,7 +160,7 @@
 		 *
 		 * @return null|string|string[]
 		 */
-		public static function _print($var, $exit = false, $bg = null, $echo = true)
+		public static function _print($var, $exit = false, $_bg = null, $echo = true)
 		{
 			$code = '';
 
@@ -202,8 +205,10 @@
 			else
 				$fn_name = 'EVAL';
 
-			if (! $bg)
-				$bg = '4e5665';
+			if ($_bg)
+				$bg = 'style="background: #' . $_bg . ';"';
+			else
+				$bg = '';
 
 			$var_dump = '
 				<style>
@@ -211,9 +216,9 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 3px;
+						border-radius: 5px;
 						box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
-						font-family: Consolas, Verdana, Arial;
+						font-family: "Consolas", Verdana, Arial;
 						font-size: 11px;
 					}
 					.debug_top {
@@ -224,6 +229,7 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
+						background-color: #4e5665;
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -235,7 +241,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top" style="background-color: #' . $bg . ';">
+					<div class="debug_top" ' . $bg . '>
 						print_r(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
@@ -267,7 +273,7 @@
 		 *
 		 * @return string
 		 */
-		public static function _exp($var, $exit = false, $bg = null, $echo = true)
+		public static function _exp($var, $exit = false, $_bg = null, $echo = true)
 		{
 			$code = '';
 
@@ -306,8 +312,10 @@
 			else
 				$fn_name = 'EVAL';
 
-			if (! $bg)
-				$bg = 'ccc';
+			if ($_bg)
+				$bg = 'style="background: #' . $_bg . ';"';
+			else
+				$bg = '';
 
 			$var_export = htmlspecialchars(ob_get_contents());
 
@@ -321,9 +329,9 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 3px;
+						border-radius: 5px;
 						box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
-						font-family: Consolas, Verdana, Arial;
+						font-family: "Consolas", Verdana, Arial;
 						font-size: 11px;
 					}
 					.debug_top {
@@ -334,6 +342,7 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
+						background-color: #ccc;
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -345,7 +354,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top" style="background-color: #' . $bg . ';">
+					<div class="debug_top" ' . $bg . '>
 						var_export(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
@@ -377,7 +386,7 @@
 		 *
 		 * @return false|string
 		 */
-		public static function _html($var, $exit = false, $bg = null, $echo = true)
+		public static function _html($var, $exit = false, $_bg = null, $echo = true)
 		{
 			$code = '';
 
@@ -416,8 +425,10 @@
 			else
 				$fn_name = 'EVAL';
 
-			if (! $bg)
-				$bg = '43648c';
+			if ($_bg)
+				$bg = 'style="background: #' . $_bg . ';"';
+			else
+				$bg = '';
 
 			$var_dump = ob_get_contents();
 
@@ -429,9 +440,9 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 3px;
-						box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1);
-						font-family: Consolas, Verdana, Arial;
+						border-radius: 5px;
+						box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+						font-family: "Consolas", Verdana, Arial;
 						font-size: 11px;
 					}
 					.debug_top {
@@ -442,6 +453,7 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
+						background-color: #43648c;
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -453,7 +465,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top" style="background-color: #' . $bg . ';">
+					<div class="debug_top" ' . $bg . '>
 						var_export(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'
@@ -533,7 +545,14 @@
 				$fn_name = 'EVAL';
 
 			if (! $bg)
+			{
+				$br = '2a5885';
 				$bg = '43648c';
+			}
+			else
+				{
+					$br = $bg;
+				}
 
 			$var_dump = '
 				<style>
@@ -541,7 +560,7 @@
 						margin: 20px;
 						border: 1px solid #d9d9d9;
 						background-color: #f1efef;
-						border-radius: 3px;
+						border-radius: 5px;
 						box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1);
 						font-family: Consolas, Verdana, Arial;
 						font-size: 11px;
@@ -554,6 +573,7 @@
 						padding-top: 10px;
 						padding-bottom: 10px;
 						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
+						background-color: #'.$bg.';
 						background-repeat: repeat-x;
 						border-bottom: 1px solid #ffffff;
 					}
@@ -565,7 +585,7 @@
 					}
 				</style>
 				<div class="debug_bg">
-					<div class="debug_top" style="background-color: #' . $bg . ';">
+					<div class="debug_top">
 						var_dump(<strong>' . trim($fn_name) . '</strong>)
 					</div>
 					'.self::_trace().'

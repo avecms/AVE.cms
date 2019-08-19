@@ -147,31 +147,31 @@
 			// обрабатываем условия
 			switch ($type)
 			{
-				case 'N<':case '<': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv < UPPER('\$v[$i]'))) $join\" : ''?>"; break;
-				case 'N>':case '>': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv > UPPER('\$v[$i]'))) $join\" : ''?>"; break;
-				case 'N<=':case '<=': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv <= UPPER('\$v[$i]'))) $join\" : ''?>"; break;
-				case 'N>=':case '>=': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv >= UPPER('\$v[$i]'))) $join\" : ''?>"; break;
+				case 'N<':case '<': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv < UPPER('\$v[$i]'))) $join\" : '' ?>"; break;
+				case 'N>':case '>': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv > UPPER('\$v[$i]'))) $join\" : '' ?>"; break;
+				case 'N<=':case '<=': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv <= UPPER('\$v[$i]'))) $join\" : '' ?>"; break;
+				case 'N>=':case '>=': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv >= UPPER('\$v[$i]'))) $join\" : '' ?>"; break;
 
-				case '==': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv = UPPER('\$v[$i]'))) $join\" : ''?>"; break;
-				case '!=': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv != UPPER('\$v[$i]'))) $join\" : ''?>"; break;
-				case '%%': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv LIKE UPPER('%\$v[$i]%'))) $join\" : ''?>"; break;
-				case '%': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv LIKE UPPER('\$v[$i]%'))) $join\" : ''?>"; break;
-				case '--': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv NOT LIKE UPPER('%\$v[$i]%'))) $join\" : ''?>"; break;
-				case '!-': $where[] = "<?=\$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv NOT LIKE UPPER('\$v[$i]%'))) $join\" : ''?>"; break;
+				case '==': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv = UPPER('\$v[$i]'))) $join\" : '' ?>"; break;
+				case '!=': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv != UPPER('\$v[$i]'))) $join\" : '' ?>"; break;
+				case '%%': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv LIKE UPPER('%\$v[$i]%'))) $join\" : '' ?>"; break;
+				case '%': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv LIKE UPPER('\$v[$i]%'))) $join\" : '' ?>"; break;
+				case '--': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv NOT LIKE UPPER('%\$v[$i]%'))) $join\" : '' ?>"; break;
+				case '!-': $where[] = "<?php echo \$v[$i]>'' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv NOT LIKE UPPER('\$v[$i]%'))) $join\" : '' ?>"; break;
 
-				case 'SEGMENT': $where[] = "<?
+				case 'SEGMENT': $where[] = "<?php 
 					\$v[$i]['seg']=@explode(',',\$v[$i]);
 					\$v[$i]['seg'][0]=(int)trim(\$v[$i]['seg'][0]);
 					\$v[$i]['seg'][1]=(int)trim(\$v[$i]['seg'][1]);
-					echo (\$v[$i]>'' && \$v[$i]{0}!=',' && \$v[$i]['seg'][0] <= \$v[$i]['seg'][1]) ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv >= '\" . \$v[$i]['seg'][0] . \"' AND $fv <= '\" . \$v[$i]['seg'][1] . \"')) $join\" : '');?>"; break;
-				case 'INTERVAL': $where[] = "<?
+					echo (\$v[$i]>'' && \$v[$i]{0}!=',' && \$v[$i]['seg'][0] <= \$v[$i]['seg'][1]) ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv >= '\" . \$v[$i]['seg'][0] . \"' AND $fv <= '\" . \$v[$i]['seg'][1] . \"')) $join\" : ''); ?>"; break;
+				case 'INTERVAL': $where[] = "<?php 
 					\$v[$i]['seg']=@explode(',',\$v[$i]);
 					\$v[$i]['seg'][0]=(int)trim(\$v[$i]['seg'][0]);
 					\$v[$i]['seg'][1]=(int)trim(\$v[$i]['seg'][1]);
-					echo (\$v[$i]>'' && \$v[$i]{0}!=',' && \$v[$i]['seg'][0] < \$v[$i]['seg'][1]) ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv > '\" . \$v[$i]['seg'][0] . \"' AND $fv < '\" . \$v[$i]['seg'][1] . \"')) $join\" : '');?>"; break;
+					echo (\$v[$i]>'' && \$v[$i]{0}!=',' && \$v[$i]['seg'][0] < \$v[$i]['seg'][1]) ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv > '\" . \$v[$i]['seg'][0] . \"' AND $fv < '\" . \$v[$i]['seg'][1] . \"')) $join\" : ''); ?>"; break;
 
-				case 'IN=': $where[] = "<?=(\$v[$i]>'' && \$v[$i]{0}!=',') ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv IN (\$v[$i]))) $join\" : ''?>"; break;
-				case 'NOTIN=': $where[] = "<?=(\$v[$i]>'' && \$v[$i]{0}!=',') ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv NOT IN (\$v[$i]))) $join\" : ''?>"; break;
+				case 'IN=': $where[] = "<?php echo (\$v[$i]>'' && \$v[$i]{0}!=',') ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv IN (\$v[$i]))) $join\" : '' ?>"; break;
+				case 'NOTIN=': $where[] = "<?php echo (\$v[$i]>'' && \$v[$i]{0}!=',') ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv NOT IN (\$v[$i]))) $join\" : '' ?>"; break;
 
 				case 'ANY': $where[] = "<?php echo \$v[$i] > '' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND $fv=ANY(\$v[$i]))) $join\" : ''; ?>"; break;
 				case 'FRE': $where[] = "<?php echo \$v[$i] > '' ? \"(t$fid.document_id = a.id AND (t$fid.rubric_field_id = '$fid' AND (\$v[$i]))) $join\" : ''; ?>"; break;
@@ -453,7 +453,12 @@
 			$item = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $template);
 
 			// Парсим теги системных блоков
-			$item = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_sysblock', $item);
+			$item = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)(|:\{(.*?)\})\]/',
+				function ($m)
+				{
+					return parse_sysblock($m[1], $m[2]);
+				},
+				$item);
 
 			// Парсим элементы полей
 			$item = preg_replace_callback('/\[tag:rfld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
@@ -559,6 +564,7 @@
 			$link = rewrite_link('index.php?id=' . $row->Id . '&amp;doc=' . (empty($row->document_alias) ? prepare_url($row->document_title) : $row->document_alias));
 			$item = str_replace('[tag:link]', $link, $item);
 			$item = str_replace('[tag:docid]', $row->Id, $item);
+			$item = str_replace('[tag:itemid]', $row->Id, $item);
 			$item = str_replace('[tag:docitemnum]', $req_item_num, $item);
 			$item = str_replace('[tag:adminlink]', 'index.php?do=docs&action=edit&rubric_id=' . $row->rubric_id . '&Id=' . $row->Id . '&cp=' . session_id() . '', $item);
 			$item = str_replace('[tag:doctitle]', stripslashes(htmlspecialchars_decode($row->document_title)), $item);

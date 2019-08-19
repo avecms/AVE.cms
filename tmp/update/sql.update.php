@@ -291,7 +291,7 @@
 		FROM INFORMATION_SCHEMA.COLUMNS
 		WHERE
 			TABLE_SCHEMA = DATABASE()
-		AND TABLE_NAME = 'ave325_settings'
+		AND TABLE_NAME = '" . PREFIX . "_settings'
 		AND COLUMN_NAME = 'use_editor';
 	")->GetCell();
 
@@ -324,4 +324,27 @@
 		");
 	}
 
+	// ----------------------------------------------------------------------------------------
+
+	$check = $AVE_DB->Query("
+		SHOW COLUMNS
+		FROM
+			" . PREFIX . "_sysblocks
+		LIKE
+			'sysblock_eval'
+	")->NumRows();
+
+	$exist = ($check) ? true : false;
+
+	if ($exist === false)
+	{
+		$AVE_DB->Real_Query("
+			ALTER TABLE
+				" . PREFIX . "_sysblocks
+			ADD
+				`sysblock_eval` enum('0','1') NOT NULL DEFAULT '1'
+			AFTER
+				`sysblock_active`
+		");
+	}
 ?>

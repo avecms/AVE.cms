@@ -18,9 +18,19 @@
 	 *
 	 * @return bool|mixed|null|string|string[]
 	 */
-	function parse_sysblock($id)
+	function parse_sysblock ($id, $params = null)
 	{
-		global $AVE_DB;
+		global $AVE_DB, $sysParams;
+
+		$sysblock_eval = _getSysBlock($id, 'sysblock_eval');
+
+		$sparams_id = $id . md5($params);							// Создаем уникальный id для каждого набора параметров
+		$sysParams[$sparams_id] = [];								// Для отмены лишних ворнингов
+
+		$params = trim($params,':');						// Удаляем: слева ':[', справа ']'
+		$params = json_decode($params, true);
+
+		$sysParams[$sparams_id] = $params;
 
 		if (is_array($id))
 			$id = $id[1];
@@ -31,8 +41,6 @@
 
 		if ($id != '')
 		{
-			$eval_sysblock = true;
-
 			$cache = md5('sysblock' . $id);
 
 			$cache_file = BASE_DIR . '/tmp/cache/sql/sysblocks/' . $id . '/' . $cache . '.code';
@@ -94,16 +102,92 @@
 
 			$return = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $return);
 
-			if ($eval_sysblock)
-				$return = eval2var('?'.'>' . $return . '<'.'?');
+			// Парсим теги системных блоков
+			$return = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)(|:\{(.*?)\})\]/',
+				function ($m)
+				{
+					return parse_sysblock($m[1], $m[2]);
+				},
+				$return);
 
-			$gen_time = Debug::endTime('SYSBLOCK_' . $id);
+			// Если был вызов
+			if ($sysParams != '')
+			{
+				// Заменяем
+				$return = preg_replace_callback('/\[sys:param:([A-Za-z0-9-+_]+)\]/',
+					function ($m) use ($sparams_id)
+					{
+						return params_of_sysblocks($sparams_id, $m[1]);
+					},
+					$return);
+			}
+			else
+				{
+					// Если чистый запрос тизера, просто вытираем tparam
+					$return = preg_replace('/\[sysparam:([A-Za-z0-9-+_]+)\]/', '', $return);
+				}
 
-			$GLOBALS['block_generate']['SYSBLOCK'][$id] = $gen_time;
+			if ($sysblock_eval)
+				$return = eval2var('?'.'>' . $return . '<'.'?php ');
+
+			$GLOBALS['block_generate']['SYSBLOCK'][$id] = Debug::endTime('SYSBLOCK_' . $id);
 
 			return $return;
 		}
 
 		return false;
+	}
+
+
+	/**
+	 * Функция получения уникальных параметров для каждого
+	 *
+	 * @param $id
+	 * @param $el
+	 * @return string
+	 */
+	function params_of_sysblocks($id, $el)
+	{
+		global $sysParams;
+
+		if (isset($sysParams[$id][$el]))
+			return $sysParams[$id][$el];
+		else
+			return false;
+	}
+
+
+	/**
+	 * Получение основных настроек сисблока
+	 *
+	 * @param $param string параметр настройки, если не указан - все параметры
+	 * @return mixed
+	 */
+	function _getSysBlock($id, $param = '')
+	{
+		global $AVE_DB;
+
+		$sys_block = null;
+
+		if ($sys_block === null)
+		{
+			$sql = "
+				SELECT
+					*
+				FROM
+					" . PREFIX . "_sysblocks
+				WHERE
+					" . (is_numeric($id) ? 'id' : 'sysblock_alias') . " = '" . $id . "'
+			";
+
+			$sys_block = $AVE_DB->Query($sql, -1, 'sysblocks/' . $id . '/')->FetchAssocArray();
+		}
+
+		if ($param == '')
+			return $sys_block;
+
+		return isset($sys_block[$param])
+			? $sys_block[$param]
+			: null;
 	}
 ?>

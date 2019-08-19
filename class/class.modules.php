@@ -404,7 +404,6 @@
 						ModuleSysName = '" . MODULE_PATH . "'
 				");
 			}
-
 			// Сохраняем системное сообщение в журнал
 			reportLog ($AVE_Template->get_config_vars('MODULES_ACTION_UPDATE') . ' (' . MODULE_PATH . ')');
 
@@ -514,8 +513,8 @@
 
 			foreach ($files as $file)
 			{
-				if (substr($file, -1) == '/')
-					$this->moduleRemove($file);
+				if(substr($file, -1) == '/')
+					moduleRemove($file);
 				else
 					unlink($file);
 			}

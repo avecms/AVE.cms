@@ -73,7 +73,7 @@
 	 *
 	 * @return string
 	 */
-	function get_field_default($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null, $_tpl=null)
+	function get_field_default ($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null, $_tpl=null)
 	{
 		switch ($action)
 		{
@@ -154,7 +154,7 @@
 	 * @param $id
 	 * @return string
 	 */
-	function get_field_alias($id)
+	function get_field_alias ($id)
 	{
 		global $AVE_DB;
 
@@ -177,7 +177,7 @@
 	 *
 	 * @return string
 	 */
-	function get_field_num($rubric_id, $alias)
+	function get_field_num ($rubric_id, $alias)
 	{
 		global $AVE_DB;
 
@@ -204,13 +204,13 @@
 
 
 	/**
-	 * Возвращаем
+	 * Возвращаем значение по умолчанию, для поля
 	 *
 	 * @param $id
 	 *
 	 * @return string
 	 */
-	function get_field_default_value($id)
+	function get_field_default_value ($id)
 	{
 		global $AVE_DB;
 
@@ -287,7 +287,7 @@
 	 *
 	 * @return string
 	 */
-	function document_get_field($field_id, $document_id = null, $_tpl = null, $maxlength = null)
+	function document_get_field ($field_id, $document_id = null, $_tpl = null, $maxlength = null)
 	{
 		global $AVE_Core;
 
@@ -343,7 +343,7 @@
 	 * 						содержимое поля будет очищено от HTML-тегов.
 	 * @return string
 	 */
-	function document_get_field_value($field_id, $length = 0)
+	function document_get_field_value ($field_id, $length = 0)
 	{
 		if (! is_numeric($field_id))
 			return '';
@@ -382,7 +382,7 @@
 	 *
 	 * @return string
 	 */
-	function get_document_field($document_id, $field)
+	function get_document_field ($document_id, $field)
 	{
 		$document_fields = get_document_fields($document_id);
 
@@ -406,7 +406,7 @@
 	 * @internal    param int $id id документа
 	 * @return      mixed
 	 */
-	function get_document_fields($document_id, $values = null)
+	function get_document_fields ($document_id, $values = null)
 	{
 		global $AVE_DB, $AVE_Core; //$request_documents
 
@@ -524,7 +524,7 @@
 	 *
 	 * @return string
 	 */
-	function get_field($field_id, $doc_id = null, $parametr = null)
+	function get_field ($field_id, $doc_id = null, $parametr = null)
 	{
 		global $req_item_id;
 
@@ -539,7 +539,7 @@
 			return false;
 
 		//-- Забираем из базы массив полей
-		$field = get_document_field($doc_id, $field_id);
+		$field = get_document_field ($doc_id, $field_id);
 
 		//-- Возвращаем нужную часть поля
 		if ($parametr !==  null)
@@ -562,7 +562,7 @@
 	 *
 	 * @return mixed
 	 */
-	function get_true_field($field_id, $doc_id = null, $parametr = null)
+	function get_true_field ($field_id, $doc_id = null, $parametr = null)
 	{
 		global $req_item_id, $AVE_DB;
 
@@ -619,7 +619,7 @@
 	 * @param int $parametr	([tag:parametr:X]) - номер параметра элемента
 	 * @return string
 	 */
-	function get_element($field_id, $item_id = 0, $parametr = null, $doc_id = null)
+	function get_element ($field_id, $item_id = 0, $parametr = null, $doc_id = null)
 	{
 		global $req_item_id;
 
@@ -663,7 +663,7 @@
 	 * @param int $doc_id	([tag:docid]) - id документа
 	 * @return mixed
 	 */
-	function get_serialize($field_id, $item_id = null, $doc_id = null)
+	function get_serialize ($field_id, $item_id = null, $doc_id = null)
 	{
 		global $req_item_id;
 
@@ -706,7 +706,7 @@
 	 *
 	 * @return string
 	 */
-	function get_field_element()
+	function get_field_element ()
 	{
 		$param = func_get_args();
 
@@ -733,7 +733,7 @@
 	 *
 	 * @return string
 	 */
-	function get_field_name($field_id, $doc_id = null)
+	function get_field_name ($field_id, $doc_id = null)
 	{
 		global $req_item_id;
 
@@ -755,5 +755,74 @@
 		$field_name = $document_fields[$field_id]['rubric_field_title'];
 
 		return $field_name;
+	}
+
+
+	/**
+	 * Возвращает поле документа по номеру
+	 *
+	 * @param int  $field_id ([tag:fld:X]) - номер поля
+	 * @param int  $doc_id
+	 * @param int  $parametr знчение
+	 *
+	 * @return mixed
+	 */
+	function get_full_field ($field_id, $doc_id = null, $parametr = null)
+	{
+		global $req_item_id, $AVE_DB;
+
+		//-- Если не передан $doc_id, то проверяем реквест
+		if (! $doc_id && $req_item_id)
+			$doc_id = $req_item_id;
+		//-- Или берём для текущего дока
+		elseif (! $doc_id && $_REQUEST['id'] > 0)
+			$doc_id = $_REQUEST['id'];
+		//-- Возвращаем FALSE, если не число
+		elseif (! is_numeric($doc_id))
+			return false;
+
+		//-- Забираем поле из базы
+		$sql = "
+			SELECT
+				doc.document_author_id,
+				doc_field.document_id,
+				doc_field.rubric_field_id,
+				doc_field.field_value,
+				doc_field.field_number_value,
+				text_field.field_value AS field_value_more,
+				rub_field.rubric_field_alias,
+				rub_field.rubric_field_type,
+				rub_field.rubric_field_default,
+				rub_field.rubric_field_title,
+				rub_field.rubric_field_template,
+				rub_field.rubric_field_template_request
+			FROM
+				" . PREFIX . "_document_fields AS doc_field
+			JOIN
+				" . PREFIX . "_rubric_fields AS rub_field
+					ON doc_field.rubric_field_id = rub_field.Id
+			LEFT JOIN
+				" . PREFIX . "_document_fields_text AS text_field
+				ON (doc_field.rubric_field_id = text_field.rubric_field_id AND doc_field.document_id = text_field.document_id)
+			JOIN
+				" . PREFIX . "_documents AS doc
+				ON doc.Id = doc_field.document_id
+			WHERE
+				doc_field.document_id = '" . $doc_id . "'
+			AND
+				doc_field.rubric_field_id = '" . $field_id . "'
+		";
+
+		$field = $AVE_DB->Query($sql)->FetchRow();
+
+		$field->field_value = (string)$field->field_value . (string)$field->field_value_more;
+
+		unset ($sql);
+
+		//-- Возвращаем нужную часть
+		if ($parametr !==  null)
+			return $field[$parametr];
+
+		return $field;
 	}
 ?>

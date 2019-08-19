@@ -38,7 +38,7 @@
 		/**
 		 * Вывод списка системных блоков
 		 */
-		function sys_blockList()
+		function sys_blockList ()
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -70,7 +70,7 @@
 		 *
 		 * @param int $sysblock_id идентификатор системного блока
 		 */
-		function sys_blockSave($sysblock_id = null)
+		function sys_blockSave ($sysblock_id = null)
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -78,10 +78,10 @@
 			{
 
 				$_REQUEST['sysblock_external'] = (isset($_REQUEST['sysblock_external'])) ? $_REQUEST['sysblock_external'] : 0;
+				$_REQUEST['sysblock_eval'] = (isset($_REQUEST['sysblock_eval'])) ? $_REQUEST['sysblock_eval'] : 0;
 				$_REQUEST['sysblock_ajax'] = (isset($_REQUEST['sysblock_ajax'])) ? $_REQUEST['sysblock_ajax'] : 0;
 				$_REQUEST['sysblock_visual'] = (isset($_REQUEST['sysblock_visual'])) ? $_REQUEST['sysblock_visual'] : 0;
-
-				$sysblock_alias = isset($_REQUEST['sysblock_alias']) ? $_REQUEST['sysblock_alias'] : '';
+				$_REQUEST['sysblock_alias'] = isset($_REQUEST['sysblock_alias']) ? $_REQUEST['sysblock_alias'] : '';
 
 				$sql = $AVE_DB->Query("
 					UPDATE
@@ -91,6 +91,7 @@
 						sysblock_description	 = '" . addslashes($_REQUEST['sysblock_description']) . "',
 						sysblock_alias			 = '" . $_REQUEST['sysblock_alias'] . "',
 						sysblock_text			 = '" . $_REQUEST['sysblock_text'] . "',
+						sysblock_eval			 = '" . (int)$_REQUEST['sysblock_eval'] . "',
 						sysblock_external		 = '" . (int)$_REQUEST['sysblock_external'] . "',
 						sysblock_ajax			 = '" . (int)$_REQUEST['sysblock_ajax'] . "',
 						sysblock_visual			 = '" . (int)$_REQUEST['sysblock_visual'] . "'
@@ -140,6 +141,7 @@
 							sysblock_alias			= '" . $_REQUEST['sysblock_alias'] . "',
 							sysblock_text			= '" . $_REQUEST['sysblock_text'] . "',
 							sysblock_author_id		= '" . (int)$_SESSION['user_id'] . "',
+							sysblock_eval			= '" . (int)$_REQUEST['sysblock_eval'] . "',
 							sysblock_external		= '" . (int)$_REQUEST['sysblock_external'] . "',
 							sysblock_ajax			= '" . (int)$_REQUEST['sysblock_ajax'] . "',
 							sysblock_visual			= '" . (int)$_REQUEST['sysblock_visual'] . "',
@@ -163,7 +165,7 @@
 		 *
 		 * @param int $sysblock_id идентификатор системного блока
 		 */
-		function sys_blockEdit($sysblock_id)
+		function sys_blockEdit ($sysblock_id)
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -201,13 +203,14 @@
 		/**
 		 * Создание системного блока
 		 */
-		function sys_blockNew()
+		function sys_blockNew ()
 		{
 			global $AVE_DB, $AVE_Template;
 
 			$row['sysblock_name'] = '';
 			$row['sysblock_alias'] = '';
 			$row['sysblock_text'] = '';
+			$row['sysblock_eval'] = '1';
 			$row['sysblock_visual'] = (isset($_REQUEST['sysblock_visual']) && $_REQUEST['sysblock_visual'] != 0) ? $_REQUEST['sysblock_visual'] : '';
 
 			$AVE_Template->assign('sid', 0);
@@ -237,7 +240,7 @@
 		 *
 		 * @param int $sysblock_id идентификатор системного блока
 		 */
-		function sys_blockDelete($sysblock_id)
+		function sys_blockDelete ($sysblock_id)
 		{
 			global $AVE_DB, $AVE_Template;
 

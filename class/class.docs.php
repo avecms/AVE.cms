@@ -1478,7 +1478,7 @@
 			// Если пришел вызов поля, который связан с модулем
 			if (isset($data['field_module']))
 			{
-				while(list($mod_key, $mod_val) = each($_REQUEST['field_module']))
+				while(list($mod_key, $mod_val) = each($data['field_module']))
 				{
 					require_once(BASE_DIR . '/modules/' . $mod_val . '/document.php');
 
