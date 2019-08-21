@@ -142,7 +142,7 @@ function changeRub(select) {ldelim}
 						<div class="pr12">
 							<input type="text" name="request_alias" value="{if $smarty.request.Id != ''}{$row->request_alias}{else}{$smarty.request.request_alias}{/if}" id="request_alias" value="" class="mousetrap" data-accept="{#REQUEST_ACCEPT#}" data-error-syn="{#REQUEST_ER_SYN#}" data-error-exists="{#REQUEST_ER_EXISTS#}" placeholder="{#REQUEST_ALIAS#}" maxlength="20" style="width: 200px;" autocomplete="off" />&nbsp;
 							<input type="text" id="request_alias_tag" value="[tag:request:{if $smarty.request.Id != ''}{if $row->request_alias != ''}{$row->request_alias}{else}{$smarty.request.Id}{/if}{else}{$smarty.request.request_alias}{/if}]" readonly size="40" class="mousetrap" style="width: 200px;" />
-							<a style="text-align: center; padding: 5px 3px 4px 3px;" class="whiteBtn copyBtn" href="javascript:void(0);" data-clipboard-action="copy" data-clipboard-target="#sysblock_alias_tag">
+							<a style="text-align: center; padding: 5px 3px 4px 3px;" class="whiteBtn copyBtn" href="javascript:void(0);" data-clipboard-action="copy" data-clipboard-target="#request_alias_tag">
 								<img style="margin-top: -3px; position: relative; top: 4px; padding: 0 3px;" class="clippy" src="{$ABS_PATH}admin/templates/images/clippy.svg" width="13">
 							</a>
 						</div>

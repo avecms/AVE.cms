@@ -42,7 +42,7 @@
 	<h5>{#SYSBLOCK_EDIT#}</h5>
 </div>
 
-<div class="widget" style="margin-top: 0px;">
+<div class="widget" style="margin-top: 0;">
 	<div class="body">
 		{#SYSBLOCK_EDIT_TIP#}
 	</div>
@@ -57,6 +57,28 @@
 	</div>
 </div>
 
+<div class="widgets">
+	<table class="first tableButtons" cellpadding="0" cellspacing="0" width="100%" id="sysblocksButtons">
+		<col width="25%">
+		<col width="25%">
+		<col width="25%">
+		<col width="25%">
+		<tr>
+			<td>
+				<a class="button basicBtn topBtn" href="index.php?do=modules&action=modedit&mod=basket&moduleaction=basket_history&cp={$sess}">1</a>
+			</td>
+			<td>
+				<a class="button basicBtn topBtn" href="index.php?do=modules&action=modedit&mod=basket&moduleaction=basket_coupon&cp={$sess}">2</a>
+			</td>
+			<td>
+				<a class="button basicBtn topBtn" href="index.php?do=modules&action=modedit&mod=basket&moduleaction=basket_settings&cp={$sess}">3</a>
+			</td>
+			<td>
+				<a class="button basicBtn topBtn" href="index.php?do=modules&action=modedit&mod=basket&moduleaction=templates&cp={$sess}">4</a>
+			</td>
+		</tr>
+	</table>
+</div>
 
 <div class="widget first">
 	<ul class="tabs">
@@ -81,7 +103,7 @@
 					<col width="20">
 					<col width="20">
 
-					{if $sys_blocks}
+					{if $sysblocks}
 					<thead>
 					<tr>
 						<td>{#SYSBLOCK_ID#}</td>
@@ -97,7 +119,7 @@
 					</thead>
 					<tbody>
 
-					{foreach from=$sys_blocks item=sysblock}
+					{foreach from=$sysblocks item=sysblock}
 						<tr id="tr{$sysblock->id}">
 							<td align="center">{$sysblock->id}</td>
 							<td align="center">{if $sysblock->sysblock_external}<a class="icon_sprite ico_globus topDir" title="{#SYSBLOCK_EXTERNAL_GO#}" href="http://{$smarty.server.HTTP_HOST}/?sysblock={if $sysblock->sysblock_alias}{$sysblock->sysblock_alias}{else}{$sysblock->id}{/if}" target="_blank"></a>{else}<span class="icon_sprite ico_globus_no"></span>{/if}</td>
@@ -120,7 +142,7 @@
 							<td align="center">{$sysblock->sysblock_author_id|escape}</td>
 
 							<td align="center">
-								<span class="date_text dgrey">{$sysblock->sysblock_created|date_format:$TIME_FORMAT|translate_date}</span>
+								<span class="date_text dgrey">{$sysblock->sysblock_created|date_format:$TIME_FORMAT|pretty_date}</span>
 							</td>
 
 							<td>

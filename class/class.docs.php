@@ -327,39 +327,39 @@
 			$sql_where_field = '';
 			$field_link = '';
 
-			if ($_REQUEST['field_id'] && (int)$_REQUEST['field_id'] > 0)
+			if (isset($_REQUEST['field_id']) && (int)$_REQUEST['field_id'] > 0)
 			{
 				$sql_join_field = "
-				LEFT JOIN
-					" . PREFIX . "_document_fields AS df1
-				ON
-					doc.Id = df1.document_id
-				LEFT JOIN
-					" . PREFIX . "_document_fields_text AS df2
-				ON
-					df1.document_id = df2.document_id
-			";
+					LEFT JOIN
+						" . PREFIX . "_document_fields AS df1
+					ON
+						doc.Id = df1.document_id
+					LEFT JOIN
+						" . PREFIX . "_document_fields_text AS df2
+					ON
+						df1.document_id = df2.document_id
+				";
 
-				if ($_REQUEST['field_request'] == 'eq')
+				if ($_REQUEST['field_request'] == 'eq' && $_REQUEST['field_search'] != '')
 				{
 					$sql_where_field = "
-				 AND
-				 	(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
-				 	AND
-				 	(UPPER(df1.field_value) = '" . mb_strtoupper($_REQUEST['field_search']) . "'
-				 	OR
-				 	df1.field_number_value = '" . mb_strtoupper($_REQUEST['field_search']) . "'))
-				 ";
-				}
-				else if ($_REQUEST['field_request'] == 'like')
-				{
-					$sql_where_field = "
-					 AND
-						(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
 						AND
-						(UPPER(df1.field_value) LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%'
+							(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
+						AND
+							(UPPER(df1.field_value) = '" . mb_strtoupper($_REQUEST['field_search']) . "'
 						OR
-						df1.field_number_value LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%'))
+							df1.field_number_value = '" . mb_strtoupper($_REQUEST['field_search']) . "'))
+					";
+				}
+				else if ($_REQUEST['field_request'] == 'like' && $_REQUEST['field_search'] != '')
+				{
+					$sql_where_field = "
+						AND
+							(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
+						AND
+							(UPPER(df1.field_value) LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%'
+						OR
+							df1.field_number_value LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%'))
 					";
 				}
 
@@ -376,24 +376,22 @@
 				$nav_rub = '&rubric_id=' . (int)$_REQUEST['rubric_id'];
 
 				$sql = $AVE_DB->Query("
-				SELECT
-					Id,
-					rubric_field_type,
-					rubric_field_title
-				FROM
-					" . PREFIX . "_rubric_fields
-				WHERE
-					rubric_id = '" . $_REQUEST['rubric_id'] ."'
-				ORDER BY
-					rubric_field_title ASC
-			");
+					SELECT
+						Id,
+						rubric_field_type,
+						rubric_field_title
+					FROM
+						" . PREFIX . "_rubric_fields
+					WHERE
+						rubric_id = '" . $_REQUEST['rubric_id'] ."'
+					ORDER BY
+						rubric_field_title ASC
+				");
 
 				$fields = array();
 
 				while($row = $sql->FetchRow())
-				{
 					array_push($fields, $row);
-				}
 
 				$AVE_Template->assign('fields', $fields);
 			}

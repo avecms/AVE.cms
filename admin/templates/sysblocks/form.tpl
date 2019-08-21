@@ -249,7 +249,7 @@
 {if $smarty.request.action != 'new'}
 <script language="javascript">
 var sett_options = {ldelim}
-	url: 'index.php?do=sysblocks&action=save&cp={$sess}&ajax=1',
+	url: 'index.php?do=sysblocks&action=save&cp={$sess}',
 	dataType: 'json',
 	beforeSubmit: Request,
 	success: Response
