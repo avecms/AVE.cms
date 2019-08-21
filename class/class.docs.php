@@ -86,7 +86,7 @@
 					$expire[2]
 				);
 			}
-			return ($timestamp==time(0) ? '' : $timestamp);
+			return ($timestamp == time(0) ? '' : $timestamp);
 		}
 
 		/**
@@ -327,40 +327,40 @@
 			$sql_where_field = '';
 			$field_link = '';
 
-			if (isset($_REQUEST['field_id']) && (int)$_REQUEST['field_id'] > 0)
+			if ($_REQUEST['field_id'] && (int)$_REQUEST['field_id'] > 0)
 			{
 				$sql_join_field = "
-					LEFT JOIN
-						" . PREFIX . "_document_fields AS df1
-					ON
-						doc.Id = df1.document_id
-					LEFT JOIN
-						" . PREFIX . "_document_fields_text AS df2
-					ON
-						df1.document_id = df2.document_id
-				";
+				LEFT JOIN
+					" . PREFIX . "_document_fields AS df1
+				ON
+					doc.Id = df1.document_id
+				LEFT JOIN
+					" . PREFIX . "_document_fields_text AS df2
+				ON
+					df1.document_id = df2.document_id
+			";
 
-				if ($_REQUEST['field_request'] == 'eq' && $_REQUEST['field_search'] != '')
+				if ($_REQUEST['field_request'] == 'eq')
+				{
+					$sql_where_field = "
+				 AND
+				 	(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
+				 	AND
+				 	(UPPER(df1.field_value) = '" . mb_strtoupper($_REQUEST['field_search']) . "'
+				 	OR
+				 	df1.field_number_value = '" . mb_strtoupper($_REQUEST['field_search']) . "'))
+				 ";
+				}
+				else if ($_REQUEST['field_request'] == 'like')
 				{
 					$sql_where_field = "
 					 AND
-					 	(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
-					 	AND
-					 	UPPER(CONCAT_WS('', df1.field_value, NULLIF(df2.field_value, '')) = '" . mb_strtoupper($_REQUEST['field_search']) . "')
-					 	OR
-					 	df1.field_number_value = '" . mb_strtoupper($_REQUEST['field_search']) . "')
-					 ";
-				}
-				else if ($_REQUEST['field_request'] == 'like' && $_REQUEST['field_search'] != '')
-				{
-					$sql_where_field = "
-						 AND
-							(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
-							AND
-							UPPER(CONCAT_WS('', df1.field_value, NULLIF(df2.field_value, '')) LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%')
-							OR
-							df1.field_number_value LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%')
-						";
+						(df1.rubric_field_id = '" . (int)$_REQUEST['field_id'] . "'
+						AND
+						(UPPER(df1.field_value) LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%'
+						OR
+						df1.field_number_value LIKE '%" . mb_strtoupper($_REQUEST['field_search']) . "%'))
+					";
 				}
 
 				$field_link = '&field_id=' . (int)$_REQUEST['field_id'] . '&field_request=' . $_REQUEST['field_request'] . '&field_search=' . $_REQUEST['field_search'];
@@ -372,26 +372,28 @@
 				// Формируем условия, которые будут применены в запросе к БД
 				$ex_rub = " AND doc.rubric_id = '" . $_REQUEST['rubric_id'] . "'";
 
-				// Формируем условия, которые будут применены в ссылках
+				// формируем условия, которые будут применены в ссылках
 				$nav_rub = '&rubric_id=' . (int)$_REQUEST['rubric_id'];
 
 				$sql = $AVE_DB->Query("
-					SELECT
-						Id,
-						rubric_field_type,
-						rubric_field_title
-					FROM
-						" . PREFIX . "_rubric_fields
-					WHERE
-						rubric_id = '" . $_REQUEST['rubric_id'] ."'
-					ORDER BY
-						rubric_field_position ASC
-				");
+				SELECT
+					Id,
+					rubric_field_type,
+					rubric_field_title
+				FROM
+					" . PREFIX . "_rubric_fields
+				WHERE
+					rubric_id = '" . $_REQUEST['rubric_id'] ."'
+				ORDER BY
+					rubric_field_title ASC
+			");
 
 				$fields = array();
 
 				while($row = $sql->FetchRow())
+				{
 					array_push($fields, $row);
+				}
 
 				$AVE_Template->assign('fields', $fields);
 			}
@@ -473,12 +475,52 @@
 
 			// Определяем группу пользоваеля и id документа, если он присутствует в запросе
 			// $ex_delete = (UGROUP != 1) ? "AND doc.document_deleted != '1'" : '' ;
+			// Определяем группу пользоваеля и id документа, если он присутствует в запросе
+			// $ex_delete = (UGROUP != 1) ? "AND doc.document_deleted != '1'" : '' ;
 			$w_id = !empty($_REQUEST['doc_id'])
 				? " AND doc.Id = '" . $_REQUEST['doc_id'] . "'"
 				: '';
 
+			// Выполняем запрос к БД на получение количества документов соответствующих вышеопределенным условиям
+			$sql = "
+				SELECT
+					COUNT(doc.Id)
+				FROM
+					" . PREFIX . "_documents as doc
+					" . $ex_db . "
+					" . $sql_join_field . "
+				WHERE 1
+					" . $ex_delete . "
+					" . $ex_time . "
+					" . $ex_titel . "
+					" . $ex_rub . "
+					" . $ex_docstatus . "
+					" . $ex_lang . "
+					" . $w_id . "
+					" . $sql_where_field . "
+			";
+
+			$num = $AVE_DB->Query($sql)->GetCell();
+
+			// Определяем лимит документов, который будет показан на 1 странице
+			$limit = (isset($_REQUEST['Datalimit']) && is_numeric($_REQUEST['Datalimit']) && $_REQUEST['Datalimit'] > 0)
+				? $_REQUEST['Datalimit']
+				: $limit = $this->_limit;
+
+			$nav_limit = '&Datalimit=' . $limit;
+
+			// Определяем количество страниц, которые будут сформированы на основании количества полученных документов
+			$pages = ceil($num / $limit);
+			$start = get_current_page() * $limit - $limit;
+
 			$db_sort   = 'ORDER BY doc.Id DESC';
 			$navi_sort = '&sort=id_desc';
+
+			// Параметры вывборки документов
+			$search_query = base64_encode($_SERVER['QUERY_STRING']);
+
+			// При смене страницы убираем из сессии параметры выборки документов
+			unset ($_SESSION['query_strings']);
 
 			// Если в запросе используется параметр сортировки
 			if (!empty($_REQUEST['sort']))
@@ -486,6 +528,18 @@
 				// Определяем, по какому параметру происходит сортировка
 				switch ($_REQUEST['sort'])
 				{
+					// По позиции документа, по возрастанию
+					case 'position' :
+						$db_sort   = 'ORDER BY doc.document_position ASC';
+						$navi_sort = '&sort=position';
+						break;
+
+					// По позиции документа, по убыванию
+					case 'position_desc' :
+						$db_sort   = 'ORDER BY doc.document_position DESC';
+						$navi_sort = '&sort=position_desc';
+						break;
+
 					// По id документа, по возрастанию
 					case 'id' :
 						$db_sort   = 'ORDER BY doc.Id ASC';
@@ -617,15 +671,9 @@
 
 			$docs = array();
 
-			// Определяем лимит документов, который будет показан на 1 странице
-			$limit = (isset($_REQUEST['Datalimit']) && is_numeric($_REQUEST['Datalimit']) && $_REQUEST['Datalimit'] > 0)
-				? $_REQUEST['Datalimit']
-				: $limit = $this->_limit;
-
-			$nav_limit = '&Datalimit=' . $limit;
-
-			$start = get_current_page() * $limit - $limit;
-
+			// Выполняем запрос к БД на получение уже не количества документов, отвечающих условиям, а уже на
+			// получение всех данных, с учетом всех условий, а также типа сортировки и лимита для вывода на
+			// одну страницу.
 			// Выполняем запрос к БД на получение уже не количества документов, отвечающих условиям, а уже на
 			// получение всех данных, с учетом всех условий, а также типа сортировки и лимита для вывода на
 			// одну страницу.
@@ -638,33 +686,24 @@
 				LEFT JOIN
 					" . PREFIX . "_rubrics AS rub
 					ON rub.Id = doc.rubric_id
-				" . $sql_join_field . "
+					" . $sql_join_field . "
 				WHERE 1
-				" . $ex_rub . "
-				" . $ex_delete . "
-				" . $ex_time . "
-				" . $ex_titel . "
-				" . $ex_docstatus . "
-				" . $ex_lang . "
-				" . $w_id . "
-				" . $sql_where_field . "
+					" . $ex_rub . "
+					" . $ex_delete . "
+					" . $ex_time . "
+					" . $ex_titel . "
+					" . $ex_docstatus . "
+					" . $ex_lang . "
+					" . $w_id . "
+					" . $sql_where_field . "
 				GROUP BY doc.Id
-				" . $db_sort . "
+					" . $db_sort . "
 				LIMIT
 					" . $start . "," . $limit . "
 			";
 
 			//Debug::_echo($sql, true, '270');
 			$sql = $AVE_DB->Query($sql);
-
-			// Получаем кол-во записей
-			$num = $AVE_DB->getFoundRows();
-
-			// Определяем количество страниц, которые будут сформированы на основании количества полученных документов
-			$pages = ceil($num / $limit);
-
-			// Параметры вывборки документов
-			$search_query = base64_encode($_SERVER['QUERY_STRING']);
 
 			// Циклически обрабатываем полученные данные с целью приведения некоторых из них к удобочитаемому виду
 			while ($row = $sql->FetchRow())
@@ -802,8 +841,8 @@
 			if ($num > $limit)
 			{
 				$page_nav = get_pagination($pages, 'page', ' <a href="' . $link . $navi_sort . '&page={s}'.(empty($_REQUEST['rubric_id'])
-					? ''
-					: '&rubric_id='.$_REQUEST['rubric_id']).'&cp=' . SESSION . '">{t}</a>');
+						? ''
+						: '&rubric_id='.$_REQUEST['rubric_id']).'&cp=' . SESSION . '">{t}</a>');
 
 				$AVE_Template->assign('page_nav', $page_nav);
 			}
@@ -888,7 +927,7 @@
 		* Функция предназначенна для анализа ключевых слов и разненсения их по табличке _document_keyword
 		*
 		*/
-		function generateKeywords($document_id, $keywords=null)
+		function generateKeywords($document_id, $keywords = null)
 		{
 			global $AVE_DB;
 
@@ -1152,16 +1191,16 @@
 		/**
 		 * Метод, предназначенный для сохранения документа в БД
 		 *
-		 * @param int $rubric_id						Идентификатор Рубрики
-		 * @param int $document_id						Идентификатор Документа или null, если документ новый
-		 * @param array $data							Документ в массиве структура - хитрая
-		 * @param bool $update_non_exists_fields 		Изменять поля на пустые значения у не переданных полей или не надо
-		 * @param bool $rubric_code						Использовать код рубрики или не надо
-		 * @param bool $revisions						Использовать ревизии документов
-		 * @param bool $logs							Писать системные сообщения в журнал
-		 * @param bool $generate						Генерировать Meta
+		 * @param int   $rubric_id                Идентификатор Рубрики
+		 * @param int   $document_id              Идентификатор Документа или null, если документ новый
+		 * @param array $data                     Документ в массиве структура - хитрая
+		 * @param bool  $update_non_exists_fields Изменять поля на пустые значения у не переданных полей или не надо
+		 * @param bool  $rubric_code              Использовать код рубрики или не надо
+		 * @param bool  $revisions                Использовать ревизии документов
+		 * @param bool  $logs                     Писать системные сообщения в журнал
+		 * @param bool  $generate                 Генерировать Meta
 		 *
-		 * return int/bool								Возвращает номер документа если все удачно или false если все плохо
+		 * @return int|bool                        Возвращает номер документа если все удачно или false если все плохо
 		 */
 
 		function documentSave ($rubric_id, $document_id, $data, $update_non_exists_fields = false, $rubric_code = true, $revisions = true, $logs = true, $generate = true)
@@ -1171,21 +1210,21 @@
 			//-- Проверяем входящие данные -- //
 
 			// Если отсутсвует рубрика, ничего не делаем
-			if(! $rubric_id)
+			if (! $rubric_id)
 				return false;
 
 			// Если отсутсвуют данные, ничего не делаем
-			if(! isset($data))
+			if (! isset($data))
 				return false;
 
 			// Если отсутсвуют данные полей, ничего не делаем
-			if(! isset($data['feld']))
+			if (! isset($data['feld']))
 				return false;
 
 			$rubric_id 		= (int)$rubric_id;
 			$document_id 	= (int)$document_id;
 
-			// Определяем тип опреации
+			// Определяем тип операции
 			$oper = 'INSERT';
 
 			// Забираем параметры рубрики
@@ -1196,7 +1235,7 @@
 
 			// Выполняем стартовый код рубрики
 			if ($rubric_code)
-				eval ('?'.'>' . $_rubric->rubric_code_start . '<'.'?');
+				eval (' ?'.'>' . $_rubric->rubric_code_start . '<?'.'php ');
 
 			// Если нет данных для сохранения, перкращаем сохранение и переходим на страницу документов
 			if (empty($data))
@@ -1206,7 +1245,7 @@
 			}
 
 			// Если есть ID документа, то ставим оператор UPDATE
-			if ($document_id > 0)
+			if (is_numeric($document_id) && $document_id > 0)
 				$oper = 'UPDATE';
 
 			// Если пользователь имеет права на добавление документов в указанную рубрику, тогда
@@ -1294,21 +1333,21 @@
 				)
 				{
 					// Статус документа 1 - Опубликован / 0 - Нет
-					$document_status = (isset($data['document_status'])
+					$data['document_status'] = (isset($data['document_status'])
 						? $data['document_status']
 						: '0');
 				}
 				else
 					{
 						// Не опубликован
-						$document_status = '0';
+						$data['document_status'] = '0';
 					}
 
 				// Если ID документа равно 1 или ID равно Документа 404
 				// то стату всегда будет 1
-				$document_status = ($document_id == 1 || $document_id == PAGE_NOT_FOUND_ID)
+				$data['document_status'] = ($document_id == 1 || $document_id == PAGE_NOT_FOUND_ID)
 					? '1'
-					: $document_status;
+					: $data['document_status'];
 
 				// Формируем/проверяем адрес на уникальность
 				if ($document_id != 1)
@@ -1351,7 +1390,7 @@
 						: '0';
 
 					// Статус документа 1 - Опубликован / 0 - Нет
-					$document_status = ! empty($data['document_status'])
+					$data['document_status'] = ! empty($data['document_status'])
 						? (int)$data['document_status']
 						: '0';
 
@@ -1478,7 +1517,7 @@
 			// Если пришел вызов поля, который связан с модулем
 			if (isset($data['field_module']))
 			{
-				while(list($mod_key, $mod_val) = each($data['field_module']))
+				while(list($mod_key, $mod_val) = each($_REQUEST['field_module']))
 				{
 					require_once(BASE_DIR . '/modules/' . $mod_val . '/document.php');
 
@@ -1535,6 +1574,7 @@
 					document_tags				= '" . addslashes(htmlspecialchars(clean_no_print_char($document_tags))). "',
 					document_lang				= '" . (empty($data['document_lang']) ? DEFAULT_LANGUAGE : $data['document_lang']). "',
 					document_lang_group			= '" . (empty($data['document_lang_group']) ? '0' : (int)$data['document_lang_group']). "',
+					document_position			= '" . (empty($data['document_position']) ? '0' : (int)$data['document_position']). "',
 					document_property			= '" . (empty($data['document_property']) ? '' : $data['document_property']). "'
 					$where
 				";
@@ -1593,6 +1633,9 @@
 
 			// Получаем ID текстовых полей в данном документе
 			$document_text_fields = $this->_get_document_text_fields($document_id);
+
+			// Собираем запросы в массив
+			$sql_fields = [];
 
 			// Циклически обрабатываем поля документа
 			foreach ($fields as $k => $v)
@@ -1666,7 +1709,7 @@
 				if ($slash)
 					$f_val_500 = rtrim ($f_val_500, '\\');
 
-				$sql = "
+				$sql_fields[] = "
 					$operator
 					SET
 						$insert
@@ -1676,11 +1719,9 @@
 														: 0) . "',
 						document_in_search		= '" . $search . "'
 					$where
-				";
+				;";
 
-				$AVE_DB->Query($sql);
-
-				unset ($sql, $f_val_500, $fld_val);
+				unset ($f_val_500, $fld_val);
 
 				// Если символов больше 500, то сохраняем их в другой таблице
 				if (mb_strlen($fval) > $substr)
@@ -1709,22 +1750,20 @@
 					if ($slash)
 						$f_val_unlim = '\\' . $f_val_unlim;
 
-					$sql = "
+					$sql_fields[] = "
 						$operator
 						SET
 							$insert
 							field_value			= '" . $f_val_unlim . "'
 						$where
-					";
+					;";
 
-					$AVE_DB->Query($sql);
-
-					unset($sql, $f_val_unlim);
+					unset ($f_val_unlim);
 				}
 				// Если символов меньше 500, то чистим поле в другой таблице
 				else
 					{
-						$AVE_DB->Query("
+						$sql_fields[] = "
 							DELETE
 							FROM
 								". PREFIX . "_document_fields_text
@@ -1732,9 +1771,14 @@
 								document_id = '" . $document_id . "'
 							AND
 								rubric_field_id='" . $fld_id . "'
-						");
+						;";
 					}
 			}
+
+			// Выполняем
+			$AVE_DB->Queries($sql_fields);
+
+			unset ($sql_fields);
 
 			$field_module = isset($data['field_module'])
 				? $data['field_module']
@@ -1745,7 +1789,7 @@
 
 			// Выполняем код рубрики, после сохранения
 			if ($rubric_code)
-				eval (' ?>' . $_rubric->rubric_code_end . '<?php ');
+				eval (' ?'.'>' . $_rubric->rubric_code_end . '<?'.'php ');
 
 			if ($document_id == 1)
 				$hash_url = md5('');
@@ -2454,27 +2498,36 @@
 		 *
 		 * @param int $document_id	идентификатор Документа
 		 */
-		function documentCopy($document_id)
+		function documentCopy ($document_id)
 		{
 			global $AVE_DB, $AVE_Rubric, $AVE_Template;
 
 			// Определяем действие, выбранное пользователем
 			switch ($_REQUEST['sub'])
 			{
-				// Если была нажата кнопка Сохранить изменения
+					// Если была нажата кнопка Сохранить изменения
 					case 'save': // Сохранение документа в БД
 						$public_start  = $this->_documentStart(); // Дата/время начала публикации документа
 						$public_end   = $this->_documentEnd();   // Дата/время окончания публикации документа
-						$innavi = check_permission_acp('navigation_new') ? '&innavi=1' : '';
+
+						$rubric_id = $_REQUEST['rubric_id'];
+
+						$innavi = check_permission_acp('navigation_new')
+							? '&innavi=1'
+							: '';
 
 						// Определяем статус документа
-						$document_status = !empty($_REQUEST['document_status']) ? (int)$_REQUEST['document_status'] : '0';
+						$document_status = ! empty($_REQUEST['document_status'])
+							? (int)$_REQUEST['document_status']
+							: '0';
 
 						// Если статус документа не определен
 						if (empty($document_status) && $_SESSION['user_group'] != 1)
 						{
 							$innavi = '';
+
 							@reset($_POST);
+
 							$newtext = "\n\n";
 
 							// Формируем текст сообщения, состоящий из данных,
@@ -2487,6 +2540,7 @@
 									$newtext .= "\n---------------------\n";
 								}
 							}
+
 							$text = strip_tags($newtext);
 
 							// Получаем e-mail адрес из общих настроек системы
@@ -2498,6 +2552,7 @@
 							$body_to_admin = str_replace('%N%', "\n", $body_to_admin);
 							$body_to_admin = str_replace('%TITLE%', stripslashes($_POST['document_title']), $body_to_admin);
 							$body_to_admin = str_replace('%USER%', "'" . $_SESSION['user_name'] . "'", $body_to_admin);
+
 							send_mail(
 								$system_mail,
 								$body_to_admin . $text,
@@ -2511,6 +2566,7 @@
 							$body_to_author = str_replace('%N%', "\n", $AVE_Template->get_config_vars('DOC_MAIL_BODY_USER'));
 							$body_to_author = str_replace('%TITLE%', stripslashes($_POST['document_title']), $body_to_author);
 							$body_to_author = str_replace('%USER%', "'" . $_SESSION['user_name'] . "'", $body_to_author);
+
 							send_mail(
 								$_SESSION['user_email'],
 								$body_to_author,
@@ -2528,9 +2584,9 @@
 							$document_status = 0;
 						}
 
-						$_POST['document_status']=$document_status;
+						$_POST['document_status'] = $document_status;
 
-						$iid = $this->documentSave($_REQUEST['rubric_id'],null,$_POST,true);
+						$iid = $this->documentSave($_REQUEST['rubric_id'],null, $_POST,true);
 
 						if (! $_REQUEST['next_edit'])
 						{
@@ -2922,9 +2978,9 @@
 						(
 							($document->document_author_id == @$_SESSION['user_id'])
 							&&
-							(isset($_SESSION[$document->rubric_id . '_newnow']) && @$_SESSION[$row->rubric_id . '_newnow'] == 1)
+							(isset($_SESSION[$document->rubric_id . '_newnow']) && @$_SESSION[$document->rubric_id . '_newnow'] == 1)
 							||
-							@$_SESSION[$row->rubric_id . '_alles'] == 1
+							@$_SESSION[$document->rubric_id . '_alles'] == 1
 							||
 							(defined('UGROUP') && UGROUP == 1)
 						)
@@ -4260,6 +4316,7 @@
 			exit;
 		}
 
+
 		/**
 		 * Метод, предназначенный для
 		 *
@@ -4278,6 +4335,55 @@
 						id = '" . $_REQUEST['alias_id'] . "'
 				");
 			}
+
+			exit;
+		}
+
+
+		/**
+		 * Метод, предназначенный для
+		 *
+		 */
+		function documentPosition()
+		{
+			global $AVE_DB, $AVE_Template;
+
+			$query = false;
+
+			if (isset($_REQUEST['id']))
+			{
+				$docid = (int)$_REQUEST['id'];
+				$value = (int)$_REQUEST['value'];
+
+				$sql = "
+					UPDATE
+						".PREFIX."_documents
+					SET
+						document_position = " . $value . "
+					WHERE
+						Id = " . $docid . "
+				";
+
+				$query = $AVE_DB->Query($sql);
+			}
+
+			if ($query === false)
+				$return = [
+					'message' => $AVE_Template->get_config_vars('DOCUMENT_POSITION_ERR'),
+					'header' => $AVE_Template->get_config_vars('DOCUMENT_POSITION_ERROR'),
+					'theme' => 'error'
+				];
+			else
+				$return = [
+					'message' => $AVE_Template->get_config_vars('DOCUMENT_POSITION_OK'),
+					'header' => $AVE_Template->get_config_vars('DOCUMENT_POSITION_SUCCESS'),
+					'theme' => 'accept'
+				];
+
+			if (isAjax())
+				echo _json($return, true);
+			else
+				header('Location:index.php?do=sysblocks&cp=' . SESSION);
 
 			exit;
 		}

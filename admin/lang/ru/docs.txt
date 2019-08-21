@@ -301,3 +301,11 @@ DOC_LANG_SELECT             = "Выберите язык"
 
 // 3.25
 DOC_CLOSE_SEARCH_RUBRIC     = "Вернуться в раздел, учитывая параметры поиска"
+
+// 3.26
+DOC_POSITION                = "Позиция"
+DOCUMENT_POSITION           = "Позиция документа"
+DOCUMENT_POSITION_ERR       = "Не удалось сохранить позицию документа"
+DOCUMENT_POSITION_ERROR     = "Ошибка"
+DOCUMENT_POSITION_OK        = "Позиция документа успешно сохранена"
+DOCUMENT_POSITION_SUCCESS   = "Выполнено"

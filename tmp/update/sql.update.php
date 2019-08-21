@@ -1,4 +1,4 @@
-<?
+<?php
 	/* -------------------------------------------------------------------------------------------------------------- */
 	/* -------------------------------------------------------3.24-------------------------------------------------- */
 	/* -------------------------------------------------------------------------------------------------------------- */
@@ -345,6 +345,30 @@
 				`sysblock_eval` enum('0','1') NOT NULL DEFAULT '1'
 			AFTER
 				`sysblock_active`
+		");
+	}
+
+	// ----------------------------------------------------------------------------------------
+
+	$check = $AVE_DB->Query("
+		SHOW COLUMNS
+		FROM
+			" . PREFIX . "_documents
+		LIKE
+			'document_position'
+	")->NumRows();
+
+	$exist = ($check) ? true : false;
+
+	if ($exist === false)
+	{
+		$AVE_DB->Real_Query("
+			ALTER TABLE
+				" . PREFIX . "_documents
+			ADD
+				`document_position` int(10) NOT NULL DEFAULT '0'
+			AFTER
+				`document_property`
 		");
 	}
 ?>

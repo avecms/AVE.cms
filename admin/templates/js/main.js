@@ -376,6 +376,7 @@ var AveAdmin = {
 		this.tooltip();
 		this.place_holder();
 		this.collapsible_elements();
+		this.docPosition();
 	},
 
 	events: function() {
@@ -970,6 +971,101 @@ var AveAdmin = {
 			} else {
 				ul.hide(10);
 			}
+		});
+	},
+
+	docPosition: function () {
+		$('.position').each(function(i,item) {
+
+			var q_buttons = $('<span class="q_buttons"></span>').prependTo($(item));
+			var q_up = $('<span class="q_up q_button">+</span>').appendTo($(q_buttons));
+			var q_down = $('<span class="q_down q_button">-</span>').appendTo($(q_buttons));
+
+			$(q_up).on('click',function(event) {
+
+				event.preventDefault();
+
+				$(q_submit).css({'display':'block'});
+
+				value = parseInt($(item).find('.position_value').val());
+				value += 1;
+
+				$(item).find('.position_value').val(value);
+			});
+
+			$(q_down).on('click',function(event){
+
+				event.preventDefault();
+
+				$(q_submit).css({'display':'block'});
+
+				value = parseInt($(item).find('.position_value').val());
+
+				value = (value < 1 ? 0 : value-1);
+
+				$(item).find('.position_value').val(value);
+			});
+
+			if ($(item).hasClass('nosubmit')) {
+
+				$(item).off('submit');
+
+			} else {
+				var q_submit = $('<span class="q_submit">OK</span>').appendTo($(q_buttons));
+				var q_loading = $('<span class="q_loading"></span>').appendTo($(q_buttons));
+
+				$(q_submit).css({'display':'none'});
+				$(q_loading).css({'display':'none'});
+
+				$(item).find('.position_value').on('change',function(){
+					$(q_submit).css({'display':'block'});
+					return false;
+				});
+
+				$(item).find('.position_value').on('focus',function(){
+					$(q_submit).css({'display':'block'});
+				});
+
+				$(item).on('blur',function(){
+					$(q_submit).css({'display':'none'});
+				});
+
+				$(item).on('submit',function(){
+					$(q_submit).css({'display':'none'});
+					$(q_loading).css({'display':'block'});
+
+					var dataForm = {
+						'action': 'changepos',
+						'id':$(this).find('input[name=id]').val(),
+						'value':$(this).find('input[name=document_position]').val()
+					};
+
+					$.ajax({
+						url: ave_path + 'admin/index.php?do=docs',
+						type: 'POST',
+						dataType: 'json',
+						data: dataForm,
+						success: function(data) {
+							$(q_loading).css({'display':'none'});
+							$.jGrowl(data['message'], {
+								header: data['header'],
+								theme: data['theme']
+							});
+						}
+					});
+
+					return false;
+				});
+
+				$(q_submit).on('click',function(event){
+					event.preventDefault();
+
+					$(item).submit();
+
+					return false;
+				});
+			}
+
 		});
 	}
 

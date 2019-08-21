@@ -603,6 +603,16 @@ $(document).ready(function(){ldelim}
 						</tr>
 
 						<tr>
+							<td>{#DOCUMENT_POSITION#}</td>
+							<td colspan="3">
+								<div class="position nosubmit">
+									<input type="hidden" name="id" value="{$document->Id}" />
+									<input class="position_value mousetrap" type="text" name="document_position" value="{$document->document_position|default:0}" />
+								</div>
+							</td>
+						</tr>
+
+						<tr>
 							<td>{#DOC_PROPERTY#}</td>
 							<td colspan="3">
 								<input class="mousetrap" {$dis} id="document_property" name="document_property" type="text" value="{$document->document_property|escape}" readonly style="width: 100%;" />

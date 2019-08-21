@@ -235,6 +235,7 @@ function changeRub(select) {ldelim}
 						<select {$dis} style="width:250px" name="request_order_by" id="request_order_by" class="mousetrap">
 							<option value="">&nbsp;</option>
 							<option value="Id"{if $row->request_order_by=='Id'} selected="selected"{/if}>Id</option>
+							<option value="document_position"{if $row->request_order_by=='document_position'} selected="selected"{/if}>{#REQUEST_BY_POSITION#}</option>
 							<option value="document_published"{if $row->request_order_by=='document_published'} selected="selected"{/if}>{#REQUEST_BY_DATE#}</option>
 							<option value="document_changed"{if $row->request_order_by=='document_changed'} selected="selected"{/if}>{#REQUEST_BY_DATECHANGE#}</option>
 							<option value="document_title"{if $row->request_order_by=='document_title'} selected="selected"{/if}>{#REQUEST_BY_NAME#}</option>

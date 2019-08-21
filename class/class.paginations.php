@@ -132,12 +132,15 @@
 							$search = array('[link]', '[page]', '[name]');
 							$replace = array($template_label, $page, $page);
 
-							if ($curent_page != 1)
+							if ($curent_page != 1) {
 								$link = str_replace($search, $replace, $pagination_link_template);
+								$pagination .= sprintf($pagination_link_box, str_replace(array('{s}', '{t}'), $page, str_replace(array('&amp;' . $type . '={s}', '&' . $type . '={s}', '/' . $type . '-{s}'), '', $link)));
+							}
 							else
+							{
 								$link = str_replace($search, $replace, $pagination_link_active_template);
-
-							$pagination .= sprintf($pagination_link_box, str_replace(array('{s}', '{t}'), $page, str_replace(array('&amp;' . $type . '={s}', '&' . $type . '={s}', '/' . $type . '-{s}'), '', $link)));
+								$pagination .= sprintf($pagination_active_link_box, str_replace(array('{s}', '{t}'), $page, str_replace(array('&amp;' . $type . '={s}', '&' . $type . '={s}', '/' . $type . '-{s}'), '', $link)));
+							}
 						}
 						// Остальные неактивные номера страниц
 						else

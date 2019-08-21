@@ -303,5 +303,12 @@
 				$AVE_Document->documentSaveRedirect();
 			}
 			break;
+
+		case 'changepos':
+			if (check_permission_acp('document_view'))
+			{
+				$AVE_Document->documentPosition();
+			}
+			break;
 	}
 ?>

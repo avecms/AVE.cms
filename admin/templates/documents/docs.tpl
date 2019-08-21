@@ -1,4 +1,6 @@
-<div class="title"><h5>{#DOC_SUB_TITLE#}</h5></div>
+<div class="title">
+	<h5>{#DOC_SUB_TITLE#}</h5>
+</div>
 
 <div class="widget" style="margin-top: 0px;">
 	<div class="body">
@@ -89,6 +91,11 @@
 		</span>
 
 		<span class="mrl5">
+		{if $smarty.request.sort=='position'}<span class="arrow">&uarr;</span>{elseif $smarty.request.sort=='position_desc'}<span class="arrow">&darr;</span>{/if}
+			<a class="link" href="{$link}&sort=position{if $smarty.request.sort=='position'}_desc{/if}&page={$smarty.request.page|escape|default:'1'}&cp={$sess}">{#DOC_POSITION#}</a>
+		</span>
+
+		<span class="mrl5">
 		{if $smarty.request.sort=='title'}<span class="arrow">&uarr;</span>{elseif $smarty.request.sort=='title_desc'}<span class="arrow">&darr;</span>{/if}
 		<a class="link" href="{$link}&sort=title{if $smarty.request.sort=='title'}_desc{/if}&page={$smarty.request.page|escape|default:'1'}&cp={$sess}">{#DOC_TITLE#}</a>
 		</span>
@@ -129,6 +136,7 @@
 	<col width="10">
 	<col>
 	<col width="150">
+	<col width="150">
 	<col width="180">
 	{if !$smarty.const.ADMIN_EDITMENU}<col width="141">{/if}
 
@@ -141,6 +149,7 @@
 			{#DOC_TITLE#}&nbsp;|&nbsp;{#DOC_URL_RUB#}
 		</td>
 		<td>{#DOC_IN_RUBRIK#}</td>
+		<td>{#DOC_POSITION#}</td>
 		<td>{#DOC_CREATED#}&nbsp;|&nbsp;{#DOC_EDIT#}</td>
 		{if !$smarty.const.ADMIN_EDITMENU}<td {if $smarty.const.ADMIN_EDITMENU}colspan="7"{else}colspan="14"{/if} align="center">{#DOC_ACTIONS#}</td>{/if}
 	</tr>
@@ -293,6 +302,15 @@
 				{/if}
 			</td>
 
+			<td nowrap="nowrap" align="center">
+				{if $item->cantEdit==1}
+					<div class="position">
+						<input type="hidden" name="id" value="{$item->Id}" />
+						<input class="position_value" type="text" name="document_position" value="{$item->document_position|default:0}" />
+					</div>
+				{/if}
+			</td>
+
 			<td align="center">
 
 				<div class="docaction">
@@ -397,6 +415,7 @@
 			{#DOC_TITLE#}&nbsp;|&nbsp;{#DOC_URL_RUB#}
 		</td>
 		<td>{#DOC_IN_RUBRIK#}</td>
+		<td>{#DOC_POSITION#}</td>
 		<td>{#DOC_CREATED#}&nbsp;|&nbsp;{#DOC_EDIT#}</td>
 		{if !$smarty.const.ADMIN_EDITMENU}<td colspan="6" align="center">{#DOC_ACTIONS#}</td>{/if}
 	</tr>
