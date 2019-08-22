@@ -351,6 +351,53 @@
 	// ----------------------------------------------------------------------------------------
 
 	$check = $AVE_DB->Query("
+		SHOW TABLES
+		LIKE
+			'" . PREFIX . "_sysblocks_groups'
+	")->NumRows();
+	
+	$exist = ($check > 0) ? true : false;
+
+	if ($exist === false)
+	{
+		$AVE_DB->Real_Query("
+			CREATE TABLE `" . PREFIX . "_sysblocks_groups` (
+				`id` mediumint(5) unsigned NOT NULL AUTO_INCREMENT,
+				`position` smallint(3) unsigned NOT NULL,
+				`title` varchar(255) NOT NULL DEFAULT '',
+				`description` text NOT NULL,
+			PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;
+		");
+	}
+
+	// ----------------------------------------------------------------------------------------
+
+	$check = $AVE_DB->Query("
+		SHOW COLUMNS
+		FROM
+			" . PREFIX . "_sysblocks
+		LIKE
+			'sysblock_group_id'
+	")->NumRows();
+
+	$exist = ($check) ? true : false;
+
+	if ($exist === false)
+	{
+		$AVE_DB->Real_Query("
+			ALTER TABLE
+				" . PREFIX . "_sysblocks
+			ADD
+				`sysblock_group_id` int(3) NOT NULL DEFAULT '0'
+			AFTER
+				`id`
+		");
+	}
+
+	// ----------------------------------------------------------------------------------------
+
+	$check = $AVE_DB->Query("
 		SHOW COLUMNS
 		FROM
 			" . PREFIX . "_documents

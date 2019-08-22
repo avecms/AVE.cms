@@ -40,6 +40,8 @@
 	switch($_REQUEST['action'])
 	{
 		case '' :
+			$_docs_template = 'documents/docs.tpl';
+
 			if (check_permission_acp('document_view'))
 			{
 				switch($_REQUEST['sub'])
@@ -50,7 +52,13 @@
 				}
 				$AVE_Document->documentListGet();
 			}
-			$AVE_Template->assign('content', $AVE_Template->fetch('documents/docs.tpl'));
+
+			if (isset($_REQUEST['rubric_id']) && is_numeric($_REQUEST['rubric_id']))
+				// Если существет файл с ID рубрики
+				if (file_exists(BASE_DIR . '/admin/templates/documents/docs-' .$_REQUEST['rubric_id'] . '.tpl'))
+					$_docs_template = 'documents/docs-' . $_REQUEST['rubric_id'] . '.tpl';
+
+			$AVE_Template->assign('content', $AVE_Template->fetch($_docs_template));
 			break;
 
 		case 'add_new':

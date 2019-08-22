@@ -87,7 +87,7 @@
 		case 'multi':
 			if (check_permission_acp('sysblocks_edit'))
 			{
-				//
+				Sysblocks::multiBlock();
 			}
 	}
 ?>

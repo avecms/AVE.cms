@@ -34,13 +34,13 @@
 			<h5 class="iFrames">{if $smarty.request.id != ''}{#SYSBLOCK_EDIT_H#}{else}{#SYSBLOCK_INSERT_H#}{/if}</h5>
 		</div>
 		<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
-			<col width="300">
+			<col width="350">
 			<col width="300">
 			<col width="300">
 			<col>
 			<tr class="noborder">
 				<td><strong>{#SYSBLOCK_NAME#}</strong></td>
-				<td colspan="3">
+				<td colspan="4">
 					<div class="pr12">
 						<input name="sysblock_name" class="mousetrap" type="text" value="{if $smarty.request.id != ''}{$sysblock_name|escape}{else}{$smarty.request.sysblock_name}{/if}" />
 					</div>
@@ -48,7 +48,7 @@
 			</tr>
 			<tr>
 				<td>{#SYSBLOCK_DESCRIPTION#}</td>
-				<td colspan="3">
+				<td colspan="4">
 					<input name="sysblock_description" type="text" id="sysblock_description" value="{if $smarty.request.id != ''}{$sysblock_description|escape}{else}{$smarty.request.sysblock_description}{/if}" placeholder="{#SYSBLOCK_DESCRIPTION#}">
 				</td>
 			</tr>
@@ -58,7 +58,7 @@
 						<strong><a class="toprightDir" title="{#SYSBLOCK_I#}">[?]</a></strong> {#SYSBLOCK_ALIAS#}:
 					</div>
 				</td>
-				<td colspan="3">
+				<td colspan="4">
 					<div class="pr12">
 						<input type="text" name="sysblock_alias" id="sysblock_alias" value="{if $smarty.request.id != ''}{$sysblock_alias|escape}{else}{$smarty.request.sysblock_alias}{/if}" class="mousetrap" data-accept="{#SYSBLOCK_ACCEPT#}" data-error-syn="{#SYSBLOCK_ER_SYN#}" data-error-exists="{#SYSBLOCK_ER_EXISTS#}" placeholder="{#SYSBLOCK_ALIAS#}" maxlength="20" style="width: 200px;" autocomplete="off" />&nbsp;
 						<input type="text" id="sysblock_alias_tag" value="[tag:sysblock:{if $smarty.request.id != ''}{$sysblock_alias|escape}{else}{$smarty.request.sysblock_alias}{/if}]" readonly size="40" class="mousetrap" style="width: 200px;" />
@@ -70,6 +70,26 @@
 			</tr>
 			<tr>
 				<td>
+					<div class="nowrap">
+						Группа
+					</div>
+				</td>
+				<td colspan="4">
+					<div class="pr12">
+						<select style="width:350px" name="sysblock_group_id" id="group_id" class="mousetrap">
+							<option value="" {if $smarty.request.action == 'new' && $smarty.request.id == ''}selected{/if}>{#SYS_GROUP_PLEASE_SELECT#}</option>
+							{foreach from=$groups item=group}
+								<option value="{$group->id}"{if $sysblock_group_id == $group->id} selected="selected"{/if}>{$group->title|escape}</option>
+							{/foreach}
+						</select>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="checkbox" value="1" name="sysblock_eval" class="float" {if $sysblock_eval}checked="checked"{/if} /><label>{#SYSBLOCK_EVAL#}</label>
+				</td>
+				<td>
 					<input type="checkbox" value="1" name="sysblock_external" class="float" {if $sysblock_external}checked="checked"{/if} /><label>{#SYSBLOCK_EXTERNAL#}</label>
 				</td>
 				<td>
@@ -77,9 +97,6 @@
 				</td>
 				<td>
 					<input type="checkbox" value="1" name="sysblock_visual" class="float" {if $sysblock_visual}checked="checked"{/if} /><label>{#SYSBLOCK_VISUAL#}</label>
-				</td>
-				<td>
-
 				</td>
 			</tr>
 			{if $sysblock_external}

@@ -46,6 +46,36 @@
 
 		/*
 		|--------------------------------------------------------------------------------------
+		| getGroups
+		|--------------------------------------------------------------------------------------
+		|
+		| Получаем список групп
+		|
+		*/
+		public static function getGroups ()
+		{
+			global $AVE_DB;
+
+			$sql = "
+				SELECT
+					*
+				FROM
+					" . PREFIX . "_sysblocks_groups
+			";
+
+			$query = $AVE_DB->Query($sql);
+
+			$groups = [];
+
+			while ($row = $query->FetchRow())
+				array_push($groups, $row);
+
+			return $groups;
+		}
+
+
+		/*
+		|--------------------------------------------------------------------------------------
 		| startPage
 		|--------------------------------------------------------------------------------------
 		|
@@ -103,17 +133,11 @@
 			foreach ($sysblocks AS $_k => $_v)
 			{
 				if ($_k == 0)
-				{
 					$groups[$_k]['position'] = 0;
-					$groups[$_k]['title'] = 'Без группы';
-					$groups[$_k]['description'] = 'Описание отсутсвует';
-				}
 
 				$groups[$_k]['count'] = count($sysblocks[$_k]);
 			}
 
-//Debug::_echo($sysblocks, true);
-//Debug::_echo($groups, true);
 			$AVE_Template->assign('groups', $groups);
 			$AVE_Template->assign('sysblocks', $sysblocks);
 			$AVE_Template->assign('content', $AVE_Template->fetch('sysblocks/start.tpl'));
@@ -208,9 +232,11 @@
 			$row['sysblock_name'] = '';
 			$row['sysblock_alias'] = '';
 			$row['sysblock_text'] = '';
+			$row['sysblock_eval'] = '1';
 			$row['sysblock_visual'] = (isset($_REQUEST['sysblock_visual']) && $_REQUEST['sysblock_visual'] != 0) ? $_REQUEST['sysblock_visual'] : '';
 
 			$AVE_Template->assign('sid', 0);
+			$AVE_Template->assign('groups', self::getGroups());
 
 			if ((isset($_REQUEST['sysblock_visual']) && $_REQUEST['sysblock_visual'] == 1) ||  $row['sysblock_visual'] == 1)
 			{
@@ -226,10 +252,10 @@
 				$AVE_Template->assign('content', $AVE_Template->fetch('sysblocks/form_visual.tpl'));
 			}
 			else
-			{
-				$AVE_Template->assign($row);
-				$AVE_Template->assign('content', $AVE_Template->fetch('sysblocks/form.tpl'));
-			}
+				{
+					$AVE_Template->assign($row);
+					$AVE_Template->assign('content', $AVE_Template->fetch('sysblocks/form.tpl'));
+				}
 		}
 
 
@@ -257,6 +283,7 @@
 			")->FetchAssocArray();
 
 			$AVE_Template->assign('sid', $sysblock_id);
+			$AVE_Template->assign('groups', self::getGroups());
 
 			if ((isset($_REQUEST['sysblock_visual']) && $_REQUEST['sysblock_visual'] == 1) ||  $row['sysblock_visual'] == 1)
 			{
@@ -308,6 +335,7 @@
 					UPDATE
 						" . PREFIX . "_sysblocks
 					SET
+						sysblock_group_id		 = '" . (int)$_REQUEST['sysblock_group_id'] . "',
 						sysblock_name			 = '" . $_REQUEST['sysblock_name'] . "',
 						sysblock_description	 = '" . addslashes($_REQUEST['sysblock_description']) . "',
 						sysblock_alias			 = '" . $_REQUEST['sysblock_alias'] . "',
@@ -357,6 +385,7 @@
 						INSERT INTO
 							" . PREFIX . "_sysblocks
 						SET
+							sysblock_group_id		= '" . (int)$_REQUEST['sysblock_group_id'] . "',
 							sysblock_name			= '" . $_REQUEST['sysblock_name'] . "',
 							sysblock_description	= '" . addslashes($_REQUEST['sysblock_description']) . "',
 							sysblock_alias			= '" . $_REQUEST['sysblock_alias'] . "',
@@ -442,6 +471,82 @@
 			{
 				$from_alias = BASE_DIR . '/tmp/cache/sql/sysblocks/' . $alias;
 				rrmdir($from_alias);
+			}
+		}
+
+
+		/*
+		|--------------------------------------------------------------------------------------
+		| multiBlock
+		|--------------------------------------------------------------------------------------
+		|
+		| Копирование системного блока
+		|
+		*/
+		public static function multiBlock ()
+		{
+			global $AVE_DB, $AVE_Template;
+
+			$_REQUEST['sub'] = (!isset($_REQUEST['sub']))
+				? ''
+				: $_REQUEST['sub'];
+
+			$errors = [];
+
+			switch ($_REQUEST['sub'])
+			{
+				case 'save':
+					$ok = true;
+
+					$row = $AVE_DB->Query("
+						SELECT
+							sysblock_name
+						FROM
+							" . PREFIX . "_sysblocks
+						WHERE
+							sysblock_name = '" . $_REQUEST['sysblock_name'] . "'
+					")->FetchRow();
+
+					if (@$row->sysblock_name != '')
+					{
+						array_push($errors, $AVE_Template->get_config_vars('SYSBLOCK_EXIST'));
+						$AVE_Template->assign('errors', $errors);
+						$ok = false;
+					}
+
+					if ($_REQUEST['sysblock_name'] == '')
+					{
+						array_push($errors, $AVE_Template->get_config_vars('SYSBLOCK_COPY_TIP'));
+						$AVE_Template->assign('errors', $errors);
+						$ok = false;
+					}
+
+					if ($ok)
+					{
+						$row = $AVE_DB->Query("
+							SELECT sysblock_text
+							FROM " . PREFIX . "_sysblocks
+							WHERE id = '" . (int)$_REQUEST['id'] . "'
+						")->FetchRow();
+
+						$AVE_DB->Query("
+							INSERT
+							INTO " . PREFIX . "_sysblocks
+							SET
+								Id = '',
+								sysblock_name     = '" . $_REQUEST['sysblock_name'] . "',
+								sysblock_text      = '" . addslashes($row->sysblock_text) . "',
+								sysblock_author_id = '" . $_SESSION['user_id'] . "',
+								sysblock_created   = '" . time() . "'
+						");
+
+						reportLog($_SESSION['user_name'] . ' - создал копию системного блока (' . (int)$_REQUEST['id'] . ')', 2, 2);
+
+						header('Location:index.php?do=sysblocks'.'&cp=' . SESSION);
+					}
+
+					$AVE_Template->assign('content', $AVE_Template->fetch('sysblocks/multi.tpl'));
+					break;
 			}
 		}
 	}

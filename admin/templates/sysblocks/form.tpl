@@ -23,7 +23,7 @@
 				<a href="index.php?do=sysblocks&cp={$sess}" title="">{#SYSBLOCK_LIST_LINK#}</a>
 			</li>
 			<li>{if $smarty.request.id != ''}{#SYSBLOCK_EDIT_H#}{else}{#SYSBLOCK_INSERT_H#}{/if}</li>
-			<li><strong class="code">{if $smarty.request.id != ''}{$sysblock_name|escape}{else}{$smarty.request.sysblock_name}{/if}</strong></li>
+			<li><strong class="code">{if $smarty.request.id != ''}{$sysblock_name|escape|default:'New'}{else}{$smarty.request.sysblock_name|default:'New'}{/if}</strong></li>
 		</ul>
 	</div>
 </div>
@@ -34,7 +34,7 @@
 			<h5 class="iFrames">{if $smarty.request.id != ''}{#SYSBLOCK_EDIT_H#}{else}{#SYSBLOCK_INSERT_H#}{/if}</h5>
 		</div>
 		<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
-			<col width="300">
+			<col width="350">
 			<col width="300">
 			<col width="300">
 			<col>
@@ -72,6 +72,26 @@
 			</tr>
 			<tr>
 				<td>
+					<div class="nowrap">
+						Группа
+					</div>
+				</td>
+				<td colspan="4">
+					<div class="pr12">
+						<select style="width:350px" name="sysblock_group_id" id="group_id" class="mousetrap">
+							<option value="" {if $smarty.request.action == 'new' && $smarty.request.id == ''}selected{/if}>{#SYS_GROUP_PLEASE_SELECT#}</option>
+						{foreach from=$groups item=group}
+							<option value="{$group->id}"{if $sysblock_group_id == $group->id} selected="selected"{/if}>{$group->title|escape}</option>
+						{/foreach}
+						</select>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="checkbox" value="1" name="sysblock_eval" class="float" {if $sysblock_eval}checked="checked"{/if} /><label>{#SYSBLOCK_EVAL#}</label>
+				</td>
+				<td>
 					<input type="checkbox" value="1" name="sysblock_external" class="float" {if $sysblock_external}checked="checked"{/if} /><label>{#SYSBLOCK_EXTERNAL#}</label>
 				</td>
 				<td>
@@ -79,9 +99,6 @@
 				</td>
 				<td>
 					<input type="checkbox" value="1" name="sysblock_visual" class="float" {if $sysblock_visual}checked="checked"{/if} /><label>{#SYSBLOCK_VISUAL#}</label>
-				</td>
-				<td>
-					<input type="checkbox" value="1" name="sysblock_eval" class="float" {if $sysblock_eval}checked="checked"{/if} /><label>{#SYSBLOCK_EVAL#}</label>
 				</td>
 			</tr>
 			{if $sysblock_external}

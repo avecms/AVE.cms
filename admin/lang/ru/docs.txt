@@ -309,3 +309,9 @@ DOCUMENT_POSITION_ERR       = "Не удалось сохранить позиц
 DOCUMENT_POSITION_ERROR     = "Ошибка"
 DOCUMENT_POSITION_OK        = "Позиция документа успешно сохранена"
 DOCUMENT_POSITION_SUCCESS   = "Выполнено"
+
+DOC_SEARCH_PARAM            = "Параметр документа"
+DOC_SEARCH_PARAM_SELECT     = "Выберите параметр"
+DOC_SEARCH_PARAM_LIKE       = "Содержит"
+DOC_SEARCH_PARAM_EQ         = "Равно"
+DOC_SEARCH_PARAM_TEXT       = "Значение"

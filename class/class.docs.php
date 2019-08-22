@@ -25,7 +25,7 @@
 		 * @public int
 		 *
 		 */
-		public $_limit = 25;
+		public $_limit = 50;
 		public $_max_remark_length = 500;
 
 	/**
@@ -327,6 +327,7 @@
 			$sql_where_field = '';
 			$field_link = '';
 
+			// Если в запросе пришел id определенного поля рубрики
 			if (isset($_REQUEST['field_id']) && (int)$_REQUEST['field_id'] > 0)
 			{
 				$sql_join_field = "
@@ -364,6 +365,26 @@
 				}
 
 				$field_link = '&field_id=' . (int)$_REQUEST['field_id'] . '&field_request=' . $_REQUEST['field_request'] . '&field_search=' . $_REQUEST['field_search'];
+			}
+
+			$sql_where_param = '';
+			$param_link = '';
+
+			// Если в запросе пришел параметр определенного поля документа
+			if (isset($_REQUEST['param_id']) && $_REQUEST['param_id'] != '')
+			{
+				if ($_REQUEST['param_request'] == 'eq' && $_REQUEST['param_search'] != '')
+				{
+					$sql_where_param = "
+						AND doc." . $_REQUEST['param_id'] . " = '" . $_REQUEST['param_search'] . "'
+					";
+				}
+				else if ($_REQUEST['param_request'] == 'like' && $_REQUEST['param_search'] != '')
+				{
+					$sql_where_param = "AND doc." . $_REQUEST['param_id'] . " LIKE '%" . $_REQUEST['param_search'] . "%'";
+				}
+
+				$param_link = '&param_id=' . $_REQUEST['param_id'] . '&param_request=' . $_REQUEST['param_request'] . '&param_search=' . $_REQUEST['param_search'];
 			}
 
 			// Если в запросе пришел id определенной рубрики
@@ -495,17 +516,18 @@
 					" . $ex_docstatus . "
 					" . $ex_lang . "
 					" . $w_id . "
+					" . $sql_where_param . "
 					" . $sql_where_field . "
 			";
 
 			$num = $AVE_DB->Query($sql)->GetCell();
 
 			// Определяем лимит документов, который будет показан на 1 странице
-			$limit = (isset($_REQUEST['Datalimit']) && is_numeric($_REQUEST['Datalimit']) && $_REQUEST['Datalimit'] > 0)
-				? $_REQUEST['Datalimit']
+			$limit = (isset($_REQUEST['limit']) && is_numeric($_REQUEST['limit']) && $_REQUEST['limit'] > 0)
+				? $_REQUEST['limit']
 				: $limit = $this->_limit;
 
-			$nav_limit = '&Datalimit=' . $limit;
+			$nav_limit = '&limit=' . $limit;
 
 			// Определяем количество страниц, которые будут сформированы на основании количества полученных документов
 			$pages = ceil($num / $limit);
@@ -693,6 +715,7 @@
 					" . $ex_docstatus . "
 					" . $ex_lang . "
 					" . $w_id . "
+					" . $sql_where_param . "
 					" . $sql_where_field . "
 				GROUP BY doc.Id
 					" . $db_sort . "
@@ -822,6 +845,7 @@
 			$link .= $nav_time;
 			$link .= $nav_limit;
 			$link .= $field_link;
+			$link .= $param_link;
 			$link .= (isset($_REQUEST['selurl']) && $_REQUEST['selurl'] == 1) ? '&selurl=1' : '';
 			$link .= (isset($_REQUEST['selecturl']) && $_REQUEST['selecturl'] == 1) ? '&selecturl=1' : '';
 			$link .= (isset($_REQUEST['function']) && $_REQUEST['function'] == 1) ? '&function=1' : '';
@@ -845,6 +869,16 @@
 				$AVE_Template->assign('page_nav', $page_nav);
 			}
 
+			$params = [
+				'rubric_id',
+				'rubric_tmpl_id',
+				'document_parent',
+				'document_property',
+				'document_rating',
+				'document_position'
+			];
+
+			$AVE_Template->assign('params', $params);
 			$AVE_Template->assign('DEF_DOC_START_YEAR', mktime(0, 0, 0, date("m"), date("d"), date("Y") - 10));
 			$AVE_Template->assign('DEF_DOC_END_YEAR', mktime(0, 0, 0, date("m"), date("d"), date("Y") + 10));
 		}
@@ -1515,7 +1549,7 @@
 			// Если пришел вызов поля, который связан с модулем
 			if (isset($data['field_module']))
 			{
-				while(list($mod_key, $mod_val) = each($_REQUEST['field_module']))
+				while(list($mod_key, $mod_val) = each($data['field_module']))
 				{
 					require_once(BASE_DIR . '/modules/' . $mod_val . '/document.php');
 

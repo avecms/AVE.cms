@@ -170,6 +170,32 @@
 
 		<tr>
 			<td>
+				<strong>{#DOC_SEARCH_PARAM#}</strong>
+			</td>
+			<td colspan="2">
+				<select style="width:250px" name="param_id">
+					<option value="">{#DOC_SEARCH_PARAM_SELECT#}</option>
+					{foreach from=$params item=param}
+						<option value="{$param}" {if $smarty.request.param_id == $param}selected{/if}>{$param}</option>
+					{/foreach}
+				</select>
+			</td>
+			<td>
+				<select style="width:150px" name="param_request">
+					<option value="like" {if $smarty.request.param_request == 'like'}selected{/if}>{#DOC_SEARCH_PARAM_LIKE#}</option>
+					<option value="eq" {if $smarty.request.param_request == 'eq'}selected{/if}>{#DOC_SEARCH_PARAM_EQ#}</option>
+				</select>
+			</td>
+			<td colspan="2">
+				<div class="pr12">
+					<input id="" name="param_search" type="text" value="{$smarty.request.param_search|default:""}" placeholder="{#DOC_SEARCH_PARAM_TEXT#}" />
+				</div>
+			</td>
+		</tr>
+
+
+		<tr>
+			<td>
 				<strong>{#DOC_LANG_ID#}</strong>
 			</td>
 			<td>
@@ -185,9 +211,9 @@
 				<strong>{#MAIN_RESULTS_ON_PAGE#}</strong>
 			</td>
 			<td>
-				<select style="width:70px" name="Datalimit">
-					{section loop=150 name=dl step=15}
-						<option value="{$smarty.section.dl.index+15}" {if $smarty.request.Datalimit==$smarty.section.dl.index+15}selected{/if}>{$smarty.section.dl.index+15}</option>
+				<select style="width:70px" name="limit">
+					{section loop=500 name=dl step=50}
+						<option value="{$smarty.section.dl.index+50}" {if $smarty.request.limit==$smarty.section.dl.index+50}selected{/if}>{$smarty.section.dl.index+50}</option>
 					{/section}
 				</select>
 			</td>
