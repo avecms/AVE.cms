@@ -66,6 +66,14 @@
 		public $_module_not_found = 'Запрашиваемый модуль не найден.';
 
 
+		/**
+		 * Получаем шаблон документа
+		 *
+		 * @param $rubric_id
+		 * @param $template_id
+		 *
+		 * @return bool|null|string
+		 */
 		function _getMainTemplate($rubric_id, $template_id)
 		{
 			global $AVE_DB;
@@ -633,6 +641,13 @@
 		}
 
 
+		/**
+		 * @param $main_content
+		 * @param $id
+		 * @param $rubTmpl
+		 *
+		 * @return mixed|null|string|string[]
+		 */
 		function _main_content ($main_content, $id, $rubTmpl)
 		{
 			global $AVE_DB, $AVE_Template;
@@ -655,10 +670,10 @@
 			// Парсим элементы полей
 			$main_content = preg_replace_callback(
 				'/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
-					create_function(
-						'$m',
-						'return get_field_element($m[1], $m[2], $m[3], ' . $this->curentdoc->Id . ');'
-					),
+				function($m)
+				{
+					return get_field_element($m[1], $m[2], $m[3], $this->curentdoc->Id);
+				},
 				$main_content
 			);
 
@@ -668,10 +683,10 @@
 			// Повторно парсим элементы полей
 			$main_content = preg_replace_callback(
 				'/\[tag:fld:([a-zA-Z0-9-_]+)\]\[([0-9]+)]\[([0-9]+)]/',
-					create_function(
-						'$m',
-						'return get_field_element($m[1], $m[2], $m[3], ' . $this->curentdoc->Id . ');'
-					),
+				function($m)
+				{
+					return get_field_element($m[1], $m[2], $m[3], $this->curentdoc->Id);
+				},
 				$main_content
 			);
 
@@ -710,8 +725,10 @@
 			// парсим теги в шаблоне рубрики
 			$main_content = preg_replace_callback(
 				'/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
-					create_function('$m','return translate_date(date($m[1], '.$this->curentdoc->document_published.'));
-				'),
+				function ($match)
+				{
+					return translate_date(date($match[1], $this->curentdoc->document_published));
+				},
 				$main_content
 			);
 
@@ -752,6 +769,11 @@
 		}
 
 
+		/**
+		 * Получаем ID для кеша документа
+		 *
+		 * @return array|bool
+		 */
 		function _get_cache_id()
 		{
 			$cache = array();
@@ -777,6 +799,13 @@
 		}
 
 
+		/**
+		 * Создаем компилированный документ
+		 *
+		 * @param $main_content
+		 *
+		 * @return bool
+		 */
 		function setCompileDocument ($main_content)
 		{
 			$cache = $this->_get_cache_id();
@@ -807,6 +836,11 @@
 		}
 
 
+		/**
+		 * Получаем скомпилированный документ
+		 *
+		 * @return bool|string
+		 */
 		function getCompileDocument ()
 		{
 			$cache = $this->_get_cache_id();
@@ -1255,15 +1289,13 @@
 			}
 
 			// Парсим поля запроса
-			$out = preg_replace_callback(
-				'/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
-					create_function(
-						'$m',
-						'return request_get_document_field($m[1], ' . $id . ', $m[2], ' . (defined('RUB_ID') ? RUB_ID : 0) . ');'
-					),
+			$out = preg_replace_callback('/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
+				function ($m) use ($id)
+				{
+					return request_get_document_field($m[1], $id, $m[2], (defined('RUB_ID') ? RUB_ID : 0));
+				},
 				$out
 			);
-
 
 			// Удаляем ошибочные теги полей документа в шаблоне рубрики
 			$out = preg_replace('/\[tag:rfld:\w*\]/', '', $out);
@@ -1294,12 +1326,11 @@
 				$out);
 
 			// Парсим тизер документа
-			$out = preg_replace_callback(
-				'/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
-				create_function(
-					'$m',
-					'return showteaser($m[1], $m[2]);'
-				),
+			$out = preg_replace_callback('/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
+				function ($m)
+				{
+					return showteaser($m[1], $m[2]);
+				},
 				$out
 			);
 
@@ -1497,25 +1528,24 @@
 			$replace[] = isset ($this->curentdoc->document_count_view) ? $this->curentdoc->document_count_view : '';
 
 			// Парсим тизер документа
-			$out = preg_replace_callback(
-				'/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
-					create_function(
-						'$m',
-						'return showteaser($m[1], $m[2]);'
-					),
+			$out = preg_replace_callback('/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
+				function ($m)
+				{
+					return showteaser($m[1], $m[2]);
+				},
 				$out
 			);
 
 			// Парсим аватар автора документа
 			if (defined('RUB_ID'))
-				$out = preg_replace_callback(
-					'/\[tag:docauthoravatar:(\d+)\]/',
-						create_function(
-							'$m',
-							'return getAvatar('.intval($this->curentdoc->document_author_id).', $m[1]);'
-						),
+				$out = preg_replace_callback('/\[tag:docauthoravatar:(\d+)\]/',
+					function ($m)
+					{
+						return getAvatar(intval($this->curentdoc->document_author_id), $m[1]);
+					},
 					$out
 				);
+
 
 			// Парсим теги языковых условий
 			if (defined('RUB_ID'))
@@ -1607,14 +1637,12 @@
 				$get_url = implode('/', array_diff($get_url, $pages));
 				$pages = implode('/', $pages);
 
-				preg_replace_callback(
-					'/(page|apage|artpage)-(\d+)/i',
-					create_function(
-						'$matches',
-						'$_GET[$matches[1]] = $matches[2]; $_REQUEST[$matches[1]] = $matches[2];'
-					),
-					$pages
-				);
+				preg_replace_callback('/(page|apage|artpage)-(\d+)/i',
+					function ($matches)
+					{
+						$_GET[$matches[1]] = $matches[2]; $_REQUEST[$matches[1]] = $matches[2];;
+					},
+					$pages);
 			}
 			//-- В противном случае формируем окончательную ссылку для документа
 			else

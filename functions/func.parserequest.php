@@ -1088,8 +1088,10 @@
 		//-- Дата
 		$main_template = preg_replace_callback(
 			'/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
-				create_function('$m','return translate_date(date($m[1], '.$AVE_Core->curentdoc->document_published.'));
-			'),
+			function ($match) use ($AVE_Core)
+			{
+				return translate_date(date($match[1], $AVE_Core->curentdoc->document_published));
+			},
 			$main_template
 		);
 
