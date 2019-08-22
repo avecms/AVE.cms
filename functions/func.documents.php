@@ -35,8 +35,8 @@
 			$page_nav = ' <a class="pnav" href="index.php?id=' . $AVE_Core->curentdoc->Id
 				. '&amp;doc=' . (empty($AVE_Core->curentdoc->document_alias) ? prepare_url($AVE_Core->curentdoc->document_title) : $AVE_Core->curentdoc->document_alias)
 				. '&amp;artpage={s}'
-				//			. ((isset($_REQUEST['apage']) && is_numeric($_REQUEST['apage'])) ? '&amp;apage=' . $_REQUEST['apage'] : '')
-				//			. ((isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])) ? '&amp;page=' . $_REQUEST['page'] : '')
+				. ((isset($_REQUEST['apage']) && is_numeric($_REQUEST['apage'])) ? '&amp;apage=' . $_REQUEST['apage'] : '')
+				. ((isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])) ? '&amp;page=' . $_REQUEST['page'] : '')
 				. '">{t}</a> ';
 			$page_nav = get_pagination($total_page, 'artpage', $page_nav, get_settings('navi_box'));
 

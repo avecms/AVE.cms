@@ -839,7 +839,7 @@
 		$start = (isset($params['START']))
 			? (int)$params['START']
 			: (($request->request_show_pagination == 1)
-				? get_current_page('apage') * $limit - $limit
+				? get_current_page('page') * $limit - $limit
 				: 0);
 
 		$limit_str = ($limit > 0)
@@ -953,7 +953,7 @@
 		{
 			// Если в запросе пришел номер страницы и он больше, чем кол-во страниц
 			// Делаем перенаправление
-			if (isset($_REQUEST['apage']) && is_numeric($_REQUEST['apage']) && $_REQUEST['apage'] > $num_pages)
+			if (isset($_REQUEST['page']) && is_numeric($_REQUEST['page']) && $_REQUEST['page'] > $num_pages)
 			{
 				$redirect_link = rewrite_link('index.php?id=' . $AVE_Core->curentdoc->Id
 					. '&amp;doc=' . (empty($AVE_Core->curentdoc->document_alias)
@@ -962,8 +962,8 @@
 					. ((isset($_REQUEST['artpage']) && is_numeric($_REQUEST['artpage']))
 						? '&amp;artpage=' . $_REQUEST['artpage']
 						: '')
-					. ((isset($_REQUEST['page']) && is_numeric($_REQUEST['page']))
-						? '&amp;page=' . $_REQUEST['page']
+					. ((isset($_REQUEST['apage']) && is_numeric($_REQUEST['apage']))
+						? '&amp;apage=' . $_REQUEST['apage']
 						: ''));
 
 				header('Location:' . $redirect_link);
@@ -971,8 +971,8 @@
 			}
 
 			// Запоминаем глобально
-			@$GLOBALS['page_id'][$_REQUEST['id']]['apage'] = (isset($GLOBALS['page_id'][$_REQUEST['id']]['apage']) && $GLOBALS['page_id'][$_REQUEST['id']]['apage'] > $num_pages
-				? @$GLOBALS['page_id'][$_REQUEST['id']]['apage']
+			@$GLOBALS['page_id'][$_REQUEST['id']]['page'] = (isset($GLOBALS['page_id'][$_REQUEST['id']]['page']) && $GLOBALS['page_id'][$_REQUEST['id']]['page'] > $num_pages
+				? @$GLOBALS['page_id'][$_REQUEST['id']]['page']
 				: $num_pages);
 
 			$pagination = '';
@@ -996,14 +996,14 @@
 						? prepare_url($AVE_Core->curentdoc->document_title)
 						: $AVE_Core->curentdoc->document_alias)
 
-					. '&amp;apage={s}'
+					. '&amp;page={s}'
 
 					. ((isset($_REQUEST['artpage']) && is_numeric($_REQUEST['artpage']))
 						? '&amp;artpage=' . $_REQUEST['artpage']
 						: '')
 
-					. ((isset($_REQUEST['page']) && is_numeric($_REQUEST['page']))
-						? '&amp;page=' . $_REQUEST['page']
+					. ((isset($_REQUEST['apage']) && is_numeric($_REQUEST['apage']))
+						? '&amp;apage=' . $_REQUEST['apage']
 						: '')
 
 					// Добавляем GET-запрос в пагинацию
@@ -1016,7 +1016,7 @@
 					: $request->request_pagination;
 
 				// Собираем пагинацию
-				$pagination = AVE_Paginations::getPagination($num_pages, 'apage', $pagination, $pagination_id);
+				$pagination = AVE_Paginations::getPagination($num_pages, 'page', $pagination, $pagination_id);
 
 				// Костыли для Главной страницы
 				$pagination = str_ireplace('"//"', '"/"', str_ireplace('///', '/', rewrite_link($pagination)));
@@ -1120,7 +1120,7 @@
 		$main_template = str_replace('[tag:doconpage]', $x, $main_template);
 
 		//-- Номер страницы пагинации
-		$main_template = str_replace('[tag:pages:curent]', get_current_page('apage'), $main_template);
+		$main_template = str_replace('[tag:pages:curent]', get_current_page('page'), $main_template);
 
 		//-- Общее кол-во страниц пагинации
 		$main_template = str_replace('[tag:pages:total]', $num_pages, $main_template);
