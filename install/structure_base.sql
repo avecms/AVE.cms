@@ -23,18 +23,18 @@ CREATE TABLE `%%PRFX%%_countries` (
 
 
 CREATE TABLE `%%PRFX%%_document_fields` (
-  `Id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `rubric_field_id` mediumint(5) unsigned NOT NULL DEFAULT '0',
-  `document_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `field_number_value` decimal(18,4) NOT NULL DEFAULT '0.0000',
-  `field_value` varchar(500) NOT NULL,
-  `document_in_search` enum('1','0') NOT NULL DEFAULT '1',
-  PRIMARY KEY (`Id`),
-  KEY `document_id` (`document_id`),
-  KEY `field_value` (`field_value`(333)),
-  KEY `field_number_value` (`field_number_value`),
-  KEY `rubric_field_id` (`rubric_field_id`),
-  KEY `queries` (`document_id`,`rubric_field_id`)
+	`Id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`rubric_field_id` mediumint(5) unsigned NOT NULL DEFAULT '0',
+	`document_id` int(10) unsigned NOT NULL DEFAULT '0',
+	`field_number_value` decimal(18,4) NOT NULL DEFAULT '0.0000',
+	`field_value` varchar(500) NOT NULL,
+	`document_in_search` enum('1','0') NOT NULL DEFAULT '1',
+	PRIMARY KEY (`Id`),
+	KEY `document_id` (`document_id`),
+	KEY `field_id` (`rubric_field_id`),
+	KEY `value` (`field_value`),
+	KEY `number_value` (`field_number_value`),
+	KEY `queries` (`document_id`, `rubric_field_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -86,46 +86,44 @@ CREATE TABLE `%%PRFX%%_document_rev` (
 
 
 CREATE TABLE `%%PRFX%%_documents` (
-  `Id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `rubric_id` mediumint(5) unsigned NOT NULL DEFAULT '0',
-  `rubric_tmpl_id` mediumint(5) unsigned NOT NULL DEFAULT '0',
-  `document_parent` int(10) unsigned NOT NULL DEFAULT '0',
-  `document_alias` varchar(255) NOT NULL,
-  `document_alias_history` enum('0','1','2') NOT NULL DEFAULT '0',
-  `document_short_alias` varchar(10) NOT NULL DEFAULT '',
-  `document_title` varchar(255) NOT NULL,
-  `document_breadcrum_title` varchar(255) NOT NULL,
-  `document_published` int(10) unsigned NOT NULL DEFAULT '0',
-  `document_expire` int(10) unsigned NOT NULL DEFAULT '0',
-  `document_changed` int(10) unsigned NOT NULL DEFAULT '0',
-  `document_author_id` mediumint(5) unsigned NOT NULL DEFAULT '1',
-  `document_in_search` enum('1','0') NOT NULL DEFAULT '1',
-  `document_meta_keywords` text NOT NULL,
-  `document_meta_description` text NOT NULL,
-  `document_meta_robots` enum('index,follow','index,nofollow','noindex,nofollow') NOT NULL DEFAULT 'index,follow',
-  `document_sitemap_freq` tinyint(1) NOT NULL DEFAULT '3',
-  `document_sitemap_pr` float NOT NULL DEFAULT '0.5',
-  `document_status` enum('1','0') NOT NULL DEFAULT '1',
-  `document_deleted` enum('0','1') NOT NULL DEFAULT '0',
-  `document_count_print` int(10) unsigned NOT NULL DEFAULT '0',
-  `document_count_view` int(10) unsigned NOT NULL DEFAULT '0',
-  `document_linked_navi_id` mediumint(5) unsigned NOT NULL DEFAULT '0',
-  `document_teaser` text NOT NULL,
-  `document_tags` text NOT NULL,
-  `document_lang` varchar(5) NOT NULL,
-  `document_lang_group` int(10) NOT NULL DEFAULT '0',
-  `document_property` text,
-  `document_rating` int(3) unsigned NOT NULL DEFAULT '0',
+	`Id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`rubric_id` mediumint(5) unsigned NOT NULL DEFAULT '0',
+	`rubric_tmpl_id` mediumint(5) unsigned NOT NULL DEFAULT '0',
+	`document_parent` int(10) unsigned NOT NULL DEFAULT '0',
+	`document_alias` varchar(255) NOT NULL DEFAULT '',
+	`document_alias_history` enum('0','1','2') NOT NULL DEFAULT '0',
+	`document_short_alias` VARCHAR(10) NOT NULL DEFAULT '', # 3.24
+	`document_title` varchar(255) NOT NULL DEFAULT '',
+	`document_breadcrum_title` varchar(255) NOT NULL DEFAULT '',
+	`document_published` int(10) unsigned NOT NULL DEFAULT '0',
+	`document_expire` int(10) unsigned NOT NULL DEFAULT '0',
+	`document_changed` int(10) unsigned NOT NULL DEFAULT '0',
+	`document_author_id` mediumint(5) unsigned NOT NULL DEFAULT '1',
+	`document_in_search` enum('1','0') NOT NULL DEFAULT '1',
+	`document_meta_keywords` text NOT NULL DEFAULT '',
+	`document_meta_description` text NOT NULL DEFAULT '',
+	`document_meta_robots` enum('index,follow','index,nofollow','noindex,nofollow') NOT NULL DEFAULT 'index,follow',
+	`document_sitemap_freq` tinyint(1) NOT NULL DEFAULT '3',
+	`document_sitemap_pr` float NOT NULL DEFAULT '0.5',
+	`document_status` enum('1','0') NOT NULL DEFAULT '1',
+	`document_deleted` enum('0','1') NOT NULL DEFAULT '0',
+	`document_count_print` int(10) unsigned NOT NULL DEFAULT '0',
+	`document_count_view` int(10) unsigned NOT NULL DEFAULT '0',
+	`document_linked_navi_id` mediumint(5) unsigned NOT NULL DEFAULT '0',
+	`document_teaser` text NOT NULL DEFAULT '',
+	`document_tags` text NOT NULL DEFAULT '',
+	`document_lang` varchar(5) NOT NULL DEFAULT '',
+	`document_lang_group` int(10) NOT NULL DEFAULT '0',
+	`document_property` text,
 	PRIMARY KEY (`Id`),
-	UNIQUE KEY `document_alias` (`document_alias`),
+	UNIQUE KEY `alias` (`document_alias`),
 	KEY `rubric_id` (`rubric_id`),
-	KEY `document_parent` (`document_parent`),
-	KEY `document_published` (`document_published`),
-	KEY `document_expire` (`document_expire`),
-	KEY `document_status` (`document_status`),
-	KEY `document_deleted` (`document_deleted`),
-	KEY `document_count_view` (`document_count_view`),
-	KEY `document_rating` (`document_rating`)
+	KEY `parent` (`document_parent`),
+	KEY `published` (`document_published`),
+	KEY `expire` (`document_expire`),
+	KEY `status` (`document_status`),
+	KEY `deleted` (`document_deleted`),
+	KEY `count_view` (`document_count_view`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -269,7 +267,7 @@ CREATE TABLE `%%PRFX%%_request` (
 	`request_show_pagination` enum('0','1') NOT NULL DEFAULT '0',
 	`request_pagination` smallint(3) unsigned NOT NULL DEFAULT '1',
 	`request_use_query` enum('0','1') NOT NULL DEFAULT '0',
-	`request_where_cond` text NOT NULL,
+	`request_where_cond` text NOT NULL DEFAULT '', # 3.26
 	`request_hide_current` enum('0','1') NOT NULL DEFAULT '1',
 	`request_only_owner` enum('0','1') NOT NULL DEFAULT '0',
 	`request_cache_lifetime` int(11) NOT NULL DEFAULT '0',
@@ -363,24 +361,24 @@ CREATE TABLE `%%PRFX%%_rubric_permissions` (
 
 CREATE TABLE `%%PRFX%%_rubrics` (
 	`Id` smallint(3) unsigned NOT NULL AUTO_INCREMENT,
-	`rubric_title` varchar(255) NOT NULL,
-	`rubric_alias` varchar(255) NOT NULL,
-	`rubric_alias_history` enum('0','1') default '0' NOT NULL,
-	`rubric_template` text NOT NULL,
+	`rubric_title` varchar(255) NOT NULL DEFAULT '', # 3.26
+	`rubric_alias` varchar(255) NOT NULL DEFAULT '', # 3.26
+	`rubric_alias_history` enum('0','1') NOT NULL DEFAULT '0',
+	`rubric_template` longtext NOT NULL DEFAULT '', # 3.26
 	`rubric_template_id` smallint(3) unsigned NOT NULL DEFAULT '1',
 	`rubric_author_id` int(10) unsigned NOT NULL DEFAULT '1',
 	`rubric_created` int(10) unsigned NOT NULL DEFAULT '0',
 	`rubric_docs_active` int(1) unsigned NOT NULL DEFAULT '1',
-	`rubric_start_code` text NOT NULL,
-	`rubric_code_start` text NOT NULL,
-	`rubric_code_end` text NOT NULL,
-	`rubric_teaser_template` text NOT NULL,
-	`rubric_admin_teaser_template` text NOT NULL,
-	`rubric_header_template` text NOT NULL,
-	`rubric_footer_template` text NOT NULL,
+	`rubric_start_code` text NOT NULL DEFAULT '', # 3.26
+	`rubric_code_start` text NOT NULL DEFAULT '', # 3.26
+	`rubric_code_end` text NOT NULL DEFAULT '', # 3.26
+	`rubric_teaser_template` text NOT NULL DEFAULT '', # 3.26
+	`rubric_admin_teaser_template` text NOT NULL DEFAULT '', # 3.26
+	`rubric_header_template` text NOT NULL DEFAULT '', # 3.26
+	`rubric_footer_template` text NOT NULL DEFAULT '', # 3.26
 	`rubric_linked_rubric` varchar(255) NOT NULL DEFAULT '0',
-	`rubric_description` text NOT NULL,
-	`rubric_meta_gen` enum('0','1') default '0' NOT NULL,
+	`rubric_description` text NOT NULL DEFAULT '', # 3.26
+	`rubric_meta_gen` enum('0','1') NOT NULL DEFAULT '0',
 	`rubric_position` int(11) unsigned NOT NULL DEFAULT '100',
 	`rubric_changed` int(10) NOT NULL DEFAULT '0', # 3.24
 	`rubric_changed_fields` int(10) NOT NULL DEFAULT '0', # 3.24

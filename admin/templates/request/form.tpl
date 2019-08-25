@@ -211,7 +211,7 @@ function changeRub(select) {ldelim}
 					<td>{#REQUEST_SORT_BY_NAT#}</td>
 					<td>
 						<select {$dis} style="width: 250px" name="request_order_by_nat" id="request_order_by_nat" class="mousetrap">
-							<option>&nbsp;</option>
+							<option value="">&nbsp;</option>
 						{foreach from=$fields_list item=field_group}
 
 							{if $groups_count > 1}

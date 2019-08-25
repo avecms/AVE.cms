@@ -185,6 +185,8 @@ function openFileWindow(target, id, document_alias) {
 				ui.item.find(' tr:first td').each(function(index, element) {
 					$(element).width('');
 				});
+
+				$('.tipsy').remove();
 			},
 			update: function(event, ui) {
 				// отправляем результаты сортировки

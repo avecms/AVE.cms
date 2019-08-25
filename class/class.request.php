@@ -25,6 +25,8 @@
 		 * Метод, предназначенный для получения и вывода списка Запросов
 		 *
 		 * @param boolean $pagination признак формирования постраничного списка
+		 *
+		 * @return array
 		 */
 		function _requestListGet($pagination = true)
 		{
@@ -76,6 +78,7 @@
 			return $items;
 		}
 
+
 		/**
 		 * Получить наименование и описание Запроса по идентификатору
 		 *
@@ -106,8 +109,14 @@
 			return $requests[$request_id];
 		}
 
+
 		/**
 		 * Проверка алиаса тега на валидность и уникальность
+		 *
+		 * @param string $alias
+		 * @param int    $id
+		 *
+		 * @return bool|string
 		 */
 		function requestValidate ($alias = '', $id = 0)
 		{
@@ -129,9 +138,6 @@
 			")->GetCell();
 		}
 
-	/**
-	 *	Внешние методы класса
-	 */
 
 		/**
 		 * Метод, предназначенный для формирования списка Запросов
@@ -143,6 +149,7 @@
 
 			$AVE_Template->assign('conditions', $this->_requestListGet(false));
 		}
+
 
 		/**
 		 * Метод, предназначенный для отображения списка Запросов
@@ -160,6 +167,7 @@
 			// Передаем в шаблон и отображаем страницу со списком
 			$AVE_Template->assign('content', $AVE_Template->fetch('request/list.tpl'));
 		}
+
 
 		/**
 		 * Метод, предназначенный для создания нового Запроса
@@ -185,26 +193,26 @@
 					$save = true;
 					$errors = array();
 
-					$row->request_template_item = pretty_chars($_REQUEST['request_template_item']);
-					$row->request_template_item = stripslashes($row->request_template_item);
-					$row->request_template_main = pretty_chars($_REQUEST['request_template_main']);
-					$row->request_template_main = stripslashes($row->request_template_main);
-					$row->request_title = stripslashes($_REQUEST['request_title']);
-					$row->rubric_id = stripslashes($_REQUEST['rubric_id']);
-					$row->request_items_per_page = stripslashes($_REQUEST['request_items_per_page']);
-					$row->request_order_by = stripslashes($_REQUEST['request_order_by']);
-					$row->request_order_by_nat = stripslashes($_REQUEST['request_order_by_nat']);
-					$row->request_asc_desc = stripslashes($_REQUEST['request_asc_desc']);
-					$row->request_description = stripslashes($_REQUEST['request_description']);
-					$row->request_show_pagination = (isset($_REQUEST['request_show_pagination']) ? (int)($_REQUEST['request_show_pagination']) : 0);
-					$row->request_pagination = (isset($_REQUEST['request_pagination']) ? (int)($_REQUEST['request_pagination']) : 1);
-					$row->request_only_owner = (isset($_REQUEST['request_only_owner']) ? (int)($_REQUEST['request_only_owner']) : 0);
-					$row->request_cache_lifetime = (int)($_REQUEST['request_cache_lifetime']);
-					$row->request_lang = (isset($_REQUEST['request_lang']) ? (int)$_REQUEST['request_lang'] : 0);
-					$row->request_cache_elements = (isset($_REQUEST['request_cache_elements']) ? (int)$_REQUEST['request_cache_elements'] : 0);
-					$row->request_external = (isset($_REQUEST['request_external']) ? (int)$_REQUEST['request_external'] : 0);
-					$row->request_ajax = (isset($_REQUEST['request_ajax']) ? (int)$_REQUEST['request_ajax'] : 0);
-					$row->request_show_sql = (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0);
+					$row = new stdClass();
+
+					$row->request_template_item		= stripslashes(pretty_chars($_REQUEST['request_template_item']));
+					$row->request_template_main		= stripslashes(pretty_chars($_REQUEST['request_template_main']));
+					$row->request_title				= stripslashes($_REQUEST['request_title']);
+					$row->rubric_id					= stripslashes($_REQUEST['rubric_id']);
+					$row->request_items_per_page	= stripslashes($_REQUEST['request_items_per_page']);
+					$row->request_order_by			= stripslashes($_REQUEST['request_order_by']);
+					$row->request_order_by_nat		= stripslashes($_REQUEST['request_order_by_nat']);
+					$row->request_asc_desc			= stripslashes($_REQUEST['request_asc_desc']);
+					$row->request_description		= stripslashes($_REQUEST['request_description']);
+					$row->request_show_pagination	= (isset($_REQUEST['request_show_pagination']) ? (int)($_REQUEST['request_show_pagination']) : 0);
+					$row->request_pagination		= (isset($_REQUEST['request_pagination']) ? (int)($_REQUEST['request_pagination']) : 1);
+					$row->request_only_owner		= (isset($_REQUEST['request_only_owner']) ? (int)($_REQUEST['request_only_owner']) : 0);
+					$row->request_cache_lifetime	= (int)($_REQUEST['request_cache_lifetime']);
+					$row->request_lang				= (isset($_REQUEST['request_lang']) ? (int)$_REQUEST['request_lang'] : 0);
+					$row->request_cache_elements	= (isset($_REQUEST['request_cache_elements']) ? (int)$_REQUEST['request_cache_elements'] : 0);
+					$row->request_external			= (isset($_REQUEST['request_external']) ? (int)$_REQUEST['request_external'] : 0);
+					$row->request_ajax				= (isset($_REQUEST['request_ajax']) ? (int)$_REQUEST['request_ajax'] : 0);
+					$row->request_show_sql			= (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0);
 
 					if (empty($_REQUEST['rubric_id']))
 					{
@@ -245,36 +253,40 @@
 					}
 					else
 					{
-						// Выполняем запрос к БД и сохраняем введенную пользователем информацию
-						$AVE_DB->Query("
+						$sql = "
 							INSERT " . PREFIX . "_request
 							SET
-								rubric_id			  	= '" . (int)$_REQUEST['rubric_id'] . "',
-								request_alias		   	= '" . $_REQUEST['request_alias'] . "',
-								request_title		   	= '" . $_REQUEST['request_title'] . "',
-								request_items_per_page  = '" . $_REQUEST['request_items_per_page'] . "',
-								request_template_item   = '" . $_REQUEST['request_template_item'] . "',
-								request_template_main   = '" . $_REQUEST['request_template_main'] . "',
-								request_order_by		= '" . $_REQUEST['request_order_by'] . "',
-								request_order_by_nat	= '" . $_REQUEST['request_order_by_nat'] . "',
-								request_asc_desc		= '" . $_REQUEST['request_asc_desc'] . "',
-								request_author_id	   	= '" . (int)$_SESSION['user_id'] . "',
-								request_created		 	= '" . time() . "',
-								request_description	 	= '" . $_REQUEST['request_description'] . "',
-								request_show_pagination = '" . (isset($_REQUEST['request_show_pagination']) ? (int)$_REQUEST['request_show_pagination'] : 0) . "',
-								request_pagination 		= '" . (isset($_REQUEST['request_pagination']) ? (int)$_REQUEST['request_pagination'] : 1) . "',
-								request_use_query 		= '" . (isset($_REQUEST['request_use_query']) ? (int)$_REQUEST['request_use_query'] : 0) . "',
-								request_count_items 	= '" . (isset($_REQUEST['request_count_items']) ? (int)$_REQUEST['request_count_items'] : 0) . "',
-								request_hide_current	= '" . (int)$_REQUEST['request_hide_current'] . "',
-								request_only_owner	  	= '" . (int)$_REQUEST['request_only_owner'] . "',
-								request_cache_lifetime  = '" . (int)$_REQUEST['request_cache_lifetime'] . "',
-								request_lang			= '" . (isset($_REQUEST['request_lang']) ? (int)$_REQUEST['request_lang'] : 0) . "',
-								request_cache_elements	= '" . (isset($_REQUEST['request_cache_elements']) ? (int)$_REQUEST['request_cache_elements'] : 0). "',
-								request_show_statistic	= '" . (isset($_REQUEST['request_show_statistic']) ? (int)$_REQUEST['request_show_statistic'] : 0). "',
-								request_external		= '" . (isset($_REQUEST['request_external']) ? (int)$_REQUEST['request_external'] : 0). "',
-								request_ajax			= '" . (isset($_REQUEST['request_ajax']) ? (int)$_REQUEST['request_ajax'] : 0). "',
-								request_show_sql		= '" . (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0). "'
-						");
+								rubric_id					= '" . (int)$_REQUEST['rubric_id'] . "',
+								request_alias				= '" . (isset($_REQUEST['request_alias']) ? stripslashes($_REQUEST['request_alias']) : '') . "',
+								request_title				= '" . (isset($_REQUEST['request_title']) ? stripslashes($_REQUEST['request_title']) : '') . "',
+								request_items_per_page		= '" . (isset($_REQUEST['request_items_per_page']) ? stripslashes($_REQUEST['request_items_per_page']) : 0) . "',
+								request_template_item		= '" . (isset($_REQUEST['request_template_item']) ? stripslashes(pretty_chars($_REQUEST['request_template_item'])) : '') . "',
+								request_template_main		= '" . (isset($_REQUEST['request_template_main']) ? stripslashes(pretty_chars($_REQUEST['request_template_main'])) : '') . "',
+								request_order_by			= '" . (isset($_REQUEST['request_order_by']) ? stripslashes($_REQUEST['request_order_by']) : '') . "',
+								request_order_by_nat		= '" . (isset($_REQUEST['request_order_by_nat']) ? (int)trim($_REQUEST['request_order_by_nat']) : 0) . "',
+								request_description			= '" . (isset($_REQUEST['request_description']) ? stripslashes($_REQUEST['request_description']) : '') . "',
+								request_author_id			= '" . (int)$_SESSION['user_id'] . "',
+								request_created				= '" . time() . "',
+								request_asc_desc			= '" . (isset($_REQUEST['request_asc_desc']) ? stripslashes($_REQUEST['request_asc_desc']) : 'DESC') . "',
+								request_show_pagination		= '" . (isset($_REQUEST['request_show_pagination']) ? (int)$_REQUEST['request_show_pagination'] : 0) . "',
+								request_pagination 			= '" . (isset($_REQUEST['request_pagination']) ? (int)$_REQUEST['request_pagination'] : 1) . "',
+								request_use_query			= '" . (isset($_REQUEST['request_use_query']) ? (int)$_REQUEST['request_use_query'] : 0) . "',
+								request_count_items			= '" . (isset($_REQUEST['request_count_items']) ? (int)$_REQUEST['request_count_items'] : 0) . "',
+								request_hide_current		= '" . (isset($_REQUEST['request_hide_current']) ? (int)($_REQUEST['request_hide_current']) : 0) . "',
+								request_only_owner			= '" . (isset($_REQUEST['request_only_owner']) ? (int)($_REQUEST['request_only_owner']) : 0) . "',
+								request_cache_lifetime		= '" . (isset($_REQUEST['request_cache_lifetime']) ? (int)($_REQUEST['request_cache_lifetime']) : 0) . "',
+								request_lang				= '" . (isset($_REQUEST['request_lang']) ? (int)$_REQUEST['request_lang'] : 0). "',
+								request_cache_elements		= '" . (isset($_REQUEST['request_cache_elements']) ? (int)$_REQUEST['request_cache_elements'] : 0). "',
+								request_show_statistic		= '" . (isset($_REQUEST['request_show_statistic']) ? (int)$_REQUEST['request_show_statistic'] : 0). "',
+								request_external			= '" . (isset($_REQUEST['request_external']) ? (int)$_REQUEST['request_external'] : 0). "',
+								request_ajax				= '" . (isset($_REQUEST['request_ajax']) ? (int)$_REQUEST['request_ajax'] : 0). "',
+								request_show_sql			= '" . (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0). "',
+								request_changed				= '" . time() . "',
+								request_changed_elements	= '" . time() . "'
+						";
+
+						// Выполняем запрос к БД и сохраняем введенную пользователем информацию
+						$AVE_DB->Query($sql);
 
 						// Получаем id последней записи
 						$iid = $AVE_DB->InsertId();
@@ -301,6 +313,7 @@
 					}
 				}
 		}
+
 
 		/**
 		 * Метод, предназначенный для редактирования Запроса
@@ -382,7 +395,7 @@
 					$row->rubric_id 				= (isset($_REQUEST['rubric_id']) ? stripslashes($_REQUEST['rubric_id']) : 0);
 					$row->request_items_per_page 	= (isset($_REQUEST['request_items_per_page']) ? stripslashes($_REQUEST['request_items_per_page']) : 0);
 					$row->request_order_by 			= (isset($_REQUEST['request_order_by']) ? stripslashes($_REQUEST['request_order_by']) : '');
-					$row->request_order_by_nat 		= (isset($_REQUEST['request_order_by_nat']) ? stripslashes($_REQUEST['request_order_by_nat']) : '');
+					$row->request_order_by_nat 		= (isset($_REQUEST['request_order_by_nat']) ? (int)trim($_REQUEST['request_order_by_nat']) : 0);
 					$row->request_asc_desc 			= (isset($_REQUEST['request_asc_desc']) ? stripslashes($_REQUEST['request_asc_desc']) : 'DESC');
 					$row->request_description 		= (isset($_REQUEST['request_description']) ? stripslashes($_REQUEST['request_description']) : '');
 					$row->request_show_pagination 	= (isset($_REQUEST['request_show_pagination']) ? $_REQUEST['request_show_pagination'] : 0);
@@ -397,6 +410,8 @@
 					$row->request_external 			= (isset($_REQUEST['request_external']) ? (int)$_REQUEST['request_external'] : 0);
 					$row->request_ajax 				= (isset($_REQUEST['request_ajax']) ? (int)$_REQUEST['request_ajax'] : 0);
 					$row->request_show_sql 			= (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0);
+
+					$message = '';
 
 					if (empty($_REQUEST['rubric_id']))
 					{
@@ -447,39 +462,43 @@
 					else
 					{
 						// Выполняем запрос к БД и обновляем имеющиеся данные
-						$AVE_DB->Query("
+						$sql = "
 							UPDATE " . PREFIX . "_request
 							SET
-								rubric_id			   	= '" . (int)$_REQUEST['rubric_id'] . "',
-								request_alias		   	= '" . $_REQUEST['request_alias'] . "',
-								request_title		   	= '" . $_REQUEST['request_title'] . "',
-								request_items_per_page  = '" . $_REQUEST['request_items_per_page'] . "',
-								request_template_item   = '" . $_REQUEST['request_template_item'] . "',
-								request_template_main   = '" . $_REQUEST['request_template_main'] . "',
-								request_order_by		= '" . $_REQUEST['request_order_by'] . "',
-								request_order_by_nat	= '" . $_REQUEST['request_order_by_nat'] . "',
-								request_description	 	= '" . $_REQUEST['request_description'] . "',
-								request_asc_desc		= '" . $_REQUEST['request_asc_desc'] . "',
-								request_show_pagination = '" . (isset($_REQUEST['request_show_pagination']) ? (int)$_REQUEST['request_show_pagination'] : 0) . "',
-								request_pagination 		= '" . (isset($_REQUEST['request_pagination']) ? (int)$_REQUEST['request_pagination'] : 1) . "',
-								request_use_query       = '" . (isset($_REQUEST['request_use_query']) ? (int)$_REQUEST['request_use_query'] : 0) . "',
-								request_count_items     = '" . (isset($_REQUEST['request_count_items']) ? (int)$_REQUEST['request_count_items'] : 0) . "',
-								request_hide_current	= '" . @(int)$_REQUEST['request_hide_current'] . "',
-								request_only_owner	  	= '" . @(int)$_REQUEST['request_only_owner'] . "',
-								request_cache_lifetime  = '" . (int)($_REQUEST['request_cache_lifetime']>'' ? $_REQUEST['request_cache_lifetime'] : '-1') . "',
-								request_lang			= '" . (isset($_REQUEST['request_lang']) ? (int)$_REQUEST['request_lang'] : 0). "',
-								request_cache_elements	= '" . (isset($_REQUEST['request_cache_elements']) ? (int)$_REQUEST['request_cache_elements'] : 0). "',
-								request_show_statistic	= '" . (isset($_REQUEST['request_show_statistic']) ? (int)$_REQUEST['request_show_statistic'] : 0). "',
-								request_external		= '" . (isset($_REQUEST['request_external']) ? (int)$_REQUEST['request_external'] : 0). "',
-								request_ajax			= '" . (isset($_REQUEST['request_ajax']) ? (int)$_REQUEST['request_ajax'] : 0). "',
-								request_show_sql		= '" . (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0). "',
-								request_changed			= '" . time() . "',
-								request_changed_elements			= '" . time() . "'
+								rubric_id					= '" . (int)$_REQUEST['rubric_id'] . "',
+								request_alias				= '" . (isset($_REQUEST['request_alias']) ? $_REQUEST['request_alias'] : '') . "',
+								request_title				= '" . (isset($_REQUEST['request_title']) ? $_REQUEST['request_title'] : '') . "',
+								request_items_per_page		= '" . (isset($_REQUEST['request_items_per_page']) ? $_REQUEST['request_items_per_page'] : 0) . "',
+								request_template_item		= '" . (isset($_REQUEST['request_template_item']) ? $_REQUEST['request_template_item'] : '') . "',
+								request_template_main		= '" . (isset($_REQUEST['request_template_main']) ? $_REQUEST['request_template_main'] : '') . "',
+								request_order_by			= '" . (isset($_REQUEST['request_order_by']) ? $_REQUEST['request_order_by'] : '') . "',
+								request_order_by_nat		= '" . (isset($_REQUEST['request_order_by_nat']) ? (int)trim($_REQUEST['request_order_by_nat']) : 0) . "',
+								request_description			= '" . (isset($_REQUEST['request_description']) ? $_REQUEST['request_description'] : '') . "',
+								request_asc_desc			= '" . (isset($_REQUEST['request_asc_desc']) ? $_REQUEST['request_asc_desc'] : 'DESC') . "',
+								request_show_pagination		= '" . (isset($_REQUEST['request_show_pagination']) ? (int)$_REQUEST['request_show_pagination'] : 0) . "',
+								request_pagination 			= '" . (isset($_REQUEST['request_pagination']) ? (int)$_REQUEST['request_pagination'] : 1) . "',
+								request_use_query			= '" . (isset($_REQUEST['request_use_query']) ? (int)$_REQUEST['request_use_query'] : 0) . "',
+								request_count_items			= '" . (isset($_REQUEST['request_count_items']) ? (int)$_REQUEST['request_count_items'] : 0) . "',
+								request_hide_current		= '" . (isset($_REQUEST['request_hide_current']) ? (int)($_REQUEST['request_hide_current']) : 0) . "',
+								request_only_owner			= '" . (isset($_REQUEST['request_only_owner']) ? (int)($_REQUEST['request_only_owner']) : 0) . "',
+								request_cache_lifetime		= '" . (isset($_REQUEST['request_cache_lifetime']) ? (int)($_REQUEST['request_cache_lifetime']) : '-1') . "',
+								request_lang				= '" . (isset($_REQUEST['request_lang']) ? (int)$_REQUEST['request_lang'] : 0). "',
+								request_cache_elements		= '" . (isset($_REQUEST['request_cache_elements']) ? (int)$_REQUEST['request_cache_elements'] : 0). "',
+								request_show_statistic		= '" . (isset($_REQUEST['request_show_statistic']) ? (int)$_REQUEST['request_show_statistic'] : 0). "',
+								request_external			= '" . (isset($_REQUEST['request_external']) ? (int)$_REQUEST['request_external'] : 0). "',
+								request_ajax				= '" . (isset($_REQUEST['request_ajax']) ? (int)$_REQUEST['request_ajax'] : 0). "',
+								request_show_sql			= '" . (isset($_REQUEST['request_show_sql']) ? (int)$_REQUEST['request_show_sql'] : 0). "',
+								request_changed				= '" . time() . "',
+								request_changed_elements	= '" . time() . "'
 							WHERE
 								Id = '" . $request_id . "'
-						");
+						";
+
+						$AVE_DB->Query($sql);
 
 						$AVE_DB->clearRequest($request_id);
+
+						// ToDO Сделать проверку на сохранение
 
 						// Сохраняем системное сообщение в журнал
 						reportLog($AVE_Template->get_config_vars('REQUEST_SAVE_CHA_SUC') . ' (' . stripslashes(htmlspecialchars($_REQUEST['request_title'], ENT_QUOTES)) . ') (Id:' . $request_id . ')');
@@ -502,6 +521,7 @@
 				break;
 			}
 		}
+
 
 		/**
 		 * Метод, предназначенный для создания копии Запроса
@@ -588,6 +608,7 @@
 			exit;
 		}
 
+
 		/**
 		 * Метод, предназначенный для удаления запроса
 		 *
@@ -625,6 +646,7 @@
 			exit;
 		}
 
+
 		/**
 		 * Метод, предназначенный для редактирования условий Запроса
 		 *
@@ -653,9 +675,7 @@
 
 					// Обрабатываем полученные данные и формируем массив
 					while ($row = $sql->FetchRow())
-					{
 						array_push($fields, $row);
-					}
 
 					$conditions = array();
 
@@ -708,7 +728,6 @@
 					}
 
 					exit;
-
 
 				// Если пользователь нажал кнопку Сохранить изменения
 				case 'save':
@@ -798,7 +817,7 @@
 
 					$AVE_DB->clearRequest($request_id);
 
-					if (!isAjax() && $_REQUEST['ajax'] != '1')
+					if (! isAjax())
 					{
 						// Выполняем обновление страницы
 						header('Location:index.php?do=request&action=conditions&rubric_id=' . $_REQUEST['rubric_id'] . '&Id=' . $request_id . '&cp=' . SESSION . ($_REQUEST['pop'] ? '&pop=1' : ''));
@@ -886,6 +905,10 @@
 		}
 
 
+		/**
+		 * @param $field_id
+		 * @param $cond_id
+		 */
 		function conditionFieldChange($field_id, $cond_id)
 		{
 			global $AVE_DB, $AVE_Template;
@@ -897,10 +920,15 @@
 		}
 
 
+		/**
+		 * @param $field_id
+		 * @param $cond_id
+		 */
 		function conditionFieldChangeSave($field_id, $cond_id)
 		{
 			global $AVE_DB, $AVE_Template;
 
+			// ToDo
 			$sql = $AVE_DB->Query("
 				UPDATE
 					" . PREFIX . "_request_conditions

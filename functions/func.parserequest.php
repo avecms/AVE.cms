@@ -267,10 +267,12 @@
 	 *
 	 * @return string
 	 */
-	function request_get_document_field($field_id, $document_id, $maxlength = '', $rubric_id = 0)
+	function request_get_document_field($field_id, $document_id, $maxlength = null, $rubric_id = 0)
 	{
 		if (! is_numeric($document_id) || $document_id < 1)
 			return '';
+
+		$_maxlength = $maxlength;
 
 		$document_fields = get_document_fields($document_id);
 
@@ -290,7 +292,7 @@
 		if (! is_callable($func))
 			$func = 'get_field_default';
 
-		$field_value = $func($field_value, 'req', $field_id, $document_fields[$field_id]['rubric_field_template_request'], $document_fields[$field_id]['tpl_req_empty'], $maxlength, $document_fields, $rubric_id, $document_fields[$field_id]['rubric_field_default']);
+		$field_value = $func($field_value, 'req', $field_id, $document_fields[$field_id]['rubric_field_template_request'], $document_fields[$field_id]['tpl_req_empty'], $_maxlength, $document_fields, $rubric_id, $document_fields[$field_id]['rubric_field_default']);
 
 		if ($maxlength != '')
 		{
@@ -435,6 +437,7 @@
 
 		if (! file_exists($cachefile_docid))
 		{
+			// Если включено в настройках, проверять поле по содержимому
 			if (defined('USE_GET_FIELDS') && USE_GET_FIELDS)
 			{
 				$template = preg_replace("/\[tag:if_notempty:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/u", '<'.'?php if((htmlspecialchars(get_field(\'$1\', '.$row->Id.'), ENT_QUOTES)) != \'\') { '.'?'.'>', $template);
@@ -470,9 +473,9 @@
 
 			// Парсим теги полей
 			$item = preg_replace_callback('/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|strip|[0-9-]+)]/',
-				function ($m) use ($row)
+				function ($match) use ($row)
 				{
-					return request_get_document_field($m[1], (int)$row->Id, $m[2], (int)$row->rubric_id);
+					return request_get_document_field($match[1], (int)$row->Id, $match[2], (int)$row->rubric_id);
 				},
 				$item);
 
@@ -483,7 +486,6 @@
 					return request_get_document_field($m[1], (int)$row->Id, $m[2], (int)$row->rubric_id);
 				},
 				$item);
-
 
 			// Возвращаем поле документа из БД (document_***)
 			$item = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
@@ -708,7 +710,7 @@
 							: 'DESC';
 
 						// ToDo - ХЗ что это
-						$request_order[$param] = "$fid " . $asc_desc;
+						$request_order[$sort] = "$fid " . $asc_desc;
 					}
 			}
 		}
