@@ -51,7 +51,7 @@
 			<tr>
 				<td>{#SYSBLOCK_DESCRIPTION#}</td>
 				<td colspan="4">
-					<input name="sysblock_description" type="text" id="sysblock_description" value="{if $smarty.request.id != ''}{$sysblock_description|escape}{else}{$smarty.request.sysblock_description}{/if}" placeholder="{#SYSBLOCK_DESCRIPTION#}">
+					<input class="mousetrap" name="sysblock_description" type="text" id="sysblock_description" value="{if $smarty.request.id != ''}{$sysblock_description|escape}{else}{$smarty.request.sysblock_description}{/if}" placeholder="{#SYSBLOCK_DESCRIPTION#}">
 				</td>
 			</tr>
 			<tr>
@@ -89,16 +89,16 @@
 			</tr>
 			<tr>
 				<td>
-					<input type="checkbox" value="1" name="sysblock_eval" class="float" {if $sysblock_eval}checked="checked"{/if} /><label>{#SYSBLOCK_EVAL#}</label>
+					<input type="checkbox" value="1" name="sysblock_eval" class="float mousetrap" {if $sysblock_eval}checked="checked"{/if} /><label>{#SYSBLOCK_EVAL#}</label>
 				</td>
 				<td>
-					<input type="checkbox" value="1" name="sysblock_external" class="float" {if $sysblock_external}checked="checked"{/if} /><label>{#SYSBLOCK_EXTERNAL#}</label>
+					<input type="checkbox" value="1" name="sysblock_external" class="float mousetrap" {if $sysblock_external}checked="checked"{/if} /><label>{#SYSBLOCK_EXTERNAL#}</label>
 				</td>
 				<td>
-					<input type="checkbox" value="1" name="sysblock_ajax" class="float" {if $sysblock_ajax}checked="checked"{/if} /><label>{#SYSBLOCK_AJAX#}</label>
+					<input type="checkbox" value="1" name="sysblock_ajax" class="float mousetrap" {if $sysblock_ajax}checked="checked"{/if} /><label>{#SYSBLOCK_AJAX#}</label>
 				</td>
 				<td>
-					<input type="checkbox" value="1" name="sysblock_visual" class="float" {if $sysblock_visual}checked="checked"{/if} /><label>{#SYSBLOCK_VISUAL#}</label>
+					<input type="checkbox" value="1" name="sysblock_visual" class="float mousetrap" {if $sysblock_visual}checked="checked"{/if} /><label>{#SYSBLOCK_VISUAL#}</label>
 				</td>
 			</tr>
 			{if $sysblock_external}
