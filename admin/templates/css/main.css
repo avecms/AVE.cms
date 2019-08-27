@@ -1316,3 +1316,108 @@ li.plupload_droptext { background: transparent; text-align: center; vertical-ali
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.position {
+	display: inline-block ! important;
+}
+
+.position_value {
+	display: inline-block ! important;
+	width: 40px ! important;
+	text-align: center ! important;
+}
+
+.q_buttons{
+	float: right;
+	display: inline-block;
+	width: 22px;
+	height: 24px;
+	margin-left: 0;
+	position: relative;
+	z-index: 1;
+}
+
+.q_button{
+	display: block;
+	width: 10px;
+	height: 10px;
+	vertical-align: middle;
+	line-height: 10px;
+	text-align: center;
+	border: 1px solid #cccccc;
+	border-radius: 1px;
+	font-size: 8px;
+	cursor: pointer;
+	color: #000000;
+	background: #ffffff;
+	position: relative;
+	z-index: 1;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+.q_submit{
+	display: block;
+	float: right;
+	width: 26px;
+	text-indent: 0;
+	padding: 0;
+	height: 22px;
+	vertical-align: middle;
+	line-height: 21px;
+	text-align: center;
+	border: 1px solid #cccccc;
+	border-radius: 1px;
+	font-size: 8px;
+	cursor: pointer;
+	color: #000000;
+	background: #ffffff;
+	position: absolute;
+	z-index: 2;
+	top: 0;
+	left: 20px;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+.q_loading{
+	background: url('../images/loader2.gif') center center no-repeat;
+	display: block;
+	float: right;
+	width: 26px;
+	text-indent: 0;
+	padding: 0;
+	height: 22px;
+	vertical-align: middle;
+	line-height: 21px;
+	text-align: center;
+	border: 1px solid transparent;
+	border-radius: 1px;
+	font-size: 8px;
+	cursor: pointer;
+	color: #000000;
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 12px;
+}
+
+.q_button:hover, .q_submit:hover{
+	background: #595959;
+	color: #ffffff;
+}
+
+.q_button:active, .q_submit:active{
+	background: #ffffff;
+	color: #000000;
+}
