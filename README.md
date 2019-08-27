@@ -32,6 +32,10 @@
 6. Следуйте инструкциям.
 7. После установки системы настоятельно рекомендуем устанавливать права доступа на папку uploads не выше CHMOD 755. 
 
+## MySQL >= 5.7
+mysqld секция
+sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+
 ## Ресурсы
 
 Сайт: [ave-cms.ru](https://ave-cms.ru/)
