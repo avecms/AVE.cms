@@ -1,51 +1,123 @@
-/* == Debug Panel == */
-#debug-panel {
-  font-size: 12px !important;
-  opacity: 0.9;
+#debug_btn {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAKYSURBVDjLnZPJT1NRFMb5G1wDHV5boNiqdHrvFYolCAtsGSSWKpMFKhYqlDI6oAEKaVJwCIgSphaKtLYWCgSNBgRjMNHoxsSFS3cmJmA0NMTw+R6JKKZl4eJL7sm953fOd3JPHIC4WMpcppG5SGnZc8ZjVVF6QLn975sDgfaZmvg71oRJZIRUYcuAnq/2KWroGfm3QwEn2YpLVPPvOD2oiqj9yq/mGznegl56mx6T7ZbY1M6YAM0CuZkxT0b2Wg6QW/SsApRXDsotR+d6E9Y/h9DuqoCuJq0lKoDxqU1/pITGR27mBU4h+GEcTz5OY+ClA5JbyahYzof/9TBO9B/FcWcqpA4xU3We3GJ87ntnfO5meinMvruNnqcmXA2XoDVcCc0wCYkzBaZpA7ILRJ/2O2B87jA+QT9UeDRe8svZYAG8b/txc6kc9mA+yqayYPQXwvdmBEOrA5B2p0BtFIYOWKCm5RukWwZyXIbA+0F0LpaiKaBHmVsLw4we99ccsM8a8GClF5JOMcQdou8prULrgRmQo7KI0VcE13MrGv06lE5kodhzGvdWu2GdKkTVWC4DcELcJkKyXbCb1EhAVM//M0DVUNqP2qAJd1baUDaZjTMTeXAttsPi0cM0mgvHvA0NkxYk2QRIrieOsDmEmXttH0DfVfSluSToWmpD8bgOroUOWNw6VI7koGfOBuq6EqLLTNU6ojrmP5D1HVsjmrkYezGIrlA9LjKgnrlGXJlpgbCOD0EtD0QNN8I3cZqjAlhJr4rXpB1iNLhrYffUQWoT7yUKzbxqJlHLq0jc5JYmgHMunogKYJVqF7mTrPyfgktMRTMX/CrOq1gLF3fYNrLiX+Bs8MoTwT2fQPwXgBXHGL+TaIjfinb3C7cscRMIcYL6AAAAAElFTkSuQmCC);
+  cursor: pointer;
   position: fixed;
-  bottom: 0;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  z-index: 99999999;
+}
+
+#debug_bar {
+  background: #ffffff;
+  color: #000000;
+  display: none;
+  font-family: "Consolas", Verdana, Arial;
+  font-size: 11pt;
+  font-weight: normal;
+  line-height: normal;
+  position: fixed;
+  top: 0;
   left: 0;
-  z-index: 2000;
   width: 100%;
-  font-family: Consolas, Monaco, Menlo, "Courier New", monospace !important;
+  height: 100%;
+  z-index: 90000000;
 }
-#debug-panel .debug-wrapper {
-  padding: 0px .875em;
-  background-color: #fff;
-  border: 1px solid rgba(0,0,0,0.2);
-  border-bottom: 0;
-  margin: 0px auto 0px auto;
+
+#debug_bar .debug_tabs {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid #999999;
+  overflow: hidden;
 }
-#debug-panel .items {
-  padding: 10px;
-  height: 350px;
-  padding-top: 1em;
-  font-size: 12px !important;
-  color: #888;
-  font-family: Consolas, Monaco, Menlo, "Courier New", monospace !important;
+
+#debug_bar .debug_tabs > li {
+  cursor: pointer;
+  font-family: Tahoma;
+  font-size: 10px;
+  font-weight: bold;
+  color: #000000;
+  display: block;
+  float: left;
+  line-height: 18px;
+  padding: 3px 5px;
+  border-right: 1px solid #999999;
 }
-#debug-panel .debug-wrapper .legend {
-  background-color: #f9f9f9;
-  padding: .25em;
-  border: 1px solid rgba(0,0,0,0.2);
-  width: auto;
-  margin-top: -1.25em;
+
+#debug_bar .debug_tabs > li:hover {
+  background: #ff8000;
 }
-#debug-panel .debug-wrapper .legend span {
-  color: #999;
-  font-weight: 300 !important
+
+#debug_bar .debug_tabs > li.selected {
+  background: #999999;
+  border-bottom: 3px solid #999999;
+  margin-bottom: -3px;
+  color: #ffffff;
 }
-#debug-panel a {
-  text-decoration: none;
-  color: rgba(0,0,0,0.5);
+
+#debug_bar .debug_tab {
+  font-family: "Consolas", Verdana, Arial;
   font-size: 12px;
-  margin: 0 .25em;
+  clear: both;
+  display: none;
+  padding: 15px;
+  overflow: scroll;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 25px;
+  bottom: 0;
 }
-#debug-panel pre {
-  border: 0px;
-  font-family: Consolas, Monaco, Menlo, "Courier New", monospace !important;
-  font-size: 12px !important;
+
+#debug_bar pre,
+#debug_bar code {
+  display: block;
+  margin: 0;
+  color: #000;
+  background: #FFF;
+  font-size: 12px;
+  border: 0;
+  padding: 5px 10px;
+  overflow-y: auto;
+  max-height: calc(100vh - 30px);
+  max-width: 100%;
+  overflow-x: hidden;
 }
-#debugArrowMinimize {
-	float: right;
+
+#debug_bar pre.pre_wrap,
+#debug_bar code.pre_wrap {
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  word-break: break-all;
+}
+
+#debug_bar .debug_one_query {
+  padding: 2px 0px;
+}
+
+#debug_bar .debug_one_query span {
+  display: inline-block;
+  vertical-align: middle;
+  width: calc(100% - 64px);
+}
+
+#debug_bar .debug_one_query span:first-child {
+  width: 64px;
+}
+
+#debug_bar .debug_one_dump {
+  padding:0 0 40px 0;
+}
+
+#debug_bar .debug_one_dump .debug_varname {
+  display:block;
+  font-weight:bold;
+  font-size: 16px;
+  text-transform: uppercase;
 }

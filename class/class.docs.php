@@ -1234,7 +1234,6 @@
 		 *
 		 * @return int|bool                        Возвращает номер документа если все удачно или false если все плохо
 		 */
-
 		function documentSave ($rubric_id, $document_id, $data, $update_non_exists_fields = false, $rubric_code = true, $revisions = true, $logs = true, $generate = true)
 		{
 			global $AVE_DB, $AVE_Template;
@@ -1262,8 +1261,19 @@
 			// Забираем параметры рубрики
 			$_rubric = $this->_get_rubric($rubric_id);
 
-			// Запускаем триггер перед сохранением
-			Hooks::trigger('DocumentBeforeSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data, 'requests' => $_REQUEST));
+			$_data = [
+				'rubric_id' => $rubric_id,
+				'document_id' => $document_id,
+				'data' => $data,
+				'requests' => $_REQUEST
+			];
+
+			Hooks::register('DocumentBeforeSave', 'DocumentBeforeSave', 100);
+
+			// Запускаем триггер перед сохранением, возвращаем $data для дальнейшего сохранения
+			$data = Hooks::trigger('DocumentBeforeSave', $_data);
+
+			unset ($_data);
 
 			// Выполняем стартовый код рубрики
 			if ($rubric_code)
@@ -1816,8 +1826,19 @@
 				? $data['field_module']
 				: '';
 
+			Hooks::register('DocumentAfterSave', 'DocumentAfterSave', 100);
+
+			$_data = [
+				'rubric_id' => $rubric_id,
+				'document_id' => $document_id,
+				'data' => $data,
+				'field_module' => $field_module
+			];
+
 			// Запускаем триггер после сохранения
-			Hooks::trigger('DocumentAfterSave', array('rubric_id' => $rubric_id, 'document_id' => $document_id, 'data' => $data, 'field_module' => $field_module));
+			Hooks::trigger('DocumentAfterSave', $_data);
+
+			unset ($_data);
 
 			// Выполняем код рубрики, после сохранения
 			if ($rubric_code)
@@ -1844,6 +1865,7 @@
 
 			return $document_id;
 		}
+
 
 		/**
 		 * Метод, предназначенный для добавления нового документа в БД
@@ -4418,6 +4440,18 @@
 				header('Location:index.php?do=sysblocks&cp=' . SESSION);
 
 			exit;
+		}
+
+
+		function DocumentBeforeSave ($data)
+		{
+			return $data['data'];
+		}
+
+
+		function DocumentAfterSave ($data)
+		{
+			return $data;
 		}
 	}
 ?>

@@ -132,6 +132,6 @@
 	$AVE_Template->display($tpl);
 
 	// Статистика
-	//if (defined('PROFILING') && PROFILING)
-	//	echo get_statistic(1, 1, 1, 1);
+	if (defined('PROFILING_ADMIN') && PROFILING_ADMIN)
+		echo Debug::displayInfo();
 ?>

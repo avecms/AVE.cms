@@ -20,9 +20,11 @@
 
 	class Debug {
 
-		protected static $time = array();
+		protected static $time = [];
 
-		protected static $memory = array();
+		protected static $memory = [];
+
+		protected static $_debug = [];
 
 
 		public function __construct()
@@ -608,6 +610,119 @@
 
 
 		/**
+		 * Функция для вывода переменной (для отладки)
+		 *
+		 * @param mixed $var любая переменная
+		 * @param bool  $exit
+		 * @param null  $bg
+		 * @param bool  $echo
+		 *
+		 * @return false|null|string|string[]
+		 */
+		public static function _($var, $_bg = null, $from = '')
+		{
+			$code = '';
+
+			$backtrace = debug_backtrace();
+
+			$backtrace = $backtrace[0];
+
+			if (preg_match('/([^\(]*)\((.*)\)/i', $backtrace['file']))
+			{
+				preg_match('/([^\(]*)\((.*)\)/i', $backtrace['file'], $match);
+				$file = $match[1];
+			}
+
+			$fh = fopen((isset($file)
+				? $file
+				: $backtrace['file']), 'r');
+
+			$line = 0;
+
+			while (++$line <= $backtrace['line'])
+				$code = fgets($fh);
+
+			fclose($fh);
+
+			preg_match('/' . __FUNCTION__ . '\s*\((.*)\)\s*;/u', $code, $name);
+
+			unset ($code, $backtrace);
+
+			ob_start();
+
+			var_dump($var);
+
+			$var_dump = ob_get_contents();
+
+			$var_dump = preg_replace('/=>(\s+|\s$)/', ' => ', $var_dump);
+
+			$var_dump = htmlspecialchars($var_dump);
+
+			$var_dump = preg_replace('/(=&gt;)/', '<span style="color: #ff8c00;">$1</span>', $var_dump);
+
+			ob_end_clean();
+
+			if (! empty($name))
+			{
+				$fn_name = explode(',', $name[1]);
+				$fn_name = array_shift($fn_name);
+			}
+			else
+				$fn_name = 'EVAL';
+
+			if ($_bg)
+				$bg = 'style="background: #' . $_bg . ';"';
+			else
+				$bg = '';
+
+			$var_dump = '
+				<style>
+					.debug_bg {
+						margin: 20px;
+						border: 1px solid #d9d9d9;
+						background-color: #f1efef;
+						border-radius: 5px;
+						box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+						font-family: "Consolas", Verdana, Arial;
+						font-size: 11px;
+					}
+					.debug_top {
+						color: #ffffff;
+						font-size: 15px;
+						font-weight: bold;
+						padding-left: 20px;
+						padding-top: 10px;
+						padding-bottom: 10px;
+						text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
+						background-color: #43648c;
+						background-repeat: repeat-x;
+						border-bottom: 1px solid #ffffff;
+					}
+					.debug_box {
+						margin: 10px;
+						padding: 4px;
+						background-color: #efeded;
+						border: 1px solid #dedcdc;
+					}
+				</style>
+				<div class="debug_bg">
+					<div class="debug_top" ' . $bg . '>
+						var_dump(<strong>' . trim($fn_name) . '</strong>) ' . $from . '
+					</div>
+					'.self::_trace().'
+					<div class="debug_box">
+						<pre style="background:#f5f5f5; color: #000; margin: 0; padding: 5px; border: 0; font-size: 11px; font-family: Consolas, Verdana, Arial;">'
+				. $var_dump .
+				'</pre>
+					</div>
+				</div>
+			';
+
+			self::$_debug[] = $var_dump;
+		}
+
+
+		/**
 		 * Функция для трейсинга дебаггера
 		 *
 		 * @param
@@ -793,6 +908,18 @@
 					$stat = self::_stat_get('request');
 					break;
 
+				case 'files':
+					$stat = self::_stat_get('files');
+					break;
+
+				case 'cookie':
+					$stat = self::_stat_get('cookie');
+					break;
+
+				case 'env':
+					$stat = self::_stat_get('env');
+					break;
+
 				case 'session':
 					$stat = self::_stat_get('session');
 					break;
@@ -824,10 +951,16 @@
 				var_dump($_POST);
 			else if ($type == 'request')
 				var_dump($_REQUEST);
+			else if ($type == 'files')
+				var_dump($_FILES);
+			else if ($type == 'cookie')
+				var_dump($_COOKIE);
 			else if ($type == 'session')
 				var_dump($_SESSION);
 			else if ($type == 'server')
 				var_dump($_SERVER);
+			else if ($type == 'env')
+				var_dump($_ENV);
 			else if ($type == 'globals')
 				var_dump($GLOBALS);
 			$stat = ob_get_contents();
@@ -855,23 +988,28 @@
 			$out .= PHP_EOL;
 			$out .= '<script src="/lib/debug/debug.js"></script>';
 			$out .= PHP_EOL;
+			$out .= '<div id="debug_btn"></div>';
+			$out .= PHP_EOL;
 			$out .= '
-				<div id="debug-panel">
-					<div class="debug-wrapper">
-					<div id="debug-panel-legend" class="legend">
-						<span>Debug console</span>
-						<a id="debugArrowMinimize" class="debugArrow" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsHide()">&times;</a>
-						<span>
-							<a id="tabGeneral" href="javascript:void(\'General\')" onclick="javascript:appExpandTabs(\'auto\', \'General\')">General</a>
-							<a id="tabParams" href="javascript:void(\'Params\')" onclick="javascript:appExpandTabs(\'auto\', \'Params\')">Params</a>
-							<a id="tabGlobals" href="javascript:void(\'Globals\')" onclick="javascript:appExpandTabs(\'auto\', \'Globals\')">Globals</a>
-							<a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')">SQL Queries (' . self::getStatistic('sqlcount') . ')</a>
-							<a id="tabSqlTrace" href="javascript:void(\'SqlTrace\')" onclick="javascript:appExpandTabs(\'auto\', \'SqlTrace\')">SQL Trace (' . self::getStatistic('sqltrace') . ')</a>
-						</span>
-					</div>
+				<div id="debug_bar">
+					<ul class="debug_tabs">
+						<li id="debug-1">Timers</li>
+						<li id="debug-2">$_GET</li>
+						<li id="debug-3">$_POST</li>
+						<li id="debug-4">$_REQUEST</li>
+						<li id="debug-5">$_FILES</li>
+						<li id="debug-6">$_COOKIE</li>
+						<li id="debug-7">$_SESSION</li>
+						<li id="debug-8">$_SERVER</li>
+						<li id="debug-9">$_ENV</li>
+						<li id="debug-10">$GLOBALS</li>
+						<li id="debug-11">MySQL</li>
+						<li id="debug-12">Trace</li>
+						<li id="debug-13">Debug</li>
+					</ul>
 			';
 			$out .= PHP_EOL;
-			$out .= '<div id="contentGeneral" class="items" style="display: none">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-1-cont" style="display: block;">' . PHP_EOL;
 			$out .= 'Time generation: ' . self::getStatistic('time') . ' sec';
 			$out .= '<br>';
 			$out .= 'Memory usage: ' . self::getStatistic('memory');
@@ -882,36 +1020,80 @@
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
-			$out .= '<div id="contentParams" class="items" style="display: none">' . PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-2-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'GET:';
 			$out .= self::getStatistic('get');
-			$out .= '<br>';
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-3-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'POST:';
 			$out .= self::getStatistic('post');
-			$out .= '<br>';
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-4-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'REQUEST:';
 			$out .= self::getStatistic('request');
-			$out .= '<br>';
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-5-cont" style="display: none;">' . PHP_EOL;
+			$out .= 'FILES:';
+			$out .= self::getStatistic('files');
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-6-cont" style="display: none;">' . PHP_EOL;
+			$out .= 'COOKIE:';
+			$out .= self::getStatistic('cookie');
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-7-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'SESSION:';
 			$out .= self::getStatistic('session');
-			$out .= '<br>';
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-8-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'SERVER:';
 			$out .= self::getStatistic('server');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
-			$out .= '<div id="contentGlobals" class="items" style="display: none">' . PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-9-cont" style="display: none;">' . PHP_EOL;
+			$out .= 'ENV:';
+			$out .= self::getStatistic('env');
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-10-cont" style="display: none;">' . PHP_EOL;
 			$out .= self::getStatistic('globals');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
-			$out .= '<div id="contentQueries" class="items" style="display: none">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-11-cont" style="display: none;">' . PHP_EOL;
 			$out .= $AVE_DB->DBProfilesGet('list');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
-			$out .= '<div id="contentSqlTrace" class="items" style="display: none">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-12-cont" style="display: none;">' . PHP_EOL;
 			$out .= $AVE_DB->showAllQueries();
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-13-cont" style="display: none;">' . PHP_EOL;
+			$out .= implode('', self::$_debug);
 			$out .= '</div>';
 
 			$out .= PHP_EOL;

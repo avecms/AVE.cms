@@ -12,7 +12,7 @@
 	 */
 
 	@define('APP_NAME', 'AVE.cms');
-	@define('APP_VERSION', '3.26');
+	@define('APP_VERSION', '3.25');
 	@define('APP_INFO', '<a target="_blank" href="https://www.ave-cms.ru/">Ave-Cms.Ru</a> '.'&copy; 2007-' . date('Y'));
 
 	$themes = array();
@@ -278,6 +278,14 @@
 		'DEFAULT'		=> 'off',
 		'TYPE'			=> 'dropdown',
 		'VARIANT'		=> array('off', 'light', 'full')
+	);
+
+	//-- Вывод общей статистики
+	$GLOBALS['CMS_CONFIG']['_CONST_DEV']['PROFILING_ADMIN'] = array(
+		'DESCR'			=> 'Вывод общей статистики в дминистративной части',
+		'DEFAULT'		=> false,
+		'TYPE'			=> 'bool',
+		'VARIANT'		=> ''
 	);
 
 	//-- Собирать статистику выполненных запросов
