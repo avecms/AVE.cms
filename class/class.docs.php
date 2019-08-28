@@ -4441,17 +4441,5 @@
 
 			exit;
 		}
-
-
-		function DocumentBeforeSave ($data)
-		{
-			return $data['data'];
-		}
-
-
-		function DocumentAfterSave ($data)
-		{
-			return $data;
-		}
 	}
 ?>
