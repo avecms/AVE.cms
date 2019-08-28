@@ -272,17 +272,17 @@
 		'VARIANT'		=> ''
 	);
 
-	//-- Вывод общей статистики
+	//-- Вывод общей статистики публичной части
 	$GLOBALS['CMS_CONFIG']['_CONST_DEV']['PROFILING'] = array(
-		'DESCR'			=> 'Вывод общей статистики',
+		'DESCR'			=> 'Вывод общей статистики публичной части',
 		'DEFAULT'		=> 'off',
 		'TYPE'			=> 'dropdown',
 		'VARIANT'		=> array('off', 'light', 'full')
 	);
 
-	//-- Вывод общей статистики
+	//-- Вывод общей статистики в административной части
 	$GLOBALS['CMS_CONFIG']['_CONST_DEV']['PROFILING_ADMIN'] = array(
-		'DESCR'			=> 'Вывод общей статистики в дминистративной части',
+		'DESCR'			=> 'Вывод общей статистики в административной части',
 		'DEFAULT'		=> false,
 		'TYPE'			=> 'bool',
 		'VARIANT'		=> ''
