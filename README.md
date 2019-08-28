@@ -1,4 +1,4 @@
-# AVE.cms v3.25
+# AVE.cms v3.26
 ###### Многофункциональная, система управления сайтом.
 
 ## Оглавление
@@ -21,6 +21,7 @@
    * Nginx >= 1.6.2
    * PHP >= 5.6.x (zlib, cURL, mbString, JSON)
    * PHP >= 7.x ... <= 7.2.x
+   * MySQL >= 5.6.x ... <= 5.7.x
 
 ## Установка
 
@@ -33,8 +34,8 @@
 7. После установки системы настоятельно рекомендуем устанавливать права доступа на папку uploads не выше CHMOD 755. 
 
 ## MySQL >= 5.7
-mysqld секция
-sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+Cекция [mysqld]
+ * sql_mode = "NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
 
 ## Ресурсы
 
