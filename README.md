@@ -40,7 +40,7 @@ sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_
 
 Сайт: [ave-cms.ru](https://ave-cms.ru/)
 
-Форум: [forum.ave-cms.ru](https://forum.ave-cms.ru/)
+Форум: [forum](https://www.nulled.cc/threads/102658/)
 
 E-mail: support@ave-cms.ru
 
@@ -50,4 +50,4 @@ Google+: [Google+](https://plus.google.com/106406255345948508717)
 
 
 ---
-Copyright © 2007-2018 [Ave-Cms.Ru](https://ave-cms.ru) | [AVE.cms 3.25](https://ave-cms.ru)
+Copyright © 2007-2019 [Ave-Cms.Ru](https://ave-cms.ru) | [AVE.cms 3.26](https://ave-cms.ru)
