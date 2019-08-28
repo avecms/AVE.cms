@@ -132,6 +132,6 @@
 	$AVE_Template->display($tpl);
 
 	// Статистика
-	if (defined('PROFILING_ADMIN') && PROFILING_ADMIN)
+	if ((defined('PROFILING_ADMIN') && PROFILING_ADMIN) && ! isAjax())
 		echo Debug::displayInfo();
 ?>
