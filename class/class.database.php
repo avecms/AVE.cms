@@ -934,6 +934,31 @@
 
 
 		/**
+		 * Метод, предназначенный для выполнения запроса к MySQL и возвращение результата в виде асоциативного массива с поддержкой кеша
+		 *
+		 * @param string $query		- текст SQL-запроса
+		 * @param integer $TTL		- время жизни кеша (-1 безусловный кеш)
+		 * @param string $cache_id  - Id файла кеша
+		 * @param bool $log			- записать ошибки в лог? по умолчанию включено
+		 * @return array			- асоциативный массив с результом запроса
+		 */
+		public function Queries ($array)
+		{
+			if (is_array($array))
+			{
+				foreach ($array AS $sql)
+				{
+					// Принудительная фильтрация запроса
+					if (defined(SQL_QUERY_SANITIZE) && SQL_QUERY_SANITIZE)
+						$sql = filter_var($sql, FILTER_SANITIZE_STRING);
+
+					$this->Real_Query($sql);
+				}
+			}
+		}
+
+
+		/**
 		 * This method is needed for prepared statements. They require
 		 * the data type of the field to be bound with "i" s", etc.
 		 * This function takes the input, determines what type it is,
@@ -994,6 +1019,8 @@
 		 */
 		public function EscStr($value)
 		{
+			global $AVE_DB;
+
 			$search = array(
 				'&'			=> '&#38;',
 				'&amp;gt;' 	=> '&gt;',
@@ -1036,6 +1063,8 @@
 		 */
 		function ClearUrl($url)
 		{
+			global $AVE_DB;
+
 			// Убираем пробелы
 			$url = trim($url);
 
@@ -1494,6 +1523,34 @@
 				: '');
 
 			return (rrmdir($cache_from_id) AND rrmdir($cache_from_alias));
+		}
+
+
+		/*
+		|--------------------------------------------------------------------------------------
+		| Перефоратирует текст запроса
+		|--------------------------------------------------------------------------------------
+		|
+		| @param string
+		| @return string
+		|
+		*/
+		function queryList ($string)
+		{
+			$search = array(
+				"/[\t]/",
+				'/(\s)+/s',
+				'/(GROUP BY|STRAIGHT_JOIN|UNION|FROM|WHERE|LIMIT|ORDER BY|LEFT JOIN|INNER JOIN|RIGHT JOIN|JOIN|ON|AND|OR|SET)/s'
+
+			);
+
+			$replace = array(
+				" ",
+				'\\1',
+				"\r\n$1"
+			);
+
+			return trim(preg_replace($search, $replace, $string));
 		}
 
 	} // End AVE_DB class
