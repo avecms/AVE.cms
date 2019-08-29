@@ -1261,19 +1261,11 @@
 			// Забираем параметры рубрики
 			$_rubric = $this->_get_rubric($rubric_id);
 
-			$_data = [
-				'rubric_id' => $rubric_id,
-				'document_id' => $document_id,
-				'data' => $data,
-				'requests' => $_REQUEST
-			];
-
+			// Регистрируем триггер перед сохранением
 			Hooks::register('DocumentBeforeSave', 'DocumentBeforeSave', 100);
 
 			// Запускаем триггер перед сохранением, возвращаем $data для дальнейшего сохранения
-			$data = Hooks::trigger('DocumentBeforeSave', $_data);
-
-			unset ($_data);
+			$data = Hooks::trigger('DocumentBeforeSave', $data);
 
 			// Выполняем стартовый код рубрики
 			if ($rubric_code)
@@ -1559,7 +1551,7 @@
 			// Если пришел вызов поля, который связан с модулем
 			if (isset($data['field_module']))
 			{
-				while(list($mod_key, $mod_val) = each($data['field_module']))
+				foreach ($data['field_module'] AS $mod_key => $mod_val)
 				{
 					require_once(BASE_DIR . '/modules/' . $mod_val . '/document.php');
 
@@ -1826,19 +1818,11 @@
 				? $data['field_module']
 				: '';
 
+			// Регистрируем триггер после сохранением
 			Hooks::register('DocumentAfterSave', 'DocumentAfterSave', 100);
 
-			$_data = [
-				'rubric_id' => $rubric_id,
-				'document_id' => $document_id,
-				'data' => $data,
-				'field_module' => $field_module
-			];
-
 			// Запускаем триггер после сохранения
-			Hooks::trigger('DocumentAfterSave', $_data);
-
-			unset ($_data);
+			Hooks::trigger('DocumentAfterSave', $data);
 
 			// Выполняем код рубрики, после сохранения
 			if ($rubric_code)
@@ -1857,7 +1841,7 @@
 			$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
 			$AVE_DB->clearCacheUrl('url_' . $hash_url); // ЮРЛ
 
-			unset ($_rubric, $fields);
+			unset ($_rubric, $fields, $data);
 
 			// Дополнительные обработки
 			if ($generate)

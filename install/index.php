@@ -41,7 +41,7 @@
 	 */
 	function check_mysql_query ($mysql_connect, $sql = '')
 	{
-		if ($sql != '' && $link != '')
+		if ($sql != '' && $mysql_connect != '')
 			if (@mysqli_query($mysql_connect, $sql))
 				return true;
 
@@ -449,6 +449,16 @@
 
 				$connect = check_db_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass'], $_POST['dbname']);
 
+				$config = [
+					'dbhost' => $_POST['dbhost'],
+					'dbuser' => $_POST['dbuser'],
+					'dbpass' => $_POST['dbpass'],
+					'dbname' => $_POST['dbname'],
+					'dbpref' => $_POST['dbpref'],
+					'dbport' => null,
+					'dbsock' => null
+				];
+
 				if (true === $connect && false === $check_installed)
 				{
 					if (! @is_writeable(BASE_DIR . '/config/db.config.php'))
@@ -476,18 +486,22 @@
 
 					@fclose($fp);
 
+					//-- Если параметры не указаны, прерываем работу
+					if (! file_exists(BASE_DIR . '/config/db.config.php') || ! filesize(BASE_DIR . '/config/db.config.php'))
+						die('Not writing config file');
+
 					// Класс для работы с БД
 					require_once (BASE_DIR . '/class/class.database.php');
+
+					//-- Подключаем конфигурационный файл с параметрами подключения
+					require_once (BASE_DIR . '/config/db.config.php');
 
 					//-- Если не существует объекта по работе с БД
 					if (! isset($AVE_DB))
 					{
-						//-- Подключаем конфигурационный файл с параметрами подключения
-						require_once (BASE_DIR . '/config/db.config.php');
-
 						//-- Если параметры не указаны, прерываем работу
-						if (! isset($config))
-							exit;
+						if (! isset($config) || empty($config))
+							die('No config data');
 
 						//-- Если константа префикса таблиц не задана, принудительно определяем ее на основании параметров в файле db.config.php
 						if (! defined('PREFIX'))

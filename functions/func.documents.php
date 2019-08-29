@@ -147,7 +147,7 @@
 
 	function DocumentBeforeSave ($data)
 	{
-		return $data['data'];
+		return $data;
 	}
 
 

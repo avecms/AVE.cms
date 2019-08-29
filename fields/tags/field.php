@@ -213,7 +213,7 @@
 				$AVE_Document = new AVE_Document();
 			}
 
-			foreach ($data['data']['feld'] AS $_k => $_v)
+			foreach ($data['feld'] AS $_k => $_v)
 			{
 				if (array_key_exists('tags', $_v))
 				{
