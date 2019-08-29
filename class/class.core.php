@@ -784,7 +784,7 @@
 				return false;
 
 			$cache['id'] = (int)$cache['id'];
-			$cache['id'] = 'documents/compiled/' . (floor($cache['id'] / 1000)) . '/' . $cache['id'];
+			$cache['id'] = 'documents/' . (floor($cache['id'] / 1000)) . '/' . $cache['id'];
 
 			$cache['file'] = $this->_get_cache_hash() . '.compiled';
 
@@ -1771,7 +1771,7 @@
 			else
 				$AVE_DB->clearCacheUrl('url_' . $hash_url);
 
-			$this->curentdoc = $AVE_DB->Query($sql, $cache_time, 'url_' . $hash_url, true, '.fetch')->FetchRow();
+			$this->curentdoc = $AVE_DB->Query($sql, $cache_time, 'url_' . $hash_url, true, '.url')->FetchRow();
 
 			if ($this->curentdoc)
 			{
@@ -1803,7 +1803,7 @@
 						rub.Id = '" . $this->curentdoc->rubric_id . "'
 				";
 
-				$query = $AVE_DB->Query($sql, $cache_time, 'rub_' . $this->curentdoc->rubric_id, true, '.fetch')->FetchRow();
+				$query = $AVE_DB->Query($sql, $cache_time, 'rub_' . $this->curentdoc->rubric_id, true, '.rubric')->FetchRow();
 
 				$this->curentdoc = (object) array_merge((array) $query, (array) $this->curentdoc);
 

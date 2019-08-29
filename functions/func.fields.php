@@ -406,11 +406,14 @@
 	 * @internal    param int $id id документа
 	 * @return      mixed
 	 */
-	function get_document_fields ($document_id, $values = null)
+	function get_document_fields ($document_id, $values = null, $static = true)
 	{
 		global $AVE_DB, $AVE_Core; //$request_documents
 
-		static $document_fields = array();
+		if ($static)
+			static $document_fields = [];
+		else
+			$document_fields = [];
 
 		if (! is_numeric($document_id))
 			return false;
@@ -450,7 +453,7 @@
 				" . $where;
 
 			$cache_id = (int)$AVE_Core->curentdoc->Id;
-			$cache_id = 'documents/fields/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+			$cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 
 			$cache_file = md5($query) . '.fields';
 
@@ -487,7 +490,7 @@
 				$row['field_value'] = (string)$row['field_value'] . (string)$row['field_value_more'];
 
 				if ($values)
-					$row['field_value']=(isset($values[$row['rubric_field_id']]) ? $values[$row['rubric_field_id']] : $row['field_value']);
+					$row['field_value'] = (isset($values[$row['rubric_field_id']]) ? $values[$row['rubric_field_id']] : $row['field_value']);
 
 				if ($row['field_value'] === '')
 				{

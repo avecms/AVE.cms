@@ -784,21 +784,21 @@
 			if (substr($cache_id, 0, 3) == 'dat')
 			{
 				$cache_id = (int)str_replace('dat_', '', $cache_id);
-				return $cache_id = 'documents/data/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 			}
 
 			//-- Если это скомпилированный шаблон документа, то меняем расположение
 			if (substr($cache_id, 0, 3) == 'cmd')
 			{
 				$cache_id = (int)str_replace('cmd_', '', $cache_id);
-				return $cache_id = 'documents/compiled/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 			}
 
 			//-- Если это поля документа, то меняем расположение
 			if (substr($cache_id, 0, 3) == 'fld')
 			{
 				$cache_id = (int)str_replace('fld_', '', $cache_id);
-				return $cache_id = 'documents/fields/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 			}
 
 			//-- Сборка страницы
@@ -812,7 +812,7 @@
 			if (substr($cache_id, 0, 3) == 'brd')
 			{
 				$cache_id = (int)str_replace('brd_', '', $cache_id);
-				return $cache_id = 'documents/breadcrumbs/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 			}
 
 			//-- Если это рубрика, то меняем расположение
