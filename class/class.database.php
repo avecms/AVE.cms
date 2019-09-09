@@ -602,7 +602,7 @@
 			$search = array(
 				"/[\t]/",
 				'/(\s)+/s',
-				'/(GROUP BY |STRAIGHT_JOIN |UNION |FROM |WHERE |LIMIT |ORDER BY |LEFT JOIN|INNER JOIN|RIGHT JOIN|JOIN|ON |AND |OR |SET)/s'
+				'/(GROUP BY |STRAIGHT_JOIN |UNION |FROM |WHERE |LIMIT |ORDER BY |LEFT JOIN|INNER JOIN|RIGHT JOIN|JOIN|ON |AND |OR |SET |VALUES)/s'
 			);
 
 			$replace = array(

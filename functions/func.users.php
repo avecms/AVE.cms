@@ -32,14 +32,21 @@
 		if (! isset($result[$id]))
 		{
 			$user = get_user_rec_by_id($id);
-			$ava = ABS_PATH . UPLOAD_DIR . '/avatars/' . (($prefix === '') ? '' : $prefix) . md5($user->user_name);
-			$ava = (file_exists(BASE_DIR.$ava.'.jpg') ? $ava.'.jpg' : (file_exists(BASE_DIR . $ava . '.png') ? $ava . '.png' : (file_exists(BASE_DIR.$ava.'.gif') ? $ava.'.gif' : '')));
-			$result[$id] = $ava;
+			$avatar = ABS_PATH . UPLOAD_DIR . '/avatars/' . (($prefix === '') ? '' : $prefix) . md5($user->user_name);
+			$avatar = (file_exists(BASE_DIR . $avatar . '.jpg')
+				? $avatar . '.jpg'
+				: (file_exists(BASE_DIR . $avatar . '.png')
+					? $avatar . '.png'
+					: (file_exists(BASE_DIR . $avatar .'.gif')
+						? $ava . '.gif'
+						: '')));
+
+			$result[$id] = $avatar;
 		}
 
-		$ava = $result[$id];
+		$avatar = $result[$id];
 
-		$src = (file_exists(BASE_DIR . $ava)
+		$src = (file_exists(BASE_DIR . $avatar)
 			? make_thumbnail(array('link' => $ava,'size' => 'c' . $size . 'x' . $size))
 			: make_thumbnail(array('link' => $AVE_DB->Query("SELECT default_avatar FROM " . PREFIX . "_user_groups WHERE user_group=" . (int)$user->user_group)->GetCell(), 'size' => 'c' . $size . 'x' . $size))
 		);
@@ -57,16 +64,23 @@
 	 */
 	function SetAvatar($id, $avatar)
 	{
-		if ($id === null) $id = $_SESSION['user_id'];
+		if (! $avatar)
+			return false;
+
+		if ($id === null)
+			$id = $_SESSION['user_id'];
 
 		$user = get_user_rec_by_id($id);
 
 		$file_ext = pathinfo($avatar, PATHINFO_EXTENSION);
 
+		if (! $file_ext)
+			$file_ext = 'jpg';
+
 		if (! file_exists($avatar))
 			return false;
 
-		$new_ava = BASE_DIR . '/' . UPLOAD_DIR . '/avatars/' . md5($user->user_name) . '.' . strtolower($file_ext);
+		$new_avatar = BASE_DIR . '/' . UPLOAD_DIR . '/avatars/' . md5($user->user_name) . '.' . strtolower($file_ext);
 
 		foreach (glob(BASE_DIR . '/' . UPLOAD_DIR . '/avatars/' . md5($user->user_name) . '.*') AS $filename)
 			@unlink($filename);
@@ -75,7 +89,7 @@
 		foreach (glob(BASE_DIR . '/' . UPLOAD_DIR . '/avatars/' . THUMBNAIL_DIR . '/' . md5($user->user_name) . '*.*') AS $filename)
 			@unlink($filename);
 
-		@file_put_contents($new_ava, file_get_contents($avatar));
+		@file_put_contents($new_avatar, file_get_contents($avatar));
 		@unlink($avatar);
 
 		return true;
@@ -98,7 +112,7 @@
 	 * @param int $short {0|1} признак формирования короткой формы
 	 * @return string
 	 */
-	function get_username($login = '', $first_name = '', $last_name = '', $short = 1)
+	function get_username ($login = '', $first_name = '', $last_name = '', $short = 1)
 	{
 		if ($first_name != '' && $last_name != '')
 		{
@@ -117,7 +131,7 @@
 		}
 		elseif ($login != '')
 		{
-			return ucfirst_utf8(mb_strtolower($login));
+			return $login;
 		}
 
 		return 'Anonymous';
