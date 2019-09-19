@@ -484,6 +484,25 @@
 
 
 		/**
+		 * Задает Sql Mode
+		 *
+		 * @param string $charset
+		 *
+		 * @throws AVE_DB_Exception
+		 * @return AVE_DB
+		 */
+		public function setSqlMode()
+		{
+			if (!$this->mysqli->query("SET SQL_MODE = ''"))
+			{
+				throw new AVE_DB_Exception(__METHOD__ . ': ' . $this->mysqli->error);
+			}
+
+			return $this;
+		}
+
+
+		/**
 		 * Устанавливает имя используемой СУБД.
 		 *
 		 * @param string $database_name - имя базы данных

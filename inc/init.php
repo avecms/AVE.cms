@@ -187,11 +187,11 @@
 
 	//-- Debug Class
 	require (BASE_DIR . '/class/class.debug.php');
-	$Debug = new Debug;
+	new Debug;
 
 	//-- Hooks Class
 	require (BASE_DIR . '/class/class.hooks.php');
-	$Hooks = new Hooks;
+	new Hooks;
 
 	//-- Подкючаем необходимые файлы функций
 	require_once (BASE_DIR . '/functions/func.breadcrumbs.php');	// Хлебные крошки
@@ -249,6 +249,8 @@
 				->setCharset('utf8')
 				//-- Назначаем БД
 				->setDatabaseName($config['dbname']);
+				//-- SQL Mode
+				->setSqlMode();
 		}
 		catch (AVE_DB_Exception $e)
 			{
