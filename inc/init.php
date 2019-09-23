@@ -248,7 +248,7 @@
 				//-- Назначаем кодировку
 				->setCharset('utf8')
 				//-- Назначаем БД
-				->setDatabaseName($config['dbname']);
+				->setDatabaseName($config['dbname'])
 				//-- SQL Mode
 				->setSqlMode();
 		}
