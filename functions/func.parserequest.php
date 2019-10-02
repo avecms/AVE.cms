@@ -572,8 +572,8 @@
 			$item = str_replace('[tag:doctitle]', stripslashes(htmlspecialchars_decode($row->document_title)), $item);
 			$item = str_replace('[tag:docparent]', $row->document_parent, $item);
 			$item = str_replace('[tag:doclang]', $row->document_lang, $item);
-			$item = str_replace('[tag:docdate]', pretty_date(strftime(DATE_FORMAT, $row->document_published)), $item);
-			$item = str_replace('[tag:doctime]', pretty_date(strftime(TIME_FORMAT, $row->document_published)), $item);
+			$item = str_replace('[tag:docdate]', translate_date(strftime(DATE_FORMAT, $row->document_published)), $item);
+			$item = str_replace('[tag:doctime]', translate_date(strftime(TIME_FORMAT, $row->document_published)), $item);
 			$item = str_replace('[tag:humandate]', human_date($row->document_published), $item);
 
 			$item = preg_replace_callback('/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
