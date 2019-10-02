@@ -1545,6 +1545,25 @@
 		}
 
 
+		/**
+		 * Метод, предназначенный для очищения кеша запросов
+		 *
+		 * @param $doc_id
+		 * @param $hash
+		 */
+		public function clearDocument($doc_id, $hash = null)
+		{
+			$this->clearCache('doc_' . $doc_id); // Прочее
+			$this->clearCache('fld_' . $doc_id); // Поля
+			$this->clearCache('cmd_' . $doc_id); // Компиляция
+			$this->clearCache('brd_' . $doc_id); // Хлебные крошки
+			$this->clearCache('rqe_' . $doc_id); // Элемент запроса
+
+			if ($hash)
+				$this->clearCacheUrl('url_' . $hash); // ЮРЛ
+		}
+
+
 		/*
 		|--------------------------------------------------------------------------------------
 		| Перефоратирует текст запроса

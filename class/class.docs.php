@@ -1234,6 +1234,7 @@
 		 *
 		 * @return int|bool                        Возвращает номер документа если все удачно или false если все плохо
 		 */
+
 		function documentSave ($rubric_id, $document_id, $data, $update_non_exists_fields = false, $rubric_code = true, $revisions = true, $logs = true, $generate = true)
 		{
 			global $AVE_DB, $AVE_Template;
@@ -1834,14 +1835,9 @@
 				$hash_url = md5($data['document_alias']);
 
 			// Чистим кеш
-			$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-			$AVE_DB->clearCache('fld_' . $document_id); // Поля
-			$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-			$AVE_DB->clearCache('brd_' . $document_id); // Хлебные крошки
-			$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
-			$AVE_DB->clearCacheUrl('url_' . $hash_url); // ЮРЛ
+			$AVE_DB->clearDocument($document_id, $hash_url);
 
-			unset ($_rubric, $fields, $data);
+			unset ($_rubric, $fields);
 
 			// Дополнительные обработки
 			if ($generate)
@@ -1849,7 +1845,6 @@
 
 			return $document_id;
 		}
-
 
 		/**
 		 * Метод, предназначенный для добавления нового документа в БД
@@ -2826,10 +2821,7 @@
 					$hash_url = md5($row->document_alias);
 
 					// Чистим кеш
-					$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-					$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-					$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
-					$AVE_DB->clearCacheUrl('url_' . $hash_url); // ЮРЛ
+					$AVE_DB->clearDocument($document_id, $hash_url);
 
 					// Сохраняем системное сообщение в журнал
 					reportLog('Положил документ в корзину (' . $document_id . ')');
@@ -2873,10 +2865,7 @@
 			$hash_url = md5($row->document_alias);
 
 			// Чистим кеш
-			$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-			$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-			$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
-			$AVE_DB->clearCacheUrl('url_' . $hash_url); // ЮРЛ
+			$AVE_DB->clearDocument($document_id, $hash_url);
 
 			// Выполняем обновление страницы
 			header('Location:index.php?do=docs'.(empty($_REQUEST['rubric_id']) ? '' : '&rubric_id='.$_REQUEST['rubric_id']).'&cp=' . SESSION);
@@ -2928,12 +2917,7 @@
 				$hash_url = md5($row->document_alias);
 
 				// Чистим кеш
-				$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-				$AVE_DB->clearCache('fld_' . $document_id); // Поля
-				$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-				$AVE_DB->clearCache('brd_' . $document_id); // Хлебные крошки
-				$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
-				$AVE_DB->clearCacheUrl('url_' . $hash_url); // ЮРЛ
+				$AVE_DB->clearDocument($document_id, $hash_url);
 
 				// Сохраняем системное сообщение в журнал
 				reportLog('Удалил документ <strong>'. $row->document_title . ' (ID: ' . $document_id . ')</strong>');
@@ -3048,10 +3032,7 @@
 						$hash_url = md5($document->document_alias);
 
 						// Чистим кеш
-						$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-						$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-						$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
-						$AVE_DB->clearCacheUrl('url_' . $hash_url); // ЮРЛ
+						$AVE_DB->clearDocument($document_id, $hash_url);
 
 						// Сохраняем системное сообщение в журнал
 						reportLog($_SESSION['user_name'] . ' - ' . (($openclose==1) ? $AVE_Template->get_config_vars('DOC_DOCUMENT_ACT') : $AVE_Template->get_config_vars('DOC_DOCUMENT_DISACT')) . ' ' . $AVE_Template->get_config_vars('DOC_DOCUMENT_DOC') . ' (' . $document_id . ')', 2, 2);
@@ -3085,10 +3066,7 @@
 						$hash_url = md5($document->document_alias);
 
 						// Чистим кеш
-						$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-						$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-						$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
-						$AVE_DB->clearCacheUrl('url_' . $hash_url); // ЮРЛ
+						$AVE_DB->clearDocument($document_id, $hash_url);
 
 					exit;
 
@@ -3098,10 +3076,7 @@
 						$hash_url = md5($document->document_alias);
 
 						// Чистим кеш
-						$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-						$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-						$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
-						$AVE_DB->clearCacheUrl('url_' . $hash_url); // ЮРЛ
+						$AVE_DB->clearDocument($document_id, $hash_url);
 
 						// Выполняем обновление страницы
 						header('Location:index.php?do=docs'.(empty($_REQUEST['rubric_id']) ? '' : '&rubric_id='.$_REQUEST['rubric_id']).'&cp=' . SESSION);
@@ -3349,11 +3324,7 @@
 				");
 
 				// Чистим кеш
-				$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-				$AVE_DB->clearCache('fld_' . $document_id); // Поля
-				$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-				$AVE_DB->clearCache('brd_' . $document_id); // Хлебные крошки
-				$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
+				$AVE_DB->clearDocument($document_id);
 
 				echo '<script>window.opener.location.reload(); window.close();</script>';
 			}
@@ -3426,11 +3397,7 @@
 				}
 
 				// Чистим кеш
-				$AVE_DB->clearCache('doc_' . $document_id); // Прочее
-				$AVE_DB->clearCache('fld_' . $document_id); // Поля
-				$AVE_DB->clearCache('cmd_' . $document_id); // Компиляция
-				$AVE_DB->clearCache('brd_' . $document_id); // Хлебные крошки
-				$AVE_DB->clearCache('rqe_' . $document_id); // Элемент запроса
+				$AVE_DB->clearDocument($document_id);
 
 				// Формируем ряд переменых и отображаем страницу с выбором рубрики
 				$AVE_Template->assign('fields', $fields);
