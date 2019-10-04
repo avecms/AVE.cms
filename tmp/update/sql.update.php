@@ -418,4 +418,28 @@
 				`document_property`
 		");
 	}
+
+	// ----------------------------------------------------------------------------------------
+
+	$check = $AVE_DB->Query("
+		SHOW COLUMNS
+		FROM
+			" . PREFIX . "_document_alias_history
+		LIKE
+			'document_alias_header'
+	")->NumRows();
+
+	$exist = ($check) ? true : false;
+
+	if ($exist === false)
+	{
+		$AVE_DB->Real_Query("
+			ALTER TABLE
+				" . PREFIX . "_documents
+			ADD
+				`document_alias_header` int(3) NOT NULL DEFAULT '301'
+			AFTER
+				`document_alias`
+		");
+	}
 ?>

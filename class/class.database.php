@@ -717,7 +717,7 @@
 		/**
 		 * Метод, предназначенный для получения функции из которой пришел запрос с ошибкой
 		 *
-		 * @return string
+		 * @return array|string
 		 */
 		public function getCaller()
 		{
@@ -741,12 +741,11 @@
 					$function = $call['class'] . "->$function";
 				}
 
-				$caller[] =
-					(array (
-						'call_file' => (isset($call['file']) ? $call['file'] : 'Unknown'),
-						'call_func' => $function,
-						'call_line' => (isset($call['line']) ? $call['line'] : 'Unknown')
-					));
+				$caller[] =	[
+					'call_file' => (isset($call['file']) ? $call['file'] : 'Unknown'),
+					'call_func' => $function,
+					'call_line' => (isset($call['line']) ? $call['line'] : 'Unknown')
+				];
 			}
 
 			return $caller;
@@ -782,9 +781,7 @@
 				$this->_error('query', $query);
 
 			if (is_object($result) && $result instanceof mysqli_result)
-			{
 				return new AVE_DB_Result($result);
-			}
 
 			return $result;
 		}
@@ -817,13 +814,6 @@
 			if (substr($cache_id, 0, 3) == 'fld')
 			{
 				$cache_id = (int)str_replace('fld_', '', $cache_id);
-				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-			}
-
-			//-- Если это хлебные крошки, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'brd')
-			{
-				$cache_id = (int)str_replace('brd_', '', $cache_id);
 				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 			}
 
@@ -878,7 +868,7 @@
 		 * @param integer $TTL		- время жизни кеша (-1 безусловный кеш)
 		 * @param string $cache_id  - Id файла кеша
 		 * @param bool $log			- записать ошибки в лог? по умолчанию включено
-		 * @return array			- асоциативный массив с результом запроса
+		 * @return array|AVE_DB_Result
 		 */
 		public function Query ($query, $TTL = null, $cache_id = '', $log = true, $ext = '')
 		{
@@ -956,7 +946,7 @@
 		 * @param integer $TTL		- время жизни кеша (-1 безусловный кеш)
 		 * @param string $cache_id  - Id файла кеша
 		 * @param bool $log			- записать ошибки в лог? по умолчанию включено
-		 * @return array			- асоциативный массив с результом запроса
+		 * @return void
 		 */
 		public function Queries ($array)
 		{
@@ -1085,7 +1075,7 @@
 			$url = trim($url);
 
 			// Условия
-			$search = array('<', ';', '|', '&', '>', "'", '"', ')', '(', '{', '}', '$', '=');
+			$search = ['<', ';', '|', '&', '>', "'", '"', ')', '(', '{', '}', '$', '='];
 
 			// Убираем пробелы
 			$url = preg_replace('/[\s,]+/i', '', $url);
@@ -1109,7 +1099,7 @@
 			// Иначе вообще очищаем строку
 			else
 				{
-					$url = array_map(array($AVE_DB, 'Escape'), $url);
+					$url = array_map([$AVE_DB, 'Escape'], $url);
 				}
 
 			return $url;
@@ -1138,7 +1128,7 @@
 		 * @param string $cache_id
 		 * @return int
 		 */
-		public function NumAllRows($query, $TTL = null, $cache_id = '')
+		public function NumAllRows ($query, $TTL = null, $cache_id = '')
 		{
 			$cache_id = $this->cacheId($cache_id);
 
@@ -1180,12 +1170,12 @@
 						{
 							$_caller = $this->getCaller();
 
-							$this->_query_list[] = array(
+							$this->_query_list[] = [
 								'caller'	=> $_caller,
 								'query'		=> 'SELECT FOUND_ROWS();',
 								'ttl'		=> $TTL,
 								'cache'		=> $cache_dir . $cache_file
-							);
+							];
 						}
 
 						return file_get_contents($cache_dir . $cache_file);
@@ -1553,7 +1543,6 @@
 			$this->clearCache('doc_' . $doc_id); // Прочее
 			$this->clearCache('fld_' . $doc_id); // Поля
 			$this->clearCache('cmd_' . $doc_id); // Компиляция
-			$this->clearCache('brd_' . $doc_id); // Хлебные крошки
 			$this->clearCache('rqe_' . $doc_id); // Элемент запроса
 		}
 

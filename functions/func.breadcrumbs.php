@@ -38,7 +38,7 @@
 
 		$bread_self_box = trim(get_settings('bread_self_box'));
 
-		static $crumbs = array();
+		static $crumbs = [];
 
 		$curent_document = get_current_document_id();
 
@@ -49,30 +49,23 @@
 
 		if ($bread_show_main)
 		{
-			$sql = "
-				SELECT
-					*
-				FROM
-					" . PREFIX . "_documents
-				WHERE
-					document_alias = '" . ($_SESSION['user_language'] == DEFAULT_LANGUAGE ? '/' : $_SESSION['accept_langs'][$_SESSION['user_language']]) . "'
-				AND
-					document_lang = '" . $_SESSION['user_language'] . "'
-			";
+			$home_id = ($_SESSION['user_language'] == DEFAULT_LANGUAGE)
+				? 1
+				: $curent_document;
 
-			$lang_home_alias = $AVE_DB->Query($sql)->FetchRow();
+			$lang_home_alias = getDocument($home_id);
 
-			$search = array(
+			$search = [
 				'[name]',
 				'[link]',
 				'[count]'
-			);
+			];
 
-			$replace = array(
+			$replace = [
 				$lang_home_alias->document_breadcrum_title,
 				$bread_show_host ? HOST . '/' . ltrim($lang_home_alias->document_alias, '/') : $lang_home_alias->document_alias,
 				1
-			);
+			];
 
 			$link = str_replace($search, $replace, $bread_link_template);
 
@@ -89,18 +82,7 @@
 		if ($curent_document == 1 || $curent_document == PAGE_NOT_FOUND_ID)
 			$noprint = 1;
 
-		$sql_document = $AVE_DB->Query("
-			SELECT
-				document_title,
-				document_breadcrum_title,
-				document_parent
-			FROM
-				" . PREFIX . "_documents
-			WHERE
-				Id = '" . $curent_document . "'", -1, 'brd_' . $curent_document, true, '.breadcrumbs'
-		);
-
-		$row_document = $sql_document->FetchRow();
+		$row_document = getDocument($curent_document);
 
 		$current = new stdClass();
 
@@ -120,21 +102,7 @@
 
 			while ($current->document_parent != 0)
 			{
-				$sql_doc = $AVE_DB->Query("
-					SELECT
-						Id,
-						document_alias,
-						document_breadcrum_title,
-						document_title,
-						document_parent,
-						document_status
-					FROM
-						" . PREFIX . "_documents
-					WHERE
-						Id = '" . $current->document_parent . "'", -1, 'brd_' . $current->document_parent, true, '.item'
-				);
-
-				$row_doc = $sql_doc->FetchRow();
+				$row_doc = getDocument($current->document_parent);
 
 				$current->document_parent = $row_doc->document_parent;
 
@@ -156,7 +124,7 @@
 					$i++;
 				}
 
-				if ($row_doc->document_parent==0 AND $row_doc->Id != 1)
+				if ($row_doc->document_parent == 0 AND $row_doc->Id != 1)
 					$current->document_parent = 1;
 			}
 
@@ -179,8 +147,8 @@
 
 					$url = rewrite_link('index.php?id=' . $crumb['Id'][$n] . '&amp;doc=' .  $crumb['document_alias'][$n]);
 
-					$search = array('[name]', '[link]', '[count]');
-					$replace = array($crumb['document_breadcrum_title'][$n], $bread_show_host ? HOST . '/' . ltrim($url, '/') : $url, $number);
+					$search = ['[name]', '[link]', '[count]'];
+					$replace = [$crumb['document_breadcrum_title'][$n], $bread_show_host ? HOST . '/' . ltrim($url, '/') : $url, $number];
 
 					$link = str_replace($search, $replace, $bread_link_template);
 
@@ -198,7 +166,7 @@
 									$bread_crumb .= $bread_sepparator;
 						}
 
-					unset($search, $replace, $link, $number);
+					unset($search, $replace, $link, $number, $row_doc);
 				}
 			}
 		}
