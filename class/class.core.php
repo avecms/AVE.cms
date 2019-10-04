@@ -732,8 +732,8 @@
 				$main_content
 			);
 
-			$main_content = str_replace('[tag:docdate]', pretty_date(strftime(DATE_FORMAT, $this->curentdoc->document_published)), $main_content);
-			$main_content = str_replace('[tag:doctime]', pretty_date(strftime(TIME_FORMAT, $this->curentdoc->document_published)), $main_content);
+			$main_content = str_replace('[tag:docdate]', translate_date(strftime(DATE_FORMAT, $this->curentdoc->document_published)), $main_content);
+			$main_content = str_replace('[tag:doctime]', translate_date(strftime(TIME_FORMAT, $this->curentdoc->document_published)), $main_content);
 			$main_content = str_replace('[tag:humandate]', human_date($this->curentdoc->document_published), $main_content);
 			$main_content = str_replace('[tag:docauthorid]', $this->curentdoc->document_author_id, $main_content);
 
@@ -758,7 +758,7 @@
 		 *
 		 * @return string
 		 */
-		function _get_cache_hash()
+		function _get_cache_hash ()
 		{
 			$hash  = 'g-' . UGROUP; // Группа пользователей
 			$hash .= 'r-' . RUB_ID; // ID Рубрики
@@ -774,7 +774,7 @@
 		 *
 		 * @return array|bool
 		 */
-		function _get_cache_id()
+		function _get_cache_id ()
 		{
 			$cache = array();
 
@@ -1593,6 +1593,10 @@
 		{
 			global $AVE_DB;
 
+			$document_id = null;
+
+			$cache_time = 0;
+
 			//-- Если нужны параметры GET, можно отключить
 			$get_url = (strpos($get_url, ABS_PATH . '?') === 0
 				? ''
@@ -1640,7 +1644,8 @@
 				preg_replace_callback('/(page|apage|artpage)-(\d+)/i',
 					function ($matches)
 					{
-						$_GET[$matches[1]] = $matches[2]; $_REQUEST[$matches[1]] = $matches[2];;
+						$_GET[$matches[1]] = $matches[2];
+						$_REQUEST[$matches[1]] = $matches[2];
 					},
 					$pages);
 			}
@@ -1649,7 +1654,7 @@
 				{
 					$get_url = implode('/', $get_url);
 				}
-
+			var_dump($get_url);
 			//-- Страница тегов
 			preg_match('/^tags(|(\/.*))+$/is', $get_url, $match);
 
@@ -1695,10 +1700,13 @@
 			//-- Экранируем поступающий URL
 			$get_url = $AVE_DB->ClearUrl($get_url);
 
+			//-- Заглушка для главной страницы
+			if ($get_url == '')
+				$get_url = '/';
+
 			//-- Проверяем есть ли данный URL в таблице алиасов модулей
 			$sql = "
 				SELECT
-					# MODULE LINK
 					document_id,
 					module_name,
 					module_action,
@@ -1707,10 +1715,12 @@
 					" . PREFIX . "_modules_aliases
 				WHERE
 					module_url = '" . str_ireplace("'", "\'", $get_url) . "'
+				# MODULE LINK
 			";
 
 			$module = $AVE_DB->Query($sql)->FetchAssocArray();
 
+			//-- Если модуль есть, переназначаем URL и переменные
 			if ($module)
 			{
 				//-- Передаем глобальные перемененные
@@ -1721,64 +1731,63 @@
 
 				//-- Если есть document_id, назначем его
 				if ($module['document_id'])
-					$_REQUEST['id'] = (int)$module['document_id'];
+					$document_id = $_REQUEST['id'] = (int)$module['document_id'];
+				else
+					$document_id = $_REQUEST['id'] = 1;
 			}
 
+			//-- УБираем лишнее
 			unset ($sql, $module);
 
-			//-- Проверка на наличие id в запросе
-			if (! empty($_REQUEST['id']))
+			//-- Если пришел $_REQUEST['id'] документа, получаем URL для проверки
+			if (! empty($_REQUEST['id']) && is_numeric($_REQUEST['id']))
 			{
-				$get_url = $AVE_DB->Query("
+				$sql = "
 					SELECT
 						document_alias
 					FROM
 						" . PREFIX . "_documents
 					WHERE
-						Id = '" . (int)$_REQUEST['id'] . "'
-				")->GetCell();
+						Id = '" . intval($_REQUEST['id']) . "'
+					# FIND DOCID
+				";
+
+				$document_id = intval($_REQUEST['id']);
+
+				$get_url = $AVE_DB->Query($sql)->GetCell();
+			}
+			// Иначе пробуем получить ID по URL
+			else
+			{
+				$sql = "
+					SELECT
+						Id
+					FROM
+						" . PREFIX . "_documents
+					WHERE
+						document_alias = '" . str_ireplace("'", "\'", $get_url) . "'
+					# FIND DOCURL
+				";
+
+				$document_id = intval($AVE_DB->Query($sql)->GetCell());
 			}
 
-			// Выполняем запрос к БД на получение всей необходимой
-			// информации о документе
+			//-- УБираем лишнее
+			unset ($sql);
 
-			$document_id = (! empty($_REQUEST['id'])
-				? intval($_REQUEST['id'])
-				: 1);
-
-			//-- Забираем нужные данные
-			$sql = "
-				SELECT
-					# URL FETCH = $get_url
-					*
-				FROM
-					" . PREFIX . "_documents
-				WHERE
-					" . (! empty ($get_url) && ! isset($_REQUEST['module'])
-							? "document_alias = '" . str_ireplace("'", "\'", $get_url) . "'"
-							: (! empty($_REQUEST['id'])
-								? "Id =" . intval($_REQUEST['id'])
-								: "Id = 1")) . "
-				LIMIT 1
-			";
-
-			$hash_url = md5($get_url);
-
-			$cache_time = 0;
+			//-- Выполняем запрос к БД на получение всей необходимой
+			//-- информации о документе
+			$this->curentdoc = getDocument($document_id);
 
 			if (defined('CACHE_DOC_FILE') && CACHE_DOC_FILE)
 				$cache_time = -1;
-			else
-				$AVE_DB->clearCacheUrl('url_' . $hash_url);
 
-			$this->curentdoc = $AVE_DB->Query($sql, $cache_time, 'url_' . $hash_url, true, '.url')->FetchRow();
-
+			// Если данные документа получены
 			if ($this->curentdoc)
 			{
 				// Получить шаблон рубрики
 				$sql = "
 					SELECT STRAIGHT_JOIN
-						# FETCH RUB = " . $this->curentdoc->rubric_id . "
 						prm.rubric_permission,
 						rub.rubric_template,
 						rub.rubric_meta_gen,
@@ -1801,6 +1810,7 @@
 						prm.user_group_id = '" . UGROUP . "'
 						AND
 						rub.Id = '" . $this->curentdoc->rubric_id . "'
+					# FETCH RUB = " . $this->curentdoc->rubric_id . "
 				";
 
 				$query = $AVE_DB->Query($sql, $cache_time, 'rub_' . $this->curentdoc->rubric_id, true, '.rubric')->FetchRow();
@@ -1816,7 +1826,7 @@
 					unset ($this->curentdoc->template);
 				}
 
-				//-- Глобальные переменные
+				//-- Переназначем глобальные переменные
 				$_GET['id']  = $_REQUEST['id']  = $this->curentdoc->Id;
 				$_GET['doc'] = $_REQUEST['doc'] = $this->curentdoc->document_alias;
 
@@ -1850,18 +1860,17 @@
 						header('Location:' . ABS_PATH);
 					else
 						header('Location:' . ABS_PATH . $get_url . URL_SUFF);
-
-					exit();
+					exit;
 				}
 			}
+			// Иначе ищем URL в редиректах
 			else
 				{
-					$AVE_DB->clearCacheUrl('url_' . $hash_url);
-
 					$sql = "
 						SELECT
 							# REDIRECT = $get_url
-							a.document_alias
+							a.document_alias,
+							h.document_alias_header
 						FROM
 							".PREFIX."_document_alias_history AS h,
 							".PREFIX."_documents AS a
@@ -1871,16 +1880,15 @@
 							h.document_alias = '" . $get_url . "'
 					";
 
-					$redirect_alias = $AVE_DB->Query($sql)->GetCell();
+					$redirect_alias = $AVE_DB->Query($sql)->FetchRow();
 
-					if ($redirect_alias && ! empty($redirect_alias))
+					if ($redirect_alias->document_alias && ! empty($redirect_alias->document_alias))
 					{
-						$redirect_alias = ABS_PATH . $redirect_alias . URL_SUFF;
+						$redirect_alias = ABS_PATH . $redirect_alias->document_alias . URL_SUFF;
 						$redirect_alias = str_replace('//', '/', $redirect_alias);
 
-						header('HTTP/1.1 301 Moved Permanently');
-						header('Location:' . $redirect_alias);
-						exit();
+						header('Location:' . $redirect_alias, true, $redirect_alias->document_alias_header);
+						exit;
 					}
 
 					if (! (! empty($_REQUEST['sysblock']) || ! empty($_REQUEST['module']) || ! empty($_REQUEST['request'])))

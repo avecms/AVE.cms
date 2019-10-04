@@ -1829,13 +1829,9 @@
 			if ($rubric_code)
 				eval (' ?'.'>' . $_rubric->rubric_code_end . '<?'.'php ');
 
-			if ($document_id == 1)
-				$hash_url = md5('');
-			else
-				$hash_url = md5($data['document_alias']);
 
 			// Чистим кеш
-			$AVE_DB->clearDocument($document_id, $hash_url);
+			$AVE_DB->clearDocument($document_id);
 
 			unset ($_rubric, $fields);
 
@@ -2818,10 +2814,8 @@
 							Id = '" . $document_id . "'
 					");
 
-					$hash_url = md5($row->document_alias);
-
 					// Чистим кеш
-					$AVE_DB->clearDocument($document_id, $hash_url);
+					$AVE_DB->clearDocument($document_id);
 
 					// Сохраняем системное сообщение в журнал
 					reportLog('Положил документ в корзину (' . $document_id . ')');
@@ -2862,10 +2856,8 @@
 			// Сохраняем системное сообщение в журнал
 			reportLog('Восстановил удаленный документ (' . $document_id . ')');
 
-			$hash_url = md5($row->document_alias);
-
 			// Чистим кеш
-			$AVE_DB->clearDocument($document_id, $hash_url);
+			$AVE_DB->clearDocument($document_id);
 
 			// Выполняем обновление страницы
 			header('Location:index.php?do=docs'.(empty($_REQUEST['rubric_id']) ? '' : '&rubric_id='.$_REQUEST['rubric_id']).'&cp=' . SESSION);
@@ -2914,10 +2906,8 @@
 						f2.document_id = f1.document_id
 				");
 
-				$hash_url = md5($row->document_alias);
-
 				// Чистим кеш
-				$AVE_DB->clearDocument($document_id, $hash_url);
+				$AVE_DB->clearDocument($document_id);
 
 				// Сохраняем системное сообщение в журнал
 				reportLog('Удалил документ <strong>'. $row->document_title . ' (ID: ' . $document_id . ')</strong>');
@@ -3029,10 +3019,8 @@
 								Id = '" . $document_id . "'
 						");
 
-						$hash_url = md5($document->document_alias);
-
 						// Чистим кеш
-						$AVE_DB->clearDocument($document_id, $hash_url);
+						$AVE_DB->clearDocument($document_id);
 
 						// Сохраняем системное сообщение в журнал
 						reportLog($_SESSION['user_name'] . ' - ' . (($openclose==1) ? $AVE_Template->get_config_vars('DOC_DOCUMENT_ACT') : $AVE_Template->get_config_vars('DOC_DOCUMENT_DISACT')) . ' ' . $AVE_Template->get_config_vars('DOC_DOCUMENT_DOC') . ' (' . $document_id . ')', 2, 2);
@@ -3063,20 +3051,16 @@
 
 						}
 
-						$hash_url = md5($document->document_alias);
-
 						// Чистим кеш
-						$AVE_DB->clearDocument($document_id, $hash_url);
+						$AVE_DB->clearDocument($document_id);
 
 					exit;
 
 				}
 				else
 					{
-						$hash_url = md5($document->document_alias);
-
 						// Чистим кеш
-						$AVE_DB->clearDocument($document_id, $hash_url);
+						$AVE_DB->clearDocument($document_id);
 
 						// Выполняем обновление страницы
 						header('Location:index.php?do=docs'.(empty($_REQUEST['rubric_id']) ? '' : '&rubric_id='.$_REQUEST['rubric_id']).'&cp=' . SESSION);

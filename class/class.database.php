@@ -820,13 +820,6 @@
 				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 			}
 
-			//-- Сборка страницы
-			if (substr($cache_id, 0, 3) == 'url')
-			{
-				$cache_id = str_replace('url_', '', $cache_id);
-				return $cache_id = 'documents/urls/' . substr($cache_id, 0, 3);
-			}
-
 			//-- Если это хлебные крошки, то меняем расположение
 			if (substr($cache_id, 0, 3) == 'brd')
 			{
@@ -895,7 +888,7 @@
 			if (defined(SQL_QUERY_SANITIZE) && SQL_QUERY_SANITIZE)
 				$query = filter_var($query, FILTER_SANITIZE_STRING);
 
-			$result = array();
+			$result = [];
 
 			// Если это SELECT - то отслеживаем кеширование
 			$TTL = strtoupper(substr(trim($query), 0, 6)) == 'SELECT'
@@ -917,14 +910,18 @@
 				if (! file_exists($cache_dir))
 					mkdir($cache_dir, 0766, true);
 
-				if (! (file_exists($cache_dir . $cache_file) && ($TTL == -1 ? true : time() - filemtime($cache_dir . $cache_file) < $TTL)))
+				$TTL = ($TTL == -1)
+					? true
+					: time() - filemtime($cache_dir . $cache_file) < $TTL;
+
+				if (! (file_exists($cache_dir . $cache_file) && $TTL))
 				{
 					$res = $this->Real_Query($query, $log);
 
 					while ($mfa = $res->FetchAssocArray())
 						$result[] = $mfa;
 
-					file_put_contents($cache_dir . $cache_file, serialize($result));
+					file_put_contents($cache_dir . $cache_file, _base64_encode(serialize($result)));
 				}
 				else
 					{
@@ -933,15 +930,15 @@
 						{
 							$_caller = $this->getCaller();
 
-							$this->_query_list[] = array(
+							$this->_query_list[] = [
 								'caller'	=> $_caller,
 								'query'		=> $query,
 								'ttl'		=> $TTL,
 								'cache'		=> $cache_dir . $cache_file
-							);
+							];
 						}
 
-						$result = unserialize(file_get_contents($cache_dir . $cache_file));
+						$result = unserialize(_base64_decode(file_get_contents($cache_dir . $cache_file)));
 					}
 
 				return new AVE_DB_Result($result);
@@ -1551,16 +1548,13 @@
 		 * @param $doc_id
 		 * @param $hash
 		 */
-		public function clearDocument($doc_id, $hash = null)
+		public function clearDocument($doc_id)
 		{
 			$this->clearCache('doc_' . $doc_id); // Прочее
 			$this->clearCache('fld_' . $doc_id); // Поля
 			$this->clearCache('cmd_' . $doc_id); // Компиляция
 			$this->clearCache('brd_' . $doc_id); // Хлебные крошки
 			$this->clearCache('rqe_' . $doc_id); // Элемент запроса
-
-			if ($hash)
-				$this->clearCacheUrl('url_' . $hash); // ЮРЛ
 		}
 
 

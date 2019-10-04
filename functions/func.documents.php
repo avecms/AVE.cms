@@ -99,7 +99,7 @@
 			$get_documents_data[$doc_id] = object2array($get_documents_data[$doc_id]);
 
 			$get_documents_data[$doc_id]['doc_title'] = $get_documents_data[$doc_id]['document_title'];
-			$get_documents_data[$doc_id]['feld'] = array();
+			$get_documents_data[$doc_id]['feld'] = [];
 		}
 
 		if (isset($key) && $key != '')

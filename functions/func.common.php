@@ -1267,4 +1267,27 @@
 		if ($exit)
 			exit;
 	}
+
+
+	/**
+	 * _base64_encode()
+	 *
+	 * @param string $input
+	 * @return
+	 */
+	function _base64_encode($input)
+	{
+		return strtr(base64_encode($input), '+/=', '-_,');
+	}
+
+	/**
+	 * _base64_decode()
+	 *
+	 * @param string $input
+	 * @return
+	 */
+	function _base64_decode($input)
+	{
+		return base64_decode(strtr($input, '-_,', '+/='));
+	}
 ?>
