@@ -366,7 +366,7 @@
 					$length = abs($length);
 				}
 
-				$field_value = truncate_text($field_value, $length, '…', true);
+				$field_value = truncate_text($field_value, $length, '…');
 			}
 		}
 
@@ -406,11 +406,11 @@
 	 * @internal    param int $id id документа
 	 * @return      mixed
 	 */
-	function get_document_fields ($document_id, $values = null, $static = true)
+	function get_document_fields ($document_id, $values = null)
 	{
 		global $AVE_DB, $AVE_Core; //$request_documents
 
-		if ($static)
+		if (defined('USE_STATIC_FIELDS') && USE_STATIC_FIELDS)
 			static $document_fields = [];
 		else
 			$document_fields = [];
@@ -426,7 +426,6 @@
 
 			$query = "
 				SELECT
-					# DOC FIELDS = $document_id
 					doc.document_author_id,
 					doc_field.Id,
 					doc_field.document_id,
@@ -450,7 +449,9 @@
 				JOIN
 					" . PREFIX . "_documents AS doc
 					ON doc.Id = doc_field.document_id
-				" . $where;
+				" . $where . "
+				# DOC FIELDS = $document_id
+			";
 
 			$cache_id = (int)$AVE_Core->curentdoc->Id;
 			$cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
@@ -480,7 +481,7 @@
 
 			// Вдруг памяти мало!!!!
 			if (memory_panic() && (count($document_fields) > 3))
-				$document_fields = array();
+				$document_fields = [];
 
 			while ($row = $sql->FetchAssocArray())
 			{
@@ -495,18 +496,18 @@
 				if ($row['field_value'] === '')
 				{
 					$row['rubric_field_template_request'] = preg_replace('/\[tag:if_notempty](.*?)\[\/tag:if_notempty]/si', '', $row['rubric_field_template_request']);
-					$row['rubric_field_template_request'] = trim(str_replace(array('[tag:if_empty]','[/tag:if_empty]'), '', $row['rubric_field_template_request']));
+					$row['rubric_field_template_request'] = trim(str_replace(['[tag:if_empty]','[/tag:if_empty]'], '', $row['rubric_field_template_request']));
 
 					$row['rubric_field_template'] = preg_replace('/\[tag:if_notempty](.*?)\[\/tag:if_notempty]/si', '', $row['rubric_field_template']);
-					$row['rubric_field_template'] = trim(str_replace(array('[tag:if_empty]','[/tag:if_empty]'), '', $row['rubric_field_template']));
+					$row['rubric_field_template'] = trim(str_replace(['[tag:if_empty]','[/tag:if_empty]'], '', $row['rubric_field_template']));
 				}
 				else
 					{
 						$row['rubric_field_template_request'] = preg_replace('/\[tag:if_empty](.*?)\[\/tag:if_empty]/si', '', $row['rubric_field_template_request']);
-						$row['rubric_field_template_request'] = trim(str_replace(array('[tag:if_notempty]','[/tag:if_notempty]'), '', $row['rubric_field_template_request']));
+						$row['rubric_field_template_request'] = trim(str_replace(['[tag:if_notempty]','[/tag:if_notempty]'], '', $row['rubric_field_template_request']));
 
 						$row['rubric_field_template'] = preg_replace('/\[tag:if_empty](.*?)\[\/tag:if_empty]/si', '', $row['rubric_field_template']);
-						$row['rubric_field_template'] = trim(str_replace(array('[tag:if_notempty]','[/tag:if_notempty]'), '', $row['rubric_field_template']));
+						$row['rubric_field_template'] = trim(str_replace(['[tag:if_notempty]','[/tag:if_notempty]'], '', $row['rubric_field_template']));
 					}
 
 				$document_fields[$row['document_id']][$row['rubric_field_id']] = $row;
