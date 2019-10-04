@@ -1654,7 +1654,7 @@
 				{
 					$get_url = implode('/', $get_url);
 				}
-			var_dump($get_url);
+
 			//-- Страница тегов
 			preg_match('/^tags(|(\/.*))+$/is', $get_url, $match);
 
