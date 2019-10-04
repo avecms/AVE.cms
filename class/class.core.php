@@ -648,10 +648,8 @@
 		 *
 		 * @return mixed|null|string|string[]
 		 */
-		function _main_content ($main_content, $id, $rubTmpl)
+		function _main_content ($rubTmpl)
 		{
-			global $AVE_DB, $AVE_Template;
-
 			// Проверяем теги полей в шаблоне рубрики на условие != ''
 			if (defined('USE_GET_FIELDS') && USE_GET_FIELDS)
 			{
@@ -895,8 +893,8 @@
 		{
 			global $AVE_DB, $AVE_Template, $AVE_Module;
 
-			$pattern = array();  // Массив системных тегов
-			$replace = array();  // Массив функций, на которые будут заменены системные теги
+			$pattern = [];  // Массив системных тегов
+			$replace = [];  // Массив функций, на которые будут заменены системные теги
 
 			if (null !== $AVE_Module->moduleListGet())
 				$this->install_modules = $AVE_Module->moduleListGet();
@@ -1248,7 +1246,7 @@
 							$main_content = $this->_rubric_template_empty;
 						else
 							// Обрабатываем основные поля рубрики
-							$main_content = $this->_main_content($main_content, $id, $rubTmpl);
+							$main_content = $this->_main_content($rubTmpl);
 					}
 				}
 
@@ -1278,18 +1276,18 @@
 			// Тут мы вводим в хеадер и футер иньекцию скриптов.
 			if (defined('RUB_ID'))
 			{
-				$replace = array(
+				$replace = [
 					'[tag:rubheader]' => $this->curentdoc->rubric_header_template . '[tag:rubheader]',
 					'[tag:rubfooter]' => $this->curentdoc->rubric_footer_template . '[tag:rubfooter]'
-				);
+				];
 
 				$out = str_replace(array_keys($replace), array_values($replace), $out);
 
-				unset($replace);
+				unset ($replace);
 			}
 
 			// Парсим поля запроса
-			$out = preg_replace_callback('/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
+			$out = preg_replace_callback('/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/',
 				function ($m) use ($id)
 				{
 					return request_get_document_field($m[1], $id, $m[2], (defined('RUB_ID') ? RUB_ID : 0));
@@ -1576,7 +1574,7 @@
 			// ЧПУ
 			$out = str_ireplace('"//"','"/"', str_ireplace('///','/', rewrite_link($out)));
 
-			unset($main_content);
+			unset ($main_content);
 
 			// Выводим собранный документ
 			echo $out;
