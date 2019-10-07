@@ -435,7 +435,7 @@
 	{
 		$AVE_DB->Real_Query("
 			ALTER TABLE
-				" . PREFIX . "_documents
+				" . PREFIX . "_document_alias_history
 			ADD
 				`document_alias_header` int(3) NOT NULL DEFAULT '301'
 			AFTER
