@@ -156,16 +156,17 @@
 	 */
 	function get_field_alias ($id)
 	{
-		global $AVE_DB;
+		global $AVE_DB, $fields_data;
 
-		static $alias_field_id = array();
+		if (! isset($fields_data))
+			static $fields_data = [];
 
-		if (isset($alias_field_id[$id]))
-			return $alias_field_id[$id];
+		if (isset($fields_data[$id]))
+			return $fields_data[$id]['alias'];
 
-		$alias_field_id[$id] = $AVE_DB->Query("SELECT rubric_field_alias FROM " . PREFIX . "_rubric_fields WHERE Id=" . intval($id))->GetCell();
+		$fields_data[$id]['alias'] = $AVE_DB->Query("SELECT rubric_field_alias FROM " . PREFIX . "_rubric_fields WHERE Id=" . intval($id))->GetCell();
 
-		return $alias_field_id[$id];
+		return $fields_data[$id]['alias'];
 	}
 
 
@@ -181,7 +182,7 @@
 	{
 		global $AVE_DB;
 
-		static $alias_field_id = array();
+		static $alias_field_id = [];
 
 		if (isset($alias_field_id[$rubric_id][$alias]))
 			return $alias_field_id[$rubric_id][$alias];
@@ -214,7 +215,7 @@
 	{
 		global $AVE_DB;
 
-		static $alias_field_id = array();
+		static $alias_field_id = [];
 
 		if (isset($alias_field_id[$id]))
 			return $alias_field_id[$id];
@@ -408,7 +409,7 @@
 	 */
 	function get_document_fields ($document_id, $values = null)
 	{
-		global $AVE_DB, $AVE_Core; //$request_documents
+		global $AVE_DB, $AVE_Core, $fields_data; //$request_documents
 
 		if (defined('USE_STATIC_FIELDS') && USE_STATIC_FIELDS)
 			static $document_fields = [];
@@ -512,6 +513,8 @@
 
 				$document_fields[$row['document_id']][$row['rubric_field_id']] = $row;
 				$document_fields[$row['document_id']][$row['rubric_field_alias']] = $row['rubric_field_id'];
+				
+				$fields_data[$row['rubric_field_id']]['alias'] = $row['rubric_field_alias'];
 			}
 		}
 

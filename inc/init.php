@@ -223,7 +223,7 @@
 	//-- Шаблоны
 	write_htaccess_deny(BASE_DIR . '/templates/' . DEFAULT_THEME_FOLDER . '/include/');
 
-	global $AVE_DB;
+	global $AVE_DB, $fields_data;
 
 	//-- Класс для работы с MySQL (Global $AVE_DB)
 	require_once (BASE_DIR . '/class/class.database.php');
