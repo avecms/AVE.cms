@@ -1421,3 +1421,20 @@ li.plupload_droptext { background: transparent; text-align: center; vertical-ali
 	background: #ffffff;
 	color: #000000;
 }
+
+.jq-selectbox__search {
+	margin: 5px;
+}
+
+.jq-selectbox__search input {
+	box-sizing: border-box;
+	width: 100%;
+	margin: 0;
+	padding: 5px 27px 6px 8px;
+	border: 1px solid #CCC;
+	border-radius: 3px;
+	outline: none;
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAAGXRFW…V6u2aoSqBZD/lDrNWRJynLK2qpBn4rc6K2XB9/Nb8EGABtf1thzY6X2AAAAABJRU5ErkJggg==) no-repeat 100% 50%;
+	box-shadow: inset 1px 1px #F1F1F1;
+	color: #333;
+}

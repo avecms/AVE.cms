@@ -45,7 +45,8 @@ CREATE TABLE `%%PRFX%%_document_fields` (
 	KEY `document_id` (`document_id`),
 	KEY `field_value` (`field_value`(333)),
 	KEY `rubric_field_id` (`rubric_field_id`),
-	KEY `queries` (`document_id`,`rubric_field_id`)
+	KEY `queries` (`document_id`,`rubric_field_id`),
+	KEY `requests_num` (`rubric_field_id`,`field_number_value`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -148,7 +149,8 @@ CREATE TABLE `%%PRFX%%_documents` (
 	KEY `expire` (`document_expire`),
 	KEY `status` (`document_status`),
 	KEY `deleted` (`document_deleted`),
-	KEY `count_view` (`document_count_view`)
+	KEY `count_view` (`document_count_view`),
+	KEY `request_cond` (`Id`,`rubric_id`,`document_status`,`document_deleted`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
@@ -335,7 +337,8 @@ CREATE TABLE `%%PRFX%%_rubric_fields` (
 	PRIMARY KEY (`Id`),
 	KEY `rubric_id` (`rubric_id`),
 	KEY `field_type` (`rubric_field_type`),
-	KEY `field_alias` (`rubric_field_alias`)
+	KEY `field_alias` (`rubric_field_alias`),
+	KEY `rubgroups` (`rubric_id`,`rubric_field_group`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0;#inst#
 
 
