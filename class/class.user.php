@@ -31,7 +31,7 @@ class AVE_User
 	 *
 	 * @public array
 	 */
-	public $_allowed_admin_permission = array(
+	public $_allowed_admin_permission = [
 		'alles',																													// все права
 		'adminpanel',																												// доступ в админку
 		'group_view', 'group_edit',																									// группы пользователей
@@ -51,7 +51,7 @@ class AVE_User
 		'db_actions',																												// база данных
 		'logs_view', 'logs_clear',																									// логи
 		'cache_clear', 'cache_thumb'																								// сессии и кеш
-	);
+	];
 
 	/**
 	 * Разделитель используемый при записи даты рождения
@@ -157,7 +157,8 @@ class AVE_User
 
 		// Проверка даты рождения
 		$match = '';
-		if (!empty($_POST['birthday']) && !preg_match($regex_birthday, $_POST['birthday'], $match))
+		
+		if (! empty($_POST['birthday']) && ! preg_match($regex_birthday, $_POST['birthday'], $match))
 		{
 			$errors[] = @$AVE_Template->get_config_vars('USER_ERROR_DATEFORMAT');
 		}

@@ -12,7 +12,7 @@
 
 	class AVE_Module
 	{
-		public $_modules = array();
+		public $_modules = [];
 
 
 		function __construct()
@@ -26,7 +26,7 @@
 		 */
 		function getModules()
 		{
-			$modules = array();
+			$modules = [];
 
 			// Получаем из БД информацию о всех установленных модулях
 			$modules_db = $this->moduleListGet();
