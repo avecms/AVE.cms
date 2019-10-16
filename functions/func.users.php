@@ -24,7 +24,7 @@
 	{
 		global $AVE_DB;
 
-		static $result = array();
+		static $result = [];
 
 		if ($id === null)
 			$id = $_SESSION['user_id'];
@@ -32,13 +32,15 @@
 		if (! isset($result[$id]))
 		{
 			$user = get_user_rec_by_id($id);
+
 			$avatar = ABS_PATH . UPLOAD_DIR . '/avatars/' . (($prefix === '') ? '' : $prefix) . md5($user->user_name);
+
 			$avatar = (file_exists(BASE_DIR . $avatar . '.jpg')
 				? $avatar . '.jpg'
 				: (file_exists(BASE_DIR . $avatar . '.png')
 					? $avatar . '.png'
 					: (file_exists(BASE_DIR . $avatar .'.gif')
-						? $ava . '.gif'
+						? $avatar . '.gif'
 						: '')));
 
 			$result[$id] = $avatar;
@@ -47,7 +49,7 @@
 		$avatar = $result[$id];
 
 		$src = (file_exists(BASE_DIR . $avatar)
-			? make_thumbnail(array('link' => $ava,'size' => 'c' . $size . 'x' . $size))
+			? make_thumbnail(array('link' => $avatar,'size' => 'c' . $size . 'x' . $size))
 			: make_thumbnail(array('link' => $AVE_DB->Query("SELECT default_avatar FROM " . PREFIX . "_user_groups WHERE user_group=" . (int)$user->user_group)->GetCell(), 'size' => 'c' . $size . 'x' . $size))
 		);
 

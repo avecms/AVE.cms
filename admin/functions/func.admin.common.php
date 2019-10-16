@@ -630,7 +630,10 @@
 	{
 		global $AVE_Template;
 
-		$showCache = format_size(get_dir_size($AVE_Template->cache_dir_root));
+		$showCache[] = format_size(get_dir_size($AVE_Template->compile_dir));
+		$showCache[] = format_size(get_dir_size($AVE_Template->sql_cache_dir));
+
+		$showCache = implode(' / ', $showCache);
 
 		echo json_encode(array($showCache, 'accept'));
 	}
