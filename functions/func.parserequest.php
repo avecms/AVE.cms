@@ -375,6 +375,8 @@
 
 		if (is_array($mixed))
 			$row = intval($mixed[1]);
+		else if (is_numeric($mixed))
+			$row = intval($mixed);
 
 		$row = (is_object($mixed)
 			? $mixed
