@@ -1280,6 +1280,7 @@
 		return strtr(base64_encode($input), '+/=', '-_,');
 	}
 
+
 	/**
 	 * _base64_decode()
 	 *
@@ -1289,5 +1290,42 @@
 	function _base64_decode($input)
 	{
 		return base64_decode(strtr($input, '-_,', '+/='));
+	}
+
+
+	/**
+	 * Функция принимает строку, и возвращает
+	 * адрес первого изображения, которую найдет
+	 *
+	 * @param $data
+	 *
+	 * @return string
+	 */
+	function getImgSrc($data)
+	{
+		$_req_exp = '/(<img )(.+?)( \/)?(>)/u';
+
+		preg_match_all($_req_exp, $data, $images);
+
+		$host = $images[2][0];
+
+		if (preg_match("/(src=)('|\")(.+?)('|\")/u", $host, $matches) == 1)
+			$host = $matches[3];
+
+		preg_match('@/index\.php\?.*thumb=(.*?)\&@i', $host, $matches);
+
+		if (isset($matches[1]))
+		{
+			return $matches[1];
+		}
+		else
+		{
+			preg_match('/(.+)' . THUMBNAIL_DIR . '\/(.+)-.\d+x\d+(\..+)/u', $host, $matches);
+
+			if (isset($matches[1]))
+				return $matches[1] . $matches[2] . $matches[3];
+			else
+				return $host;
+		}
 	}
 ?>

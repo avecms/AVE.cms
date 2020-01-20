@@ -1426,6 +1426,10 @@ li.plupload_droptext { background: transparent; text-align: center; vertical-ali
 	margin: 5px;
 }
 
+.jq-selectbox__search {
+	margin: 5px;
+}
+
 .jq-selectbox__search input {
 	box-sizing: border-box;
 	width: 100%;
@@ -1437,4 +1441,66 @@ li.plupload_droptext { background: transparent; text-align: center; vertical-ali
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAAGXRFW…V6u2aoSqBZD/lDrNWRJynLK2qpBn4rc6K2XB9/Nb8EGABtf1thzY6X2AAAAABJRU5ErkJggg==) no-repeat 100% 50%;
 	box-shadow: inset 1px 1px #F1F1F1;
 	color: #333;
+}
+
+.jq-selectbox,
+.jq-select-multiple {
+	position: relative;
+	display: inline-block;
+}
+.jq-selectbox select,
+.jq-select-multiple select {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	opacity: 0;
+}
+.jq-selectbox li,
+.jq-select-multiple li {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	white-space: nowrap;
+}
+.jq-selectbox {
+	z-index: 10;
+}
+.jq-selectbox__select {
+	position: relative;
+}
+.jq-selectbox__select-text {
+	overflow: hidden;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+.jq-selectbox__dropdown {
+	position: absolute;
+}
+.jq-selectbox__search input {
+	-webkit-appearance: textfield;
+}
+.jq-selectbox__search input::-webkit-search-cancel-button,
+.jq-selectbox__search input::-webkit-search-decoration {
+	-webkit-appearance: none;
+}
+.jq-selectbox__dropdown ul {
+	position: relative;
+	overflow: auto;
+	overflow-x: hidden;
+	list-style: none;
+	-webkit-overflow-scrolling: touch;
+}
+.jq-select-multiple ul {
+	position: relative;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
 }

@@ -18,7 +18,7 @@
 	 * @param string $text	текст многострочной части документа
 	 * @return string
 	 */
-	function document_pagination($text)
+	function document_pagination ($text)
 	{
 		global $AVE_Core;
 
@@ -67,7 +67,7 @@
 	 *
 	 * @return int идентификатор родительского документа
 	 */
-	function get_parent_document_id()
+	function get_parent_document_id ()
 	{
 		global $AVE_DB;
 		return $AVE_DB->Query("SELECT document_parent FROM " . PREFIX . "_documents WHERE Id = '".get_current_document_id()."' ")->GetCell();
@@ -83,14 +83,12 @@
 	 */
 	function get_document ($doc_id , $key ='')
 	{
-		global $AVE_DB;
-
 		$doc_id = (int)$doc_id;
 
 		if ($doc_id < 1)
-			return array();
+			return [];
 
-		static $get_documents_data = array();
+		static $get_documents_data = [];
 
 		if (! isset ($get_documents_data[$doc_id]))
 		{

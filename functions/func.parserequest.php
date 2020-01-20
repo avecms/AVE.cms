@@ -58,8 +58,8 @@
 		global $AVE_DB, $AVE_Core;
 
 		$id = (int)$id;
-		$from = array();
-		$where = array();
+		$from = [];
+		$where = [];
 
 		$sql_ak = $AVE_DB->Query("
 			SELECT *
@@ -108,14 +108,18 @@
 		{
 			// id поля рубрики
 			$fid = $row_ak->condition_field_id;
+			
 			// значение для условия
 			$val = trim($row_ak->condition_value);
+			
 			// если это поле используется для выпадающего списка или пустое значение для условия, пропускаем
 			if (isset($_POST['req_' . $id]) && isset($_POST['req_' . $id][$fid]) || $val === '')
 				continue;
+			
 			// И / ИЛИ
 			if (! isset($join) && $row_ak->condition_join)
 				$join = $row_ak->condition_join;
+			
 			// тип сравнения
 			$type = $row_ak->condition_compare;
 
@@ -142,7 +146,7 @@
 			// формируем выбор таблицы
 			// первый раз евалом проходим значение и запоминаем это в переменной $v[$i]
 			// как только таблица выбрана, фиксируем это в $t[$fid], чтобы не выбирать по несколько раз одни и те же таблицы
-			$from[] = "<?php \$v[$i] = trim(eval2var(' ?>$val<?php ')); \$t = array(); if (\$v[$i]>'' && !isset(\$t[$fid])) {echo \"%%PREFIX%%_document_fields AS t$fid,\"; \$t[$fid]=1;} ?>";
+			$from[] = "<?php \$v[$i] = trim(eval2var(' ?>$val<?php ')); \$t = []; if (\$v[$i]>'' && !isset(\$t[$fid])) {echo \"%%PREFIX%%_document_fields AS t$fid,\"; \$t[$fid]=1;} ?>";
 
 			// обрабатываем условия
 			switch ($type)
@@ -180,7 +184,7 @@
 			$i++;
 		}
 
-		$retval = array();
+		$retval = [];
 
 		if (! empty($where) || ! empty($where_dd))
 		{
@@ -189,14 +193,14 @@
 				$from		= (isset($from_dd) ? array_merge($from, $from_dd) : $from);
 				$from		= implode(' ', $from);
 				$where_dd	= (isset($where_dd) ? ' AND ' : '') . implode(' AND ', $where_dd);
-				$where		= implode(' ', $where) . " <?php \$a = array(); echo (!array_sum(\$a) || '$join'=='AND') ? '1=1' : '1=0'; ?>";
-				$retval		= array('from' => $from, 'where' => $where . $where_dd);
+				$where		= implode(' ', $where) . " <?php \$a = []; echo (!array_sum(\$a) || '$join'=='AND') ? '1=1' : '1=0'; ?>";
+				$retval		= ['from' => $from, 'where' => $where . $where_dd];
 			}
 			else
 				{
 					$from	= implode(' ', $from);
-					$where	= implode(' ', $where) . " <?php \$a = array(); echo (!array_sum(\$a) || '$join'=='AND') ? '1=1' : '1=0'; ?>";
-					$retval	= array('from' => $from, 'where' => $where);
+					$where	= implode(' ', $where) . " <?php \$a = []; echo (!array_sum(\$a) || '$join'=='AND') ? '1=1' : '1=0'; ?>";
+					$retval	= ['from' => $from, 'where' => $where];
 				}
 		}
 
@@ -220,43 +224,6 @@
 
 
 	/**
-	 * Функция принимает строку, и возвращает
-	 * адрес первого изображения, которую найдет
-	 *
-	 * @param $data
-	 *
-	 * @return string
-	 */
-	function getImgSrc($data)
-	{
-		$_req_exp = '/(<img )(.+?)( \/)?(>)/u';
-
-		preg_match_all($_req_exp, $data, $images);
-
-		$host = $images[2][0];
-
-		if (preg_match("/(src=)('|\")(.+?)('|\")/u", $host, $matches) == 1)
-			$host = $matches[3];
-
-		preg_match('@/index\.php\?.*thumb=(.*?)\&@i', $host, $matches);
-
-		if (isset($matches[1]))
-		{
-			return $matches[1];
-		}
-		else
-			{
-				preg_match('/(.+)' . THUMBNAIL_DIR . '\/(.+)-.\d+x\d+(\..+)/u', $host, $matches);
-
-				if (isset($matches[1]))
-					return $matches[1] . $matches[2] . $matches[3];
-				else
-					return $host;
-			}
-	}
-
-
-	/**
 	 * Функция обработки тэгов полей с использованием шаблонов
 	 * в соответствии с типом поля
 	 *
@@ -267,7 +234,7 @@
 	 *
 	 * @return string
 	 */
-	function request_get_document_field($field_id, $document_id, $maxlength = null, $rubric_id = 0)
+	function request_get_document_field ($field_id, $document_id, $maxlength = null, $rubric_id = 0)
 	{
 		if (! is_numeric($document_id) || $document_id < 1)
 			return '';
@@ -354,12 +321,14 @@
 		return $item;
 	}
 
+
 	// Функция получения уникальных параметров для каждого тизера
 	function f_params_of_teaser($id_param_array,$num)
 	{
 		global $params_of_teaser;
 		return $params_of_teaser[$id_param_array][$num];
 	}
+
 
 	// Функция получения элемента запроса
 	function showrequestelement($mixed, $template = '', $tparams = '')
@@ -392,7 +361,7 @@
 		if ($tparams != '')
 		{
 			$tparams_id = $row->Id . md5($tparams);								 // Создаем уникальный id для каждого набора параметров
-			$params_of_teaser[$tparams_id] = array();							 // Для отмены лишних ворнингов
+			$params_of_teaser[$tparams_id] = [];							 // Для отмены лишних ворнингов
 			$tparams = trim($tparams,'[]:');							 // Удаляем: слева ':[', справа ']'
 			$params_of_teaser[$tparams_id] = explode('|',$tparams);	 // Заносим параметры в массив уникального id
 		}
@@ -629,7 +598,7 @@
 	 *
 	 * @return string
 	 */
-	function request_parse($id, $params = array())
+	function request_parse($id, $params = [])
 	{
 		global $AVE_Core, $AVE_DB, $request_documents;
 
@@ -637,9 +606,9 @@
 		if (is_array($id))
 			$id = $id[1];
 
-		$t = array();
-		$a = array();
-		$v = array();
+		$t = [];
+		$a = [];
+		$v = [];
 
 		// Получаем информацию о запросе
 		$request = request_get_settings($id);
@@ -648,15 +617,15 @@
 		Debug::startTime('request_' . $id);
 
 		// Массив для полей SELECT
-		$request_select = array();
+		$request_select = [];
 		// Массив для присоединения таблиц JOIN
-		$request_join = array();
+		$request_join = [];
 		// Массив для добавления условий WHERE
-		$request_where = array();
+		$request_where = [];
 		// Массив для сортировки результатов ORDER BY
-		$request_order = array();
+		$request_order = [];
 		// Массив для сортировки результатов ORDER BY
-		$request_order_fields = array();
+		$request_order_fields = [];
 
 		$request_order_str = '';
 		$request_select_str = '';
@@ -667,7 +636,7 @@
 			// Разрешаем перебор полей для сортировки через ";"
 			$sort = explode(';', $_REQUEST['requestsort_' . $id]);
 
-			foreach($sort as $v)
+			foreach($sort AS $v)
 			{
 				$v1 = explode('=', $v);
 
@@ -1029,10 +998,10 @@
 		}
 
 		// Элементы запроса
-		$rows = array();
+		$rows = [];
 
 		// id найденных документов
-		$request_documents = array();
+		$request_documents = [];
 
 		while ($row = $sql->FetchRow())
 		{

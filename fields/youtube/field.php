@@ -162,11 +162,11 @@
 
 					if ($source == 'embed')
 					{
-						return 'http://www.youtube.com/v/'.$vid;
+						return 'https://www.youtube.com/v/'.$vid;
 					}
 					else
 					{
-						return 'http://www.youtube.com/embed/'.$vid;
+						return 'https://www.youtube.com/embed/'.$vid;
 					}
 
 				}
@@ -185,11 +185,11 @@
 
 					if ($source == 'embed')
 					{
-						return 'http://www.youtube.com/v/'.$vid;
+						return 'https://www.youtube.com/v/'.$vid;
 					}
 					else
 					{
-						return 'http://www.youtube.com/embed/'.$vid;
+						return 'https://www.youtube.com/embed/'.$vid;
 					}
 				}
 				else

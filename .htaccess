@@ -13,25 +13,25 @@ Options -Indexes +FollowSymLinks
 
 	php_value default_charset utf-8
 
-  #Отлючаем вывод ошибок
+	#Отлючаем вывод ошибок
 	#php_value error_reporting E_NONE
 
-  # Этот параметр устанавливает максимальное время в секундах, позволяющее скрипту запускаться прежде, чем он завершается синтаксическим анализатором.
+	# Этот параметр устанавливает максимальное время в секундах, позволяющее скрипту запускаться прежде, чем он завершается синтаксическим анализатором.
 	#php_value max_execution_time 300
 
-  # Максимальное время загрузки данных для скрипта, в том числе и файлов из формы
+	# Максимальное время загрузки данных для скрипта, в том числе и файлов из формы
 	#php_value max_input_time 300
 
-  # Ограничивает максимальный объем данных, получаемых от пользователя методом POST
+	# Ограничивает максимальный объем данных, получаемых от пользователя методом POST
 	#php_value post_max_size 512M
 
-  # Устанавливает максимальный размер файла, который может быть получен методом POST (меньше, чем post_max_size)
+	# Устанавливает максимальный размер файла, который может быть получен методом POST (меньше, чем post_max_size)
 	#php_value upload_max_filesize 128M
 
-  # Максимальное кол-во загружаемых файлов
+	# Максимальное кол-во загружаемых файлов
 	#php_value max_file_uploads 50
 
-  # Включаем у PHP короткие <?
+	# Включаем у PHP короткие <?
 	#php_value short_open_tag On
 
 	php_flag magic_quotes_gpc off
@@ -39,6 +39,7 @@ Options -Indexes +FollowSymLinks
 	php_flag magic_quotes_runtime off
 
 	php_flag register_globals off
+
 
 # ------------------------------------------------------------------------------
 # | CORS-enabled images                                                        |
@@ -195,16 +196,17 @@ AddDefaultCharset utf-8
 	ExpiresByType text/xml								"access plus 0 seconds"
 
   # Favicon (cannot be renamed!) and cursor images
-	ExpiresByType image/x-icon						  	"access plus 1 week"
+	ExpiresByType image/x-icon							"access plus 2 months"
 
   # HTML components (HTCs)
-	ExpiresByType text/x-component					  	"access plus 1 month"
+	ExpiresByType text/x-component						"access plus 1 month"
 
   # HTML
-	ExpiresByType text/html							 	"access plus 0 seconds"
+	ExpiresByType text/html								"access plus 0 seconds"
 
   # JavaScript
 	ExpiresByType application/javascript				"access plus 1 year"
+	ExpiresByType text/javascript						"access plus 1 year"
 
   # Manifest files
 	ExpiresByType application/x-web-app-manifest+json	"access plus 0 seconds"
@@ -221,7 +223,7 @@ AddDefaultCharset utf-8
 
   # Web feeds
 	ExpiresByType application/atom+xml					"access plus 1 hour"
-	ExpiresByType application/rss+xml				 	"access plus 1 hour"
+	ExpiresByType application/rss+xml					"access plus 1 hour"
 
   # Web fonts
 	ExpiresByType application/font-woff					"access plus 1 month"
@@ -229,10 +231,20 @@ AddDefaultCharset utf-8
 	ExpiresByType application/x-font-ttf				"access plus 1 month"
 	ExpiresByType font/opentype							"access plus 1 month"
 	ExpiresByType image/svg+xml							"access plus 1 month"
+
+  # Images
+	ExpiresByType image/gif "access plus 2 months"
+	ExpiresByType image/jpeg "access plus 2 months"
+	ExpiresByType image/x-icon "access plus 2 months"
+	ExpiresByType image/png "access plus 2 months"
 </IfModule>
 
-<FilesMatch "\.(backup|cache|class|fields|functions|inc|modules|lib|session|templates)$">
+<FilesMatch "\.(class|config|fields|functions|inc|modules|lib|templates|tmp)$">
 	Order allow,deny
+</FilesMatch>
+
+<FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf|js|css|pdf)$">
+	Header set Cache-Control "max-age=2592000, must-revalidate"
 </FilesMatch>
 
 <IfModule mod_security.c>
@@ -248,6 +260,21 @@ AddDefaultCharset utf-8
 		SetOutputFilter DEFLATE
 	</FilesMatch>
 </IfModule>
+
+# ------------------------------------------------------------------------------
+# | mod_gzip.c                                                              |
+# ------------------------------------------------------------------------------
+
+<ifModule mod_gzip.c>
+	mod_gzip_on Yes
+	mod_gzip_dechunk Yes
+	mod_gzip_item_include file \.(html?|txt|css|js|php|pl)$
+	mod_gzip_item_include mime ^application/x-javascript.*
+	mod_gzip_item_include mime ^text/.*
+	mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
+	mod_gzip_item_exclude mime ^image/.*
+	mod_gzip_item_include handler ^cgi-script$
+</ifModule>
 
 # ------------------------------------------------------------------------------
 # | Rewrite engine                                                             |
@@ -278,7 +305,7 @@ AddDefaultCharset utf-8
 #	RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
 #	RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
 
-	RewriteCond %{REQUEST_URI} !^/(backup|cache|class|fields|functions|inc|modules|lib|session|templates)/
+	RewriteCond %{REQUEST_URI} !^/(class|config|fields|functions|inc|modules|lib|templates|tmp)/
 
 	# Файл robots.txt
 	RewriteCond %{REQUEST_URI} !^/robots\.txt$ [NC]
