@@ -63,7 +63,7 @@
 	<td>{#SETTINGS_SITE_COUNTRY#}</td>
 	<td>
 		<div class="pr12">
-	<select name="default_country" style="width: 300px;">
+	<select name="default_country">
 	{foreach from=$available_countries item=land}
 		<option value="{$land->country_code}"{if $row.default_country==$land->country_code} selected{/if}>{$land->country_name}</option>
 	{/foreach}
@@ -76,7 +76,7 @@
 	<td>{#SETTINGS_DATE_FORMAT#}</td>
 	<td>
 		<div class="pr12">
-	<select name="date_format" style="width: 300px;">
+	<select name="date_format">
 	{foreach from=$date_formats item=date_format}
 		<option value="{$date_format}"{if $row.date_format==$date_format} selected{/if}>{$smarty.now|date_format:$date_format|pretty_date}</option>
 	{/foreach}
@@ -89,7 +89,7 @@
 	<td>{#SETTINGS_TIME_FORMAT#}</td>
 	<td>
 		<div class="pr12">
-	<select name="time_format" style="width: 300px;">
+	<select name="time_format">
 	{foreach from=$time_formats item=time_format}
 		<option value="{$time_format}"{if $row.time_format==$time_format} selected{/if}>{$smarty.now|date_format:$time_format|pretty_date}</option>
 	{/foreach}
@@ -202,7 +202,7 @@
 	<td>{#SETTINGS_MAIL_TRANSPORT#}</td>
 	<td>
 		<div class="pr12">
-			<select name="mail_type" id="mail_type" style="width: 250px;">
+			<select name="mail_type" id="mail_type">
 				<option value="mail"{if $row.mail_type=='mail'} selected{/if}>{#SETTINGS_MAIL#}</option>
 				<option id="smtp" value="smtp"{if $row.mail_type=='smtp'} selected{/if}>{#SETTINGS_SMTP#}</option>
 				<option value="sendmail"{if $row.mail_type=='sendmail'} selected{/if}>{#SETTINGS_SENDMAIL#}</option>
@@ -251,7 +251,7 @@
 	<td>{#SETTINGS_SMTP_ENCRYPT#}</td>
 	<td>
 		<div class="pr12">
-			<select name="mail_smtp_encrypt" style="width: 250px;" class="mousetrap">
+			<select name="mail_smtp_encrypt" class="mousetrap">
               <option value="">{#SETTINGS_SMTP_NOENCRYPT#}</option>
               <option value="tls"{if $row.mail_smtp_encrypt=='tls'} selected="selected"{/if}>TLS</option>
               <option value="ssl"{if $row.mail_smtp_encrypt=='ssl'} selected="selected"{/if}>SSL</option>

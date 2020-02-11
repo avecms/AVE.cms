@@ -69,7 +69,7 @@
 			</td>
 			<td>
 				{if $def.TYPE=="dropdown"}
-					<select class="mousetrap" name="GLOB[{$type}][{$_var}]" style="width: 250px;">
+					<select class="mousetrap" name="GLOB[{$type}][{$_var}]">
 						{foreach from=$def.VARIANT item=elem}
 						<option value="{$elem}"
 							{php}

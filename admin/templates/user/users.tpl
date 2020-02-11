@@ -53,7 +53,7 @@ $(document).ready(function(){ldelim}
 		<tr>
 			<td><div class="pr12"><input name="query" type="text" value="{$smarty.request.query|escape|stripslashes}" /></div></td>
 			<td>
-				<select style="width: 250px;" name="user_group">
+				<select name="user_group">
 					<option value="0">{#MAIN_ALL_USER_GROUP#}</option>
 					{foreach from=$ugroups item=g}
 						<option value="{$g->user_group}"{if $g->user_group==$smarty.request.user_group} selected="selected"{/if}>{$g->user_group_name|escape}</option>
@@ -61,7 +61,7 @@ $(document).ready(function(){ldelim}
 				</select>
 			</td>
 			<td>
-				<select style="width: 250px;" name="status">
+				<select name="status">
 					<option value="all"{if $smarty.request.status=='all'} selected="selected"{/if}>{#MAIN_USER_STATUS_ALL#}</option>
 					<option value="1"{if $smarty.request.status=='1'} selected="selected"{/if}>{#MAIN_USER_STATUS_ACTIVE#}</option>
 					<option value="0"{if $smarty.request.status=='0'} selected="selected"{/if}>{#MAIN_USER_STATUS_INACTIVE#}</option>
@@ -239,7 +239,7 @@ $(document).ready(function(){ldelim}
 					{if check_permission('user_edit')}
 						<!-- Если сессия группы не равна 1 а у этого юзера группа равная 1 - то не даем ссылку -->
 						{if ($smarty.session.user_group != 1 && $user->user_group == 1)}
-								<select name="user_group[{$user->Id}]" style="width: 200px;" disabled="disabled">
+								<select name="user_group[{$user->Id}]" disabled="disabled">
 									{foreach from=$ugroups item=groups}
 										{if $groups->user_group!=2}
 											<option value="{$groups->user_group}"{if $groups->user_group==$user->user_group} selected="selected"{/if}>{$groups->user_group_name}</option>
@@ -248,7 +248,7 @@ $(document).ready(function(){ldelim}
 								</select>
 						<!-- Если сессия группы равна 1 даем ссылку -->
 						{elseif $smarty.session.user_group == 1}
-							<select name="user_group[{$user->Id}]" style="width: 200px;" {if $user->Id == 1} disabled="disabled"{/if}>
+							<select name="user_group[{$user->Id}]" {if $user->Id == 1} disabled="disabled"{/if}>
 								{foreach from=$ugroups item=groups}
 									{if $groups->user_group!=2}
 										<option value="{$groups->user_group}"{if $groups->user_group==$user->user_group} selected="selected"{/if}>{$groups->user_group_name}</option>
@@ -259,7 +259,7 @@ $(document).ready(function(){ldelim}
 						{else}
 							<!-- Если сессия группы и группа юзера равны и сессия айди и юзер айди равны -->
 							{if $smarty.session.user_group == $user->user_group && $smarty.session.user_id == $user->Id}
-								<select name="user_group[{$user->Id}]" style="width: 200px;" disabled="disabled">
+								<select name="user_group[{$user->Id}]" disabled="disabled">
 									{foreach from=$ugroups item=groups}
 										{if $groups->user_group!=2}
 											<option value="{$groups->user_group}"{if $groups->user_group==$user->user_group} selected="selected"{/if}>{$groups->user_group_name}</option>
@@ -268,7 +268,7 @@ $(document).ready(function(){ldelim}
 								</select>
 							<!-- Если сессия группы и группа юзера равны и сессия айди и юзер айди не равны -->
 							{elseif $smarty.session.user_group == $user->user_group && $smarty.session.user_id != $user->Id}
-								<select name="user_group[{$user->Id}]" style="width: 200px;" disabled="disabled">
+								<select name="user_group[{$user->Id}]" disabled="disabled">
 									{foreach from=$ugroups item=groups}
 										{if $groups->user_group!=2}
 											<option value="{$groups->user_group}"{if $groups->user_group==$user->user_group} selected="selected"{/if}>{$groups->user_group_name}</option>
@@ -277,7 +277,7 @@ $(document).ready(function(){ldelim}
 								</select>
 							<!-- Если сессия группы и группа юзера не равны и сессия айди и юзер айди не равны -->
 							{else}
-							<select name="user_group[{$user->Id}]" style="width: 200px;" {if $user->Id==1 && $groups->user_group!=1} disabled="disabled"{/if}>
+							<select name="user_group[{$user->Id}]" {if $user->Id==1 && $groups->user_group!=1} disabled="disabled"{/if}>
 								{foreach from=$ugroups item=groups}
 									{if $smarty.session.user_group != 1}
 										{if $user->user_group == 1 && $groups->user_group != 1}
@@ -296,7 +296,7 @@ $(document).ready(function(){ldelim}
 						{/if}
 					<!-- Если выключены права на редактирование -->
 					{else}
-						<select name="user_group[{$user->Id}]" style="width: 200px;" disabled="disabled">
+						<select name="user_group[{$user->Id}]" disabled="disabled">
 							{foreach from=$ugroups item=groups}
 								{if $groups->user_group!=2}
 									<option value="{$groups->user_group}"{if $groups->user_group==$user->user_group} selected="selected"{/if}>{$groups->user_group_name}</option>

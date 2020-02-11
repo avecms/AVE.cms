@@ -484,7 +484,7 @@ $(document).ready(function(){ldelim}
 									{foreach from=$document_alias key=k item=v}
 										<div>&nbsp;{$k}:</div>
 										<div style="margin:2px 0 3px;">
-											<select class="linkSelect" style="width: 300px;">
+											<select class="linkSelect">
 												<option value="" data-id="" selected="selected">{#DOC_LINK_CHOOSE#}</option>
 												{section name=nov loop=$v}
 												<option value="{$v[nov].document_alias}" data-id="{$v[nov].Id}">{if $v[nov].document_breadcrum_title}{$v[nov].document_breadcrum_title}{else}{$v[nov].document_title}{/if}</option>

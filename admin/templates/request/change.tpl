@@ -1,6 +1,6 @@
 {if $smarty.request.sub == ''}
 	<div id="req_cond_{$cond_id}" stye="text-align: left;">
-			<select class="mousetrap" name="conditions[{$cond_id}][condition_field_id]" style="width: 200px;" id="form_cond_{$cond_id}">
+			<select class="mousetrap" name="conditions[{$cond_id}][condition_field_id]" id="form_cond_{$cond_id}">
 				{foreach from=$fields_list item=field_group}
 
 					{if $groups_count > 1}

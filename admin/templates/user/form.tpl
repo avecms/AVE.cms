@@ -222,7 +222,7 @@ function mail_status(){
 		<div class="pr12">
 			{if check_permission('user_perms')}
 				{if ($smarty.session.user_id == $row->Id) && $row->user_group != 1}
-					<select name="user_group" style="width: 200px;" disabled="disabled">
+					<select name="user_group" disabled="disabled">
 						{foreach from=$ugroups item=groups}
 							{if $groups->user_group!=2}
 								<option value="{$groups->user_group}"{if $groups->user_group==$row->user_group} selected="selected"{/if}>{$groups->user_group_name}</option>
@@ -230,7 +230,7 @@ function mail_status(){
 						{/foreach}
 					</select>
 				{else}
-				<select name="user_group" style="width: 200px;" {if $row->Id==1 && $groups->user_group!=1} disabled="disabled"{/if}>
+				<select name="user_group" {if $row->Id==1 && $groups->user_group!=1} disabled="disabled"{/if}>
 					{foreach from=$ugroups item=groups}
 						{if $smarty.session.user_group != 1}
 							{if $row->user_group == 1 && $groups->user_group != 1}
@@ -249,7 +249,7 @@ function mail_status(){
 				</select>
 				{/if}
 			{else}
-			<select name="user_group" style="width: 200px;" disabled="disabled">
+			<select name="user_group" disabled="disabled">
 				{foreach from=$ugroups item=groups}
 					{if $groups->user_group!=2}
 						<option value="{$groups->user_group}"{if $groups->user_group==$row->user_group} selected="selected"{/if}>{$groups->user_group_name}</option>
@@ -279,7 +279,7 @@ function mail_status(){
 	<td>{#USER_STATUS#}</td>
 	<td>
 		<div class="pr12">
-		  <select style="width:250px;" name="status" id="status" onchange="mail_status();">
+		  <select name="status" id="status" onchange="mail_status();">
 			  <option id="free" value="1"{if $row->status==1 || $smarty.request.action=='new'} selected="selected"{/if}>{#USER_ACTIVE#}</option>
 			  <option id="notfree" value="0"{if $row->Id==1 && $g->user_group!=1} disabled="disabled"{else}{if $row->status==0 && $smarty.request.action!='new'} selected="selected"{/if}{if $ItsGroup=='1' && $smarty.session.user_group=='1'} disabled="disabled"{/if}{/if}>{#USER_INACTIVE#}</option>
 		  </select>

@@ -281,14 +281,14 @@ function openAliasWindow(fieldId, rubId, width, height, target) {ldelim}
 							</div>
 						</td>
 						<td>
-							<select name="rub_type_new" id="rub_type_new" style="width: 250px;">
+							<select name="rub_type_new" id="rub_type_new">
 								{section name=field loop=$fields}
 								<option value="{$fields[field].id}" {if $fields[field].id == 'single_line'}selected{/if}>{$fields[field].name}</option>
 								{/section}
 							</select>
 						</td>
 						<td>
-							<select name="group_new" id="group_new" style="width: 300px;">
+							<select name="group_new" id="group_new">
 								<option value="">{#RUBRIK_FIELD_GROUP_SEL#}</option>
 								{foreach from=$fields_groups item=f_group}
 								<option value="{$f_group->Id}">{$f_group->group_title|escape}</option>

@@ -115,7 +115,7 @@
 			</td>
 			<td><strong>{#MAIN_SELECT_RUBRIK#}</strong></td>
 			<td>
-				<select name="rubric_id" id="rubric_id" style="width: 200px;">
+				<select name="rubric_id" id="rubric_id">
 					<option value="all">{#MAIN_ALL_RUBRUKS#}</option>
 					{foreach from=$rubrics item=rubric}
 						<option value="{$rubric->Id}" {if $smarty.request.rubric_id==$rubric->Id}selected{/if}>{$rubric->rubric_title|escape}</option>
@@ -132,7 +132,7 @@
 			<td><input style="width:80px" type="text" name="doc_id" value="{$smarty.request.doc_id|escape|stripslashes}" placeholder="{#MAIN_TITLE_DOC_ID#}" /></td>
 			<td><strong>{#MAIN_DOCUMENT_STATUS#}</strong></td>
 			<td>
-				<select style="width:185px" name="status">
+				<select name="status">
 					<option value="All">{#MAIN_ALL_DOCUMENTS#}</option>
 					<option value="Opened" {if $smarty.request.status == 'Opened'}selected{/if}>{#MAIN_DOCUMENT_ACTIVE#}</option>
 					<option value="Closed" {if $smarty.request.status == 'Closed'}selected{/if}>{#MAIN_DOCUMENT_INACTIVE#}</option>
@@ -147,7 +147,7 @@
 				<strong>{#DOC_SEARCH_FIELD#}</strong>
 			</td>
 			<td colspan="2">
-				<select style="width:250px" name="field_id">
+				<select name="field_id">
 					<option value="">{#DOC_SEARCH_FIELD_SELECT#}</option>
 					{foreach from=$fields item=field}
 						<option value="{$field->Id}" {if $smarty.request.field_id == $field->Id}selected{/if}>{$field->rubric_field_title|escape}</option>
@@ -155,7 +155,7 @@
 				</select>
 			</td>
 			<td>
-				<select style="width:150px" name="field_request">
+				<select name="field_request">
 					<option value="like" {if $smarty.request.field_request == 'like'}selected{/if}>{#DOC_SEARCH_FIELD_LIKE#}</option>
 					<option value="eq" {if $smarty.request.field_request == 'eq'}selected{/if}>{#DOC_SEARCH_FIELD_EQ#}</option>
 				</select>
@@ -173,7 +173,7 @@
 				<strong>{#DOC_SEARCH_PARAM#}</strong>
 			</td>
 			<td colspan="2">
-				<select style="width:250px" name="param_id">
+				<select name="param_id">
 					<option value="">{#DOC_SEARCH_PARAM_SELECT#}</option>
 					{foreach from=$params item=param}
 						<option value="{$param}" {if $smarty.request.param_id == $param}selected{/if}>{$param}</option>
@@ -181,7 +181,7 @@
 				</select>
 			</td>
 			<td>
-				<select style="width:150px" name="param_request">
+				<select name="param_request">
 					<option value="like" {if $smarty.request.param_request == 'like'}selected{/if}>{#DOC_SEARCH_PARAM_LIKE#}</option>
 					<option value="eq" {if $smarty.request.param_request == 'eq'}selected{/if}>{#DOC_SEARCH_PARAM_EQ#}</option>
 				</select>
@@ -199,7 +199,7 @@
 				<strong>{#DOC_LANG_ID#}</strong>
 			</td>
 			<td>
-				<select style="width:70px" name="lang_id">
+				<select name="lang_id">
 				<option value="" {if !$smarty.request.lang_id}selected{/if}>{#DOC_LANG_SELECT#}</option>
 				{foreach from=$smarty.session.accept_langs key=lang_id item=lang}
 				<option value="{$lang_id}" {if $smarty.request.lang_id == $lang_id}selected{/if}>{$lang_id}</option>
@@ -211,7 +211,7 @@
 				<strong>{#MAIN_RESULTS_ON_PAGE#}</strong>
 			</td>
 			<td>
-				<select style="width:70px" name="limit">
+				<select name="limit">
 					{section loop=500 name=dl step=50}
 						<option value="{$smarty.section.dl.index+50}" {if $smarty.request.limit==$smarty.section.dl.index+50}selected{/if}>{$smarty.section.dl.index+50}</option>
 					{/section}

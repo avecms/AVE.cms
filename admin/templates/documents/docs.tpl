@@ -36,7 +36,7 @@
 				<input type="hidden" name="cp" value="{$sess}" />
 				<input type="hidden" name="do" value="docs" />
 				<input type="hidden" name="action" value="new" />
-				<select name="rubric_id" id="DocName" style="width: 250px;">
+				<select name="rubric_id" id="DocName">
 					<option value="">{#DOC_CHOSE_RUB#}</option>
 					{foreach from=$rubrics item=rubric}
 						{if $rubric->Show==1}
@@ -53,7 +53,7 @@
 			<form action="index.php" method="get" class="mainForm">
 				<input type="hidden" name="cp" value="{$sess}" />
 				<input type="hidden" name="do" value="docs" />
-				<select name="rubric_id" id="RubrikSort" style="width: 250px;">
+				<select name="rubric_id" id="RubrikSort">
 					<option value="all">{#MAIN_ALL_RUBRUKS#}</option>
 					{foreach from=$rubrics item=rubric}
 						{if $rubric->Show==1}
@@ -427,7 +427,7 @@
 {if check_permission('alle')}
 <div class="rowElem" id="saveBtn">
 	<div class="saveBtn">
-			<select name="moderation" class="action-in-moderation" style="width: 250px;">
+			<select name="moderation" class="action-in-moderation">
 				<option value="none" selected="selected">{#DOC_ACTION_SELECT#}</option>
 				<option value="1">{#DOC_ACTION_SELECT_ACT#}</option>
 				<option value="0">{#DOC_ACTION_SELECT_NACT#}</option>

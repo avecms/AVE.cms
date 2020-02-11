@@ -75,7 +75,7 @@
 		<tr>
 			<td width="200"><strong>{#NAVI_PRINT_TYPE#}</strong></td>
 			<td>
-				<select name="expand_ext" style="width: 300px;">
+				<select name="expand_ext">
 					<option value="1"{if $navigation->expand_ext == 1} selected{/if}/>{#NAVI_EXPAND_ALL#}</option>
 					<option value="0"{if $navigation->expand_ext == 0} selected{/if}/>{#NAVI_EXPAND_WAY#}</option>
 					<option value="2"{if $navigation->expand_ext == 2} selected{/if}/>{#NAVI_EXPAND_LEVEL#}</option>
