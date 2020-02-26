@@ -82,7 +82,7 @@
 		| Гланая страница
 		|
 		*/
-		public static function startPage()
+		public static function startPage ()
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -152,7 +152,7 @@
 		| Список системных блоков
 		|
 		*/
-		public static function listBlocks()
+		public static function listBlocks ()
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -190,7 +190,7 @@
 		| Список групп системных блоков
 		|
 		*/
-		public static function listGroups()
+		public static function listGroups ()
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -202,7 +202,7 @@
 				FROM
 					" . PREFIX . "_sysblocks_groups
 				ORDER BY
-					id
+					position
 			";
 
 			$query = $AVE_DB->Query($sql);
@@ -214,6 +214,113 @@
 			$AVE_Template->assign('sid', 0);
 			$AVE_Template->assign('groups', $groups);
 			$AVE_Template->assign('content', $AVE_Template->fetch('sysblocks/groups.tpl'));
+		}
+
+
+		/*
+		|--------------------------------------------------------------------------------------
+		| groupsSort
+		|--------------------------------------------------------------------------------------
+		|
+		| Сортировка групп
+		|
+		*/
+		public static function groupsSort ()
+		{
+			global $AVE_DB, $AVE_Template;
+
+			foreach ($_REQUEST['sort'] AS $position => $group_id)
+			{
+				$position++;
+
+				$sql = "
+					UPDATE
+						" . PREFIX . "_sysblocks_groups
+					SET
+						position = '" . (int)$position . "'
+					WHERE
+						id = '" . (int)$group_id . "'
+				";
+
+				$AVE_DB->Query($sql);
+			}
+
+			if (isAjax())
+			{
+				$message = $AVE_Template->get_config_vars('RUBRIK_SORTED');
+				$header = $AVE_Template->get_config_vars('RUBRIK_FILDS_SUCCESS');
+				$theme = 'accept';
+
+				echo json_encode(['message' => $message, 'header' => $header, 'theme' => $theme]);
+				exit;
+			}
+		}
+
+
+		/*
+		|--------------------------------------------------------------------------------------
+		| newGroup
+		|--------------------------------------------------------------------------------------
+		|
+		| Новая группа
+		|
+		*/
+		public static function newGroup ()
+		{
+			global $AVE_DB;
+
+			$sql = "
+				SELECT
+					MAX(position)
+				FROM
+					" . PREFIX . "_sysblocks_groups
+			";
+
+			$position = $AVE_DB->Query($sql)->GetCell();
+
+			$position++;
+
+			$sql = "
+				INSERT
+					" . PREFIX . "_sysblocks_groups
+				SET
+					position = '" . $position . "',
+					title = '" . $_REQUEST['title'] . "',
+					description = '" . $_REQUEST['description'] . "'
+			";
+
+			$AVE_DB->Query($sql);
+
+			header('Location:index.php?do=sysblocks&action=groups&cp=' . SESSION);
+			exit;
+		}
+
+
+		/*
+		|--------------------------------------------------------------------------------------
+		| delGroup
+		|--------------------------------------------------------------------------------------
+		|
+		| Удалить группу
+		|
+		*/
+		public static function delGroup ()
+		{
+			global $AVE_DB;
+
+			$id = (int)$_REQUEST['id'];
+
+			$sql = "
+				DELETE FROM
+					" . PREFIX . "_sysblocks_groups
+				WHERE
+					id = '" . $id . "'
+			";
+
+			$AVE_DB->Query($sql);
+
+			header('Location:index.php?do=sysblocks&action=groups&cp=' . SESSION);
+			exit;
 		}
 
 
@@ -245,7 +352,7 @@
 				$oCKeditor->config['customConfig'] = 'sysblock.js';
 				$oCKeditor->config['toolbar'] = 'Big';
 				$oCKeditor->config['height'] = 400;
-				$config = array();
+				$config = [];
 				$row['sysblock_text'] = $oCKeditor->editor('sysblock_text', $row['sysblock_text'], $config);
 
 				$AVE_Template->assign($row);
@@ -273,14 +380,16 @@
 
 			$sysblock_id = (int)$_REQUEST['id'];
 
-			$row = $AVE_DB->Query("
+			$sql = "
 				SELECT
 					*
 				FROM
 					" . PREFIX . "_sysblocks
 				WHERE
 					id = '" . $sysblock_id . "'
-			")->FetchAssocArray();
+			";
+
+			$row = $AVE_DB->Query($sql)->FetchAssocArray();
 
 			$AVE_Template->assign('sid', $sysblock_id);
 			$AVE_Template->assign('groups', self::getGroups());
@@ -292,7 +401,7 @@
 				$oCKeditor->config['customConfig'] = 'sysblock.js';
 				$oCKeditor->config['toolbar'] = 'Big';
 				$oCKeditor->config['height'] = 400;
-				$config = array();
+				$config = [];
 				$row['sysblock_text'] = $oCKeditor->editor('sysblock_text', $row['sysblock_text'], $config);
 
 				$AVE_Template->assign($row);
@@ -314,7 +423,7 @@
 		| Сохранение системного блока
 		|
 		*/
-		public static function saveBlock()
+		public static function saveBlock ()
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -331,7 +440,7 @@
 				$_REQUEST['sysblock_visual'] = (isset($_REQUEST['sysblock_visual'])) ? $_REQUEST['sysblock_visual'] : 0;
 				$_REQUEST['sysblock_alias'] = isset($_REQUEST['sysblock_alias']) ? $_REQUEST['sysblock_alias'] : '';
 
-				$sql = $AVE_DB->Query("
+				$sql = "
 					UPDATE
 						" . PREFIX . "_sysblocks
 					SET
@@ -346,9 +455,11 @@
 						sysblock_visual			 = '" . (int)$_REQUEST['sysblock_visual'] . "'
 					WHERE
 						id = '" . $sysblock_id . "'
-				");
+				";
 
-				if ($sql->_result === false)
+				$query = $AVE_DB->Query($sql);
+
+				if ($query->_result === false)
 				{
 					$message = $AVE_Template->get_config_vars('SYSBLOCK_SAVED_ERR');
 					$header = $AVE_Template->get_config_vars('SYSBLOCK_ERROR');
@@ -369,7 +480,7 @@
 
 				if (isAjax())
 				{
-					echo json_encode(array('message' => $message, 'header' => $header, 'theme' => $theme));
+					echo json_encode(['message' => $message, 'header' => $header, 'theme' => $theme]);
 				}
 				else
 					{
@@ -381,22 +492,24 @@
 			}
 			else
 			{
-				$AVE_DB->Query("
-						INSERT INTO
-							" . PREFIX . "_sysblocks
-						SET
-							sysblock_group_id		= '" . (int)$_REQUEST['sysblock_group_id'] . "',
-							sysblock_name			= '" . $_REQUEST['sysblock_name'] . "',
-							sysblock_description	= '" . addslashes($_REQUEST['sysblock_description']) . "',
-							sysblock_alias			= '" . $_REQUEST['sysblock_alias'] . "',
-							sysblock_text			= '" . $_REQUEST['sysblock_text'] . "',
-							sysblock_author_id		= '" . (int)$_SESSION['user_id'] . "',
-							sysblock_eval			= '" . (int)$_REQUEST['sysblock_eval'] . "',
-							sysblock_external		= '" . (int)$_REQUEST['sysblock_external'] . "',
-							sysblock_ajax			= '" . (int)$_REQUEST['sysblock_ajax'] . "',
-							sysblock_visual			= '" . (int)$_REQUEST['sysblock_visual'] . "',
-							sysblock_created		= '" . time() . "'
-					");
+				$sql = "
+					INSERT INTO
+						" . PREFIX . "_sysblocks
+					SET
+						sysblock_group_id		= '" . (int)$_REQUEST['sysblock_group_id'] . "',
+						sysblock_name			= '" . $_REQUEST['sysblock_name'] . "',
+						sysblock_description	= '" . addslashes($_REQUEST['sysblock_description']) . "',
+						sysblock_alias			= '" . $_REQUEST['sysblock_alias'] . "',
+						sysblock_text			= '" . $_REQUEST['sysblock_text'] . "',
+						sysblock_author_id		= '" . (int)$_SESSION['user_id'] . "',
+						sysblock_eval			= '" . (int)$_REQUEST['sysblock_eval'] . "',
+						sysblock_external		= '" . (int)$_REQUEST['sysblock_external'] . "',
+						sysblock_ajax			= '" . (int)$_REQUEST['sysblock_ajax'] . "',
+						sysblock_visual			= '" . (int)$_REQUEST['sysblock_visual'] . "',
+						sysblock_created		= '" . time() . "'
+				";
+
+				$AVE_DB->Query($sql);
 
 				$sysblock_id = $AVE_DB->InsertId();
 
@@ -498,14 +611,16 @@
 				case 'save':
 					$ok = true;
 
-					$row = $AVE_DB->Query("
+					$sql = "
 						SELECT
 							sysblock_name
 						FROM
 							" . PREFIX . "_sysblocks
 						WHERE
 							sysblock_name = '" . $_REQUEST['sysblock_name'] . "'
-					")->FetchRow();
+					";
+
+					$row = $AVE_DB->Query($sql)->FetchRow();
 
 					if (@$row->sysblock_name != '')
 					{
@@ -523,24 +638,31 @@
 
 					if ($ok)
 					{
-						$row = $AVE_DB->Query("
-							SELECT sysblock_text
-							FROM " . PREFIX . "_sysblocks
-							WHERE id = '" . (int)$_REQUEST['id'] . "'
-						")->FetchRow();
+						$sql = "
+							SELECT
+								sysblock_text
+							FROM
+								" . PREFIX . "_sysblocks
+							WHERE
+								id = '" . (int)$_REQUEST['id'] . "'
+						";
 
-						$AVE_DB->Query("
-							INSERT
-							INTO " . PREFIX . "_sysblocks
+						$row = $AVE_DB->Query($sql)->FetchRow();
+
+						$sql = "
+							INSERT INTO
+								" . PREFIX . "_sysblocks
 							SET
 								Id = '',
 								sysblock_name     = '" . $_REQUEST['sysblock_name'] . "',
 								sysblock_text      = '" . addslashes($row->sysblock_text) . "',
 								sysblock_author_id = '" . $_SESSION['user_id'] . "',
 								sysblock_created   = '" . time() . "'
-						");
+						";
 
-						reportLog($_SESSION['user_name'] . ' - создал копию системного блока (' . (int)$_REQUEST['id'] . ')', 2, 2);
+						$AVE_DB->Query($sql);
+
+						reportLog($_SESSION['user_name'] . ' - ' . $AVE_Template->get_config_vars('SYSBLOCK_COPY_LOG') .' (' . (int)$_REQUEST['id'] . ')', 2, 2);
 
 						header('Location:index.php?do=sysblocks'.'&cp=' . SESSION);
 					}

@@ -43,6 +43,30 @@
 			}
 			break;
 
+		// Сортировка списока групп
+		case 'groupssort':
+			if (check_permission_acp('sysblocks_edit'))
+			{
+				Sysblocks::groupsSort();
+			}
+			break;
+
+		// Новая группа
+		case 'newgroup':
+			if (check_permission_acp('sysblocks_edit'))
+			{
+				Sysblocks::newGroup();
+			}
+			break;
+
+		// Удаление группы
+		case 'delgroup':
+			if (check_permission_acp('sysblocks_edit'))
+			{
+				Sysblocks::delGroup();
+			}
+			break;
+
 		// Создать новый системный блок
 		case 'new':
 			if (check_permission_acp('sysblocks_edit'))

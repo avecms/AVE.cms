@@ -34,20 +34,17 @@
 			<col width="25%">
 		</colgroup>
 		<tbody>
-			<tr>
-				<td>
-					<a class="button greyishBtn topBtn" href="javascript:void(0);">Список системных блоков</a>
-				</td>
-				<td>
-					<a class="button greenBtn topBtn" href="index.php?do=sysblocks&action=new&cp={$sess}">Добавить системный блок</a>
-				</td>
-				<td>
-					<a class="button basicBtn topBtn" href="index.php?do=sysblocks&action=groups&cp={$sess}">Список групп</a>
-				</td>
-				<td>
-					<a class="button greenBtn topBtn" href="index.php?do=sysblocks&action=addgroup&cp={$sess}">Добавить группу</a>
-				</td>
-			</tr>
+		<tr>
+			<td>
+				<a class="button greyishBtn topBtn" href="index.php?do=sysblocks&cp={$sess}">{#SYSBLOCK_LIST_LINK#}</a>
+			</td>
+			<td>
+				<a class="button greenBtn topBtn" href="index.php?do=sysblocks&action=new&cp={$sess}">{#SYSBLOCK_BUTTON_ADD#}</a>
+			</td>
+			<td>
+				<a class="button basicBtn topBtn" href="index.php?do=sysblocks&action=groups&cp={$sess}">{#SYS_GROUPS#}</a>
+			</td>
+		</tr>
 		</tbody>
 	</table>
 </div>
@@ -106,7 +103,7 @@
 							{$sysblock.id}
 						</td>
 						<td align="center">
-							{if $sysblock.sysblock_external}<a class="icon_sprite ico_globus topDir" title="{#SYSBLOCK_EXTERNAL_GO#}" href="http://{$smarty.server.HTTP_HOST}/?sysblock={if $sysblock->sysblock_alias}{$sysblock->sysblock_alias}{else}{$sysblock->id}{/if}" target="_blank"></a>{else}<span class="icon_sprite ico_globus_no"></span>{/if}
+							{if $sysblock.sysblock_external}<a class="icon_sprite ico_globus topDir" title="{#SYSBLOCK_EXTERNAL_GO#}" href="http://{$smarty.server.HTTP_HOST}/?sysblock={if $sysblock.sysblock_alias}{$sysblock.sysblock_alias}{else}{$sysblock.id}{/if}" target="_blank"></a>{else}<span class="icon_sprite ico_globus_no"></span>{/if}
 						</td>
 						<td>
 							<span class="icon_sprite {if $sysblock.sysblock_ajax}ico_ok_green{else}ico_delete_no{/if}"></span>

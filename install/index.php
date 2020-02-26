@@ -429,7 +429,7 @@
 					$link = check_mysql_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass']);
 
 					if (false === $link)
-						$AVE_Template->assign('warning', 'Ошибка соединения: ' . mysqli_error());
+						$AVE_Template->assign('warning', $AVE_Template->get_config_vars('error_is_link') . mysqli_error());
 					else
 						$mysqli_connect = @mysqli_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass']);
 
@@ -441,7 +441,7 @@
 						$sql = 'CREATE DATABASE ' . $_POST['dbname'];
 
 						if (false === check_mysql_query($mysqli_connect, $sql))
-							$AVE_Template->assign('warning', 'Ошибка при создании базы данных: ' . mysqli_error() . "\n");
+							$AVE_Template->assign('warning', $AVE_Template->get_config_vars('error_is_create') . mysqli_error() . "\n");
 					}
 				}
 

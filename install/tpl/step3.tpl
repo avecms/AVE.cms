@@ -5,7 +5,7 @@
 
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 
-	<title>{$version_setup}</title>
+	<title>{#bread_server#} - {$smarty.const.APP_NAME} v{$smarty.const.APP_VERSION}</title>
 
 	<meta name="robots" content="noindex, nofollow">
 	<meta http-equiv="pragma" content="no-cache">
@@ -70,13 +70,13 @@
 
 	<div class="first" align="center"><img src="../admin/templates/images/loginLogo.png" /></div>
 
-	<div class="title first"><h5>{#install#} {$version_setup}</h5></div>
+		<div class="title first"><h5>{#install#} {$smarty.const.APP_NAME} v{$smarty.const.APP_VERSION}</h5></div>
 
 		<div class="breadCrumbHolder module">
 			<div class="breadCrumb module">
 				<ul>
 					<li class="firstB"><a href="index.php" title="{#MAIN_PAGE#}"></a></li>
-					<li>{#install#} {$version_setup}</li>
+					<li>{#install#} {$smarty.const.APP_NAME} v{$smarty.const.APP_VERSION}</li>
 					<li>{#bread_server#}</li>
 					<li><strong class="code">{#install_step#} 3</strong></li>
 				</ul>

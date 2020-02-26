@@ -167,7 +167,7 @@
 				return $data;
 			}
 
-			$array = array();
+			$array = [];
 
 			while ($row = mysqli_fetch_assoc($this->_result))
 				array_push($array, $row);

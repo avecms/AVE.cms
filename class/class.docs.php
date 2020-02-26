@@ -165,7 +165,7 @@
 			if (! is_callable($func))
 				$func = 'get_field_default';
 
-			$field = $func($field_value, 'edit', $field_id, '', 0, $x, 0, 0, $default);
+			$field = $func($field_value, 'edit', $field_id, '', 0, null, 0, 0, $default);
 
 			return $field;
 		}
@@ -178,7 +178,7 @@
 			if (! is_callable($func))
 				$func = 'get_field_default';
 
-			$field = $func($field_value, 'save', $field_id, '', 0, $x, 0, 0, $default);
+			$field = $func($field_value, 'save', $field_id, '', 0, null, 0, 0, $default);
 
 			return $field;
 		}
@@ -1709,7 +1709,7 @@
 
 				// Если вызывается функция
 				if (is_callable ($func))
-					$fld_val = $func($fld_val, 'save', $fld_id, '', 0, $x, 0, 0, 0);
+					$fld_val = $func($fld_val, 'save', $fld_id, '', 0, null, 0, 0, 0);
 
 				//-- Собираем запрос к БД на добавление нового поля с его содержимым --//
 
@@ -4065,11 +4065,11 @@
 
 					if ($alias_exist)
 						$errors[] = $AVE_Template->get_config_vars('DOC_URL_H_ERROR_DUPLICATES');
-
 				}
 			}
 			else
-				{  // В противном случае, если URL пустой, формируем сообщение об ошибке
+				{
+					// В противном случае, если URL пустой, формируем сообщение об ошибке
 					$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_EMTY');
 				}
 

@@ -28,6 +28,30 @@
 	</div>
 </div>
 
+<div class="widgets">
+	<table class="first tableButtons" cellpadding="0" cellspacing="0" width="100%" id="sysblocksButtons">
+		<colgroup>
+			<col width="25%">
+			<col width="25%">
+			<col width="25%">
+			<col width="25%">
+		</colgroup>
+		<tbody>
+		<tr>
+			<td>
+				<a class="button greyishBtn topBtn" href="index.php?do=sysblocks&cp={$sess}">{#SYSBLOCK_LIST_LINK#}</a>
+			</td>
+			<td>
+				<a class="button greenBtn topBtn" href="index.php?do=sysblocks&action=new&cp={$sess}">{#SYSBLOCK_BUTTON_ADD#}</a>
+			</td>
+			<td>
+				<a class="button basicBtn topBtn" href="index.php?do=sysblocks&action=groups&cp={$sess}">{#SYS_GROUPS#}</a>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+
 <form id="sysblock" action="index.php?do=sysblocks&action=save&cp={$sess}" method="post" class="mainForm">
 	<div class="widget first">
 		<div class="head">
