@@ -166,13 +166,13 @@ $(function() {ldelim}
 							</td>
 							<td>
 								{if check_permission('rubric_edit')}
-									<select name="rubric_template_id[{$rubric->Id}]" style="width: 300px" class="mousetrap">
+									<select name="rubric_template_id[{$rubric->Id}]" class="mousetrap">
 										{foreach from=$templates item=template}
 											<option value="{$template->Id}" {if $template->Id==$rubric->rubric_template_id}selected="selected" {/if}/>{$template->template_title|escape}</option>
 										{/foreach}
 									</select>
 								{else}
-									<select name="rubric_template_id[{$rubric->Id}]" style="width: 300px" disabled="disabled">
+									<select name="rubric_template_id[{$rubric->Id}]" disabled="disabled">
 										{foreach from=$templates item=template}
 											{if $template->Id==$rubric->rubric_template_id}<option value="{$template->Id}" selected="selected" />{$template->template_title|escape}</option>{/if}
 										{/foreach}
