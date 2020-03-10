@@ -86,7 +86,7 @@
 		<tr>
 			<td width="200"><strong>{#NAVI_GROUPS#}</strong></td>
 			<td>
-				<select class="mousetrap select" name="user_group[]" multiple="multiple" size="5" style="width:300px">
+				<select class="mousetrap select" name="user_group[]" multiple="multiple" size="5">
 					{if $smarty.request.action=='new'}
 						{foreach from=$groups item=group}
 							<option value="{$group->user_group}" selected="selected">{$group->user_group_name|escape}</option>

@@ -2,7 +2,7 @@
 	{assign var="navigation_item_selected" value=$document->document_linked_navi_id scope="global"}
 {/if}
 
-<select name="document_linked_navi_id" id="document_linked_navi_id" style="width: 450px;">
+<select name="document_linked_navi_id" id="document_linked_navi_id">
 	<option value="0">&nbsp;</option>
 	{foreach from=$navigations item=navigation}
 		<optgroup label="({$navigation->navigation_id}) {$navigation->title|escape}">

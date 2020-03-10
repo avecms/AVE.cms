@@ -145,7 +145,7 @@
 			<tbody>
 			<tr>
 				<td colspan="2">
-					<select name="target" id="target" style="width: 100%;">
+					<select name="target" id="target">
 						<option value="_self" {if $item->target == '_self'}selected="selected"{/if}>{#NAVI_OPEN_IN_THIS#}</option>
 						<option value="_blank" {if $item->target == '_blank'}selected="selected"{/if}>{#NAVI_OPEN_IN_NEW#}</option>
 					</select>
