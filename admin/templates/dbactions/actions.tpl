@@ -23,7 +23,7 @@
 	<tbody>
 		<tr>
 			<td rowspan="3" style="width: 20%;">
-				<select style="width:300px" class="select" size="7" name="ta[]" multiple="multiple">
+				<select class="select" size="7" name="ta[]" multiple="multiple">
 					{$tables}
 				</select>
 			</td>
