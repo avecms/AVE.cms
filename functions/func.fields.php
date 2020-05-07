@@ -84,6 +84,7 @@
 				if (! $tpl_empty)
 				{
 					$field_param = explode('|', $field_value);
+
 					$field_value = preg_replace_callback(
 						'/\[tag:parametr:(\d+)\]/i',
 						function($data) use($field_param)
@@ -117,8 +118,8 @@
 
 		$arr = get_defined_functions();
 
-		$fields = array();
-		$field = array();
+		$fields = [];
+		$field = [];
 
 		foreach ($arr['user'] as $v)
 		{
@@ -131,16 +132,16 @@
 				$id = substr($v, strlen('get_field_'));
 
 				if ($name != false && is_string($name))
-					$fields[] = array('id' => $id, 'name' => $name);
+					$fields[] = ['id' => $id, 'name' => $name];
 
 				if (! empty($type) && $id == $type)
-					$field =  array('id' => $id, 'name' => $name);
+					$field =  ['id' => $id, 'name' => $name];
 			}
 			else
 				continue;
 		}
 
-		$fields = msort($fields, array('name'));
+		$fields = msort($fields, ['name']);
 
 		return (! empty($type))
 			? $field
@@ -188,7 +189,8 @@
 			return $alias_field_id[$rubric_id][$alias];
 
 		$sql = "
-			SELECT Id
+			SELECT
+				Id
 			FROM
 				" . PREFIX . "_rubric_fields
 			WHERE
@@ -286,6 +288,8 @@
 	 *
 	 * @param null $_tpl
 	 *
+	 * @param null $maxlength
+	 *
 	 * @return string
 	 */
 	function document_get_field ($field_id, $document_id = null, $_tpl = null, $maxlength = null)
@@ -312,6 +316,7 @@
 
 		$tpl_field_empty = $document_fields[$field_id]['tpl_field_empty'];
 
+		// ToDo
 		// if ($field_value == '' && $tpl_field_empty) return '';
 
 		$field_type = $document_fields[$field_id]['rubric_field_type'];
@@ -320,6 +325,7 @@
 
 		$rubric_field_default = $document_fields[$field_id]['rubric_field_default'];
 
+		// ToDo
 		//	$field_value = parse_hide($field_value);
 		//	$field_value = ($length != '') ? truncate_text($field_value, $length, '…', true) : $field_value;
 
@@ -349,7 +355,9 @@
 		if (! is_numeric($field_id))
 			return '';
 
-		$document_fields = get_document_fields(get_current_document_id());
+		$doc_id = get_current_document_id();
+
+		$document_fields = get_document_fields($doc_id);
 
 		$field_value = trim($document_fields[$field_id]['field_value']);
 
@@ -411,7 +419,7 @@
 	{
 		global $AVE_DB, $AVE_Core, $fields_data; //$request_documents
 
-		if (defined('USE_STATIC_FIELDS') && USE_STATIC_FIELDS)
+		if (defined('USE_STATIC_DATA') && USE_STATIC_DATA)
 			static $document_fields = [];
 		else
 			$document_fields = [];
@@ -432,7 +440,7 @@
 					doc_field.document_id,
 					doc_field.rubric_field_id,
 					doc_field.field_value,
-					text_field.field_value as field_value_more,
+					text_field.field_value AS field_value_more,
 					rub_field.rubric_field_alias,
 					rub_field.rubric_field_type,
 					rub_field.rubric_field_default,
@@ -477,8 +485,11 @@
 					unlink ($cache_dir . $cache_file);
 			}
 
-			// Безусловный кеш
-			$sql = $AVE_DB->Query($query, -1, 'fld_' . $document_id, true, '.fields');
+			$cache_time = (defined('CACHE_DOC_FILE') && CACHE_DOC_FILE)
+				? -1
+				: 0;
+
+			$sql = $AVE_DB->Query($query, $cache_time, 'fld_' . $document_id, true, '.fields');
 
 			// Вдруг памяти мало!!!!
 			if (memory_panic() && (count($document_fields) > 3))

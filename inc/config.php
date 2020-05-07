@@ -6,20 +6,22 @@
 	 * @package AVE.cms
 	 * @version 3.x
 	 * @filesource
-	 * @copyright © 2007-2014 AVE.cms, http://www.ave-cms.ru
+	 * @copyright © 2007-2014 AVE.cms, https://ave-cms.ru
 	 *
 	 * @license GPL v.2
 	 */
 
-	@define('APP_NAME', 'AVE.cms');
-	@define('APP_VERSION', '3.26');
-	@define('APP_INFO', '<a target="_blank" href="https://www.ave-cms.ru/">Ave-Cms.Ru</a> '.'&copy; 2007-' . date('Y'));
+	define('APP_NAME', 'AVE.cms');
+	define('APP_VERSION', '3.27');
+	define('APP_INFO', '<a target="_blank" href="https://ave-cms.ru/">Ave-Cms.Ru</a> '.'&copy; 2007-' . date('Y'));
 
 	$themes = [];
 
 	foreach (glob(dirname(dirname(__FILE__)) . '/templates/*') AS $filename)
 		if (is_dir($filename))
 			$themes[] = basename($filename);
+
+	unset ($filename);
 
 	$codemirror = [
 		'default',
@@ -526,11 +528,27 @@
 		'VARIANT'		=> ''
 	];
 
-	//-- Использовать проверку в полях на пусто, только исходные данные, исключая шаблон поля
-	$GLOBALS['CMS_CONFIG']['_CONST_OTHER']['USE_STATIC_FIELDS'] = [
-		'DESCR'			=> 'Использовать статитчное хранение полей в системе',
+	//-- Использовать статитчное хранение полей в памяти
+	$GLOBALS['CMS_CONFIG']['_CONST_OTHER']['USE_STATIC_DATA'] = [
+		'DESCR'			=> 'Использовать статитчное хранение в памяти, данных документа и полей',
 		'DEFAULT'		=> true,
 		'TYPE'			=> 'bool',
+		'VARIANT'		=> ''
+	];
+
+	//-- Шифровать сериализованные кешированные данные
+	$GLOBALS['CMS_CONFIG']['_CONST_OTHER']['USE_ENCODE_SERIALIZE'] = [
+		'DESCR'			=> 'Шифровать сериализованные кешированные данные',
+		'DEFAULT'		=> false,
+		'TYPE'			=> 'bool',
+		'VARIANT'		=> ''
+	];
+
+	//-- Кол-во дней для хранения системных событий
+	$GLOBALS['CMS_CONFIG']['_CONST_OTHER']['LOG_DAYS_LIMIT'] = [
+		'DESCR'			=> 'Кол-во дней для хранения системных событий',
+		'DEFAULT'		=> 14*60*24*14,
+		'TYPE'			=> 'integer',
 		'VARIANT'		=> ''
 	];
 
@@ -552,4 +570,5 @@
 			if(! defined($k))
 				define($k, $v['DEFAULT']);
 
+	unset ($key, $const, $k, $v);
 ?>

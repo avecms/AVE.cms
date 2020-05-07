@@ -199,7 +199,7 @@
 	function get_dir_size($directory)
 	{
 		if (! is_dir($directory))
-			return -1;
+			return 0;
 
 		$size = 0;
 
@@ -228,7 +228,7 @@
 			closedir($DIR);
 		}
 
-		return $size;
+		return $size > 0 ? $size : 0;
 	}
 
 

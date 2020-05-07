@@ -691,7 +691,7 @@
 		 */
 		function editCustom()
 		{
-			global $AVE_DB, $AVE_Template;
+			global $AVE_Template;
 
 			$file_name = 'func.custom.php';
 
@@ -746,6 +746,131 @@
 			}
 
 			$AVE_Template->assign('content', $AVE_Template->fetch('settings/edit_file.tpl'));
+		}
+
+
+		function showCache ()
+		{
+			global $AVE_Template;
+
+
+
+			$AVE_Template->assign('content', $AVE_Template->fetch('settings/settings_cache.tpl'));
+		}
+
+
+		function showCacheSize ()
+		{
+			switch ($_REQUEST['source'])
+			{
+				case 'smarty':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/smarty'));
+					break;
+
+				case 'documents':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/documents'));
+					break;
+
+				case 'langs':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/langs'));
+					break;
+
+				case 'modules':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/modules'));
+					break;
+
+				case 'navigations':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/navigations'));
+					break;
+
+				case 'paginations':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/paginations'));
+					break;
+
+				case 'requests':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/requests'));
+					break;
+
+				case 'rubrics':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/rubrics'));
+					break;
+
+				case 'sessions':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/session'));
+					break;
+
+				case 'settings':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/settings'));
+					break;
+			}
+
+			$return = [
+				'size' => $size,
+				'message' => 'Успешно выполнено',
+				'theme' => 'accept'
+			];
+
+			_json($return, true);
+		}
+
+
+		function clearCache ()
+		{
+			global $AVE_Template;
+
+			switch ($_REQUEST['source'])
+			{
+				case 'smarty':
+					$cache_dir = BASE_DIR . '/tmp/cache/smarty';
+					break;
+
+				case 'documents':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/documents';
+					break;
+
+				case 'langs':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/langs';
+					break;
+
+				case 'modules':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/modules';
+					break;
+
+				case 'navigations':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/navigations';
+					break;
+
+				case 'paginations':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/paginations';
+					break;
+
+				case 'requests':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/requests';
+					break;
+
+				case 'rubrics':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/rubrics';
+					break;
+
+				case 'sessions':
+					$cache_dir = BASE_DIR . '/tmp/session';
+					break;
+
+				case 'settings':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/settings';
+					break;
+			}
+
+			$remove = rrmdir($cache_dir);
+
+			$return = [
+				'size' => format_size(get_dir_size($cache_dir)),
+				'header' => $remove ? $AVE_Template->get_config_vars('SETTINGS_CACHE_SUCCES') : $AVE_Template->get_config_vars('SETTINGS_CACHE_ERROR'),
+				'message' => $remove ? $AVE_Template->get_config_vars('SETTINGS_CACHE_SUCCES_T') : $AVE_Template->get_config_vars('SETTINGS_CACHE_ERROR_T'),
+				'theme' => $remove ? 'accept' : 'error'
+			];
+
+			_json($return, true);
 		}
 	}
 ?>

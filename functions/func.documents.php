@@ -88,7 +88,10 @@
 		if ($doc_id < 1)
 			return [];
 
-		static $get_documents_data = [];
+		if (defined('USE_STATIC_DATA') && USE_STATIC_DATA)
+			static $get_documents_data = [];
+		else
+			$get_documents_data = [];
 
 		if (! isset ($get_documents_data[$doc_id]))
 		{

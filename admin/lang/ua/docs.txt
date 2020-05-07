@@ -296,3 +296,25 @@ DOC_WITHOUT_TITLE           = "Документ без назви"
 DOC_SAVE_ADD                = "Додав"
 DOC_SAVE_EDIT               = "Відредагував"
 DOC_SAVE_LOG_DOC            = " документ"
+
+/* new */
+DOC_LANG                    = "Мова"
+DOC_LANG_ID                 = "Мова документа:"
+DOC_LANG_SELECT             = "Оберіть мову"
+
+// 3.25
+DOC_CLOSE_SEARCH_RUBRIC     = "Повернутися у розділ, враховуючи параметри пошуку"
+
+// 3.26
+DOC_POSITION                = "Позиція"
+DOCUMENT_POSITION           = "Позиція документа"
+DOCUMENT_POSITION_ERR       = "Не вдалося зберегти позицію документа"
+DOCUMENT_POSITION_ERROR     = "Помилка"
+DOCUMENT_POSITION_OK        = "Позицію документа успішно збережено"
+DOCUMENT_POSITION_SUCCESS   = "Виконано"
+
+DOC_SEARCH_PARAM            = "Параметр документа"
+DOC_SEARCH_PARAM_SELECT     = "Оберіть параметр"
+DOC_SEARCH_PARAM_LIKE       = "Містить"
+DOC_SEARCH_PARAM_EQ         = "Дорівнює"
+DOC_SEARCH_PARAM_TEXT       = "Значення"

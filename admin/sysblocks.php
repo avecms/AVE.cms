@@ -19,7 +19,7 @@
 
 	global $AVE_DB, $AVE_Template;
 
-	require(BASE_DIR . '/class/class.sysblocks.php');
+	require (BASE_DIR . '/class/class.sysblocks.php');
 
 	new Sysblocks;
 

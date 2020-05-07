@@ -299,3 +299,20 @@ DOC_SAVE_LOG_DOC            = " документ"
 DOC_LANG                    = "Език"
 DOC_LANG_ID                 = "Език на документа:"
 DOC_LANG_SELECT             = "Изберете език"
+
+// 3.25
+DOC_CLOSE_SEARCH_RUBRIC     = "Върни се в раздела, според параметрите на търсенето"
+
+// 3.26
+DOC_POSITION                = "Позиция"
+DOCUMENT_POSITION           = "Позиция на документа"
+DOCUMENT_POSITION_ERR       = "Неуспешен запис на позицията на документа"
+DOCUMENT_POSITION_ERROR     = "Грешка"
+DOCUMENT_POSITION_OK        = "Позицията на документа е успешно записана"
+DOCUMENT_POSITION_SUCCESS   = "Выполнено"
+
+DOC_SEARCH_PARAM            = "Параметър на документа"
+DOC_SEARCH_PARAM_SELECT     = "Изберете параметър"
+DOC_SEARCH_PARAM_LIKE       = "Съдържа"
+DOC_SEARCH_PARAM_EQ         = "Равно"
+DOC_SEARCH_PARAM_TEXT       = "Значение"

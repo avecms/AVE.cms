@@ -1328,4 +1328,63 @@
 				return $host;
 		}
 	}
+
+
+	function getIp ()
+	{
+		$ip = false;
+		$ipa = array();
+
+		if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+			$ipa[] = trim(strtok($_SERVER['HTTP_X_FORWARDED_FOR'], ','));
+
+		if (isset($_SERVER['HTTP_CLIENT_IP']))
+			$ipa[] = $_SERVER['HTTP_CLIENT_IP'];
+
+		if (isset($_SERVER['REMOTE_ADDR']))
+			$ipa[] = $_SERVER['REMOTE_ADDR'];
+
+		if (isset($_SERVER['HTTP_X_REAL_IP']))
+			$ipa[] = $_SERVER['HTTP_X_REAL_IP'];
+
+		//-- Проверяем ip-адреса на валидность начиная с приоритетного.
+		foreach ($ipa as $ips)
+		{
+			//-- Если ip валидный обрываем цикл, назначаем ip адрес и возвращаем его
+			if (isValidIp($ips))
+			{
+				//-- Localhost IP6
+				if ($ips == '::1')
+					$ips = '127.0.0.1';
+
+				$ip = $ips;
+				break;
+			}
+		}
+
+		return $ip;
+	}
+
+
+	function isValidIp ($ip = null)
+	{
+		//-- Если ip-адрес попадает под регулярное выражение, возвращаем true
+		if (preg_match('#^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$#', $ip))
+			return true;
+
+		//-- Localhost IP6
+		if ($ip == '::1')
+			return true;
+
+		//-- Иначе возвращаем false
+		return false;
+	}
+
+	if (!function_exists('getExtension'))
+	{
+		function getExtension($path)
+		{
+			return strtolower(substr(strrchr($path, "."), 1));
+		}
+	}
 ?>

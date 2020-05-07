@@ -109,7 +109,7 @@ TEMPLATES_REPORT_DEL_OK = "Файл успішно видалено"
 TEMPLATES_REPORT_DEL_ER = "Не вдалося видалити файл"
 
 TEMPLATES_REPORT_ERROR_TEXT = "HTML код шаблона пустий"
-TEMPLATES_REPORT_ERROR_TITLE = "Не заповнено - назва щаблона"
+TEMPLATES_REPORT_ERROR_TITLE = "Не заповнено - назва шаблона"
 
 TEMPLATES_SAVED       = "Шаблон успішно збережено"
 TEMPLATES_SAVED_FILE = "Файл успішно збережено"

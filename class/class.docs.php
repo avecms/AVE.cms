@@ -2889,22 +2889,23 @@
 						" . PREFIX . "_documents
 					WHERE
 						Id = '" . $document_id . "'
-				");
+				;");
 
 				// Выполняем запрос к БД на удаление полей, которые относились к документу
 				$AVE_DB->Query("
-					DELETE
-						f1.*,
-						f2.*
-					FROM
-						" . PREFIX . "_document_fields AS f1
-					INNER JOIN
-						" . PREFIX . "_document_fields_text AS f2
+					DELETE FROM
+						" . PREFIX . "_document_fields
 					WHERE
-						f1.document_id = '" . $document_id . "'
-					AND
-						f2.document_id = f1.document_id
-				");
+						document_id = '" . $document_id . "'
+				;");
+
+				// Выполняем запрос к БД на удаление полей, которые относились к документу
+				$AVE_DB->Query("
+					DELETE FROM
+						" . PREFIX . "_document_fields_text
+					WHERE
+						document_id = '" . $document_id . "'
+				;");
 
 				// Чистим кеш
 				$AVE_DB->clearDocument($document_id);

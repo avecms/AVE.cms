@@ -129,3 +129,6 @@ NAVI_ITEM_ODD          = "непарний"
 NAVI_TAG               = "Тег для вставки пунктів"
 NAVI_LAVEL_TEMPL       = "Шаблон рівня"
 NAVI_CONDITIONS        = "Умови"
+/**/
+NAVI_CLOSE             = "Закрити"
+NAVI_ADD_AFTER         = "Додати після"

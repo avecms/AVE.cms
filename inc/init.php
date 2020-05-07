@@ -6,21 +6,31 @@
 	 * @package AVE.cms
 	 * @version 3.x
 	 * @filesource
-	 * @copyright © 2007-2018 AVE.cms, http://www.ave-cms.ru
+	 * @copyright © 2007-2020 AVE.cms, https://ave-cms.ru
 	 *
 	 * @license GPL v.2
 	 */
 
-	@date_default_timezone_set('Europe/Moscow');
-
 	if (! defined('BASE_DIR'))
 		exit;
+
+	define ('DS', DIRECTORY_SEPARATOR);
+
+	@date_default_timezone_set('Europe/Moscow');
 
 	//-- Подключаем файл настроек
 	require_once (BASE_DIR . '/inc/config.php');
 
 	if (PHP_DEBUGGING_FILE && ! defined('ACP'))
 		include_once BASE_DIR . '/inc/errors.php';
+
+	//-- Debug Class
+	require(BASE_DIR . '/class/class.debug.php');
+	new Debug;
+
+	//-- Hooks Class
+	require(BASE_DIR . '/class/class.hooks.php');
+	new Hooks;
 
 	//-- Удаление глобальных массивов
 	function unsetGlobals()
@@ -185,14 +195,6 @@
 			}
 	}
 
-	//-- Debug Class
-	require (BASE_DIR . '/class/class.debug.php');
-	new Debug;
-
-	//-- Hooks Class
-	require (BASE_DIR . '/class/class.hooks.php');
-	new Hooks;
-
 	//-- Подкючаем необходимые файлы функций
 	require_once (BASE_DIR . '/functions/func.breadcrumbs.php');	// Хлебные крошки
 	require_once (BASE_DIR . '/functions/func.common.php');			// Основные функции
@@ -213,11 +215,15 @@
 	require_once (BASE_DIR . '/functions/func.users.php');			// Функции по работе с пользователями
 	require_once (BASE_DIR . '/functions/func.watermarks.php');		// Функции по работе с водными знаками
 
+	//-- Logs Class
+	require(BASE_DIR . '/class/class.logs.php');
+
+
 	//-- Создание папок и файлов
-	foreach (array(ATTACH_DIR, 'cache', 'backup', 'logs', 'session', 'update') as $dir)
+	foreach ([ATTACH_DIR, 'cache', 'backup', 'logs', 'session', 'update'] AS $dir)
 		write_htaccess_deny(BASE_DIR . '/tmp/' . $dir);
 
-	foreach (array('combine', 'module', 'redactor', 'smarty', 'sql', 'tpl') as $dir)
+	foreach (['combine', 'module', 'redactor', 'smarty', 'sql', 'tpl'] AS $dir)
 		write_htaccess_deny(BASE_DIR . '/tmp/cache/' . $dir);
 
 	//-- Шаблоны
@@ -235,8 +241,8 @@
 		require_once (BASE_DIR . '/config/db.config.php');
 
 		//-- Если параметры не указаны, прерываем работу
-		if (! isset($config))
-			exit;
+		if (! isset($config) OR empty($config))
+			die('No database config');
 
 		//-- Если константа префикса таблиц не задана, принудительно определяем ее на основании параметров в файле db.config.php
 		if (! defined('PREFIX'))
@@ -328,7 +334,6 @@
 	if (isset($HTTP_SESSION_VARS))
 		$_SESSION = $HTTP_SESSION_VARS;
 
-
 	//-- Logout
 	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'logout')
 	{
@@ -337,7 +342,6 @@
 		header('Location:' . get_referer_link());
 		exit;
 	}
-
 
 	//-- Если нет авторизации
 	if (! defined('ACPL') && ! auth_sessions())
@@ -356,7 +360,6 @@
 			define('UNAME', $_SESSION['user_name']);
 		}
 	}
-
 
 	//-- Запоминаем время последнего визита пользователя
 	if (! empty($_SESSION['user_id']))
@@ -378,7 +381,7 @@
 
 	$_SESSION['accept_langs'] = array();
 
-	$sql = $AVE_DB->Query("
+	$sql = "
 		SELECT
 			# LANGS
 			*
@@ -388,9 +391,11 @@
 			lang_status = '1'
 		ORDER BY
 			lang_default ASC
-	", -1, 'langs', true, '.langs');
+	";
 
-	while ($row = $sql->FetchRow())
+	$query = $AVE_DB->Query($sql, -1, 'langs', true, '.langs');
+
+	while ($row = $query->FetchRow())
 	{
 		if (trim($row->lang_key) > '')
 		{

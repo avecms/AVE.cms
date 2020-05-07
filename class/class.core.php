@@ -774,7 +774,7 @@
 		 */
 		function _get_cache_id ()
 		{
-			$cache = array();
+			$cache = [];
 
 			$cache['id'] = (int)$this->curentdoc->Id;
 
@@ -893,6 +893,8 @@
 		{
 			global $AVE_DB, $AVE_Template, $AVE_Module;
 
+			Debug::startTime('MODULES_PARSE');
+
 			$pattern = [];  // Массив системных тегов
 			$replace = [];  // Массив функций, на которые будут заменены системные теги
 
@@ -957,6 +959,8 @@
 					}
 				}
 
+				$GLOBALS['block_generate']['DOCUMENT']['MODULES'] = Debug::endTime('MODULES_PARSE');
+
 				// Выполняем замену систеного тега на php код и возвращаем результат
 				return preg_replace($pattern, $replace, $template);
 			}
@@ -1012,6 +1016,8 @@
 						}
 				}
 
+				$GLOBALS['block_generate']['DOCUMENT']['MODULES'] = Debug::endTime('MODULES_PARSE');
+
 				// Выполняем замену систеного тега на php код и возвращаем результат
 				return preg_replace($pattern, $replace, $template);
 			}
@@ -1026,6 +1032,8 @@
 		function coreSiteFetch($id, $rub_id = '')
 		{
 			global $AVE_DB;
+
+			Debug::startTime('DOC_' . $id);
 
 			$main_content = '';
 
@@ -1452,7 +1460,7 @@
 			// Или из запроса
 			elseif (isset($_REQUEST['request']))
 				{
-					// Убираем пустые теги в сис блоке
+					// Убираем пустые теги в запросе
 					$main_content = preg_replace('/\[tag:(.+?)\]/', '', $main_content);
 					$main_content = preg_replace('/\[mod_(.+?)\]/', '', $main_content);
 				}
@@ -1544,7 +1552,6 @@
 					$out
 				);
 
-
 			// Парсим теги языковых условий
 			if (defined('RUB_ID'))
 			{
@@ -1566,15 +1573,15 @@
 			// Парсим остальные теги основного шаблона
 			$out = str_replace($search, $replace, $out);
 
-			unset ($search, $replace); //Убираем данные
-
 			// Парсим теги для combine.php
 			$out = preg_replace_callback('/\[tag:(css|js):([^ :\/]+):?(\S+)*\]/', array($this, '_parse_combine'), $out);
 
 			// ЧПУ
 			$out = str_ireplace('"//"','"/"', str_ireplace('///','/', rewrite_link($out)));
 
-			unset ($main_content);
+			unset ($search, $replace, $main_content);  //Убираем данные
+
+			$GLOBALS['block_generate']['DOCUMENT']['FETCH'] = Debug::endTime('DOC_' . $id);
 
 			// Выводим собранный документ
 			echo $out;
@@ -1590,6 +1597,8 @@
 		function coreUrlParse($get_url = '')
 		{
 			global $AVE_DB;
+
+			Debug::startTime('URL_PARSE');
 
 			$document_id = null;
 
@@ -1842,6 +1851,8 @@
 					$get_url = $check_url;
 				}
 
+				$GLOBALS['block_generate']['DOCUMENT']['URL_PARSE'] = Debug::endTime('URL_PARSE');
+
 				//-- Перенаправление на адреса с суффиксом
 				if (
 					$check_url !== $get_url . URL_SUFF
@@ -1879,6 +1890,8 @@
 					";
 
 					$redirect_alias = $AVE_DB->Query($sql)->FetchRow();
+
+					$GLOBALS['block_generate']['DOCUMENT']['URL_PARSE'] = Debug::endTime('URL_PARSE');
 
 					if ($redirect_alias->document_alias && ! empty($redirect_alias->document_alias))
 					{

@@ -787,80 +787,6 @@
 		}
 
 
-		public function cacheId($cache_id)
-		{
-			//-- Если это документ, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'doc')
-			{
-				$cache_id = (int)str_replace('doc_', '', $cache_id);
-				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-			}
-
-			//-- Если это полный документ, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'dat')
-			{
-				$cache_id = (int)str_replace('dat_', '', $cache_id);
-				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-			}
-
-			//-- Если это скомпилированный шаблон документа, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'cmd')
-			{
-				$cache_id = (int)str_replace('cmd_', '', $cache_id);
-				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-			}
-
-			//-- Если это поля документа, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'fld')
-			{
-				$cache_id = (int)str_replace('fld_', '', $cache_id);
-				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-			}
-
-			//-- Если это рубрика, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'rub')
-			{
-				$cache_id = (int)str_replace('rub_', '', $cache_id);
-				return $cache_id = 'rubrics/' . $cache_id;
-			}
-
-			//-- Если это запрос, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'req')
-			{
-				$cache_id = (int)str_replace('req_', '', $cache_id);
-				return $cache_id = 'requests/' . $cache_id;
-			}
-
-			//-- Если это элемент запроса, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'rqe')
-			{
-				$cache_id = (int)str_replace('rqe_', '', $cache_id);
-				return $cache_id = 'requests/elements/' . (floor($cache_id / 1000)) . '/' . $cache_id;
-			}
-
-			//-- Если это настройки запроса, то меняем расположение
-			if (substr($cache_id, 0, 3) == 'rqs')
-			{
-				$cache_id = str_replace('rqs_', '', $cache_id);
-				return $cache_id = 'requests/settings/' . $cache_id;
-			}
-
-			// -- Навигация
-			if (substr($cache_id, 0, 3) == 'nav')
-			{
-				$cache_id = explode('_', $cache_id);
-				return $cache_id = 'navigations/' . $cache_id[1];
-			}
-
-			if (substr_count($cache_id, '__') > 0)
-			{
-				return str_replace('__', '/', $cache_id);
-			}
-
-			return $cache_id;
-		}
-
-
 		/**
 		 * Метод, предназначенный для выполнения запроса к MySQL и возвращение результата в виде асоциативного массива с поддержкой кеша
 		 *
@@ -911,7 +837,10 @@
 					while ($mfa = $res->FetchAssocArray())
 						$result[] = $mfa;
 
-					file_put_contents($cache_dir . $cache_file, _base64_encode(serialize($result)));
+					if (defined('USE_ENCODE_SERIALIZE') && USE_ENCODE_SERIALIZE)
+						file_put_contents($cache_dir . $cache_file, _base64_encode(serialize($result)));
+					else
+						file_put_contents($cache_dir . $cache_file, serialize($result));
 				}
 				else
 					{
@@ -928,7 +857,10 @@
 							];
 						}
 
-						$result = unserialize(_base64_decode(file_get_contents($cache_dir . $cache_file)));
+						if (defined('USE_ENCODE_SERIALIZE') && USE_ENCODE_SERIALIZE)
+							$result = unserialize(_base64_decode(file_get_contents($cache_dir . $cache_file)));
+						else
+							$result = unserialize(file_get_contents($cache_dir . $cache_file));
 					}
 
 				return new AVE_DB_Result($result);
@@ -1432,6 +1364,76 @@
 
 
 		/**
+		 * Метод, предназначенный для определения кеша
+		 *
+		 * @param $cache_id
+		 * @return bool
+		 */
+		public function cacheId($cache_id)
+		{
+			//-- Если это документ, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'doc') {
+				$cache_id = (int) str_replace('doc_', '', $cache_id);
+				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+			}
+
+			//-- Если это полный документ, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'dat') {
+				$cache_id = (int) str_replace('dat_', '', $cache_id);
+				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+			}
+
+			//-- Если это скомпилированный шаблон документа, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'cmd') {
+				$cache_id = (int) str_replace('cmd_', '', $cache_id);
+				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+			}
+
+			//-- Если это поля документа, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'fld') {
+				$cache_id = (int) str_replace('fld_', '', $cache_id);
+				return $cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+			}
+
+			//-- Если это рубрика, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'rub') {
+				$cache_id = (int) str_replace('rub_', '', $cache_id);
+				return $cache_id = 'rubrics/' . $cache_id;
+			}
+
+			//-- Если это запрос, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'req') {
+				$cache_id = (int) str_replace('req_', '', $cache_id);
+				return $cache_id = 'requests/' . $cache_id;
+			}
+
+			//-- Если это элемент запроса, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'rqe') {
+				$cache_id = (int) str_replace('rqe_', '', $cache_id);
+				return $cache_id = 'requests/elements/' . (floor($cache_id / 1000)) . '/' . $cache_id;
+			}
+
+			//-- Если это настройки запроса, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'rqs') {
+				$cache_id = str_replace('rqs_', '', $cache_id);
+				return $cache_id = 'requests/settings/' . $cache_id;
+			}
+
+			// -- Навигация
+			if (substr($cache_id, 0, 3) == 'nav') {
+				$cache_id = explode('_', $cache_id);
+				return $cache_id = 'navigations/' . $cache_id[1];
+			}
+
+			if (substr_count($cache_id, '__') > 0) {
+				return str_replace('__', '/', $cache_id);
+			}
+
+			return $cache_id;
+		}
+
+
+		/**
 		 * Метод, предназначенный для очищения кеша документов
 		 *
 		 * @param $cache_id
@@ -1535,12 +1537,11 @@
 		/**
 		 * Метод, предназначенный для очищения кеша запросов
 		 *
-		 * @param $doc_id
-		 * @param $hash
+		 * @param int $doc_id
 		 */
 		public function clearDocument($doc_id)
 		{
-			$this->clearCache('doc_' . $doc_id); // Прочее
+			$this->clearCache('doc_' . $doc_id); // Параметры
 			$this->clearCache('fld_' . $doc_id); // Поля
 			$this->clearCache('cmd_' . $doc_id); // Компиляция
 			$this->clearCache('rqe_' . $doc_id); // Элемент запроса

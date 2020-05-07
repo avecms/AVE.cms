@@ -1,5 +1,4 @@
 # npop 04,2017 Neli Popova, npop@abv.bg
-
 [logs]
 LOGS_SUB_TITLE      = "Управление на системните съобщения"
 LOGS_TITLE      	= "Журнал системни събития"

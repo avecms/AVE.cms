@@ -239,7 +239,13 @@
 							</ul>
 						</li>
 						{/if}
-						{if check_permission('cache_clear')}<li><a href="javascript:void(0);" class="clearCache" title="{#MAIN_STAT_CLEAR_CACHE#}"><img src="{$tpl_dir}/images/icons/subTrash.png" alt="" /><span>{#MAIN_STAT_CLEAR_CACHE#}</span></a></li>{/if}
+						{if check_permission('cache_clear')}
+							<li class="dropdown"><a href="javascript:void(0);" class="clearCache" title="{#MAIN_STAT_CLEAR_CACHE#}"><img src="{$tpl_dir}/images/icons/subTrash.png" alt="" /><span>{#MAIN_STAT_CLEAR_CACHE#}</span></a>
+								<ul>
+	                               <li><a href="index.php?do=settings&action=showcache&cp={$sess}">{#MAIN_SETTINGS_SHOWCACHE#}</a></li>
+								</ul>
+							</li>
+						{/if}
 	{*
 						<li><a href="#" title="{#MAIN_LOGIN_HELP#}"><img src="{$tpl_dir}/images/icons/help.png" alt="" /><span>{#MAIN_LOGIN_HELP#}</span></a></li>
 	*}

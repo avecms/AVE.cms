@@ -16,6 +16,8 @@
 
 	define ('BASE_DIR', str_replace("\\", "/", rtrim($_SERVER['DOCUMENT_ROOT'], '/')));
 
+	define ('USE_STATIC_DATA', false);
+
 	if (! @filesize(BASE_DIR . '/config/db.config.php'))
 	{
 		header ('Location: Location:install/index.php');

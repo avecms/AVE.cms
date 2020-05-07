@@ -878,8 +878,12 @@
 			return $return;
 		}
 
+		Debug::startTime('SQL');
+
 		// Выполняем запрос к бд
 		$sql = $AVE_DB->Query($sql_request, (int)$request->request_cache_lifetime, 'rqs_' . $id, true, '.request');
+
+		$GLOBALS['block_generate']['REQUESTS'][$id]['SQL'] = Debug::endTime('SQL');
 
 		// Если просили просто вернуть резльтат запроса, возвращаем результат
 		if (isset($params['RETURN_SQL']) && $params['RETURN_SQL'] == 1)
@@ -1027,13 +1031,21 @@
 		$request_changed = $request->request_changed;
 		$request_changed_elements = $request->request_changed_elements;
 
+		Debug::startTime('ELEMENTS_ALL');
+
 		foreach ($rows as $row)
 		{
 			$x++;
 			$last_item = ($x == $items_count ? true : false);
 			$item_num = $x;
 			$req_item_num = $item_num;
+
+			Debug::startTime('ELEMENT_' . $item_num);
+
 			$item = showrequestelement($row, $request->request_template_item);
+
+			$GLOBALS['block_generate']['REQUESTS'][$id]['ELEMENTS'][$item_num] = Debug::endTime('ELEMENT_' . $item_num);
+
 			$item = '<'.'?php $item_num='.var_export($item_num,1).'; $last_item='.var_export($last_item,1).'?'.'>'.$item;
 			$item = '<'.'?php $req_item_id = ' . $row->Id . '; ?>' . $item;
 			$item = str_replace('[tag:if_first]', '<'.'?php if(isset($item_num) && $item_num===1) { ?'.'>', $item);
@@ -1047,7 +1059,9 @@
 			$items .= $item;
 		}
 
-		//== Обрабатываем теги запроса
+		$GLOBALS['block_generate']['REQUESTS'][$id]['ELEMENTS']['ALL'] = Debug::endTime('ELEMENTS_ALL');
+
+		// ============ Обрабатываем теги запроса ============ //
 
 		//-- Парсим теги визуальных блоков
 		$main_template = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $main_template);
@@ -1055,12 +1069,8 @@
 		//-- Парсим теги системных блоков
 		$main_template = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_sysblock', $main_template);
 
-		//-- Заменяем тег пагинации на пагинацию
-		$main_template = str_replace('[tag:pages]', $pagination, $main_template);
-
 		//-- Дата
-		$main_template = preg_replace_callback(
-			'/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
+		$main_template = preg_replace_callback('/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
 			function ($match) use ($AVE_Core)
 			{
 				return translate_date(date($match[1], $AVE_Core->curentdoc->document_published));
@@ -1068,43 +1078,38 @@
 			$main_template
 		);
 
-		//-- ID Документа
-		$main_template = str_replace('[tag:docid]', $AVE_Core->curentdoc->Id, $main_template);
-		//-- ID Автора
-		$main_template = str_replace('[tag:docauthorid]', $AVE_Core->curentdoc->document_author_id, $main_template);
+		$str_replace = [
+			//-- ID Документа
+			'[tag:docid]' => $AVE_Core->curentdoc->Id,
+			//-- ID Автора
+			'[tag:docauthorid]' => $AVE_Core->curentdoc->document_author_id,
+			//-- Имя автора
+			'[tag:docauthor]' => get_username_by_id($AVE_Core->curentdoc->document_author_id),
+			//-- Время - 1 день назад
+			'[tag:humandate]' => human_date($AVE_Core->curentdoc->document_published),
+			//-- Дата создания
+			'[tag:docdate]' => pretty_date(strftime(DATE_FORMAT, $AVE_Core->curentdoc->document_published)),
+			//-- Время создания
+			'[tag:doctime]' => pretty_date(strftime(TIME_FORMAT, $AVE_Core->curentdoc->document_published)),
+			//-- Домен
+			'[tag:domain]' => getSiteUrl(),
+			//-- Заменяем тег пагинации на пагинацию
+			'[tag:pages]' => $pagination,
+			//-- Общее число элементов запроса
+			'[tag:doctotal]' => $num_items,
+			//-- Показано элементов запроса на странице
+			'[tag:doconpage]' => $x,
+			//-- Номер страницы пагинации
+			'[tag:pages:curent]' => get_current_page('page'),
+			//-- Общее кол-во страниц пагинации
+			'[tag:pages:total]' => $num_pages,
+			//-- Title
+			'[tag:pagetitle]' => stripslashes(htmlspecialchars_decode($AVE_Core->curentdoc->document_title)),
+			//-- Alias
+			'[tag:alias]' => (isset($AVE_Core->curentdoc->document_alias) ? $AVE_Core->curentdoc->document_alias : '')
+		];
 
-		//-- Имя автора
-		if (preg_match('[tag:docauthor]', $main_template))
-			$main_template = str_replace('[tag:docauthor]', get_username_by_id($AVE_Core->curentdoc->document_author_id), $main_template);
-
-		//-- Время - 1 день назад
-		$main_template = str_replace('[tag:humandate]', human_date($AVE_Core->curentdoc->document_published), $main_template);
-
-		//-- Дата создания
-		$main_template = str_replace('[tag:docdate]', pretty_date(strftime(DATE_FORMAT, $AVE_Core->curentdoc->document_published)), $main_template);
-
-		//-- Время создания
-		$main_template = str_replace('[tag:doctime]', pretty_date(strftime(TIME_FORMAT, $AVE_Core->curentdoc->document_published)), $main_template);
-
-		//-- Домен
-		$main_template = str_replace('[tag:domain]', getSiteUrl(), $main_template);
-
-		//-- Общее число элементов запроса
-		$main_template = str_replace('[tag:doctotal]', $num_items, $main_template);
-		//-- Показано элементов запроса на странице
-		$main_template = str_replace('[tag:doconpage]', $x, $main_template);
-
-		//-- Номер страницы пагинации
-		$main_template = str_replace('[tag:pages:curent]', get_current_page('page'), $main_template);
-
-		//-- Общее кол-во страниц пагинации
-		$main_template = str_replace('[tag:pages:total]', $num_pages, $main_template);
-
-		//-- Title
-		$main_template = str_replace('[tag:pagetitle]', stripslashes(htmlspecialchars_decode($AVE_Core->curentdoc->document_title)), $main_template);
-
-		//-- Alias
-		$main_template = str_replace('[tag:alias]', (isset($AVE_Core->curentdoc->document_alias) ? $AVE_Core->curentdoc->document_alias : ''), $main_template);
+		$main_template = str_replace(array_keys($str_replace), array_values($str_replace), $main_template);
 
 		//-- Возвращаем параметр документа из БД
 		$main_template = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
@@ -1118,8 +1123,7 @@
 		);
 
 		//-- Если пришел вызов на активацию языковых файлов
-		$main_template = preg_replace_callback(
-			'/\[tag:langfile:([a-zA-Z0-9-_]+)\]/u',
+		$main_template = preg_replace_callback('/\[tag:langfile:([a-zA-Z0-9-_]+)\]/u',
 			function ($match)
 			{
 				global $AVE_Template;
@@ -1131,6 +1135,8 @@
 
 		//-- Вставляем элементы запроса
 		$return = str_replace('[tag:content]', $items, $main_template);
+
+		unset ($items, $main_template, $str_replace, $pagination);
 
 		//-- Парсим тег [hide]
 		$return = parse_hide($return);
@@ -1145,7 +1151,7 @@
 		$return = $AVE_Core->coreModuleTagParse($return);
 
 		//-- Фиксируем время генерации запроса
-		$GLOBALS['block_generate']['REQUESTS'][$id][] = Debug::endTime('request_' . $id);
+		$GLOBALS['block_generate']['REQUESTS'][$id]['TIME'] = Debug::endTime('request_' . $id);
 
 		//	Статистика
 		if ($request->request_show_statistic)

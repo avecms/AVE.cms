@@ -1,5 +1,4 @@
 # npop 04,2017 Neli Popova, npop@abv.bg
-
 [request]
 REQUEST_ID             = "ID"
 REQUEST_DELETE         = "Изтриване заявка"
@@ -198,3 +197,9 @@ REQUEST_SHOW_SQL		 = "Покажи SQL заявката"
 REQUEST_DOC_ON_PAGE		 = "Брой елементи на заявката на страница"
 REQUEST_PAGES_CURENT	 = "Номер страница"
 REQUEST_PAGES_TOTAL		 = "Общ брой страници"
+
+// v 3.24
+REQUEST_COUNT_ITEMS		 = "Получаване на бр. елементи(ако не се използва постранична навигация)"
+
+// v 3.26
+REQUEST_BY_POSITION      = "Позиция на документа"

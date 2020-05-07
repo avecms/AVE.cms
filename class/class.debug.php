@@ -931,6 +931,10 @@
 				case 'globals':
 					$stat = self::_stat_get('globals');
 					break;
+
+				case 'blocks':
+					$stat = self::_stat_get('blocks');
+					break;
 			}
 
 			return $stat;
@@ -945,6 +949,7 @@
 		public static function _stat_get($type = 'get')
 		{
 			ob_start();
+
 			if ($type == 'get')
 				var_dump($_GET);
 			else if ($type == 'post')
@@ -963,6 +968,8 @@
 				var_dump($_ENV);
 			else if ($type == 'globals')
 				var_dump($GLOBALS);
+			else if ($type == 'blocks')
+				var_dump($GLOBALS['block_generate']);
 			$stat = ob_get_contents();
 			$stat = preg_replace('/=>(\s+|\s$)/', ' => ', $stat);
 			$stat = htmlspecialchars($stat);
@@ -994,18 +1001,19 @@
 				<div id="debug_bar">
 					<ul class="debug_tabs">
 						<li id="debug-1">Timers</li>
-						<li id="debug-2">$_GET</li>
-						<li id="debug-3">$_POST</li>
-						<li id="debug-4">$_REQUEST</li>
-						<li id="debug-5">$_FILES</li>
-						<li id="debug-6">$_COOKIE</li>
-						<li id="debug-7">$_SESSION</li>
-						<li id="debug-8">$_SERVER</li>
-						<li id="debug-9">$_ENV</li>
-						<li id="debug-10">$GLOBALS</li>
-						<li id="debug-11">MySQL</li>
-						<li id="debug-12">Trace</li>
-						<li id="debug-13">Debug</li>
+						<li id="debug-2">Blocks</li>
+						<li id="debug-3">$_GET</li>
+						<li id="debug-4">$_POST</li>
+						<li id="debug-5">$_REQUEST</li>
+						<li id="debug-6">$_FILES</li>
+						<li id="debug-7">$_COOKIE</li>
+						<li id="debug-8">$_SESSION</li>
+						<li id="debug-9">$_SERVER</li>
+						<li id="debug-10">$_ENV</li>
+						<li id="debug-11">$GLOBALS</li>
+						<li id="debug-12">MySQL</li>
+						<li id="debug-13">Trace</li>
+						<li id="debug-14">Debug</li>
 					</ul>
 			';
 			$out .= PHP_EOL;
@@ -1022,77 +1030,84 @@
 			$out .= PHP_EOL;
 
 			$out .= '<div class="debug_tab" id="debug-2-cont" style="display: none;">' . PHP_EOL;
+			$out .= 'Blocks:';
+			$out .= self::getStatistic('blocks');
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+
+			$out .= '<div class="debug_tab" id="debug-3-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'GET:';
 			$out .= self::getStatistic('get');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
 
-			$out .= '<div class="debug_tab" id="debug-3-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-4-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'POST:';
 			$out .= self::getStatistic('post');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
 
-			$out .= '<div class="debug_tab" id="debug-4-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-5-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'REQUEST:';
 			$out .= self::getStatistic('request');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
 
-			$out .= '<div class="debug_tab" id="debug-5-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-6-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'FILES:';
 			$out .= self::getStatistic('files');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
 
-			$out .= '<div class="debug_tab" id="debug-6-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-7-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'COOKIE:';
 			$out .= self::getStatistic('cookie');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
 
-			$out .= '<div class="debug_tab" id="debug-7-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-8-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'SESSION:';
 			$out .= self::getStatistic('session');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
 
-			$out .= '<div class="debug_tab" id="debug-8-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-9-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'SERVER:';
 			$out .= self::getStatistic('server');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
 
-			$out .= '<div class="debug_tab" id="debug-9-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-10-cont" style="display: none;">' . PHP_EOL;
 			$out .= 'ENV:';
 			$out .= self::getStatistic('env');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
 
-			$out .= '<div class="debug_tab" id="debug-10-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-11-cont" style="display: none;">' . PHP_EOL;
 			$out .= self::getStatistic('globals');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
-			$out .= '<div class="debug_tab" id="debug-11-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-12-cont" style="display: none;">' . PHP_EOL;
 			$out .= $AVE_DB->DBProfilesGet('list');
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
-			$out .= '<div class="debug_tab" id="debug-12-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-13-cont" style="display: none;">' . PHP_EOL;
 			$out .= $AVE_DB->showAllQueries();
 			$out .= '</div>';
 
 			$out .= PHP_EOL;
-			$out .= '<div class="debug_tab" id="debug-13-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-14-cont" style="display: none;">' . PHP_EOL;
 			$out .= implode('', self::$_debug);
 			$out .= '</div>';
 

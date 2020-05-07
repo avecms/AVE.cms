@@ -11,7 +11,7 @@
 	 * @license GPL v.2
 	 */
 
-	define ('START_MICROTIME', microtime());
+	define ('START_MICROTIME', microtime(true));
 	define ('START_MEMORY', memory_get_usage());
 	define ('BASE_DIR', str_replace("\\", "/", dirname(__FILE__)));
 
@@ -33,14 +33,16 @@
 	ob_start();
 
 	//-- Подключаем файл определения мобильных устройств
-	//-- далее пользуемся $MDetect
+	//-- далее пользуемся $MobileDetect
 	require_once (BASE_DIR . '/lib/mobile_detect/Mobile_Detect.php');
-	$MDetect = new Mobile_Detect;
+	$MobileDetect = new Mobile_Detect;
+
+	$init_start = microtime(true);
 
 	//-- Подключаем файл инициализации
 	require (BASE_DIR . '/inc/init.php');
 
-	unset ($GLOBALS['CMS_CONFIG']);
+	$GLOBALS['block_generate']['INIT']['END'] = number_format(microtime_diff($init_start, microtime()), 3, ',', ' ') . ' sec';
 
 	//-- Проверяем нет ли в запросе папки UPLOADS_DIR
 	//-- подключаем файл для работы thumbsnail
@@ -70,12 +72,12 @@
 	$GLOBALS['page_id'] = array((isset($_REQUEST['id'])
 		? $_REQUEST['id']
 		: '')
-			=> array('page' => floatval(0)));
+			=> ['page' => floatval(0)]);
 
 	//-- Если пришел вызов на показ ревизии документа
 	if (! empty($_REQUEST['revission']))
 	{
-		$res =	$AVE_DB->Query("
+		$sql = "
 			SELECT
 				doc_data
 			FROM
@@ -85,7 +87,9 @@
 			AND
 				doc_revision = '" . (int)$_REQUEST['revission'] . "'
 			LIMIT 1
-		")->GetCell();
+		";
+
+		$res =	$AVE_DB->Query($sql)->GetCell();
 
 		$res =	@unserialize($res);
 
@@ -94,6 +98,8 @@
 
 	//-- Собираем страницу
 	$AVE_Core->coreSiteFetch(get_current_document_id());
+
+	Debug::startTime('CONTENT');
 
 	$content = ob_get_clean();
 
@@ -152,17 +158,17 @@
 		? ''
 		: implode(chr(10), $GLOBALS['user_header']));
 
-	$render = str_replace('[tag:rubheader]', $rubheader, $render);
-
 	//-- Тут заменяем [tag:rubfooter]
 	//-- на собранный $GLOBALS["user_footer"]
 	$rubfooter = (empty($GLOBALS['user_footer'])
 		? ''
 		: implode(chr(10), $GLOBALS['user_footer']));
 
-	$render = str_replace('[tag:rubfooter]', $rubfooter, $render);
+	$render = str_replace(['[tag:rubheader]', '[tag:rubfooter]'], [$rubheader, $rubfooter], $render);
 
 	unset ($rubheader, $rubfooter);
+
+	$GLOBALS['block_generate']['DOCUMENT']['CONTENT'] = Debug::endTime('CONTENT');
 
 	//-- Вывод конечного результата
 	output_compress($render);
