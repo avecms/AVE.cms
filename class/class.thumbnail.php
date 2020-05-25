@@ -754,7 +754,7 @@
 		 * @param bool $dither use dither
 		 * @return bool true on success, otherwise false
 		 */
-		function save($filename, $output_type = false, $output_quality = false, $dither = false)
+		function save ($filename, $output_type = false, $output_quality = false, $dither = false)
 		{
 			if ($output_type === false)
 				$output_type = $this->_img['main']['output_type'];
@@ -762,6 +762,7 @@
 			switch ($output_type)
 			{
 				case 1:
+				case '1':
 				case 'gif':
 				case 'GIF':
 					if ($this->_types[1]['supported'] < 2)
@@ -807,7 +808,11 @@
 					if ($output_quality === false)
 						$output_quality = IMAGE_TOOLBOX_DEFAULT_JPEG_QUALITY;
 
+					if (defined('JPG_PROGRESSIVE') && JPG_PROGRESSIVE == true)
+						imageinterlace($this->_img['main']['resource'], 1);
+
 					imagejpeg($this->_img['main']['resource'], $filename, $output_quality);
+
 					break;
 
 				case 3:
@@ -1155,7 +1160,7 @@
 			}
 			else
 			{
-				trigger_error($this->_error_prefix . 'Outputwidth and -height must be integers greater zero.', E_USER_ERROR);
+				trigger_error($this->_error_prefix . ' Output width and height must be integers greater zero.', E_USER_ERROR);
 				return null;
 			}
 

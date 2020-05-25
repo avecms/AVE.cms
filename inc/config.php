@@ -212,6 +212,15 @@
 		'VARIANT'		=> ''
 	];
 
+
+	//-- Создавать progressive JPG
+	$GLOBALS['CMS_CONFIG']['_CONST_THUMBS']['JPG_PROGRESSIVE'] = [
+		'DESCR'			=> 'Создавать progressive JPG',
+		'DEFAULT'		=> true,
+		'TYPE'			=> 'bool',
+		'VARIANT'		=> ''
+	];
+
 	//-- Генерировать миниатюрам IPTC
 	$GLOBALS['CMS_CONFIG']['_CONST_THUMBS']['THUMBNAIL_IPTC'] = [
 		'DESCR'			=> 'Генерировать миниатюрам IPTC',
