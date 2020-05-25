@@ -334,28 +334,32 @@
 		{
 			global $AVE_DB, $AVE_Template;
 
-			$message = array();
+			$message = [];
 
 			function rdel_thumb($dirname)
 			{
 				$dirs = glob("$dirname/*", GLOB_ONLYDIR|GLOB_NOSORT);
 
-				foreach ($dirs as $dir)
+				$dir_thumb = THUMBNAIL_DIR;
+
+				foreach ($dirs AS $dir)
 				{
-					$dir_thumb = THUMBNAIL_DIR;
 					$tmb = glob("$dir/$dir_thumb", GLOB_ONLYDIR|GLOB_NOSORT);
 
-					foreach ($tmb as $tmbs)
+					foreach ($tmb AS $tmbs)
 						rrmdir($tmbs);
 
 					rdel_thumb($dir);
 				}
 
 				$hid_cat = (glob("$dirname/{.tmb}*", GLOB_ONLYDIR|GLOB_BRACE));
+
 				$hid_tmb = $hid_cat[0];
 
-				foreach (glob("$hid_cat[0]/*.png", GLOB_NOSORT) as $filename)
+				foreach (glob("$hid_cat[0]/*.png", GLOB_NOSORT) AS $filename)
 					unlink("$filename");
+
+				rrmdir(BASE_DIR . '/' . UPLOAD_DIR . '/' . THUMBNAIL_DIR);
 			}
 
 			rdel_thumb(BASE_DIR . '/' . UPLOAD_DIR);
