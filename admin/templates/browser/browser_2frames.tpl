@@ -35,7 +35,7 @@
 			var ave_theme = "{$smarty.const.DEFAULT_THEME_FOLDER}";
 			var ave_admintpl = "{$tpl_dir}";
 
-			$sess = '{$sess}';
+			var sess = '{$sess}';
 
 			$(document).ready(function(){ldelim}
 
