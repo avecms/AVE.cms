@@ -66,7 +66,7 @@ function openLinkWindow(target, doc, document_alias) {
 	if (typeof scrollbar == 'undefined') var scrollbar = 1;
 	var left = (screen.width - width) / 2;
 	var top = (screen.height - height) / 2;
-	window.open('index.php?doc=' + doc + '&target=' + target + '&document_alias=' + document_alias + '&do=docs&action=showsimple&cp={$sess}&pop=1', 'pop', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',scrollbars=' + scrollbar + ',resizable=1');
+	window.open('index.php?doc=' + doc + '&target=' + target + '&document_alias=' + document_alias + '&do=docs&action=showsimple&cp=' + sess + '&pop=1', 'pop', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',scrollbars=' + scrollbar + ',resizable=1');
 }
 
 function openFileWindow(target, id, document_alias) {
@@ -76,7 +76,7 @@ function openFileWindow(target, id, document_alias) {
 	if (typeof scrollbar == 'undefined') var scrollbar = 1;
 	var left = (screen.width - width) / 2;
 	var top = (screen.height - height) / 2;
-	window.open('index.php?do=browser&id=' + id + '&type=file&target=navi&cp={$sess}', 'pop', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',scrollbars=' + scrollbar + ',resizable=1');
+	window.open('index.php?do=browser&id=' + id + '&type=file&target=navi&cp=' + sess, 'pop', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',scrollbars=' + scrollbar + ',resizable=1');
 }
 
 // Функция-плагин для включения tipsy сразу для всех классов внутри элемента
