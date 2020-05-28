@@ -11,12 +11,12 @@
 	 * @license GPL v.2
 	 */
 
-	if(! defined('BASE_DIR'))
+	if (! defined('BASE_DIR'))
 		define('BASE_DIR', str_replace("\\", "/", dirname(dirname(__FILE__))));
 
 	if (! function_exists('iptc_make_tag'))
 	{
-		function iptc_make_tag($rec, $data, $value)
+		function iptc_make_tag ($rec, $data, $value)
 		{
 			$length = strlen($value);
 			$retval = chr(0x1C) . chr($rec) . chr($data);
@@ -46,7 +46,7 @@
 	 * @param  integer $mode Optional permissions
 	 * @return boolean Success
 	 */
-	function _mkdir($path, $mode = 0777)
+	function _mkdir ($path, $mode = 0777)
 	{
 		$old = umask(0);
 		$res = @mkdir($path, $mode);
@@ -62,30 +62,29 @@
 	 * @param  integer $mode Optional permissions
 	 * @return boolean Success
 	 */
-	function rmkdir($path, $mode = 0777)
+	function rmkdir ($path, $mode = 0777)
 	{
 		return is_dir($path) || (mkdir(dirname($path), $mode) && _mkdir($path, $mode));
 	}
 
-	//-- Подгружаем настройки системы
-	require (dirname(__FILE__) . '/config.php');
+	if (filesize(BASE_DIR . '/config/config.inc.php'))
+		require_once BASE_DIR . '/config/config.inc.php';
 
-	//-- Подгружаем функции логирования
-	require_once BASE_DIR . '/functions/func.logs.php';
+	require_once BASE_DIR . '/inc/config.php';
 
 	//-- Разрешенные расширения файлов
-	$allowedExt = array('jpg', 'jpeg', 'png', 'gif', 'JPG', 'JPEG', 'PNG', 'GIF');
+	$allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'JPG', 'JPEG', 'PNG', 'GIF'];
 
 	//-- Разрешенные размеры миниатюр
 	$allowedSize = (defined('THUMBNAIL_SIZES') && THUMBNAIL_SIZES != '')
 		? explode(',', trim(THUMBNAIL_SIZES))
-		: array();
+		: [];
 
 	//-- Разрешения для админпанели
-	$allowedAdmin = array(
+	$allowedAdmin = [
 		't128x128',
 		'f128x128'
-	);
+	];
 
 	//-- Ссылка на файл
 	$imagefile = urldecode($_SERVER['REQUEST_URI']);
@@ -133,6 +132,8 @@
 		exit;
 	}
 
+	require_once BASE_DIR . '/inc/init.php';
+
 	list(, $thumbPath) = explode('/' . UPLOAD_DIR . '/', dirname($imagefile), 2);
 
 	$lenThumbDir = strlen(THUMBNAIL_DIR);
@@ -143,7 +144,6 @@
 		if (! file_exists($baseDir . $imagefile))
 		{
 			report404();
-
 			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
 		}
 		exit(0);
@@ -159,7 +159,7 @@
 	if ($countParts < 2 || ! in_array(strtolower(end($nameParts)), $allowedExt))
 		exit(0);
 
-	$matches = array();
+	$matches = [];
 
 	//-- Смотрим переданные параметры
 	preg_match('/-(r|c|f|t|s)(\d+)x(\d+)(r)*$/i', $nameParts[$countParts-2], $matches);
@@ -210,14 +210,6 @@
 
 		if (file_exists($l . '.tmp'))
 		{
-			include_once (BASE_DIR . '/functions/func.common.php');
-
-			$abs_path = dirname((!strstr($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_NAME']) && (@php_sapi_name() == 'cgi'))
-				? $_SERVER['PHP_SELF']
-				: $_SERVER['SCRIPT_NAME']);
-
-			define('ABS_PATH', rtrim(str_replace("\\", "/", $abs_path), '/') . '/');
-
 			$url = trim(file_get_contents($l . '.tmp'), ABS_PATH);
 
 			$img = CURL_file_get_contents($url);
@@ -226,7 +218,7 @@
 			{
 				file_put_contents("$imagePath/$imageName", $img);
 
-				setEXIFF("$imagePath/$imageName");
+				//setEXIFF("$imagePath/$imageName");
 
 				$save = true;
 			}
@@ -280,16 +272,16 @@
 			break;
 	}
 
-	//Blend
-	//$thumb->addImage(BASE_DIR . '/' . 'uploads/gallery/watermark.gif');
-	//$thumb->blend('right -10', 'bottom -10', IMAGE_TOOLBOX_BLEND_COPY, 70);
+//Blend
+//$thumb->addImage(BASE_DIR . '/' . 'uploads/gallery/watermark.gif');
+//$thumb->blend('right -10', 'bottom -10', IMAGE_TOOLBOX_BLEND_COPY, 70);
 
-	//Text
-	//$thumb->addText('Мой текст', BASE_DIR . '/inc/fonts/ft16.ttf', 16, '#709536', 'right -10', 'bottom -10');
-	//if ($width > 200){
-	//	$thumb->addImage(BASE_DIR . '/' . 'uploads/gallery/watermark.gif');
-	//	$thumb->blend('right -10', 'bottom -10', IMAGE_TOOLBOX_BLEND_COPY, 70);
-	//}
+//Text
+//$thumb->addText('Мой текст', BASE_DIR . '/inc/fonts/ft16.ttf', 16, '#709536', 'right -10', 'bottom -10');
+//if ($width > 200){
+//	$thumb->addImage(BASE_DIR . '/' . 'uploads/gallery/watermark.gif');
+//	$thumb->blend('right -10', 'bottom -10', IMAGE_TOOLBOX_BLEND_COPY, 70);
+//}
 
 	$thumb->output();
 
@@ -306,7 +298,7 @@
 			umask($old);
 		}
 
-		if ($thumb->_img['main']['type']==2)
+		if ($thumb->_img['main']['type'] == 2)
 		{
 			$image = getimagesize("$thumbPath/$thumbName", $info);
 
@@ -315,22 +307,18 @@
 				//-- Если в настройках разрешена генерация IPTC тегов для миниатюр
 				if (THUMBNAIL_IPTC)
 				{
-					if (! isset($AVE_DB))
-					{
-						@require(BASE_DIR . '/class/class.database.php');
-						$sitename= @$AVE_DB->Query("SELECT site_name FROM " . PREFIX . "_settings LIMIT 1")->GetCell();
-					}
+					$sitename= get_settings('site_name');
 
 					// установка IPTC тэгов
-					$iptc = array(
+					$iptc = [
 						'2#120' => iconv("UTF-8", "WINDOWS-1251", $sitename),
-						'2#116' => "http://" . $_SERVER['SERVER_NAME']
-					);
+						'2#116' => HOST
+					];
 
 					// Преобразование IPTC тэгов в двоичный код
 					$data = '';
 
-					foreach($iptc as $tag => $string)
+					foreach($iptc AS $tag => $string)
 					{
 						$tag = substr($tag, 2);
 						$data .= iptc_make_tag(2, $tag, $string);
