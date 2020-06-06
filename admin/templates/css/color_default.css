@@ -286,8 +286,8 @@ ul.sub li a.numberRight:hover {
 .head {
 	background:#373840;
 	height:32px;
-	border-top:1px solid #373840;
-	border-bottom:1px solid #373840;
+	border-top:none;
+	border-bottom:none;
 	position:relative;
 	color:#fff;
 	border-top:none;

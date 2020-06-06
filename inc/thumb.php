@@ -46,13 +46,16 @@
 	 * @param  integer $mode Optional permissions
 	 * @return boolean Success
 	 */
-	function _mkdir ($path, $mode = 0777)
+	if (! function_exists('_mkdir'))
 	{
-		$old = umask(0);
-		$res = @mkdir($path, $mode);
-		umask($old);
+		function _mkdir ($path, $mode = 0777)
+		{
+			$old = umask(0);
+			$res = @mkdir($path, $mode);
+			umask($old);
 
-		return $res;
+			return $res;
+		}
 	}
 
 	/**
@@ -62,9 +65,12 @@
 	 * @param  integer $mode Optional permissions
 	 * @return boolean Success
 	 */
-	function rmkdir ($path, $mode = 0777)
+	if (! function_exists('rmkdir'))
 	{
-		return is_dir($path) || (mkdir(dirname($path), $mode) && _mkdir($path, $mode));
+		function rmkdir ($path, $mode = 0777)
+		{
+			return is_dir($path) || (mkdir(dirname($path), $mode) && _mkdir($path, $mode));
+		}
 	}
 
 	if (filesize(BASE_DIR . '/config/config.inc.php'))
@@ -73,7 +79,16 @@
 	require_once BASE_DIR . '/inc/config.php';
 
 	//-- Разрешенные расширения файлов
-	$allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'JPG', 'JPEG', 'PNG', 'GIF'];
+	$allowedExt = [
+		'jpg',
+		'jpeg',
+		'png',
+		'gif',
+		'JPG',
+		'JPEG',
+		'PNG',
+		'GIF'
+	];
 
 	//-- Разрешенные размеры миниатюр
 	$allowedSize = (defined('THUMBNAIL_SIZES') && THUMBNAIL_SIZES != '')
@@ -124,9 +139,11 @@
 	{
 		$img_data = @getimagesize($baseDir . $imagefile);
 
+		header('max-age=315360000, public', true);
 		header('Content-Type:' . $img_data['mime'], true);
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s" . filemtime($baseDir . $imagefile)) . " GMT");
+		header("Expires: " . gmdate("D, d M Y H:i:s", time() + THUMBNAIL_CACHE_LIFETIME) . " GMT");
 		header("Content-Length: " . (string) filesize($baseDir . $imagefile), true);
+
 		readfile($baseDir . $imagefile);
 
 		exit;
@@ -244,6 +261,8 @@
 		$save = false;
 	}
 
+	define('IMAGE_TOOLBOX_DEFAULT_JPEG_QUALITY', JPG_QUALITY);
+
 	require $baseDir . '/class/class.thumbnail.php';
 
 	$thumb = new Image_Toolbox("$imagePath/$imageName");
@@ -272,16 +291,16 @@
 			break;
 	}
 
-//Blend
-//$thumb->addImage(BASE_DIR . '/' . 'uploads/gallery/watermark.gif');
-//$thumb->blend('right -10', 'bottom -10', IMAGE_TOOLBOX_BLEND_COPY, 70);
+	//Blend
+	//$thumb->addImage(BASE_DIR . '/' . 'uploads/gallery/watermark.gif');
+	//$thumb->blend('right -10', 'bottom -10', IMAGE_TOOLBOX_BLEND_COPY, 70);
 
-//Text
-//$thumb->addText('Мой текст', BASE_DIR . '/inc/fonts/ft16.ttf', 16, '#709536', 'right -10', 'bottom -10');
-//if ($width > 200){
-//	$thumb->addImage(BASE_DIR . '/' . 'uploads/gallery/watermark.gif');
-//	$thumb->blend('right -10', 'bottom -10', IMAGE_TOOLBOX_BLEND_COPY, 70);
-//}
+	//Text
+	//$thumb->addText('Мой текст', BASE_DIR . '/inc/fonts/ft16.ttf', 16, '#709536', 'right -10', 'bottom -10');
+	//if ($width > 200){
+	//	$thumb->addImage(BASE_DIR . '/' . 'uploads/gallery/watermark.gif');
+	//	$thumb->blend('right -10', 'bottom -10', IMAGE_TOOLBOX_BLEND_COPY, 70);
+	//}
 
 	$thumb->output();
 

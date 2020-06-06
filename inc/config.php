@@ -212,6 +212,13 @@
 		'VARIANT'		=> ''
 	];
 
+	//-- Качество сжатие JPG миниатюр
+	$GLOBALS['CMS_CONFIG']['_CONST_THUMBS']['JPG_QUALITY'] = [
+		'DESCR'			=> 'Качество сжатие JPG миниатюр',
+		'DEFAULT'		=> 90,
+		'TYPE'			=> 'integer',
+		'VARIANT'		=> ''
+	];
 
 	//-- Создавать progressive JPG
 	$GLOBALS['CMS_CONFIG']['_CONST_THUMBS']['JPG_PROGRESSIVE'] = [
@@ -226,6 +233,14 @@
 		'DESCR'			=> 'Генерировать миниатюрам IPTC',
 		'DEFAULT'		=> false,
 		'TYPE'			=> 'bool',
+		'VARIANT'		=> ''
+	];
+
+	//-- Отдавать браузеру, что нужно кешировать изображение (60*60*24*14 - 2 недели)
+	$GLOBALS['CMS_CONFIG']['_CONST_THUMBS']['THUMBNAIL_CACHE_LIFETIME'] = [
+		'DESCR'			=> 'Отдавать браузеру, что нужно кешировать изображение (60*60*24*14 - 2 недели)',
+		'DEFAULT'		=> 60*60*24*14,
+		'TYPE'			=> 'integer',
 		'VARIANT'		=> ''
 	];
 
