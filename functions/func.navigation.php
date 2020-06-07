@@ -11,6 +11,37 @@
 	 * @license GPL v.2
 	 */
 
+
+	/**
+	 * Возвращает меню навигации
+	 *
+	 * @param int $id идентификатор меню навигации
+	 * @return string|mixed объект с навигацией по id, либо массив всех навигаций
+	 */
+	function get_navigations($navi_id = null)
+	{
+		global $AVE_DB;
+
+			$sql = "
+				SELECT
+					# NAVIGATION = $navi_id
+					*
+				FROM
+					" . PREFIX . "_navigation
+				WHERE
+					navigation_id = '" . $navi_id . "'
+				OR
+					alias = '" . $navi_id . "'
+			";
+
+			$navigation = $AVE_DB->Query($sql, -1, 'nav_' . $navi_id, true, '.navigation')->FetchRow();
+
+			$navigation->user_group = explode(',',$navigation->user_group);
+
+			return $navigation;
+	}
+
+
 	/**
 	 * Функция обработки навигации
 	 *
@@ -26,20 +57,9 @@
 
 		Debug::startTime('NAVIAGTION_' . $navi_id);
 
-		// Достаем для проверки тип меню
-		$sql = "
-			SELECT
-				# NAVIGATION = $navi_id
-				expand_ext
-			FROM
-				".PREFIX."_navigation
-			WHERE
-				navigation_id = '" . $navi_id . "'
-			OR
-				alias = '" . $navi_id . "'
-		";
+		$navi_menu = get_navigations($navi_id);
 
-		$expnad_ext = $AVE_DB->Query($sql, -1, 'nav_' . $navi_id, true, '.naviagtion')->GetCell();
+		$expnad_ext = $navi_menu->expand_ext;
 
 		// извлекаем level из аргумента
 		$navi_print_level = (! empty($navi_tag[2]))
@@ -47,30 +67,6 @@
 			: '';
 
 		$navi = '';
-
-		$cache_file = BASE_DIR . '/tmp/cache/sql/navigations/' . $navi_id . '/template.cache';
-
-		// Если включен DEV MODE, то отключаем кеширование запросов
-		if (defined('DEV_MODE') AND DEV_MODE || $expnad_ext != 1)
-			$cache_file = null;
-
-		if (! is_dir(dirname($cache_file)))
-			mkdir(dirname($cache_file), 0766, true);
-
-		// получаем меню навигации по id,
-		// и если такой не существует, выводим сообщение
-
-		if (file_exists($cache_file))
-		{
-			$navi_menu = unserialize(file_get_contents($cache_file));
-		}
-		else
-			{
-				$navi_menu = get_navigations($navi_id);
-
-				if ($cache_file)
-					file_put_contents($cache_file, serialize($navi_menu));
-			}
 
 		if (! $navi_menu)
 		{
@@ -108,7 +104,7 @@
 
 		// запрос для выборки по текущему алиасу
 		$sql_doc_active_alias = '';
-
+ 
 		$url_suff = '';
 
 		if (defined('URL_SUFF') AND URL_SUFF)
@@ -214,7 +210,7 @@
 
 		$cache_items = BASE_DIR . '/tmp/cache/sql/navigations/' . $navi_id . '/items.cache';
 
-		$navi_items = array();
+		$navi_items = [];
 
 		// Если включен DEV MODE, то отключаем кеширование запросов
 		if (defined('DEV_MODE') AND DEV_MODE || $expnad_ext != 1)
@@ -329,7 +325,7 @@
 	 * @param int		$parent (исследуемый родитель, изначально 0 - верхний уровень)
 	 * @return string	$navi - готовый код навигации
 	 */
-	function printNavi($navi_menu, $navi_items, $navi_active_way, $navi_item_tpl, $parent = 0)
+	function printNavi ($navi_menu, $navi_items, $navi_active_way, $navi_item_tpl, $parent = 0)
 	{
 		// выясняем уровень
 		$navi_item_level = $navi_items[$parent][0]['level'];
@@ -500,62 +496,12 @@
 
 
 	/**
-	 * Возвращает меню навигации
-	 *
-	 * @param int $id идентификатор меню навигации
-	 * @return string|mixed объект с навигацией по id, либо массив всех навигаций
-	 */
-	function get_navigations($id = null)
-	{
-		global $AVE_DB;
-
-		$navigations = array();
-
-		if ($id)
-		{
-				$sql = $AVE_DB->Query("
-					SELECT
-						*
-					FROM
-						" . PREFIX . "_navigation
-					WHERE
-						" . (is_numeric($id) ? 'navigation_id' : 'alias') . " = '" . $id . "'
-				");
-		}
-		else
-			{
-				$sql = $AVE_DB->Query("
-					SELECT
-						*
-					FROM
-						" . PREFIX . "_navigation
-				");
-			}
-
-		while ($row = $sql->FetchRow())
-		{
-			$row->user_group = explode(',', $row->user_group);
-
-			if ($id)
-				$navigations[$id] = $row;
-			else
-				$navigations[$row->navigation_id] = $row;
-		}
-
-		if ($id)
-			return $navigations[$id];
-		else
-			return $navigations;
-	}
-
-
-	/**
 	 * Проверка прав доступа к навигации по группе пользователя
 	 *
 	 * @param int $id идентификатор меню навигации
 	 * @return boolean
 	 */
-	function check_navi_permission($id)
+	function check_navi_permission ($id)
 	{
 		$navigation = get_navigations($id);
 

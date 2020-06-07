@@ -1419,6 +1419,12 @@
 				return $cache_id = 'requests/settings/' . $cache_id;
 			}
 
+			//-- Если это условия запроса, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'rqc') {
+				$cache_id = str_replace('rqc_', '', $cache_id);
+				return $cache_id = 'requests/settings/' . $cache_id;
+			}
+
 			// -- Навигация
 			if (substr($cache_id, 0, 3) == 'nav') {
 				$cache_id = explode('_', $cache_id);

@@ -61,8 +61,9 @@
 		$from = [];
 		$where = [];
 
-		$sql_ak = $AVE_DB->Query("
-			SELECT *
+		$sql = "
+			SELECT
+				*
 			FROM
 				" . PREFIX . "_request_conditions
 			WHERE
@@ -70,8 +71,10 @@
 			AND
 				condition_status = '1'
 			ORDER BY
-				condition_position ASC
-		");
+				condition_position ASC;
+		";
+
+		$sql_ak = $AVE_DB->Query($sql, -1, 'rqc_' . $id, true, '.conditions');
 
 		// Обрабатываем выпадающие списки
 
@@ -102,7 +105,11 @@
 			}
 		}
 
+		// ./Обрабатываем выпадающие списки
+
 		$i = 0;
+
+		$numeric = [];
 
 		while ($row_ak = $sql_ak->FetchRow())
 		{
