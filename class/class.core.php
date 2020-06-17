@@ -730,6 +730,16 @@
 				$main_content
 			);
 
+			// GetField
+			$main_content = preg_replace_callback(
+				'/\[tag:get:([a-zA-Z0-9-_]+)(|:([0-9]+))+?\]/',
+				function ($match) {
+					return get_field($match[1], $match[3]);
+				},
+				$main_content
+			);
+
+
 			$main_content = str_replace('[tag:docdate]', translate_date(strftime(DATE_FORMAT, $this->curentdoc->document_published)), $main_content);
 			$main_content = str_replace('[tag:doctime]', translate_date(strftime(TIME_FORMAT, $this->curentdoc->document_published)), $main_content);
 			$main_content = str_replace('[tag:humandate]', human_date($this->curentdoc->document_published), $main_content);

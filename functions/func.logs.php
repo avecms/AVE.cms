@@ -32,7 +32,7 @@
 		$logdata[]=array(
 			'log_time'		=> time(),
 			'log_ip'		=> $_SERVER['REMOTE_ADDR'],
-			'log_url'		=> $_SERVER['QUERY_STRING'],
+			'log_url'		=> $_SERVER['REQUEST_URI'],
 			'log_user_id'	=> (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '0'),
 			'log_user_name'	=> (isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Anonymous'),
 			'log_text'		=> $message,
@@ -65,7 +65,7 @@
 		$logsql[] = array(
 			'log_time'		=> time(),
 			'log_ip'		=> $_SERVER['REMOTE_ADDR'],
-			'log_url'		=> $_SERVER['QUERY_STRING'],
+			'log_url'		=> $_SERVER['REQUEST_URI'],
 			'log_user_id'	=> $_SESSION['user_id'],
 			'log_user_name'	=> $_SESSION['user_name'],
 			'log_text'		=> $message
@@ -96,7 +96,7 @@
 		$log404[] = array(
 			'log_time' 			=> time(),
 			'log_ip' 			=> @$_SERVER['REMOTE_ADDR'],
-			'log_query' 		=> @$_SERVER['QUERY_STRING'],
+			'log_query' 		=> @$_SERVER['REQUEST_URI'],
 			'log_user_agent' 	=> @$_SERVER['HTTP_USER_AGENT'],
 			'log_user_referer' 	=> (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''),
 			'log_request_uri' 	=> @$_SERVER['REQUEST_URI']

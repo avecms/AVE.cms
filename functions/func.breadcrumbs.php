@@ -55,6 +55,8 @@
 
 			$lang_home_alias = getDocument($home_id);
 
+			$number = 1;
+
 			$search = [
 				'[name]',
 				'[link]',
@@ -166,7 +168,7 @@
 									$bread_crumb .= $bread_sepparator;
 						}
 
-					unset($search, $replace, $link, $number, $row_doc);
+					unset($search, $replace, $link, $row_doc);
 				}
 			}
 		}
@@ -175,7 +177,7 @@
 		if ((isset($AVE_Core->curentdoc->bread_link_box_last) && $AVE_Core->curentdoc->bread_link_box_last == 0))
 			$bread_crumb .= '';
 		else if (get_settings('bread_link_box_last') == 1 || (isset($AVE_Core->curentdoc->bread_link_box_last) && $AVE_Core->curentdoc->bread_link_box_last == 1))
-			$bread_crumb .= sprintf($bread_self_box, $current->document_breadcrum_title);
+			$bread_crumb .= str_replace('[count]', $number+1, sprintf($bread_self_box, $current->document_breadcrum_title));
 
 		if (! $noprint)
 			$crumbs[$curent_document] = sprintf($bread_box, $bread_crumb);
