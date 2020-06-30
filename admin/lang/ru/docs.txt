@@ -315,3 +315,12 @@ DOC_SEARCH_PARAM_SELECT     = "Выберите параметр"
 DOC_SEARCH_PARAM_LIKE       = "Содержит"
 DOC_SEARCH_PARAM_EQ         = "Равно"
 DOC_SEARCH_PARAM_TEXT       = "Значение"
+
+DOC_STATUS_SUCCESS          = "Выполнено"
+DOC_STATUS_ERROR            = "Ошибка"
+
+DOC_STATUS_ON               = "Документ опубликован"
+DOC_STATUS_OFF              = "Документ снят с публикации"
+
+DOC_RECYCLE_ON              = "Документ восстановлен"
+DOC_RECYCLE_OFF             = "Документ помещен в корзину"

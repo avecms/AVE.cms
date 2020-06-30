@@ -1,3 +1,13 @@
+<script>
+	var add_doc_title = '{#MAIN_ADD_IN_RUB#}',
+		add_doc_text = '{#DOC_ENTER_NAME#}',
+		del_doc_title = '{#DOC_TEMPORARY_DELETE#}',
+		del_doc_confirm = '{#DOC_TEMPORARY_CONFIRM#}',
+		copy_doc_title = '{#DOC_COPY#}',
+		copy_doc_text = '{#DOC_COPY_TIP#}',
+		copy_doc_no = '{#MAIN_NO_ADD_DOCS#}';
+</script>
+
 <div class="title">
 	<h5>{#DOC_SUB_TITLE#}</h5>
 </div>
@@ -20,57 +30,56 @@
 {if check_permission('document_view')}
 
 <div class="widget first">
-<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
-	<col width="50%">
-	<col width="50%">
-	<thead>
-	<tr>
-		<td>{#MAIN_ADD_IN_RUB#}</td>
-		<td>{#MAIN_SORT_DOCUMENTS#}</td>
-	</tr>
-	</thead>
-	<tbody>
-	<tr>
-		<td style="padding:8px;">
-			<form action="index.php" method="get" id="add_docum" class="mainForm">
-				<input type="hidden" name="cp" value="{$sess}" />
-				<input type="hidden" name="do" value="docs" />
-				<input type="hidden" name="action" value="new" />
-				<select name="rubric_id" id="DocName">
-					<option value="">{#DOC_CHOSE_RUB#}</option>
-					{foreach from=$rubrics item=rubric}
-						{if $rubric->Show==1}
-							<option value="{$rubric->Id}"{if $smarty.request.rubric_id==$rubric->Id} selected{/if}>{$rubric->rubric_title|escape}</option>
-						{/if}
-					{/foreach}
-				</select>
-				&nbsp;
-				<input style="width:85px" type="submit" class="basicBtn AddDocs" value="{#MAIN_BUTTON_ADD#}" />
-			</form>
-		</td>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
+		<col width="50%">
+		<col width="50%">
+		<thead>
+		<tr>
+			<td>{#MAIN_ADD_IN_RUB#}</td>
+			<td>{#MAIN_SORT_DOCUMENTS#}</td>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td style="padding:8px;">
+				<form action="index.php" method="get" id="addDocRub" class="mainForm">
+					<input type="hidden" name="cp" value="{$sess}" />
+					<input type="hidden" name="do" value="docs" />
+					<input type="hidden" name="action" value="new" />
+					<select name="rubric_id" id="rubricId">
+						<option value="">{#DOC_CHOSE_RUB#}</option>
+						{foreach from=$rubrics item=rubric}
+							{if $rubric->Show==1}
+								<option value="{$rubric->Id}"{if $smarty.request.rubric_id==$rubric->Id} selected{/if}>{$rubric->rubric_title|escape}</option>
+							{/if}
+						{/foreach}
+					</select>
+					&nbsp;
+					<input style="width:85px" type="submit" class="basicBtn AddDocument" value="{#MAIN_BUTTON_ADD#}" />
+				</form>
+			</td>
 
-		<td style="padding:8px;">
-			<form action="index.php" method="get" class="mainForm">
-				<input type="hidden" name="cp" value="{$sess}" />
-				<input type="hidden" name="do" value="docs" />
-				<select name="rubric_id" id="RubrikSort">
-					<option value="all">{#MAIN_ALL_RUBRUKS#}</option>
-					{foreach from=$rubrics item=rubric}
-						{if $rubric->Show==1}
-							<option value="{$rubric->Id}"{if $smarty.request.rubric_id==$rubric->Id} selected{/if}>{$rubric->rubric_title|escape}</option>
-						{/if}
-					{/foreach}
-				</select>
-				&nbsp;
-				<input style="width:85px" type="submit" class="basicBtn" value="{#MAIN_BUTTON_SORT#}" />
-			</form>
-		</td>
-	</tr>
-	</tbody>
-</table>
+			<td style="padding:8px;">
+				<form action="index.php" method="get" class="mainForm">
+					<input type="hidden" name="cp" value="{$sess}" />
+					<input type="hidden" name="do" value="docs" />
+					<select name="rubric_id" id="rubricSort">{*RubrikSort*}
+						<option value="all">{#MAIN_ALL_RUBRUKS#}</option>
+						{foreach from=$rubrics item=rubric}
+							{if $rubric->Show==1}
+								<option value="{$rubric->Id}"{if $smarty.request.rubric_id==$rubric->Id} selected{/if}>{$rubric->rubric_title|escape}</option>
+							{/if}
+						{/foreach}
+					</select>
+					&nbsp;
+					<input style="width:85px" type="submit" class="basicBtn" value="{#MAIN_BUTTON_SORT#}" />
+				</form>
+			</td>
+		</tr>
+		</tbody>
+	</table>
 </div>
 {/if}
-
 
 {include file='documents/doc_search.tpl'}
 
@@ -143,15 +152,31 @@
 	{if $docs}
 	<thead>
 	<tr>
-		<td><div align="center"><input type="checkbox" id="selall" value="1" /></div></td>
-		<td>{#DOC_ID#}</td>
+		<td>
+			<div align="center">
+				<input type="checkbox" id="selectAll" value="1" />
+			</div>
+		</td>
+		<td>
+			{#DOC_ID#}
+		</td>
 		<td nowrap="nowrap">
 			{#DOC_TITLE#}&nbsp;|&nbsp;{#DOC_URL_RUB#}
 		</td>
-		<td>{#DOC_IN_RUBRIK#}</td>
-		<td>{#DOC_POSITION#}</td>
-		<td>{#DOC_CREATED#}&nbsp;|&nbsp;{#DOC_EDIT#}</td>
-		{if !$smarty.const.ADMIN_EDITMENU}<td {if $smarty.const.ADMIN_EDITMENU}colspan="7"{else}colspan="14"{/if} align="center">{#DOC_ACTIONS#}</td>{/if}
+		<td>
+			{#DOC_IN_RUBRIK#}
+		</td>
+		<td>
+			{#DOC_POSITION#}
+		</td>
+		<td>
+			{#DOC_CREATED#}&nbsp;|&nbsp;{#DOC_EDIT#}
+		</td>
+		{if !$smarty.const.ADMIN_EDITMENU}
+		<td {if $smarty.const.ADMIN_EDITMENU}colspan="7"{else}colspan="14"{/if} align="center">
+			{#DOC_ACTIONS#}
+		</td>
+		{/if}
 	</tr>
 	</thead>
 	{/if}
@@ -220,30 +245,29 @@
 						{/if}
 
 						<!-- Публикация -->
-						{if $item->document_deleted!=1}
-							{if $item->document_status==1}
-								{if $item->canOpenClose==1 && $item->Id != 1 && $item->Id != $PAGE_NOT_FOUND_ID}
-									<a class="topDir floatleft" title="{#DOC_DISABLE_TITLE#}" href="index.php?do=docs&action=close&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
-										<span class="icon_sprite_doc icon_public_on"></span>
-									</a>
-								{/if}
-							{else}
-								{if $item->canOpenClose==1}
-									<a class="topDir floatleft public" title="{#DOC_ENABLE_TITLE#}" href="index.php?do=docs&action=open&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
-										<span class="icon_sprite_doc icon_public"></span>
-									</a>
-								{/if}
+						{if $item->document_status==1}
+							{if $item->canOpenClose==1 && $item->Id != 1 && $item->Id != $PAGE_NOT_FOUND_ID}
+								<a class="topDir floatleft documentPublish {if $item->document_deleted == 1}hidden{/if}" data-id="{$item->Id}" title="{#DOC_DISABLE_TITLE#}" href="index.php?do=docs&action=close&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
+									<span class="icon_sprite_doc icon_public_on"></span>
+								</a>
+							{/if}
+						{else}
+							{if $item->canOpenClose==1}
+							<a class="topDir floatleft public documentPublish {if $item->document_deleted == 1}hidden{/if}" data-id="{$item->Id}" title="{#DOC_ENABLE_TITLE#}" href="index.php?do=docs&action=open&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
+									<span class="icon_sprite_doc icon_public"></span>
+								</a>
 							{/if}
 						{/if}
 
+
 						<!-- Корзина -->
 						{if $item->document_deleted==1}
-							<a class="topDir floatleft recylce" title="{#DOC_RESTORE_DELETE#}" href="index.php?do=docs&action=redelete&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
+							<a class="topDir floatleft recylce documentRecycle" title="{#DOC_RESTORE_DELETE#}" data-id="{$item->Id}" href="index.php?do=docs&action=redelete&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
 								<span class="icon_sprite_doc icon_recylce_on "></span>
 							</a>
 						{else}
 							{if $item->canDelete==1}
-							<a class="ConfirmRecycle topDir floatleft" title="{#DOC_TEMPORARY_DELETE#}"  href="index.php?do=docs&action=delete&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
+							<a class="topDir floatleft documentRecycle" title="{#DOC_TEMPORARY_DELETE#}" data-id="{$item->Id}" data-rubric-id="{$item->rubric_id}" href="index.php?do=docs&action=delete&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
 								<span class="icon_sprite_doc icon_recylce"></span>
 							</a>
 							{/if}
@@ -312,11 +336,12 @@
 			</td>
 
 			<td align="center">
-
 				<div class="docaction">
 					<div class="doc_message">
 						{if $item->ist_remark!='0'}
-							<div class="remarks"><span title="{#DOC_ICON_COMMENT#}" class="icon_sprite_doc icon_comment topDir"></span></div>
+							<div class="remarks">
+								<span title="{#DOC_ICON_COMMENT#}" class="icon_sprite_doc icon_comment topDir"></span>
+							</div>
 						{/if}
 					</div>
 					<span class="date_text dgrey">
@@ -417,7 +442,7 @@
 		<td>{#DOC_IN_RUBRIK#}</td>
 		<td>{#DOC_POSITION#}</td>
 		<td>{#DOC_CREATED#}&nbsp;|&nbsp;{#DOC_EDIT#}</td>
-		{if !$smarty.const.ADMIN_EDITMENU}<td colspan="6" align="center">{#DOC_ACTIONS#}</td>{/if}
+		{if !$smarty.const.ADMIN_EDITMENU}<td colspan="7" align="center">{#DOC_ACTIONS#}</td>{/if}
 	</tr>
 	</thead>
 	{/if}
@@ -451,115 +476,13 @@
 	</div>
 {/if}
 
+<script src="{$ABS_PATH}admin/templates/js/docs.js"></script>
+
 <script language="Javascript" type="text/javascript">
-$(document).ready(function(){ldelim}
-
-	$(".AddDocs").click( function(e) {ldelim}
-		e.preventDefault();
-		var DocName = $('#add_docum #DocName').fieldValue();
-		var title = '{#MAIN_ADD_IN_RUB#}';
-		var text = '{#DOC_ENTER_NAME#}';
-		if (DocName == ""){ldelim}
-			jAlert(text,title);
-		{rdelim}else{ldelim}
-			$.alerts._overlay('show');
-			$("#add_docum").submit();
-		{rdelim}
-	{rdelim});
-
-	$('#selall').on('change', function(event) {ldelim}
-		event.preventDefault();
-		if ($('#selall').is(':checked')) {ldelim}
-			$('#docs .checkbox').attr('checked','checked');
-			$('#docs .checkbox').addClass('jqTransformChecked');
-			$("#docs a.jqTransformCheckbox").addClass("jqTransformChecked");
-		{rdelim} else {ldelim}
-			$('#docs .checkbox').removeClass('jqTransformChecked');
-			$('#docs .checkbox').removeAttr('checked');
-			$("#docs a.jqTransformCheckbox").removeClass("jqTransformChecked");
-		{rdelim}
-	{rdelim});
-
-	$(".ConfirmRecycle").click(function(e){ldelim}
-		e.preventDefault();
-		var href = $(this).attr('href');
-		var title = '{#DOC_TEMPORARY_DELETE#}';
-		var confirm = '{#DOC_TEMPORARY_CONFIRM#}';
-		jConfirm(
-				confirm,
-				title,
-				function(b){ldelim}
-					if (b){ldelim}
-						$.alerts._overlay('show');
-						window.location = href;
-					{rdelim}
-				{rdelim}
-			);
-	{rdelim});
-
-	$(".CopyDocs").click( function(e) {ldelim}
-		e.preventDefault();
-		var href = $(this).attr('href');
-		var title = '{#DOC_COPY#}';
-		var text = '{#DOC_COPY_TIP#}';
-		jPrompt(text, '', title, function(b){ldelim}
-					if (b){ldelim}
-						$.alerts._overlay('show');
-						window.location = href + '&document_title=' + b;
-						{rdelim}else{ldelim}
-							$.jGrowl("{#MAIN_NO_ADD_DOCS#}", {ldelim}theme: 'error'{rdelim});
-						{rdelim}
-				{rdelim}
-			);
-	{rdelim});
-
-	 $(".docaction").hover(
-		  function() {ldelim}$(this).children(".actions").show("fade", 10);{rdelim},
-		  function() {ldelim}$(this).children(".actions").hide("fade", 10);{rdelim}
-	 );
-
-
 {literal}
-
-	function action(href, actions){
-		$.ajax({
-				beforeSend: function(){
-					$.alerts._overlay('show');
-					},
-				url: href,
-				data: ({
-					action: actions,
-					ajax: '1',
-					pop: '1'
-					}),
-				timeout:3000,
-				dataType: "json",
-				success: function(data){
-					$.alerts._overlay('hide');
-					$.jGrowl(data[0],{theme: data[1]});
-				},
-				error: function (xhr, ajaxOptions, thrownError) {
-					$.alerts._overlay('hide');
-					$.jGrowl(xhr.status + thrownError, {theme: 'error'});
-				}
-			});
-		};
-
-		$('.lock').on('click', function(e){
-			e.preventDefault();
-			if($(this).hasClass('ico_unlock')){
-				action($(this).attr('ajax'),'close');
-				$(this).removeClass("ico_unlock").addClass("ico_lock");
-			} else if ($(this).hasClass('ico_lock')){
-				action($(this).attr('ajax'),'open');
-				$(this).removeClass("ico_lock").addClass("ico_unlock")
-			}
-		});
-
+	$(document).ready(function() {
+		AveDocs.init();
+		AveDocs.list();
+	});
 {/literal}
-
-
-
-
-{rdelim});
 </script>

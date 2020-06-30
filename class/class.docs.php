@@ -132,7 +132,7 @@
 			$stamp['day'] = explode(".", $data[0]);
 			$stamp['time'] = explode(":", $data[1]);
 
-			if (!empty($stamp))
+			if (! empty($stamp))
 			{
 				$timestamp = mktime(
 					$stamp['time'][0],
@@ -4376,6 +4376,117 @@
 				header('Location:index.php?do=sysblocks&cp=' . SESSION);
 
 			exit;
+		}
+
+		function documentPublish ()
+		{
+			global $AVE_DB, $AVE_Template;
+
+			$doc_id = (int)$_REQUEST['doc_id'];
+
+			if (! $doc_id)
+			{
+				$return = [
+					'success' => false,
+					'header' => $AVE_Template->get_config_vars('DOC_STATUS_ERROR'),
+					'message' => '',
+					'theme' => 'error'
+				];
+
+				_json($return, true);
+			}
+
+			$sql = "
+				SELECT
+					document_status
+				FROM
+					" . PREFIX . "_documents
+				WHERE
+					Id = '" . $doc_id . "'
+			";
+
+			$status = $AVE_DB->Query($sql)->GetCell();
+
+			$sql = "
+				UPDATE
+					" . PREFIX . "_documents
+				SET
+					document_status = '" . ($status == 1 ? 0 : 1) . "'
+				WHERE
+					Id = '" . $doc_id . "'
+			";
+
+			$AVE_DB->Query($sql);
+
+			$return = [
+				'success' => true,
+				'status' => ($status == 1 ? '0' : '1'),
+				'text' => ($status == 1 ? $AVE_Template->get_config_vars('DOC_ENABLE_TITLE') : $AVE_Template->get_config_vars('DOC_DISABLE_TITLE')),
+				'header' => $AVE_Template->get_config_vars('DOC_STATUS_SUCCESS'),
+				'message' => ($status == 1 ? $AVE_Template->get_config_vars('DOC_STATUS_OFF') : $AVE_Template->get_config_vars('DOC_STATUS_ON')),
+				'theme' => 'accept'
+			];
+
+			$AVE_DB->clearDocument($doc_id);
+
+			reportLog($_SESSION['user_name'] . ' - ' . (($status == 1) ? $AVE_Template->get_config_vars('DOC_STATUS_OFF') : $AVE_Template->get_config_vars('DOC_STATUS_ON')) . ' (' . $doc_id . ')', 2, 2);
+
+			_json($return, true);
+		}
+
+		function documentRecycle ()
+		{
+			global $AVE_DB, $AVE_Template;
+
+			$doc_id = (int) $_REQUEST['doc_id'];
+
+			if (!$doc_id) {
+				$return = [
+					'success' => false,
+					'header' => $AVE_Template->get_config_vars('DOC_STATUS_ERROR'),
+					'message' => '',
+					'theme' => 'error'
+				];
+
+				_json($return, true);
+			}
+
+			$sql = "
+				SELECT
+					document_deleted
+				FROM
+					" . PREFIX . "_documents
+				WHERE
+					Id = '" . $doc_id . "'
+			";
+
+			$status = $AVE_DB->Query($sql)->GetCell();
+
+			$sql = "
+				UPDATE
+					" . PREFIX . "_documents
+				SET
+					document_deleted = '" . ($status == 0 ? 1 : 0) . "'
+				WHERE
+					Id = '" . $doc_id . "'
+			";
+
+			$AVE_DB->Query($sql);
+
+			$return = [
+				'success' => true,
+				'status' => ($status == 1 ? '0' : '1'),
+				'text' => ($status == 1 ? $AVE_Template->get_config_vars('DOC_TEMPORARY_DELETE') : $AVE_Template->get_config_vars('DOC_RESTORE_DELETE')),
+				'header' => $AVE_Template->get_config_vars('DOC_STATUS_SUCCESS'),
+				'message' => ($status == 1 ? $AVE_Template->get_config_vars('DOC_RECYCLE_ON') : $AVE_Template->get_config_vars('DOC_RECYCLE_OFF')),
+				'theme' => 'accept'
+			];
+
+			$AVE_DB->clearDocument($doc_id);
+
+			reportLog($_SESSION['user_name'] . ' - ' . (($status == 1) ? $AVE_Template->get_config_vars('DOC_RECYCLE_ON') : $AVE_Template->get_config_vars('DOC_RECYCLE_OFF')) . ' (' . $doc_id . ')', 2, 2);
+
+			_json($return, true);
 		}
 	}
 ?>

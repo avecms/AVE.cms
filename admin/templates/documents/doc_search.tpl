@@ -1,79 +1,3 @@
-<script type="text/javascript">
-	$(document).ready(function(){ldelim}
-		$('#document_published').datepicker({ldelim}
-			changeMonth: true,
-			changeYear: true,
-
-			onClose: function(dateText, inst) {ldelim}
-			var endDateTextBox = $('#document_expire');
-			if (endDateTextBox.val() != '') {ldelim}
-				var testStartDate = new Date(dateText);
-				var testEndDate = new Date(endDateTextBox.val());
-				if (testStartDate > testEndDate)
-					endDateTextBox.val(dateText);
-			{rdelim}
-			else {ldelim}
-				endDateTextBox.val(dateText);
-			{rdelim}
-			{rdelim},
-			onSelect: function (selectedDateTime){ldelim}
-				var start = $(this).datetimepicker('getDate');
-				$('#document_expire').datetimepicker('option', 'minDate', new Date(start.getTime()));
-			{rdelim}
-		{rdelim});
-
-		{literal}
-		$('.collapsible').collapsible({
-			defaultOpen: 'opened',
-			cssOpen: 'inactive',
-			cssClose: 'normal',
-			cookieName: 'collaps_doc',
-			cookieOptions: {
-				expires: 7,
-				domain: ''
-			},
-			speed: 5,
-			loadOpen: function(elem, opts) {
-				elem.next().show();
-			},
-			loadClose: function(elem, opts) {
-				elem.next().hide();
-			}
-		});
-
-		$('.collapsible').on('click', function() {
-			setTimeout(function() {
-				AveAdmin.sticky_panel_refresh();
-				AveAdmin.select_form();
-			}, 10);
-		});
-		{/literal}
-
-		$('#document_expire').datepicker({ldelim}
-			changeMonth: true,
-			changeYear: true,
-
-			onClose: function(dateText, inst) {ldelim}
-			var startDateTextBox = $('#document_published');
-			if (startDateTextBox.val() != '') {ldelim}
-				var testStartDate = new Date(startDateTextBox.val());
-				var testEndDate = new Date(dateText);
-				if (testStartDate > testEndDate)
-					startDateTextBox.val(dateText);
-			{rdelim}
-			else {ldelim}
-				startDateTextBox.val(dateText);
-			{rdelim}
-		{rdelim},
-		onSelect: function (selectedDateTime){ldelim}
-			var end = $(this).datetimepicker('getDate');
-			$('#document_published').datetimepicker('option', 'maxDate', new Date(end.getTime()) );
-		{rdelim}
-		{rdelim});
-	{rdelim});
-</script>
-
-
 <form method="get" id="doc_search" action="index.php" class="mainForm">
 	<input type="hidden" name="do" value="docs" />
 	{if $smarty.request.action}<input type="hidden" name="action" value="{$smarty.request.action}" />
@@ -235,5 +159,13 @@
 
 	</div>
 </div>
-
 </form>
+
+<script type="text/javascript">
+{literal}
+	$(document).ready(function() {
+		AveDocs.init();
+		AveDocs.search();
+	});
+{/literal}
+</script>

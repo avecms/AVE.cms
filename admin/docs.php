@@ -318,5 +318,17 @@
 				$AVE_Document->documentPosition();
 			}
 			break;
+
+		case 'publish':
+			if (check_permission_acp('document_view')) {
+				$AVE_Document->documentPublish();
+			}
+			break;
+
+		case 'recycle':
+			if (check_permission_acp('document_view')) {
+				$AVE_Document->documentRecycle();
+			}
+			break;
 	}
 ?>
