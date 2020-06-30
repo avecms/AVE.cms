@@ -226,7 +226,7 @@
 
 						<!-- Копировать -->
 						{if $item->cantEdit==1 && $item->Id != 1 && $item->Id != $PAGE_NOT_FOUND_ID}
-							<a class="topDir CopyDocs floatleft" title="{#DOC_COPY#}" href="index.php?do=docs&action=copy&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
+							<a class="topDir documentCopy floatleft" title="{#DOC_COPY#}" href="index.php?do=docs&action=copy&rubric_id={$item->rubric_id}&Id={$item->Id}&cp={$sess}">
 								<span class="icon_sprite_doc icon_copy"></span>
 							</a>
 						{/if}

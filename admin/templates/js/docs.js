@@ -14,6 +14,7 @@ var AveDocs = {
 	//
 	list: function () {
 		this.addDocument();
+		this.documentCopy();
 		this.selectAllDocuments();
 		this.documentAction();
 		this.documentPublish();
@@ -171,7 +172,7 @@ var AveDocs = {
 
 	//
 	documentCopy: function () {
-		$(".CopyDocs").on('click', function (event) {
+		$(".documentCopy").on('click', function (event) {
 			event.preventDefault();
 
 			let href = $(this).attr('href');
@@ -183,8 +184,7 @@ var AveDocs = {
 				} else {
 					$.jGrowl(copy_doc_no, {theme: 'error'});
 				}
-			}
-			);
+			});
 		});
 	},
 
