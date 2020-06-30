@@ -119,6 +119,8 @@ var AveDocs = {
 			event.preventDefault();
 
 			let link = $(this);
+			let link_tr = link.closest('tr');
+			let link_publish = link_tr.find('.documentPublish');
 			let doc_id = link.data('id');
 
 			$.ajax({
@@ -137,16 +139,20 @@ var AveDocs = {
 					if (data.success) {
 
 						(data.status == 1)
-							? link.closest('tr').addClass('red')
-							: link.closest('tr').removeClass('red');
+							? link_tr.removeClass('yellow').addClass('red')
+							: link_tr.removeClass('red');
 
 						(data.status == 1)
 							? link.addClass('recylce')
 							: link.removeClass('recylce');
 
 						(data.status == 1)
-							? link.closest('tr').find('.documentPublish').addClass('hidden')
-							: link.closest('tr').find('.documentPublish').removeClass('hidden');
+							? link_publish.addClass('hidden')
+							: link_publish.removeClass('hidden');
+
+						if (data.status == 0 && link_publish.hasClass('public')) {
+							link_tr.addClass('yellow')
+						}
 
 						link.attr('title', data.text);
 
