@@ -78,7 +78,7 @@ var AveDocs = {
 
 			$.ajax({
 				type: 'POST',
-				url: 'http://ave327.loc/admin/index.php?do=docs&action=publish&cp=' + sess,
+				url: 'index.php?do=docs&action=publish&cp=' + sess,
 				data: {
 					'doc_id': doc_id
 				},
@@ -126,7 +126,7 @@ var AveDocs = {
 
 			$.ajax({
 				type: 'POST',
-				url: 'http://ave327.loc/admin/index.php?do=docs&action=recycle&cp=' + sess,
+				url: 'index.php?do=docs&action=recycle&cp=' + sess,
 				data: {
 					'doc_id': doc_id
 				},
