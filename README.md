@@ -1,4 +1,4 @@
-# AVE.cms v3.26
+# AVE.cms v3.27
 ###### Многофункциональная, система управления сайтом.
 
 ## Оглавление
@@ -20,7 +20,7 @@
    * Apache >= 1.3
    * Nginx >= 1.6.2
    * PHP >= 5.6.x (zlib, cURL, mbString, JSON)
-   * PHP >= 7.x ... <= 7.2.x
+   * PHP >= 7.x ... <= 7.4.x
    * MySQL >= 5.6.x ... <= 5.7.x
 
 ## Установка
@@ -51,4 +51,4 @@ Google+: [Google+](https://plus.google.com/106406255345948508717)
 
 
 ---
-Copyright © 2007-2019 [Ave-Cms.Ru](https://ave-cms.ru) | [AVE.cms 3.26](https://ave-cms.ru)
+Copyright © 2007-2020 [Ave-Cms.Ru](https://ave-cms.ru) | [AVE.cms 3.27](https://ave-cms.ru)

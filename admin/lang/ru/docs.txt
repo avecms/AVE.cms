@@ -188,6 +188,8 @@ DOC_REVISSION_RECOVER	 = "Востановить версию"
 DOC_REVISSION_RECOVER_T	 = "Вы уверены, что хотите данную востановить версию?"
 DOC_REVISSION_DELETE	 = "Удалить версию"
 DOC_REVISSION_DELETE_T	 = "Вы уверены, что хотите удалить данную версию?"
+DOC_REVISSIONS_DELETE	 = "Удалить все ревизии"
+DOC_REVISSIONS_DELETE_T	 = "Вы уверены, что хотите удалить все ревизии?"
 DOC_REVISSION_NO_ITEMS   = "В настоящий момент нет данных"
 
 DOC_URL_ERROR_SYMBOL     = "недопустимые символы"
@@ -324,3 +326,6 @@ DOC_STATUS_OFF              = "Документ снят с публикации
 
 DOC_RECYCLE_ON              = "Документ восстановлен"
 DOC_RECYCLE_OFF             = "Документ помещен в корзину"
+
+DOC_REVISIONS_DEL_SUCCESS   = "Успешно удалены все ревизии"
+DOC_REVISIONS_DELETE        = "Пользователь удалил все ревизии"
