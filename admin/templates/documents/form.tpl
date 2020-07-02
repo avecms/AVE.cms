@@ -1,5 +1,15 @@
-<script>
+<script type="text/javascript">
 	CKEDitor_loaded = false;
+
+	var defaultLang = '{$smarty.session.accept_langs[$smarty.const.DEFAULT_LANGUAGE]}',
+		noneLanguage = '{#DOC_LANG_NONE#}',
+		alert_none_id = '{#DOC_CTRLO_ALERT#}',
+		alert_none_id_t = '{#DOC_CTRLO_TIT#}';
+
+	var doc_form = $('#documentForm'),
+		doc_action = doc_form.attr('action'),
+		doc_id = doc_form.data('id'),
+		doc_prefix = doc_form.data('prefix');
 </script>
 
 <script type="text/javascript">
@@ -14,7 +24,9 @@ function openLinkWin(target, rtrn='', data='') {ldelim}
 	var left = ( screen.width - width ) / 2;
 	var top = ( screen.height - height ) / 2;
 
-	data = data.length ? data : 'selurl';
+	data = data.length
+		? data
+		: 'selurl';
 
 	window.open('index.php?do=docs&action=showsimple&target='+target+'&'+data+'=1&pop=1','pop','left='+left+',top='+top+',width='+width+',height='+height+',scrollbars=1,resizable=1');
 {rdelim}
@@ -59,103 +71,6 @@ function openFileWin(target,id) {ldelim}
 
 $(document).ready(function(){ldelim}
 
-	$(".ConfirmRecover").click( function(e) {ldelim}
-		e.preventDefault();
-		var href = $(this).attr('href');
-		var title = $(this).attr('dir');
-		var confirm = $(this).attr('name');
-		jConfirm(
-				confirm,
-				title,
-				function(b){ldelim}
-					if (b){ldelim}
-						$.alerts._overlay('show');
-						window.location = href;
-					{rdelim}
-				{rdelim}
-			);
-	{rdelim});
-
-	$(".ConfirmDeleteRev").click( function(e) {ldelim}
-		e.preventDefault();
-		var revission = $(this).attr('rev');
-		var href = $(this).attr('href');
-		var title = $(this).attr('dir');
-		var confirm = $(this).attr('name');
-		jConfirm(
-				confirm,
-				title,
-				function(b){ldelim}
-					if (b){ldelim}
-						$.alerts._overlay('hide');
-						$.alerts._overlay('show');
-						$.ajax({ldelim}
-							url: ave_path+'admin/'+href+'&ajax=run',
-							type: 'POST',
-							success: function (data) {ldelim}
-								$.alerts._overlay('hide');
-								$.jGrowl(revission,{ldelim}theme: 'accept'{rdelim});
-								$("#"+revission).remove();
-							{rdelim}
-						{rdelim});
-					{rdelim}
-				{rdelim}
-			);
-	{rdelim});
-
-	function check(){ldelim}
-		$.ajax({ldelim}
-			beforeSend: function(){ldelim}
-				{rdelim},
-			url: 'index.php',
-			data: ({ldelim}
-				'action': 'checkurl',
-				'do': 'docs',
-				'check': false,
-				'cp': '{$sess}',
-				'id': '{$document->Id}',
-				'alias': $("#document_alias").val()
-				{rdelim}),
-			timeout:3000,
-			dataType: "json",
-			success:
-				function(data){ldelim}
-					$.jGrowl(data[0],{ldelim}theme: data[1]{rdelim});
-				{rdelim}
-		{rdelim});
-	{rdelim};
-
-	$("#translit").click(function(){ldelim}
-		$.ajax({ldelim}
-			beforeSend: function(){ldelim}
-				$("#checkResult").html('');
-				{rdelim},
-			url:'index.php',
-			data: ({ldelim}
-				action: 'translit',
-				'do': 'docs',
-				cp: '{$sess}',
-				alias: $("#document_alias").val(),
-				title: $("#document_title").val(),
-				prefix: '{$document->rubric_url_prefix}'
-				{rdelim}),
-			timeout:3000,
-			success: function(data){ldelim}
-				$("#document_alias").val(data);
-				check();
-				{rdelim}
-		{rdelim});
-	{rdelim});
-
-	$("#document_alias").change(function(){ldelim}
-		if ($("#document_alias").val()!='') check();
-	{rdelim});
-
-	$("#loading")
-		.bind("ajaxSend", function(){ldelim}$.alerts._overlay('show'){rdelim})
-		.bind("ajaxComplete", function(){ldelim}$.alerts._overlay('hide'){rdelim}
-	);
-
 	{if $smarty.request.feld != ''}
 		$("#feld_{$smarty.request.feld|escape}").css({ldelim}
 			'border' : '2px solid red',
@@ -163,107 +78,6 @@ $(document).ready(function(){ldelim}
 			'background' : '#ffffff'
 		{rdelim});
 	{/if}
-
-	$('#document_published').datetimepicker({ldelim}
-		changeMonth: true,
-		changeYear: true,
-		stepHour: 1,
-		stepMinute: 1,
-
-		onClose: function(dateText, inst) {ldelim}
-		var endDateTextBox = $('#document_expire');
-		if (endDateTextBox.val() != '') {ldelim}
-			var testStartDate = new Date(dateText);
-			var testEndDate = new Date(endDateTextBox.val());
-			if (testStartDate > testEndDate)
-				endDateTextBox.val(dateText);
-		{rdelim}
-		else {ldelim}
-			endDateTextBox.val(dateText);
-		{rdelim}
-		{rdelim}
-	{rdelim});
-
-	$('#document_expire').datetimepicker({ldelim}
-		changeMonth: true,
-		changeYear: true,
-
-		stepHour: 1,
-		stepMinute: 1,
-
-		onClose: function(dateText, inst) {ldelim}
-		var startDateTextBox = $('#document_published');
-		if (startDateTextBox.val() != '') {ldelim}
-			var testStartDate = new Date(startDateTextBox.val());
-			var testEndDate = new Date(dateText);
-			if (testStartDate > testEndDate)
-				startDateTextBox.val(dateText);
-		{rdelim}
-		else {ldelim}
-			startDateTextBox.val(dateText);
-		{rdelim}
-	{rdelim},
-	onSelect: function (selectedDateTime){ldelim}
-		var end = $(this).datetimepicker('getDate');
-		$('#document_published').datetimepicker('option', 'maxDate', new Date(end.getTime()) );
-	{rdelim}
-	{rdelim});
-
-	$(".linkSelect").change(function() {ldelim}
-		var link = $(this).val();
-		var parent = $(this).find(' option:selected').attr("data-id");
-		{if $document->rubric_url_prefix == ""}
-			$("#document_alias").val(link);
-		{else}
-			$("#document_alias").val(link+'/{$document->rubric_url_prefix}');
-		{/if}
-		$("#document_parent").val(parent);
-		return false;
-	{rdelim});
-
-	$("#document_meta_keywords").autocomplete("index.php?do=docs&action=keywords&ajax=run&cp={$sess}", {ldelim}
-		max: 20,
-		width: 300,
-		highlight: false,
-		multiple: true,
-		multipleSeparator: ", ",
-		autoFill: true,
-		scroll: true,
-		scrollHeight: 180
-	{rdelim});
-
-	$('#document_lang').change(function() {ldelim}
-		var defaultLang = '{$smarty.session.accept_langs[$smarty.const.DEFAULT_LANGUAGE]}';
-		var lang = $('#document_lang option:selected').val();
-		var alias = $('#document_alias').val().split('/');
-		var languages = [];
-
-		$('#document_lang option').each(function(){ldelim}
-			languages.push($(this).attr('value'));
-		{rdelim});
-
-		if ($.inArray(alias[0], languages) > -1) {ldelim}
-			alias.splice(0, 1);
-		{rdelim}
-
-		if ((lang == defaultLang)||(lang == "{#DOC_LANG_NONE#}")) {ldelim}
-			$('#document_alias').val(alias.join('/'));
-		{rdelim} else {ldelim}
-			if (alias[0] != "") {ldelim}
-				console.log(alias);
-				$('#document_alias').val(lang + '/' + alias.join('/'));
-			{rdelim} else {ldelim}
-				$('#document_alias').val(lang);
-			{rdelim}
-		{rdelim}
-	{rdelim});
-
-	$('#lang_block').hide();
-	$('#show_lang').click(function(event) {ldelim}
-		event.preventDefault();
-		$('#lang_block').show();
-		$('#show_lang').hide();
-	{rdelim});
 
 {rdelim});
 
@@ -321,7 +135,7 @@ $(document).ready(function(){ldelim}
 </div>
 
 
-<form method="post" name="formDocOption" action="{$document->formaction}" enctype="multipart/form-data" class="mainForm" id="formDoc">
+<form method="post" name="formDocOption" action="{$document->formaction}" enctype="multipart/form-data" data-id="{$document->Id}" data-prefix="{$document->rubric_url_prefix}" class="mainForm" id="formDoc">
 
 	<input class="mousetrap" name="closeafter" type="hidden" id="closeafter" value="{$smarty.request.closeafter}">
 
@@ -342,7 +156,6 @@ $(document).ready(function(){ldelim}
 
 			<!-- Meta данные -->
 			<div id="tab1" class="tab_content" style="display: block;">
-
 				<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
 					<col width="250">
 					<col>
@@ -415,9 +228,8 @@ $(document).ready(function(){ldelim}
 
 					</tbody>
 				</table>
-
-
 			</div>
+
 			<!-- Alias документа -->
 			<div id="tab2" class="tab_content" style="display: none;">
 				<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
@@ -459,7 +271,6 @@ $(document).ready(function(){ldelim}
 											{/if}
 										</span>
 								</div>
-								<span id="loading" style="display:none"></span>
 							</td>
 						</tr>
 
@@ -500,6 +311,7 @@ $(document).ready(function(){ldelim}
 					</tbody>
 				</table>
 			</div>
+
 			<!-- Дата публикации -->
 			<div id="tab3" class="tab_content" style="display: none;">
 				<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
@@ -520,6 +332,7 @@ $(document).ready(function(){ldelim}
 					</tbody>
 				</table>
 			</div>
+
 			<!-- Прочие параметры -->
 			<div id="tab4" class="tab_content" style="display: none;">
 				<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
@@ -543,7 +356,9 @@ $(document).ready(function(){ldelim}
 
 						<tr>
 							<td>{#DOC_CAN_SEARCH#}</td>
-							<td colspan="3"><input name="document_in_search" type="checkbox" id="document_in_search" value="1" {if $document->document_in_search==1 || $smarty.request.action=='new'}checked{/if} /><label> </label></td>
+							<td colspan="3">
+								<input name="document_in_search" type="checkbox" id="document_in_search" value="1" {if $document->document_in_search==1 || $smarty.request.action=='new'}checked{/if} /><label> </label>
+							</td>
 						</tr>
 
 						<tr>
@@ -598,7 +413,9 @@ $(document).ready(function(){ldelim}
 							<td>{#DOC_USE_LANG_PACK#}</td>
 							<td colspan="3">
 								<a id="show_lang" class="button basicBtn" href="#">{#DOC_SHOW_LANG#}</a>
-								<div id="lang_block"><input name="document_lang_group" class="mousetrap" type="text" id="document_lang_group" value="{if $smarty.request.lang_pack}{$smarty.request.lang_pack}{else}{$document->document_lang_group}{/if}" size="4" maxlength="10" style="width: 50px;" /></div>
+								<div id="lang_block">
+									<input name="document_lang_group" class="mousetrap" type="text" id="document_lang_group" value="{if $smarty.request.lang_pack}{$smarty.request.lang_pack}{else}{$document->document_lang_group}{/if}" size="4" maxlength="10" style="width: 50px;" />
+								</div>
 							</td>
 						</tr>
 
@@ -683,7 +500,7 @@ $(document).ready(function(){ldelim}
 					&nbsp;
 					<input type="submit" class="blackBtn SaveEdit" value="{#DOC_BUTTON_EDIT_DOCUMENT_NEXT#}" />
 					</div>
-					<input style="float:right" type="submit" class="greenBtn" value="{#DOC_DISPLAY_NEW_WINDOW#} &raquo;" onClick="window.open('/{if $document_id!=1}index.php?id={$smarty.request.Id}{/if}','_blank');return false;" />
+					<input style="float:right" type="submit" class="greenBtn" value="{#DOC_DISPLAY_NEW_WINDOW#} &raquo;" onClick="window.open('/{if $document_id!=1}index.php?id={$smarty.request.Id}{/if}', '_blank');return false;" />
 					<div class="clear"></div>
 				{elseif $smarty.request.action == 'copy'}
 					<input type="submit" class="basicBtn" name="doc_after" value="{#DOC_BUTTON_ADD_DOCUMENT#}" />
@@ -705,8 +522,11 @@ $(document).ready(function(){ldelim}
 <div class="widget first">
 	<div class="head">
 		<h5>{#DOC_REVISSION#}</h5>
+	<div class="num">
+		<a class="basicNum deleteRevisions" href="index.php?do=docs&action=revisions_delete&id={$document->Id}&rubric_id={$document->rubric_id}&cp={$sess}" data-title="{#DOC_REVISSIONS_DELETE#}" data-confirm="{#DOC_REVISSIONS_DELETE_T#}">{#DOC_REVISSIONS_DELETE#}</a>
 	</div>
-	<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
+	</div>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic" id="tableRevisions">
 		<col>
 		<col>
 		{if $document->canDelRev == 1}
@@ -718,23 +538,33 @@ $(document).ready(function(){ldelim}
 		{/if}
 
 		<thead>
-		<tr>
-			<td>{#DOC_REVISSION_DATA#}</td>
-			<td>{#DOC_REVISSION_USER#}</td>
-			<td colspan="3">{#DOC_ACTIONS#}</td>
-		</tr>
+			<tr>
+				<td>{#DOC_REVISSION_DATA#}</td>
+				<td>{#DOC_REVISSION_USER#}</td>
+				<td colspan="3">{#DOC_ACTIONS#}</td>
+			</tr>
 		</thead>
 
 		<tbody>
 		{if $document_rev}
 		{foreach from=$document_rev item=doc_rev}
 			<tr id="{$doc_rev->doc_revision}">
-				<td align="center"><span class="date_text dgrey">{$doc_rev->doc_revision|date_format:$TIME_FORMAT|pretty_date}</span></td>
-				<td align="center">{$doc_rev->user_id}</td>
-				<td align="center"><a class="topleftDir icon_sprite ico_look" title="{#DOC_REVISSION_VIEW#}" href="../?id={$doc_rev->doc_id}&revission={$doc_rev->doc_revision}" target="_blank"></a></td>
+				<td align="center">
+					<span class="date_text dgrey">{$doc_rev->doc_revision|date_format:$TIME_FORMAT|pretty_date}</span>
+				</td>
+				<td align="center">
+					{$doc_rev->user_id}
+				</td>
+				<td align="center">
+					<a class="topleftDir icon_sprite ico_look" title="{#DOC_REVISSION_VIEW#}" href="../?id={$doc_rev->doc_id}&revission={$doc_rev->doc_revision}" target="_blank"></a>
+				</td>
 				{if $document->canDelRev == 1}
-				<td><a class="topleftDir ConfirmRecover icon_sprite ico_copy" title="{#DOC_REVISSION_RECOVER#}" dir="{#DOC_REVISSION_RECOVER#}" name="{#DOC_REVISSION_RECOVER_T#}" href="index.php?do=docs&action=revision_recover&doc_id={$doc_rev->doc_id}&revission={$doc_rev->doc_revision}&rubric_id={$smarty.request.rubric_id}&cp={$sess}"></a></td>
-				<td><a class="topleftDir ConfirmDeleteRev icon_sprite ico_delete" title="{#DOC_REVISSION_DELETE#}" dir="{#DOC_REVISSION_DELETE#}" rev="{$doc_rev->doc_revision}" name="{#DOC_REVISSION_DELETE_T#}" href="index.php?do=docs&action=revision_delete&doc_id={$doc_rev->doc_id}&revission={$doc_rev->doc_revision}&rubric_id={$smarty.request.rubric_id}&cp={$sess}"></a></td>
+				<td>
+					<a class="topleftDir recoverRevision icon_sprite ico_copy" title="{#DOC_REVISSION_RECOVER#}" data-title="{#DOC_REVISSION_RECOVER#}" data-confirm="{#DOC_REVISSION_RECOVER_T#}" href="index.php?do=docs&action=revision_recover&doc_id={$doc_rev->doc_id}&revission={$doc_rev->doc_revision}&rubric_id={$smarty.request.rubric_id}&cp={$sess}"></a>
+				</td>
+				<td>
+					<a class="topleftDir deleteRevision icon_sprite ico_delete" title="{#DOC_REVISSION_DELETE#}" data-title="{#DOC_REVISSION_DELETE#}" data-confirm="{#DOC_REVISSION_DELETE_T#}" data-rev="{$doc_rev->doc_revision}" href="index.php?do=docs&action=revision_delete&doc_id={$doc_rev->doc_id}&revission={$doc_rev->doc_revision}&rubric_id={$smarty.request.rubric_id}&cp={$sess}"></a>
+				</td>
 				{/if}
 			</tr>
 		{/foreach}
@@ -752,75 +582,13 @@ $(document).ready(function(){ldelim}
 	<div class="fix"></div>
 </div>
 
+<script src="{$ABS_PATH}admin/templates/js/docs.js"></script>
+
 <script language="Javascript" type="text/javascript">
-
-	var sett_options = {ldelim}
-		url: '{$document->formaction}',
-		beforeSubmit: Request,
-		dataType: 'json',
-		success: Response
-	{rdelim}
-
-	function Request(){ldelim}
-		$.alerts._overlay('show');
-	{rdelim}
-
-	function Response(data){ldelim}
-		$.alerts._overlay('hide');
-		$.jGrowl(data['message'], {ldelim}
-			header: data['header'],
-			theme: data['theme']
-		{rdelim});
-	{rdelim}
-
-	function SaveAjax () {ldelim}
-		if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
-		{if $smarty.request.action=='edit'}
-		$('#formDoc').ajaxSubmit(sett_options);
-		{else}
-		$('#formDoc').submit();
-		{/if}
-	{rdelim}
-
-	function docLook () {ldelim}
-		{if $smarty.request.action=='edit'}
-		window.open('/{if $smarty.request.Id!=1}index.php?id={$smarty.request.Id}{/if}','_blank');
-		{else}
-		jAlert('{#DOC_CTRLO_ALERT#}','{#DOC_CTRLO_TIT#}');
-		{/if}
-	{rdelim}
-
-	$(document).ready(function(){ldelim}
-
-		Mousetrap.bind(['ctrl+s', 'command+s'], function(event) {ldelim}
-			event.preventDefault();
-			if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
-			SaveAjax();
-			return false;
-		{rdelim});
-
-		$('.SaveEdit').click(function (event) {ldelim}
-			event.preventDefault();
-			if (window.CKEDITOR) for(var instanceName in CKEDITOR.instances) CKEDITOR.instances[instanceName].updateElement();
-			SaveAjax();
-			return false;
-		{rdelim});
-
-		Mousetrap.bind(['ctrl+o', 'meta+o'], function (event) {ldelim}
-			event.preventDefault();
-			docLook();
-			return false;
-		{rdelim});
-
-		{literal}
-			window.onload = function(){
-				if (window.CKEDITOR) {
-					CKEDITOR.on('instanceReady', function (event) {
-						event.editor.setKeystroke(CKEDITOR.CTRL + 83 /*S*/, 'savedoc');
-					});
-				}
-			}
-		{/literal}
-
-	{rdelim});
+	{literal}
+	$(document).ready(function() {
+		AveDocs.init();
+		AveDocs.edit();
+	});
+	{/literal}
 </script>

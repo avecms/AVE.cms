@@ -3986,14 +3986,14 @@
 		{
 			$alias  = empty($_REQUEST['alias'])  ? '' : prepare_url($_REQUEST['alias']);
 			$prefix = empty($_REQUEST['prefix']) ? '' : prepare_url($_REQUEST['prefix']);
-			$title  = empty($_REQUEST['title'])  ? '' : $_REQUEST['title'];
-			$title  = prepare_url($title);
+			$title  = empty($_REQUEST['title'])  ? '' : prepare_url($_REQUEST['title']);
 
 			if ($alias != $title && $alias != trim($prefix . '/' . $title, '/'))
 				$alias = trim($alias . '/' . $title, '/');
 
 			return $alias;
 		}
+
 
 		/**
 		 * Метод, предназначенный для контроля уникальности URL
@@ -4003,13 +4003,11 @@
 		{
 			global $AVE_DB, $AVE_Template;
 
-			$document_id = (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? $_REQUEST['id'] : 0;
+			$document_id = (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? (int)$_REQUEST['id'] : 0;
 			$document_alias = (isset($_REQUEST['alias'])) ? $_REQUEST['alias'] : '';
-
-			$check = (isset($_REQUEST['check']) && (bool)$_REQUEST['check'] === true) ? true : false;
 			$alias_id = (isset($_REQUEST['alias_id'])) ? (int)$_REQUEST['alias_id'] : 0;
 
-			$errors = array();
+			$errors = [];
 
 			// Если указанный URL пользователем не пустой
 			if (! empty($document_alias))
@@ -4034,14 +4032,13 @@
 				if (! empty($matches))
 					$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_SEGMENT') . implode(', ', $matches);
 
-				$and_docs = (($check === false) ? "AND Id != '" . $document_id . "'" : '');
-				//$and_aliace = (($check === true) ? "AND document_id != '" . $document_id . "'" : '');
+				$and_docs = (($document_id > 0) ? "AND Id != '" . $document_id . "'" : '');
 				$and_alias_id = (isset($alias_id) ? "AND id != '" . $alias_id . "'" : '');
 
 				// Выполняем запрос к БД на получение всех URL и проверку на уникальность
 				if (empty($errors))
 				{
-					$alias_exist = $AVE_DB->Query("
+					$sql = "
 						SELECT 1
 						FROM
 							" . PREFIX . "_documents
@@ -4049,7 +4046,9 @@
 							document_alias = '" . $document_alias . "'
 							$and_docs
 						LIMIT 1
-					")->NumRows();
+					";
+
+					$alias_exist = $AVE_DB->Query($sql)->NumRows();
 
 					if ($alias_exist)
 						$errors[] = $AVE_Template->get_config_vars('DOC_URL_ERROR_DUPLICATES');
@@ -4077,11 +4076,11 @@
 			// Если ошибок не найдено, формируем сообщение об успешной операции
 			if (empty($errors))
 			{
-				return json_encode(array($AVE_Template->get_config_vars('DOC_URL_CHECK_OK') . implode(',<br />', $errors), 'accept', $check));
+				return _json(array($AVE_Template->get_config_vars('DOC_URL_CHECK_OK') . implode(',<br />', $errors), 'accept'), true);
 			}
 			else
 				{ // В противном случае формируем сообщение с ошибкой
-					return json_encode(array($AVE_Template->get_config_vars('DOC_URL_CHECK_ER') . implode(',<br />', $errors), 'error'));
+					return _json(array($AVE_Template->get_config_vars('DOC_URL_CHECK_ER') . implode(',<br />', $errors), 'error'), true);
 				}
 		}
 
@@ -4429,7 +4428,7 @@
 
 			$AVE_DB->clearDocument($doc_id);
 
-			reportLog($_SESSION['user_name'] . ' - ' . (($status == 1) ? $AVE_Template->get_config_vars('DOC_STATUS_OFF') : $AVE_Template->get_config_vars('DOC_STATUS_ON')) . ' (' . $doc_id . ')', 2, 2);
+			reportLog($_SESSION['user_name'] . ' - ' . (($status == 1) ? $AVE_Template->get_config_vars('DOC_DOCUMENT_CLOSE') : $AVE_Template->get_config_vars('DOC_DOCUMENT_OPEN')) . ' (' . $doc_id . ')', 2, 2);
 
 			_json($return, true);
 		}
@@ -4487,6 +4486,53 @@
 			reportLog($_SESSION['user_name'] . ' - ' . (($status == 1) ? $AVE_Template->get_config_vars('DOC_RECYCLE_ON') : $AVE_Template->get_config_vars('DOC_RECYCLE_OFF')) . ' (' . $doc_id . ')', 2, 2);
 
 			_json($return, true);
+		}
+
+
+		function documentRevissionsDelete()
+		{
+			global $AVE_DB, $AVE_Template;
+
+			$document_id = (int)$_REQUEST['id'];
+			$rubric_id = (int)$_REQUEST['rubric_id'];
+
+			$this->documentPermissionFetch($rubric_id);
+
+			if ((isset($_SESSION[$rubric_id . '_delrev'])  && $_SESSION[$rubric_id . '_delrev'] == 1)
+				|| (isset($_SESSION[$rubric_id . '_alles']) && $_SESSION[$rubric_id . '_alles']  == 1)
+				|| (defined('UGROUP') && UGROUP == 1))
+			{
+				$run = true;
+			}
+
+			if ($run === true)
+			{
+				$sql = "
+					DELETE
+					FROM
+						" . PREFIX . "_document_rev
+					WHERE
+						doc_id = '" . $document_id . "'
+				";
+
+				$AVE_DB->Query($sql);
+
+				reportLog($AVE_Template->get_config_vars('DOC_REVISIONS_DELETE') . " (Doc: $document_id)");
+
+				if (! isAjax()) {
+					header('Location:index.php?do=docs&action=edit&rubric_id=' . $rubric_id . '&Id=' . $document_id . '&cp=' . SESSION);
+				} else {
+					$return = [
+						'success' => true,
+						'message' => $AVE_Template->get_config_vars('DOC_REVISIONS_DELETE')
+					];
+
+					_json($return, true);
+				}
+
+			} else {
+				$AVE_Template->assign('content', $AVE_Template->get_config_vars('DOC_NO_DEL_REVISION'));
+			}
 		}
 	}
 ?>

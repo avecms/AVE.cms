@@ -121,3 +121,14 @@ function insertLinkCK(data) {ldelim}
 {/if}
 
 <br />
+
+<script src="{$ABS_PATH}admin/templates/js/docs.js"></script>
+
+<script language="Javascript" type="text/javascript">
+	{literal}
+	$(document).ready(function() {
+		AveDocs.init();
+		AveDocs.search();
+	});
+	{/literal}
+</script>

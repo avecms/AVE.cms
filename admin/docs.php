@@ -182,6 +182,12 @@
 			}
 			break;
 
+		case 'revisions_delete':
+			if (check_permission_acp('document_view')) {
+				$AVE_Document->documentRevissionsDelete((int) $_REQUEST['doc_id'], (int) $_REQUEST['revission'], (int) $_REQUEST['rubric_id']);
+			}
+			break;
+
 		case 'remark':
 			if (check_permission_acp('remark_view'))
 			{
@@ -260,8 +266,8 @@
 			exit;
 
 		case 'checkurl':
-			echo($AVE_Document->documentAliasCheck());
-			exit;
+			$AVE_Document->documentAliasCheck();
+			break;
 
 		case 'aliases':
 			if (check_permission_acp('document_view'))

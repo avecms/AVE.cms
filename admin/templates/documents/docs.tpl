@@ -470,9 +470,9 @@
 
 {if $page_nav}
 	<div class="pagination">
-	<ul class="pages">
-		{$page_nav}
-	</ul>
+		<ul class="pages">
+			{$page_nav}
+		</ul>
 	</div>
 {/if}
 
@@ -483,6 +483,7 @@
 	$(document).ready(function() {
 		AveDocs.init();
 		AveDocs.list();
+		AveDocs.search();
 	});
 {/literal}
 </script>

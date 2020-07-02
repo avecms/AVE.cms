@@ -160,14 +160,3 @@
 	</div>
 </div>
 </form>
-
-<script src="{$ABS_PATH}admin/templates/js/docs.js"></script>
-
-<script type="text/javascript">
-{literal}
-	$(document).ready(function() {
-		AveDocs.init();
-		AveDocs.search();
-	});
-{/literal}
-</script>
