@@ -135,16 +135,17 @@
 	$baseDir = str_replace('\\', '/', dirname(dirname(__FILE__)));
 
 	//-- Если файл существует, показываем его
-	if (file_exists($baseDir . $imagefile))
+	if (file_exists(BASE_DIR . $imagefile))
 	{
-		$img_data = @getimagesize($baseDir . $imagefile);
+		$img_data = @getimagesize(BASE_DIR . $imagefile);
 
 		header('max-age=315360000, public', true);
 		header('Content-Type:' . $img_data['mime'], true);
+		header('Cache-Control: max-age=:315360000', true);
 		header("Expires: " . gmdate("D, d M Y H:i:s", time() + THUMBNAIL_CACHE_LIFETIME) . " GMT");
-		header("Content-Length: " . (string) filesize($baseDir . $imagefile), true);
+		header("Content-Length: " . (string) filesize(BASE_DIR . $imagefile), true);
 
-		readfile($baseDir . $imagefile);
+		readfile(BASE_DIR . $imagefile);
 
 		exit;
 	}
@@ -158,7 +159,7 @@
 	// --
 	if ($lenThumbDir && substr($thumbPath, -$lenThumbDir) != THUMBNAIL_DIR)
 	{
-		if (! file_exists($baseDir . $imagefile))
+		if (! file_exists(BASE_DIR . $imagefile))
 		{
 			report404();
 			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
