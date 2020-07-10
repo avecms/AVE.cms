@@ -309,10 +309,12 @@
 							: '';
 					}
 
-				function getExtension($file)
-				{
-					$file = pathinfo($file);
-					return $file['extension'];
+				if (! function_exists('getExtension')) {
+					function getExtension($file)
+					{
+						$file = pathinfo($file);
+						return $file['extension'];
+					}
 				}
 
 				$valid_formats = array("jpg", "png", "gif", "bmp","jpeg");

@@ -64,21 +64,14 @@
 				{
 					$field_value = preg_replace_callback(
 						'/\[tag:parametr:(\d+)\]/i',
-						function($data) use($field_param)
+						function($data) use ($field_param)
 						{
 							return $field_param[(int)$data[1]];
 						},
 						$tpl
 					);
 
-					$field_value = preg_replace_callback(
-						'/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/',
-							create_function(
-								'$m',
-								'return watermarks(\'$m[1]\', \'$m[2]\', $m[3]);'
-							),
-						$field_value
-					);
+					$field_value = preg_replace_callback('/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/', 'watermarks', $field_value);
 
 					$field_value = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $field_value);
 				}
@@ -108,21 +101,14 @@
 				{
 					$field_value = preg_replace_callback(
 						'/\[tag:parametr:(\d+)\]/i',
-						function($data) use($field_param)
+						function($data) use ($field_param)
 						{
 							return $field_param[(int)$data[1]];
 						},
 						$tpl
 					);
 
-					$field_value = preg_replace_callback(
-						'/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/',
-							create_function(
-								'$m',
-								'return watermarks(\'$m[1]\', \'$m[2]\', $m[3]);'
-							),
-						$field_value
-					);
+					$field_value = preg_replace_callback('/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/', 'watermarks', $field_value);
 
 					$field_value = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $field_value);
 				}
