@@ -74,6 +74,8 @@
 				condition_position ASC;
 		";
 
+		$request_settings = request_get_settings($id);
+
 		$sql_ak = $AVE_DB->Query($sql, -1, 'rqc_' . $id, true, '.conditions');
 
 		// Обрабатываем выпадающие списки
@@ -110,6 +112,24 @@
 		$i = 0;
 
 		$numeric = [];
+
+		if (! defined('ACP'))
+		{
+			$query = "
+				SELECT
+					Id,
+					rubric_field_numeric
+				FROM
+					" . PREFIX . "_rubric_fields
+				WHERE
+					rubric_id = '". $request_settings->rubric_id."'
+			";
+
+			$sql = $AVE_DB->Query($query);
+
+			while ($row = $sql->FetchAssocArray())
+				$numeric[$row['Id']] = $row['rubric_field_numeric'];
+		}
 
 		while ($row_ak = $sql_ak->FetchRow())
 		{
@@ -1053,6 +1073,7 @@
 
 			$GLOBALS['block_generate']['REQUESTS'][$id]['ELEMENTS'][$item_num] = Debug::endTime('ELEMENT_' . $item_num);
 
+			$item = str_replace('[tag:item_num]', $item_num, $item);
 			$item = '<'.'?php $item_num='.var_export($item_num,1).'; $last_item='.var_export($last_item,1).'?'.'>'.$item;
 			$item = '<'.'?php $req_item_id = ' . $row->Id . '; ?>' . $item;
 			$item = str_replace('[tag:if_first]', '<'.'?php if(isset($item_num) && $item_num===1) { ?'.'>', $item);

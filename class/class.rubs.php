@@ -293,6 +293,7 @@
 				}
 
 				$AVE_DB->clearCache('rub_' . $rubric_id);
+				$this->clearChanges();
 
 				$message = $AVE_Template->get_config_vars('RUBRIK_REP_QUICKSAVE_T');
 				$header = $AVE_Template->get_config_vars('RUBRIK_REP_QUICKSAVE_H');
@@ -526,6 +527,7 @@
 
 				// Удалить КЕШ
 				$AVE_DB->clearCache('rub_' . $rubric_id);
+				$this->clearChanges();
 
 				// Удалить файлы шаблонов
 				$this->clearTemplates($rubric_id);
@@ -950,6 +952,7 @@
 
 					// Очищаем кэш рубрики
 					$AVE_DB->clearCache('rub_' . $rubric_id);
+					$this->clearChanges();
 
 					if ($sql->_result === false)
 					{
@@ -996,6 +999,7 @@
 			");
 
 			$AVE_DB->clearCache('rub_' . $rubric_id);
+			$this->clearChanges();
 
 			if ($sql->_result === false)
 			{
@@ -1108,6 +1112,7 @@
 			");
 
 			$AVE_DB->clearCache('rub_' . $rubric_id);
+			$this->clearChanges();
 
 			$message = $AVE_Template->get_config_vars('RUBRIK_FILDS_SAVED');
 			$header = $AVE_Template->get_config_vars('RUBRIK_FILDS_SUCCESS');
@@ -1313,6 +1318,7 @@
 			");
 
 			$AVE_DB->clearCache('rub_' . $rubric_id);
+			$this->clearChanges();
 
 			if ($sql === false)
 			{
@@ -1403,6 +1409,7 @@
 				");
 
 				$AVE_DB->clearCache('rub_' . $rubric_id);
+				$this->clearChanges();
 
 				$message = $AVE_Template->get_config_vars('RUBRIC_SAVED_PERMS');
 				$header = $AVE_Template->get_config_vars('RUBRIC_SUCCESS');
@@ -1646,6 +1653,7 @@
 			");
 
 			$AVE_DB->clearCache('rub_' . $rubric_id);
+			$this->clearChanges();
 
 			if ($sql === false)
 			{
@@ -2154,6 +2162,7 @@
 			");
 
 			$AVE_DB->clearCache('rub_' . $rubric_id);
+			$this->clearChanges();
 
 			if ($sql === false)
 			{
@@ -2222,6 +2231,7 @@
 				");
 
 				$AVE_DB->clearCache('rub_' . $rubric_id);
+				$this->clearChanges();
 
 				// Сохраняем системное сообщение в журнал
 				reportLog($AVE_Template->get_config_vars('RUBRIC_TMPLS_LOG_DEL') . ' - ' . stripslashes(htmlspecialchars($this->rubricNameByIdGet($rubric_id)->rubric_title, ENT_QUOTES)) . ' (Id шаблона: '.$rubric_id.')');
@@ -2352,7 +2362,7 @@
 					a.rubric_id
 			");
 
-			$rubrics = array();
+			$rubrics = [];
 
 			while ($row = $sql->FetchRow())
 			{
@@ -2497,6 +2507,7 @@
 			");
 
 			$AVE_DB->clearCache('rub_' . $rubric_id);
+			$this->clearChanges();
 
 			$message = 'Шаблон успешнно сохранен';
 			$header = 'Выполнено';
@@ -2549,6 +2560,7 @@
 			");
 
 			$AVE_DB->clearCache('rub_' . $rubric_id);
+			$this->clearChanges();
 
 			header('Location:' . get_referer_link());
 			exit;
@@ -2558,6 +2570,13 @@
 		function clearTemplates($rubric_id)
 		{
 
+		}
+
+
+		function clearChanges()
+		{
+			$cache_file = BASE_DIR . '/tmp/cache/sql/rubrics/all/rubrics.cahnges';
+			unlink($cache_file);
 		}
 	}
 ?>

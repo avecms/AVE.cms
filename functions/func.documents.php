@@ -129,11 +129,14 @@
 		$sql = "
 			SELECT
 				# DOCUMENT = $doc_id
-				*
+				doc.*
 			FROM
-				" . PREFIX . "_documents
+				" . PREFIX . "_documents AS doc
+			LEFT JOIN
+				" . PREFIX . "_rubrics AS rub
+				ON rub.Id = doc.rubric_id
 			WHERE
-				Id = '" . $doc_id . "'
+				doc.Id = '" . $doc_id . "'
 		";
 
 		$cache_time = (defined('CACHE_DOC_FILE') && CACHE_DOC_FILE)

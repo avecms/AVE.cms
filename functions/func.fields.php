@@ -427,6 +427,24 @@
 		if (! is_numeric($document_id))
 			return false;
 
+		static $rubric_changed_fields = [];
+
+		if (! isset($AVE_Core) || $AVE_Core->curentdoc->Id != $document_id)
+		{
+			if (! isset($rubric_changed_fields[$document_id]))
+				$rubric_id = get_document($document_id, 'rubric_id');
+				$rubric_changed_fields[$document_id] = get_rubrics_changes($rubric_id, 'rubric_changed_fields');
+
+			$cache_time = $rubric_changed_fields[$document_id];
+		}
+		else
+			{
+				$cache_time = $AVE_Core->curentdoc->rubric_changed_fields;
+			}
+
+		if ($cache_time == 0)
+			$cache_time = -1;
+
 		if (! isset($document_fields[$document_id]))
 		{
 			$document_fields[$document_id] = false;
@@ -462,7 +480,7 @@
 				# DOC FIELDS = $document_id
 			";
 
-			$cache_id = (int)$AVE_Core->curentdoc->Id;
+			$cache_id = (int)$document_id;
 			$cache_id = 'documents/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 
 			$cache_file = md5($query) . '.fields';
@@ -477,12 +495,9 @@
 				// Получаем время создания файла
 				$file_time = filemtime($cache_dir . $cache_file);
 
-				// Получаем время для проверки
-				$cache_time = $AVE_Core->curentdoc->rubric_changed_fields;
-
 				// Сравниваем временные метки
-				if (! $cache_time || $cache_time > $file_time)
-					unlink ($cache_dir . $cache_file);
+				if (! $cache_time || $cache_time > $file_time || $cache_time == 0)
+					unlink($cache_dir . $cache_file);
 			}
 
 			$cache_time = (defined('CACHE_DOC_FILE') && CACHE_DOC_FILE)

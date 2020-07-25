@@ -199,6 +199,7 @@
 	require_once (BASE_DIR . '/functions/func.breadcrumbs.php');	// Хлебные крошки
 	require_once (BASE_DIR . '/functions/func.common.php');			// Основные функции
 	require_once (BASE_DIR . '/functions/func.locale.php');			// Языковые функции
+	require_once (BASE_DIR . '/functions/func.rubrics.php');		// Функции по работе с рубриками
 	require_once (BASE_DIR . '/functions/func.documents.php');		// Функции по работе с документами
 	require_once (BASE_DIR . '/functions/func.fields.php');			// Функции по работе с полями
 	require_once (BASE_DIR . '/functions/func.helpers.php');		// Второстепенные функции
