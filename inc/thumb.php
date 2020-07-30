@@ -131,9 +131,6 @@
 	if ($_SERVER['REQUEST_URI'] == '/inc/thumb.php')
 		die('No image');
 
-	//-- Базовая папка
-	$baseDir = str_replace('\\', '/', dirname(dirname(__FILE__)));
-
 	//-- Если файл существует, показываем его
 	if (file_exists(BASE_DIR . $imagefile))
 	{
@@ -167,7 +164,7 @@
 		exit(0);
 	}
 
-	$thumbPath = $baseDir . '/' . UPLOAD_DIR . '/' . $thumbPath;
+	$thumbPath = BASE_DIR . '/' . UPLOAD_DIR . '/' . $thumbPath;
 	$imagePath = $lenThumbDir ? dirname($thumbPath) : $thumbPath;
 
 	$thumbName = basename($imagefile);
@@ -254,7 +251,7 @@
 		$imageName = 'noimage.png';
 
 		if (! file_exists("$imagePath/$imageName"))
-			$imagePath = $baseDir . '/' . UPLOAD_DIR . '/images';
+			$imagePath = BASE_DIR . '/' . UPLOAD_DIR . '/images';
 
 		if (! file_exists("$imagePath/$imageName"))
 			exit(0);
@@ -264,7 +261,7 @@
 
 	define('IMAGE_TOOLBOX_DEFAULT_JPEG_QUALITY', JPG_QUALITY);
 
-	require $baseDir . '/class/class.thumbnail.php';
+	require BASE_DIR . '/class/class.thumbnail.php';
 
 	$thumb = new Image_Toolbox("$imagePath/$imageName");
 

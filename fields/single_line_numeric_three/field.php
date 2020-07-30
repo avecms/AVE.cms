@@ -125,6 +125,12 @@
 
 				return empty($save) ? '' : implode('|', $save);
 
+			case 'api':
+				if (! empty($field_value))
+					$field_value = explode('|', $field_value);
+
+				return $field_value;
+
 			case 'name':
 				return $AVE_Template->get_config_vars('name');
 

@@ -889,7 +889,7 @@ div.jGrowl div.accept {
 	box-sizing:border-box;
 	border:1px solid #d9dee9;
 	color:#177bbb!important;
-	padding:0 5px;
+	padding:3px 5px;
 	border-radius:3px;
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
@@ -897,6 +897,41 @@ div.jGrowl div.accept {
 
 .code > a {
 	color:#177bbb!important;
+}
+
+.code.green {
+	background-color:#1aae88;
+
+	border:1px solid #199875;
+	color:#fff!important;
+}
+
+.code.green > a {
+	color:#fff!important;
+}
+
+
+.code.red {
+	background-color:#dd1e32;
+
+	border:1px solid #ce1e31;
+	color:#fff!important;
+}
+
+.code.red > a {
+	color:#fff!important;
+}
+
+
+.code.yellow {
+	background-color: #dda70e;
+
+	border:1px solid #db9a01;
+	color:#fff!important;
+}
+
+.code.yellow > a {
+	color:#fff!important;
 }
 
 .docaction .code {

@@ -73,6 +73,10 @@ function get_field_rubrics($field_value, $action, $field_id = 0, $tpl = '', $tpl
 			$res = $field_value;
 			break;
 
+		case 'api':
+			return $field_value;
+			break;
+
 		case 'name':
 			return $AVE_Template->get_config_vars('name');
 			break;

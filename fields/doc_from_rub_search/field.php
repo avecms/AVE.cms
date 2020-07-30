@@ -172,6 +172,34 @@
 				return (! empty($res)) ? implode(PHP_EOL, $res) : $tpl;
 				break;
 
+			case 'api' :
+				$items = [];
+
+				if ($field_value != '' && $field_value != $default)
+				{
+					$items = explode('|', $field_value);
+					$items = array_values(array_diff($items, array('')));
+				}
+
+				if (! empty($items))
+				{
+					foreach($items as $k => $v)
+					{
+						$list[$k]['param'] = htmlspecialchars_decode(get_document($v, 'document_title'), ENT_QUOTES);
+						$list[$k]['value'] = $v;
+					}
+
+					$items = $list;
+				}
+				else
+				{
+					$items[0]['param'] = '';
+					$items[0]['value'] = '';
+				}
+
+				return $items;
+				break;
+
 			case 'name' :
 				return $AVE_Template->get_config_vars('name');
 				break;

@@ -184,6 +184,28 @@
 					}
 				break;
 
+			case 'api':
+				if (empty($field_value))
+					return $field_value;
+
+				$items = unserialize($field_value);
+
+				if ($items != false)
+				{
+					foreach($items as $k => $v)
+					{
+						$list_item = explode('|', $v);
+
+						$list[$k]['param'] = (isset($list_item[0])) ? htmlspecialchars_decode($list_item[0], ENT_QUOTES) : '';
+						$list[$k]['value'] = (isset($list_item[1])) ? htmlspecialchars_decode($list_item[1], ENT_QUOTES) : '';
+					}
+
+					$items = $list;
+				}
+
+				return $items;
+				break;
+
 			case 'name':
 				return $AVE_Template->get_config_vars('name');
 				break;

@@ -24,6 +24,10 @@
 	if (PHP_DEBUGGING_FILE && ! defined('ACP'))
 		include_once BASE_DIR . '/inc/errors.php';
 
+	//-- Registry
+	require(BASE_DIR . '/class/class.registry.php');
+	Registry::init();
+
 	//-- Debug Class
 	require(BASE_DIR . '/class/class.debug.php');
 	new Debug;
@@ -230,7 +234,7 @@
 	//-- Шаблоны
 	write_htaccess_deny(BASE_DIR . '/templates/' . DEFAULT_THEME_FOLDER . '/include/');
 
-	global $AVE_DB, $fields_data;
+	global $AVE_DB;
 
 	//-- Класс для работы с MySQL (Global $AVE_DB)
 	require_once (BASE_DIR . '/class/class.database.php');

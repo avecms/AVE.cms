@@ -1,0 +1,56 @@
+.doc_files {
+	position: relative;
+}
+
+.doc_files > .ui-state-highlight {
+	display: inline-block;
+	margin: 3px;
+	width: 450px;
+	height: 26px;
+	background-color: rgba(255,255,255,0.5); !important;
+	border: solid 1px #eaeaea;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	position: relative;
+	text-align: center;
+	padding: 0 !important;
+}
+
+.doc_files .doc_file {
+	border: 1px solid #d9dee9;
+	display: block;
+	overflow: hidden;
+	padding: 10px;
+	width: auto;
+	border-radius: 5px;
+}
+
+.doc_files .doc_file .file_block {
+	display: block;
+	float: left;
+}
+
+.doc_files .doc_file .handle {
+	float: left;
+	display: inline-block;
+	margin: 4px 7px;
+	cursor: move;
+}
+
+.doc_files .doc_file .file_block .docs_name {
+	display: block;
+	width: 400px;
+	margin-bottom: 5px;
+}
+
+.doc_files .doc_file .file_block .docs_desc {
+	display: block;
+	width: 400px;
+	height: 40px;
+	margin-bottom: 5px;
+}
+
+.doc_files .doc_file .file_block .docs_url {
+	width: 400px;
+}

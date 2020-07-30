@@ -12,7 +12,7 @@
 	 */
 
 	define('APP_NAME', 'AVE.cms');
-	define('APP_VERSION', '3.27');
+	define('APP_VERSION', '3.28');
 	define('APP_INFO', '<a target="_blank" href="https://ave-cms.ru/">Ave-Cms.Ru</a> '.'&copy; 2007-' . date('Y'));
 
 	$themes = [];

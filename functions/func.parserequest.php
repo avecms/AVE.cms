@@ -19,7 +19,7 @@
 	 *
 	 * @return string
 	 */
-	function request_get_settings($id)
+	function request_get_settings ($id)
 	{
 		global $AVE_DB;
 
@@ -53,7 +53,7 @@
 	 *
 	 * @return array
 	 */
-	function request_get_condition_sql_string($id, $update_db = false)
+	function request_get_condition_sql_string ($id, $update_db = false)
 	{
 		global $AVE_DB, $AVE_Core;
 
@@ -270,6 +270,7 @@
 
 		$document_fields = get_document_fields($document_id);
 
+		// ToDo
 		if (! is_array($document_fields[$field_id]))
 			$field_id = intval($document_fields[$field_id]);
 
@@ -325,7 +326,7 @@
 
 						$maxlength = abs($maxlength);
 					}
-					// ToDo - сделать настройки окончаний
+					// ToDo - сделать настройки окончаний = Уже есть в Доп настройках
 					if ($maxlength != 0)
 					{
 						$field_value = truncate($field_value, $maxlength, REQUEST_ETC, REQUEST_BREAK_WORDS);
@@ -339,7 +340,7 @@
 		return $field_value;
 	}
 
-	function showteaser($id, $tparams = '')
+	function showteaser ($id, $tparams = '')
 	{
 		$item = showrequestelement($id, '', $tparams);
 		$item = str_replace('[tag:path]', ABS_PATH, $item);
@@ -350,7 +351,7 @@
 
 
 	// Функция получения уникальных параметров для каждого тизера
-	function f_params_of_teaser($id_param_array,$num)
+	function f_params_of_teaser ($id_param_array,$num)
 	{
 		global $params_of_teaser;
 		return $params_of_teaser[$id_param_array][$num];
@@ -358,7 +359,7 @@
 
 
 	// Функция получения элемента запроса
-	function showrequestelement($mixed, $template = '', $tparams = '')
+	function showrequestelement ($mixed, $template = '', $tparams = '')
 	{
 		global
 			$AVE_DB,
@@ -388,7 +389,7 @@
 		if ($tparams != '')
 		{
 			$tparams_id = $row->Id . md5($tparams);								 // Создаем уникальный id для каждого набора параметров
-			$params_of_teaser[$tparams_id] = [];							 // Для отмены лишних ворнингов
+			$params_of_teaser[$tparams_id] = [];							     // Для отмены лишних ворнингов
 			$tparams = trim($tparams,'[]:');							 // Удаляем: слева ':[', справа ']'
 			$params_of_teaser[$tparams_id] = explode('|',$tparams);	 // Заносим параметры в массив уникального id
 		}
@@ -610,7 +611,11 @@
 		// Кол-во просмотров
 		$item = str_replace('[tag:docviews]', $row->document_count_view, $item);
 
-		unset($row);
+		Registry::remove('documents', $row->Id);
+		Registry::remove('fields', $row->Id);
+		Registry::remove('fields_param', $row->Id);
+
+		unset($row, $template);
 
 		return $item;
 	}
@@ -625,7 +630,7 @@
 	 *
 	 * @return string
 	 */
-	function request_parse($id, $params = [])
+	function request_parse ($id, $params = [])
 	{
 		global $AVE_Core, $AVE_DB, $request_documents;
 
@@ -862,7 +867,7 @@
 			$sql = " ?>
 				SELECT STRAIGHT_JOIN SQL_CALC_FOUND_ROWS
 				#REQUEST = $request->Id
-					a.*
+					a.Id
 					" . $request_select_str . "
 				FROM
 					" . $where_cond['from'] . "
@@ -1060,7 +1065,7 @@
 
 		Debug::startTime('ELEMENTS_ALL');
 
-		foreach ($rows as $row)
+		foreach ($rows AS $row)
 		{
 			$x++;
 			$last_item = ($x == $items_count ? true : false);
@@ -1069,7 +1074,7 @@
 
 			Debug::startTime('ELEMENT_' . $item_num);
 
-			$item = showrequestelement($row, $request->request_template_item);
+			$item = showrequestelement($row->Id, $request->request_template_item);
 
 			$GLOBALS['block_generate']['REQUESTS'][$id]['ELEMENTS'][$item_num] = Debug::endTime('ELEMENT_' . $item_num);
 
@@ -1085,6 +1090,10 @@
 			$item = str_replace('[tag:/if]', '<'.'?php  } ?>', $item);
 			$item = str_replace('[tag:if_else]', '<'.'?php  }else{ ?>', $item);
 			$items .= $item;
+
+			Registry::remove('documents', $row->Id);
+			Registry::remove('fields', $row->Id);
+			Registry::remove('fields_param', $row->Id);
 		}
 
 		$GLOBALS['block_generate']['REQUESTS'][$id]['ELEMENTS']['ALL'] = Debug::endTime('ELEMENTS_ALL');
@@ -1208,7 +1217,7 @@
 	 * 							содержимое поля будет очищено от HTML-тегов.
 	 * @return string
 	 */
-	function request_get_document_field_value($rubric_id, $document_id, $maxlength = 0)
+	function request_get_document_field_value ($rubric_id, $document_id, $maxlength = 0)
 	{
 		if (! is_numeric($rubric_id) || $rubric_id < 1 || ! is_numeric($document_id) || $document_id < 1)
 			return '';

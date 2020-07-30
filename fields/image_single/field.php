@@ -12,7 +12,7 @@
 	 */
 
 	// Изображение
-	function get_field_image_single($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null, $_tpl=null)
+	function get_field_image_single($field_value, $action, $field_id = 0, $tpl = '', $tpl_empty = false, &$maxlength = null, $document_fields = array(), $rubric_id = 0, $default = null, $_tpl = null)
 	{
 		global $AVE_Template;
 
@@ -64,21 +64,28 @@
 				{
 					$field_value = preg_replace_callback(
 						'/\[tag:parametr:(\d+)\]/i',
-						function($data) use ($field_param)
+						function($data) use($field_param)
 						{
 							return $field_param[(int)$data[1]];
 						},
 						$tpl
 					);
 
-					$field_value = preg_replace_callback('/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/', 'watermarks', $field_value);
+					$field_value = preg_replace_callback(
+						'/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/',
+							create_function(
+								'$m',
+								'return watermarks(\'$m[1]\', \'$m[2]\', $m[3]);'
+							),
+						$field_value
+					);
 
 					$field_value = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $field_value);
 				}
 
-				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'doc', $_tpl);
+				$tpl_file = get_field_tpl ($tpl_dir, $field_id, 'doc', $_tpl);
 
-				if($tpl_empty && $tpl_file)
+				if ($tpl_empty && $tpl_file)
 				{
 					$AVE_Template->assign('image', $field_param);
 					return $AVE_Template->fetch($tpl_file);
@@ -91,6 +98,8 @@
 				$field_value = clean_php($field_value);
 
 				$field_param = explode('|', $field_value);
+				$field_param['name'] = preg_replace('/\\.[^.\\s]{3,4}$/', '', $field_param[0]);
+				$field_param['ext'] = getExtension($field_param[0]);
 
 				if ($tpl_empty)
 				{
@@ -101,14 +110,21 @@
 				{
 					$field_value = preg_replace_callback(
 						'/\[tag:parametr:(\d+)\]/i',
-						function($data) use ($field_param)
+						function($data) use($field_param)
 						{
 							return $field_param[(int)$data[1]];
 						},
 						$tpl
 					);
 
-					$field_value = preg_replace_callback('/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/', 'watermarks', $field_value);
+					$field_value = preg_replace_callback(
+						'/\[tag:watermark:(.+?):([a-zA-Z]+):([0-9]+)\]/',
+							create_function(
+								'$m',
+								'return watermarks(\'$m[1]\', \'$m[2]\', $m[3]);'
+							),
+						$field_value
+					);
 
 					$field_value = preg_replace_callback('/\[tag:([r|c|f|t|s]\d+x\d+r*):(.+?)]/', 'callback_make_thumbnail', $field_value);
 				}
@@ -117,7 +133,7 @@
 
 				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'req', $_tpl);
 
-				if($tpl_empty && $tpl_file)
+				if ($tpl_empty && $tpl_file)
 				{
 					$AVE_Template->assign('image', $field_param);
 					return $AVE_Template->fetch($tpl_file);
@@ -135,6 +151,15 @@
 				{
 					$field_value = '';
 				}
+				break;
+
+			case 'api':
+				if (empty($field_value))
+					return $field_value;
+
+				$image = explode('|', $field_value);
+
+				return ['img' => $image[0], 'descr' => isset($image[1]) ? $image[1] : ''];
 				break;
 
 			case 'name' :

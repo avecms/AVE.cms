@@ -170,6 +170,10 @@
 				return (!empty($res)) ? implode(PHP_EOL, $res) : $tpl;
 				break;
 
+			case 'api':
+				return $field_value;
+				break;
+
 			case 'name' :
 				return $AVE_Template->get_config_vars('name');
 				break;

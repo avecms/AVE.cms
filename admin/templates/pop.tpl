@@ -11,7 +11,7 @@
 	<meta http-equiv="pragma" content="no-cache">
 	<meta name="generator" content="Notepad" >
 	<meta name="Expires" content="Mon, 06 Jan 1990 00:00:01 GMT">
-	
+
 	<!-- Favicon -->
 	<link rel="icon" type="image/vnd.microsoft.icon" href="{$ABS_PATH}admin/admin.favicon.ico">
 	<link rel="SHORTCUT ICON" href="{$ABS_PATH}admin/admin.favicon.ico">
@@ -38,30 +38,28 @@
 	</script>
 
 </head>
+	<body>
+		<!-- Wrapper -->
+		<div class="wrapper">
 
-<body>
+			<!-- Content -->
+			<div class="content" id="contentPage">
+				{$content}
+			</div>
 
-<!-- Wrapper -->
-<div class="wrapper">
+			<div class="fix"></div>
+		</div>
 
-	<!-- Content -->
-	<div class="content" id="contentPage">
-		{$content}
-	</div>
+		<!-- Footer -->
+		<div id="footer">
+			<div class="wrapper">
+				<span class="floatleft">{#oficial_site#}: {$smarty.const.APP_INFO}</span>
+				<span class="floatleft ml20">{#support#}: <a href="mailto:support@ave-cms.ru">support@ave-cms.ru</a></span>
+				<span class="floatright">{$smarty.const.APP_NAME} v{$smarty.const.APP_VERSION}</span>
+			</div>
+		</div>
 
-	<div class="fix"></div>
-</div>
+		<script type="text/javascript" src="{$ABS_PATH}admin/lang/{$smarty.session.admin_language}/scripts.js"></script>
 
-
-
-<!-- Footer -->
-<div id="footer">
-	<div class="wrapper">
-		<span class="floatleft">{#oficial_site#}: {$smarty.const.APP_INFO}</span>
-		<span class="floatleft ml20">{#support#}: <a href="mailto:support@ave-cms.ru">support@ave-cms.ru</a></span>
-		<span class="floatright">{$smarty.const.APP_NAME} v{$smarty.const.APP_VERSION}</span>
-	</div>
-</div>
-
-</body>
+	</body>
 </html>

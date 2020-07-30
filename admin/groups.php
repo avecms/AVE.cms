@@ -20,6 +20,7 @@ if (!defined('ACP'))
 global $AVE_Template;
 
 require(BASE_DIR . '/class/class.user.php');
+
 $AVE_User = new AVE_User;
 
 $AVE_Template->config_load(BASE_DIR . '/admin/lang/' . $_SESSION['admin_language'] . '/groups.txt', 'groups');

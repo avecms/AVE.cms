@@ -954,7 +954,7 @@
 					$AVE_DB->clearCache('rub_' . $rubric_id);
 					$this->clearChanges();
 
-					if ($sql->_result === false)
+					if ($sql !== true)
 					{
 						$message = $AVE_Template->get_config_vars('RUBRIK_CODE_SAVED_ERR');
 						$header = $AVE_Template->get_config_vars('RUBRIK_CODE_ERROR');

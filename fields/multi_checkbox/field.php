@@ -153,11 +153,16 @@ function get_field_multi_checkbox($field_value, $action, $field_id=0, $tpl='', $
 
 			break;
 
+		case 'api':
+			return $field_value;
+			break;
+
 		case 'name':
 			return $AVE_Template->get_config_vars('name');
 			break;
 
 	}
+
 	return ($res ? $res : $field_value);
 }
 ?>

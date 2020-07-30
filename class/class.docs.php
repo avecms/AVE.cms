@@ -1268,6 +1268,8 @@
 			// Запускаем триггер перед сохранением, возвращаем $data для дальнейшего сохранения
 			$data = Hooks::trigger('DocumentBeforeSave', $data);
 
+			$data['rubric_id'] = $rubric_id;
+
 			// Выполняем стартовый код рубрики
 			if ($rubric_code)
 				eval (' ?'.'>' . $_rubric->rubric_code_start . '<?'.'php ');
@@ -1828,7 +1830,6 @@
 			// Выполняем код рубрики, после сохранения
 			if ($rubric_code)
 				eval (' ?'.'>' . $_rubric->rubric_code_end . '<?'.'php ');
-
 
 			// Чистим кеш
 			$AVE_DB->clearDocument($document_id);
@@ -3808,8 +3809,9 @@
 				exit;
 			}
 
-			$search_query = $_SESSION['search_query'][$document_id] ? true : false;
+			$search_query = isset($_SESSION['search_query'][$document_id]) ? true : false;
 
+			$AVE_Template->assign('rubric_id', $rubric_id);
 			$AVE_Template->assign('search_query', $search_query);
 			$AVE_Template->assign($document);
 			$AVE_Template->assign('content', $AVE_Template->fetch('documents/form_after.tpl'));

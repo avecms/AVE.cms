@@ -134,6 +134,23 @@
 				}
 				break;
 
+			case 'api':
+				if (empty($field_value))
+					return $field_value;
+
+				$_video = explode('|', $field_value);
+
+				$video = [
+					'url'           => (isset($_video[0]) ? $_video[0] : ''),
+					'width'         => (isset($_video[1]) ? $_video[1] : ''),
+					'height'        => (isset($_video[2]) ? $_video[2] : ''),
+					'fullscreen'    => (isset($_video[3]) ? $_video[3] : ''),
+					'source'        => (isset($_video[4]) ? $_video[4] : '')
+				];
+
+				return $video;
+				break;
+
 			// Тип/Имя поля в административной части
 			case 'name' :
 				return $AVE_Template->get_config_vars('name');

@@ -90,6 +90,11 @@
 					: null;
 				break;
 
+			case 'api':
+				$field_value = clean_php($field_value);
+				$res = ((int)$field_value === 1) ? '1' : '0';
+				break;
+
 			case 'name':
 				return $AVE_Template->get_config_vars('name');
 				break;

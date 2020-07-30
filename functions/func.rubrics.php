@@ -3,14 +3,13 @@
 	/**
 	 * Функция отдает время когда менялась рубрика или ее поля
 	 *
-	 * @param int $rubric_id
-	 * @param int $var
-	 *
-	 * @return mixed
 	 */
-	function get_rubrics_changes ($rubric_id = null, $var = '')
+	function get_rubrics_changes ()
 	{
 		global $AVE_DB;
+
+		if (Registry::stored('rubric_changes'))
+			return Registry::get('rubric_changes');
 
 		$cache_file = BASE_DIR . '/tmp/cache/sql/rubrics/all/rubrics.cahnges';
 
@@ -47,16 +46,8 @@
 					file_put_contents($cache_file, serialize($rubrics));
 			}
 
-		if ($rubric_id > 0)
-		{
-			if (! empty($var))
-				return $rubrics[$rubric_id][$var];
-			else
-				return $rubrics[$rubric_id];
-		}
-		else
-			{
-				return $rubrics;
-			}
+			Registry::set('rubric_changes', $rubrics);
+
+		return Registry::get('rubric_changes');
 	}
 ?>

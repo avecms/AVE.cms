@@ -155,19 +155,16 @@
 	 * @param $id
 	 * @return string
 	 */
-	function get_field_alias ($id)
+	function get_field_alias ($field_id)
 	{
-		global $AVE_DB, $fields_data;
+		if (! Registry::stored('fields_params', $field_id))
+			_get_field_params($field_id);
 
-		if (! isset($fields_data))
-			static $fields_data = [];
+		$alias = Registry::get('fields_params', $field_id);
 
-		if (isset($fields_data[$id]))
-			return $fields_data[$id]['alias'];
+		$alias = $alias['rubric_field_alias'] ? $alias['rubric_field_alias'] : $field_id;
 
-		$fields_data[$id]['alias'] = $AVE_DB->Query("SELECT rubric_field_alias FROM " . PREFIX . "_rubric_fields WHERE Id=" . intval($id))->GetCell();
-
-		return $fields_data[$id]['alias'];
+		return $alias;
 	}
 
 
@@ -247,29 +244,29 @@
 	 *
 	 * @return string
 	 */
-	function get_field_tpl($dir = '', $field_id = 0, $type = 'admin', $_tpl = null)
+	function get_field_tpl ($dir = '', $field_id = 0, $type = 'admin', $_tpl = null)
 	{
 		if (! $type)
 			return false;
 
 		$alias_field_id = get_field_alias($field_id);
 
-		// Если существет файл с ID поля и ID шаблона
+		// Если существует файл с ID поля и ID шаблона
 		if (file_exists($dir.'field-'.$type.'-'.$field_id.'-'.$_tpl.'.tpl'))
 			$tpl = $dir.'field-'.$type.'-'.$field_id.'-'.$_tpl.'.tpl';
-		// Если существет файл с аласом поля и ID шаблона
+		// Если существует файл с аласом поля и ID шаблона
 		else if (file_exists($dir.'field-'.$type.'-'.$alias_field_id.'-'.$_tpl.'.tpl'))
 			$tpl = $dir.'field-'.$type.'-'.$alias_field_id.'-'.$_tpl.'.tpl';
-		// Если существет файл с ID поля
+		// Если существует файл с ID поля
 		else if (file_exists($dir.'field-'.$type.'-'.$field_id.'.tpl'))
 			$tpl = $dir.'field-'.$type.'-'.$field_id.'.tpl';
-		// Если существет файл с алиасом поля
+		// Если существует файл с алиасом поля
 		else if (file_exists($dir.'field-'.$type.'-'.$alias_field_id.'.tpl'))
 			$tpl = $dir.'field-'.$type.'-'.$alias_field_id.'.tpl';
-		// Если существет файл c типом поля
+		// Если существует файл c типом поля
 		else if (file_exists($dir.'field-'.$type.'.tpl'))
 			$tpl = $dir.'field-'.$type.'.tpl';
-		// Если существет файл c ID поля
+		// Если существует файл c ID поля
 		else if (file_exists($dir.'field-'.$field_id.'.tpl'))
 			$tpl = $dir.'field-'.$field_id.'.tpl';
 		// Иначе
@@ -393,7 +390,10 @@
 	 */
 	function get_document_field ($document_id, $field)
 	{
-		$document_fields = get_document_fields($document_id);
+		if (Registry::stored($document_id, $field))
+			$document_fields = Registry::get($document_id, $field);
+		else
+			$document_fields = get_document_fields($document_id);
 
 		if (! is_array($document_fields[$field]))
 			$field = intval($document_fields[$field]);
@@ -417,25 +417,30 @@
 	 */
 	function get_document_fields ($document_id, $values = null)
 	{
-		global $AVE_DB, $AVE_Core, $fields_data; //$request_documents
-
-		if (defined('USE_STATIC_DATA') && USE_STATIC_DATA)
-			static $document_fields = [];
-		else
-			$document_fields = [];
+		global $AVE_DB, $AVE_Core; //$request_documents
 
 		if (! is_numeric($document_id))
 			return false;
 
-		static $rubric_changed_fields = [];
+		if (! defined('USE_STATIC_DATA') || ! USE_STATIC_DATA)
+			Registry::clean();
+
+		if (Registry::stored('fields', $document_id))
+			return Registry::get('fields', $document_id);
+
+		$document_fields = Registry::get('fields');
+		$fields_param = Registry::get('fields_param');
+
+		if (Registry::stored('rubric_changeds'))
+			$rubric_changed_fields = Registry::get('rubric_changeds');
+		else
+			$rubric_changed_fields = get_rubrics_changes();
 
 		if (! isset($AVE_Core) || $AVE_Core->curentdoc->Id != $document_id)
 		{
-			if (! isset($rubric_changed_fields[$document_id]))
-				$rubric_id = get_document($document_id, 'rubric_id');
-				$rubric_changed_fields[$document_id] = get_rubrics_changes($rubric_id, 'rubric_changed_fields');
+			$rubric_id = get_document($document_id, 'rubric_id');
 
-			$cache_time = $rubric_changed_fields[$document_id];
+			$cache_time = $rubric_changed_fields[$rubric_id]['rubric_changed_fields'];
 		}
 		else
 			{
@@ -459,9 +464,11 @@
 					doc_field.rubric_field_id,
 					doc_field.field_value,
 					text_field.field_value AS field_value_more,
+					rub_field.rubric_id,
 					rub_field.rubric_field_alias,
 					rub_field.rubric_field_type,
 					rub_field.rubric_field_default,
+					rub_field.rubric_field_numeric,
 					rub_field.rubric_field_title,
 					rub_field.rubric_field_template,
 					rub_field.rubric_field_template_request
@@ -518,7 +525,9 @@
 				$row['field_value'] = (string)$row['field_value'] . (string)$row['field_value_more'];
 
 				if ($values)
-					$row['field_value'] = (isset($values[$row['rubric_field_id']]) ? $values[$row['rubric_field_id']] : $row['field_value']);
+					$row['field_value'] = (isset($values[$row['rubric_field_id']])
+						? $values[$row['rubric_field_id']]
+						: $row['field_value']);
 
 				if ($row['field_value'] === '')
 				{
@@ -537,14 +546,49 @@
 						$row['rubric_field_template'] = trim(str_replace(['[tag:if_notempty]','[/tag:if_notempty]'], '', $row['rubric_field_template']));
 					}
 
-				$document_fields[$row['document_id']][$row['rubric_field_id']] = $row;
+
+				//$document_fields[$row['document_id']][$row['rubric_field_id']] = $row;
 				$document_fields[$row['document_id']][$row['rubric_field_alias']] = $row['rubric_field_id'];
-				
-				$fields_data[$row['rubric_field_id']]['alias'] = $row['rubric_field_alias'];
+
+
+				$document_fields[$document_id][$row['rubric_field_id']] = [
+					'Id'                    => $row['Id'],
+					'document_id'           => $row['document_id'],
+					'document_author_id'    => $row['document_author_id'],
+					'rubric_field_id'       => $row['rubric_field_id'],
+					'field_value'           => $row['field_value'],
+					'field_value_more'      => $row['field_value_more'],
+					'tpl_req_empty'         => $row['tpl_req_empty'],
+					'tpl_field_empty'       => $row['tpl_field_empty'],
+					'rubric_id'             => $row['rubric_id'],
+					'rubric_field_alias'    => $row['rubric_field_alias'],
+					'rubric_field_type'     => $row['rubric_field_type'],
+					'rubric_field_default'  => $row['rubric_field_default'],
+					'rubric_field_numeric'  => $row['rubric_field_numeric'],
+					'rubric_field_title'    => $row['rubric_field_title'],
+					'rubric_field_template' => $row['rubric_field_template'],
+					'rubric_field_template_request' => $row['rubric_field_template_request'],
+				];
+
+				$fields_param[$row['rubric_field_id']] = [
+					'rubric_id'             => $row['rubric_id'],
+					'rubric_field_alias'    => $row['rubric_field_alias'],
+					'rubric_field_type'     => $row['rubric_field_type'],
+					'rubric_field_default'  => $row['rubric_field_default'],
+					'rubric_field_numeric'  => $row['rubric_field_numeric'],
+					'rubric_field_title'    => $row['rubric_field_title'],
+				];
 			}
 		}
 
-		return $document_fields[$document_id];
+		Registry::set('fields', $document_fields);
+
+		if (! Registry::stored('fields_param', $row['rubric_field_id']))
+			Registry::set('fields_param', $fields_param);
+
+		unset ($document_fields, $rubric_changed_fields, $fields_param);
+
+		return Registry::get('fields', $document_id);
 	}
 
 
@@ -788,6 +832,55 @@
 		$field_name = $document_fields[$field_id]['rubric_field_title'];
 
 		return $field_name;
+	}
+
+
+	/**
+	 * Возвращает параметры поля
+	 *
+	 * @param int $field_id ([tag:fld:X]) - номер поля
+	 *
+	 * @return void
+	 */
+	function _get_field_params ($field_id)
+	{
+		global $AVE_DB;
+
+		if (Registry::stored('fields_params', $field_id))
+			return Registry::get('fields_params', $field_id);
+
+		$fields_param = Registry::get('fields_params');
+
+		$query = "
+				SELECT
+					rubric_id,
+					rubric_field_alias,
+					rubric_field_type,
+					rubric_field_default,
+					rubric_field_numeric,
+					rubric_field_title
+				FROM
+					" . PREFIX . "_rubric_fields
+				WHERE
+					Id = '" . $field_id . "'
+				LIMIT 0,1
+				# FIELDS PARAMS = $field_id
+		";
+
+		$row = $AVE_DB->Query($query)->FetchAssocArray();
+
+		$fields_param[$field_id] = [
+			'rubric_id'             => $row['rubric_id'],
+			'rubric_field_alias'    => $row['rubric_field_alias'],
+			'rubric_field_type'     => $row['rubric_field_type'],
+			'rubric_field_default'  => $row['rubric_field_default'],
+			'rubric_field_numeric'  => $row['rubric_field_numeric'],
+			'rubric_field_title'    => $row['rubric_field_title'],
+		];
+
+		Registry::set('fields_params', $fields_param);
+
+		unset ($query, $row, $fields_param);
 	}
 
 

@@ -12,7 +12,7 @@
 	 */
 
 	// Выпадающий список
-	function get_field_drop_down($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null, $_tpl=null)
+	function get_field_drop_down($field_value, $action, $field_id=0, $tpl='', $tpl_empty=0, &$maxlength=null, $document_fields=array(), $rubric_id=0, $default=null)
 	{
 		global $AVE_Template;
 
@@ -34,7 +34,7 @@
 				$items = explode(',', $default);
 				$items = array_diff($items, array(''));
 
-				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin', $_tpl);
+				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin');
 
 				$AVE_Template->assign('items', $items);
 				$AVE_Template->assign('field_id', $field_id);
@@ -45,8 +45,7 @@
 
 			case 'doc':
 				@$field_value = clean_php($field_value);
-
-				if (! $tpl_empty)
+				if (!$tpl_empty)
 				{
 					$field_param = explode('|', $field_value);
 					$field_value = preg_replace_callback(
@@ -58,14 +57,12 @@
 						$tpl
 					);
 				}
-
 				$res = $field_value;
 				break;
 
 			case 'req':
 				@$field_value = clean_php($field_value);
-
-				if (! $tpl_empty)
+				if (!$tpl_empty)
 				{
 					$field_param = explode('|', $field_value);
 					$field_value = preg_replace_callback(
@@ -77,8 +74,11 @@
 						$tpl
 					);
 				}
-
 				$res = $field_value;
+				break;
+
+			case 'api':
+				return $field_value;
 				break;
 
 			case 'name':

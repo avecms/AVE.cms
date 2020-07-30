@@ -106,6 +106,9 @@
 				$field_value = preg_replace('/[^\d.]/','',$field_value);
 				return $field_value;
 
+			case 'api':
+				return $field_value;
+
 			case 'name':
 				return $AVE_Template->get_config_vars('name');
 

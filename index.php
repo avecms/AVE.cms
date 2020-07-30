@@ -6,7 +6,7 @@
 	 * @package AVE.cms
 	 * @version 3.x
 	 * @filesource
-	 * @copyright © 2007-2016 AVE.cms, http://www.ave-cms.ru
+	 * @copyright © 2007-2020 AVE.cms, https://ave-cms.ru
 	 *
 	 * @license GPL v.2
 	 */
@@ -114,6 +114,8 @@
 
 	unset ($content);
 
+	Registry::clean();
+
 	//-- Ловим 404 ошибку
 	if (isset($_REQUEST['id']) AND ($_REQUEST['id']) == PAGE_NOT_FOUND_ID)
 	{
@@ -172,4 +174,3 @@
 
 	//-- Вывод конечного результата
 	output_compress($render);
-?>

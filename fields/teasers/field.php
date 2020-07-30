@@ -90,6 +90,13 @@
 			case 'req':
 				return get_field_default($field_value, $action, $field_id, $tpl, $tpl_empty);
 
+			case 'api' :
+				if (! empty($field_value))
+					return unserialize($field_value);
+
+				return $field_value;
+				break;
+
 			case 'name' :
 				return $AVE_Template->get_config_vars('name');
 				break;

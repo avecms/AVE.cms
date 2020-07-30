@@ -87,26 +87,32 @@
 
 		if ($doc_id < 1)
 			return [];
-
+/*
 		if (defined('USE_STATIC_DATA') && USE_STATIC_DATA)
 			static $get_documents_data = [];
 		else
 			$get_documents_data = [];
+*/
 
-		if (! isset ($get_documents_data[$doc_id]))
-		{
-			$get_documents_data[$doc_id] = getDocument($doc_id);
 
-			$get_documents_data[$doc_id] = object2array($get_documents_data[$doc_id]);
+		if (! (Registry::stored('documents', $doc_id)))
+			$documents_data = getDocument($doc_id);
+		else
+			$documents_data = Registry::get('documents', $doc_id);
 
-			$get_documents_data[$doc_id]['doc_title'] = $get_documents_data[$doc_id]['document_title'] = htmlspecialchars_decode($get_documents_data[$doc_id]['document_title'], ENT_QUOTES);
-			$get_documents_data[$doc_id]['feld'] = [];
-		}
+		if (! is_object($documents_data))
+			return false;
+
+		$documents_data = object2array($documents_data);
+
+		$documents_data['doc_title'] = $documents_data['document_title'] = htmlspecialchars_decode($documents_data['document_title'], ENT_QUOTES);
+
+		$documents_data['feld'] = [];
 
 		if (isset($key) && $key != '')
-			return $get_documents_data[$doc_id][$key];
+			return $documents_data[$key];
 		else
-			return $get_documents_data[$doc_id];
+			return $documents_data;
 	}
 
 
@@ -121,10 +127,15 @@
 	{
 		global $AVE_DB;
 
+		if (! defined('USE_STATIC_DATA') || ! USE_STATIC_DATA)
+			Registry::clean();
+
 		$doc_id = (int)$doc_id;
 
 		if ($doc_id < 1)
 			return false;
+
+		$documents = Registry::get('documents');
 
 		$sql = "
 			SELECT
@@ -145,7 +156,16 @@
 
 		$data = $AVE_DB->Query($sql, $cache_time, 'dat_' . $doc_id, true, '.data')->FetchRow();
 
-		return $data;
+		if (! is_object($data))
+			return false;
+
+			$documents[$data->Id] = $data;
+
+		Registry::set('documents', $documents);
+
+		unset ($documents);
+
+		return Registry::get('documents', $doc_id);
 	}
 
 

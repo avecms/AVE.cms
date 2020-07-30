@@ -62,6 +62,10 @@
 				$res = get_field_default($field_value,$action,$field_id,$tpl,$tpl_empty,$maxlength,$document_fields,$rubric_id);
 				break;
 
+			case 'api':
+				$res = get_field_default($field_value, $action, $field_id, $tpl, $tpl_empty, $maxlength, $document_fields, $rubric_id);
+				break;
+
 			case 'name' :
 				return $AVE_Template->get_config_vars('name');
 				break;

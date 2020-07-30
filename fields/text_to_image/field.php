@@ -119,6 +119,9 @@
 			case 'name':
 				return $AVE_Template->get_config_vars('name');
 
+			case 'api':
+				return $field_value;
+
 			default: return $field_value;
 		}
 	}

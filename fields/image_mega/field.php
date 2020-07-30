@@ -318,6 +318,35 @@
 
 				break;
 
+			case 'api':
+				if (empty($field_value))
+					return $field_value;
+
+				$items = [];
+
+				if (! empty($field_value))
+				{
+					$images = unserialize($field_value);
+
+					if (! $images)
+						return false;
+
+					foreach ($images AS $k => $v)
+					{
+						$_item = explode('|', $v);
+
+						$items[$k] = [
+							'url'           => $_item[0],
+							'title'         => (isset($_item[1]) ? $_item[1] : ''),
+							'description'   => (isset($_item[2]) ? $_item[2] : ''),
+							'link'          => (isset($_item[3]) ? $_item[3] : '')
+						];
+					}
+				}
+
+				return $items;
+				break;
+
 			case 'name' :
 				return $AVE_Template->get_config_vars('name');
 				break;

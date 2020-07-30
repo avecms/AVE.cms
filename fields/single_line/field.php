@@ -113,6 +113,9 @@
 			case 'save':
 				return $field_value;
 
+			case 'api':
+				return $field_value;
+
 			case 'name':
 				return $AVE_Template->get_config_vars('name');
 

@@ -180,7 +180,7 @@
 					" . (is_numeric($id) ? 'id' : 'sysblock_alias') . " = '" . $id . "'
 			";
 
-			$sys_block = $AVE_DB->Query($sql, -1, 'sysblocks/' . $id . '/')->FetchAssocArray();
+			$sys_block = $AVE_DB->Query($sql, -1, 'sysblocks/' . $id)->FetchAssocArray();
 		}
 
 		if ($param == '')

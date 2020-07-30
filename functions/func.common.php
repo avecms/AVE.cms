@@ -1116,6 +1116,9 @@
 		if (defined('HTML_COMPRESSION') && HTML_COMPRESSION)
 			$data = compress_htlm($data);
 
+		if (isset($_REQUEST['sysblock']))
+			define('ONLYCONTENT', true);
+
 		//-- Вывод статистики загрузки и запросов SQL (только для администраторов)
 		if (! defined('ONLYCONTENT') && UGROUP == 1)
 		{
@@ -1380,7 +1383,7 @@
 		return false;
 	}
 
-	if (!function_exists('getExtension'))
+	if (! function_exists('getExtension'))
 	{
 		function getExtension($path)
 		{
