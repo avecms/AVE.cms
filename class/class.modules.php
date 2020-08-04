@@ -125,6 +125,8 @@
 			// Закрываем папку
 			$d->Close();
 
+			$modules = msort($modules,'ModuleName');
+
 			return $modules;
 		}
 

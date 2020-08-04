@@ -1390,4 +1390,21 @@
 			return strtolower(substr(strrchr($path, "."), 1));
 		}
 	}
+
+
+	if (! function_exists('fixSerialize'))
+	{
+		function fixSerialize($string)
+		{
+			$fixed = preg_replace_callback(
+				'/s:([0-9]+):\"(.*?)\";/',
+				function ($matches) {
+					return "s:".strlen($matches[2]).':"'.$matches[2].'";';
+				},
+				$string
+			);
+
+			return $fixed;
+		}
+	}
 ?>

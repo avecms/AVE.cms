@@ -304,11 +304,11 @@
 
 	function getInstaledModules()
 	{
-		global $AVE_DB, $AVE_Template, $AVE_Module;
+		global $AVE_Template, $AVE_Module;
 
 		$modules = $AVE_Module->_modules;
 
-		$modules_instaled = array();
+		$modules_instaled = [];
 
 		foreach ($modules AS $module)
 		{
@@ -320,6 +320,8 @@
 		}
 
 		unset ($modules);
+
+		$modules_instaled = msort($modules_instaled,'ModuleName');
 
 		$AVE_Template->assign('modules', $modules_instaled);
 	}
