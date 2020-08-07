@@ -66,6 +66,16 @@
 		public $_module_not_found = 'Запрашиваемый модуль не найден.';
 
 
+		function _getRequestModule ($name = null)
+		{
+			foreach ($this->install_modules as $k => $v) {
+				if ($v['ModuleSysName'] == $name && $v['ModuleStatus'] == 1)
+					return true;
+			}
+
+			return false;
+		}
+
 		/**
 		 * Получаем шаблон документа
 		 *
@@ -1355,13 +1365,8 @@
 
 			// Если в запросе пришел параметр module, т.е. вызов модуля,
 			// проверяем установлен и активен ли модуль
-			if (isset($_REQUEST['module'])
-				&& ! (isset($this->install_modules[$_REQUEST['module']])
-					&& '1' == $this->install_modules[$_REQUEST['module']]['ModuleStatus']) )
-			{
-				// Выводим сообщение о том что такого модуля нет
-				display_notice($this->_module_error);
-			}
+			if (! $this->_getRequestModule($_REQUEST['module']))
+				display_notice($this->_module_error); // Выводим сообщение о том что такого модуля нет
 
 			// Парсим теги системы внутренних запросов
 			$out = preg_replace_callback('/\[tag:request:([A-Za-z0-9-_]{1,20}+)\]/', 'request_parse', $out);
