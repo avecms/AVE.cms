@@ -35,6 +35,7 @@
 	  var ave_path = "{$ABS_PATH}";
 	  var ave_theme = "{$smarty.const.DEFAULT_THEME_FOLDER}";
 	  var ave_admintpl = "{$tpl_dir}";
+	  var sess = "{$sess}";
 	</script>
 
 </head>
