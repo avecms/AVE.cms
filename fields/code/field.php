@@ -21,6 +21,8 @@
 
 		$lang_file = $fld_dir . 'lang/' . (defined('ACP') ? $_SESSION['admin_language'] : $_SESSION['user_language']) . '.txt';
 
+		$doc_id = isset($_REQUEST['Id']) ? (int)$_REQUEST['Id'] : '0';
+
 		$AVE_Template->config_load($lang_file, 'lang');
 		$AVE_Template->assign('config_vars', $AVE_Template->get_config_vars());
 		$AVE_Template->config_load($lang_file, 'admin');
@@ -32,7 +34,7 @@
 				$AVE_Template->assign('field_value', $field_value);
 				$AVE_Template->assign('doc_id', (int)$_REQUEST['Id']);
 				$AVE_Template->assign('rubric_id', $rubric_id);
-				$AVE_Template->assign('f_id', $field_id.'_'.(int)$_REQUEST['Id']);
+				$AVE_Template->assign('f_id', $field_id . '_' . $doc_id);
 
 				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin', $_tpl);
 

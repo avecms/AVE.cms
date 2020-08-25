@@ -30,11 +30,10 @@
 
 		<!-- JS Scripts -->
 		<script>
-			var ave_path = "{$ABS_PATH}";
-			var ave_theme = "{$smarty.const.DEFAULT_THEME_FOLDER}";
-			var ave_admintpl = "{$tpl_dir}";
-
-			var sess = '{$sess}';
+			var ave_path = "{$ABS_PATH}",
+				ave_theme = "{$smarty.const.DEFAULT_THEME_FOLDER}",
+				ave_admintpl = "{$tpl_dir}",
+				sess = '{$sess}';
 		</script>
 
 		<script type="text/javascript" language="JavaScript">

@@ -29,7 +29,7 @@
 		public static $run_hooks;
 
 
-		public static function init()
+		public static function init ()
 		{
 			if (!self::$instance) {
 				self::$instance = new Hooks();
@@ -40,7 +40,7 @@
 		/**
 		 * Add Hook
 		 */
-		public static function register($name, $function, $priority = 10)
+		public static function register ($name, $function, $priority = 10)
 		{
 			// If we have already registered this action return true
 			if (isset(self::$hooks[$name][$priority][$function]))
@@ -74,7 +74,7 @@
 		/**
 		 * Do Hook
 		 */
-		public static function trigger($name, $arguments = "")
+		public static function trigger ($name, $arguments = "")
 		{
 			// Oh, no you didn't. Are you trying to run an action hook that doesn't exist?
 			if (! isset(self::$hooks[$name]))
@@ -115,7 +115,7 @@
 		/**
 		 * Remove Hook
 		 */
-		public static function unregister($name, $function, $priority = 10)
+		public static function unregister ($name, $function, $priority = 10)
 		{
 			// If the action hook doesn't, just return true
 			if (!isset(self::$hooks[$name][$priority][$function]))
@@ -135,7 +135,7 @@
 		 * Get the currently running action hook
 		 *
 		 */
-		public static function current()
+		public static function current ()
 		{
 			return self::$current_hook;
 		}
@@ -144,7 +144,7 @@
 		/**
 		 * Has Run
 		 */
-		public static function has($hook, $priority = 10)
+		public static function has ($hook, $priority = 10)
 		{
 			if (isset(self::$hooks[$hook][$priority]))
 			{
@@ -160,7 +160,7 @@
 		/**
 		 * Hook Exists
 		 */
-		public static function exists($name)
+		public static function exists ($name)
 		{
 			if (isset(self::$hooks[$name]))
 			{

@@ -37,7 +37,7 @@
 	require_once (BASE_DIR . '/lib/mobile_detect/Mobile_Detect.php');
 	$MobileDetect = new Mobile_Detect;
 
-	$init_start = microtime(true);
+	$init_start = microtime();
 
 	//-- Подключаем файл инициализации
 	require (BASE_DIR . '/inc/init.php');
@@ -57,6 +57,7 @@
 
 	//-- Подключаем ядро системы
 	require (BASE_DIR . '/class/class.core.php');
+
 	$AVE_Core = new AVE_Core;
 
 	//-- Проверям на вызов внешних модулей и системных блоков
@@ -69,10 +70,10 @@
 	)
 		$AVE_Core->coreUrlParse($_SERVER['REQUEST_URI']);
 
-	$GLOBALS['page_id'] = array((isset($_REQUEST['id'])
+	$GLOBALS['page_id'] = [(isset($_REQUEST['id'])
 		? $_REQUEST['id']
 		: '')
-			=> ['page' => floatval(0)]);
+			=> ['page' => floatval(0)]];
 
 	//-- Если пришел вызов на показ ревизии документа
 	if (! empty($_REQUEST['revission']))

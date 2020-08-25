@@ -21,8 +21,24 @@
 	//-- Подключаем файл настроек
 	require_once (BASE_DIR . '/inc/config.php');
 
-	if (PHP_DEBUGGING_FILE && ! defined('ACP'))
-		include_once BASE_DIR . '/inc/errors.php';
+	//-- Вкл/Выкл отображения ошибок php
+	if (! PHP_DEBUGGING)
+	{
+		error_reporting(E_ERROR);
+		ini_set('display_errors', 7);
+	}
+	else
+		{
+			error_reporting(E_ALL);
+			ini_set('display_errors', false);
+		}
+
+
+	if (PHP_DEBUGGING_FILE && !defined('ACP'))
+	{
+		require(BASE_DIR . '/class/class.errors.php');
+		new Errors();
+	}
 
 	//-- Registry
 	require(BASE_DIR . '/class/class.registry.php');
@@ -42,7 +58,7 @@
 		if (! ini_get('register_globals'))
 			return;
 
-		$allowed = array(
+		$allowed =[
 			'_ENV'		=> 1,
 			'_GET'		=> 1,
 			'_POST'		=> 1,
@@ -51,9 +67,9 @@
 			'_SERVER'	=> 1,
 			'_REQUEST'	=> 1,
 			'GLOBALS'	=> 1
-		);
+		];
 
-		foreach ($GLOBALS as $key => $value)
+		foreach ($GLOBALS AS $key => $value)
 		{
 			if (! isset($allowed[$key]))
 				unset($GLOBALS[$key]);
@@ -91,16 +107,6 @@
 
 		return $array;
 	}
-
-
-	if (! get_magic_quotes_gpc())
-	{
-		$_GET		= add_slashes($_GET);
-		$_POST		= add_slashes($_POST);
-		$_REQUEST	= array_merge($_POST, $_GET);
-		$_COOKIE	= add_slashes($_COOKIE);
-	}
-
 
 	function isSSL()
 	{
@@ -183,21 +189,6 @@
 
 	//-- Переключение для нормальной работы с русскими буквами в некоторых функциях
 	mb_internal_encoding("UTF-8");
-
-	//-- Вкл/Выкл отображения ошибок php
-	if (! PHP_DEBUGGING_FILE)
-	{
-		if (! PHP_DEBUGGING)
-		{
-			error_reporting(E_ERROR);
-			ini_set('display_errors', 7);
-		}
-		else
-			{
-				error_reporting(E_ALL);
-				ini_set('display_errors', 1);
-			}
-	}
 
 	//-- Подкючаем необходимые файлы функций
 	require_once (BASE_DIR . '/functions/func.breadcrumbs.php');	// Хлебные крошки
