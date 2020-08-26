@@ -11,7 +11,7 @@
 	 * @license GPL v.2
 	 */
 
-	define ('START_MICROTIME', microtime(true));
+	define ('START_MICROTIME', microtime());
 	define ('START_MEMORY', memory_get_usage());
 	define ('BASE_DIR', str_replace("\\", "/", dirname(__FILE__)));
 
@@ -175,3 +175,5 @@
 
 	//-- Вывод конечного результата
 	output_compress($render);
+
+	$AVE_DB->Close();

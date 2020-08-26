@@ -1024,7 +1024,7 @@
 			$out .= '<br>';
 			$out .= 'Memory peak usage: ' . self::getStatistic('peak');
 			$out .= '<br>';
-			$out .= 'SQL Queries: ' . $AVE_DB->DBProfilesGet('count') . ' for ' . $AVE_DB->DBProfilesGet('time') . ' sec';
+			$out .= 'Real SQL Queries: ' . $AVE_DB->DBProfilesGet('count') . ' for ' . $AVE_DB->DBProfilesGet('time') . ' sec';
 			$out .= '<br>';
 			$out .= 'All SQL Queries: ' . count($AVE_DB->_query_list);
 			$out .= '</div>';
