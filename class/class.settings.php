@@ -761,10 +761,16 @@
 
 		function showCacheSize ()
 		{
+			global $AVE_Template;
+
 			switch ($_REQUEST['source'])
 			{
 				case 'smarty':
 					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/smarty'));
+					break;
+
+				case 'block':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/block'));
 					break;
 
 				case 'documents':
@@ -799,6 +805,10 @@
 					$size = format_size(get_dir_size(BASE_DIR . '/tmp/session'));
 					break;
 
+				case 'sysblocks':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/sysblocks'));
+					break;
+
 				case 'settings':
 					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/settings'));
 					break;
@@ -806,7 +816,7 @@
 
 			$return = [
 				'size' => $size,
-				'message' => 'Успешно выполнено',
+				'message' => $AVE_Template->get_config_vars('SETTINGS_SUCCESS'),
 				'theme' => 'accept'
 			];
 
@@ -824,8 +834,8 @@
 					$cache_dir = BASE_DIR . '/tmp/cache/smarty';
 					break;
 
-				case 'blocks':
-					$cache_dir = BASE_DIR . '/tmp/blocks';
+				case 'block':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/block';
 					break;
 
 				case 'documents':
@@ -857,7 +867,7 @@
 					break;
 
 				case 'sysblocks':
-					$cache_dir = BASE_DIR . '/tmp/sysblocks';
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/sysblocks';
 					break;
 
 				case 'sessions':
@@ -873,8 +883,8 @@
 
 			$return = [
 				'size' => format_size(get_dir_size($cache_dir)),
-				'header' => $remove ? $AVE_Template->get_config_vars('SETTINGS_CACHE_SUCCES') : $AVE_Template->get_config_vars('SETTINGS_CACHE_ERROR'),
-				'message' => $remove ? $AVE_Template->get_config_vars('SETTINGS_CACHE_SUCCES_T') : $AVE_Template->get_config_vars('SETTINGS_CACHE_ERROR_T'),
+				'header' => $remove ? $AVE_Template->get_config_vars('SETTINGS_CACHE_SUCCESS') : $AVE_Template->get_config_vars('SETTINGS_CACHE_ERROR'),
+				'message' => $remove ? $AVE_Template->get_config_vars('SETTINGS_CACHE_SUCCESS_T') : $AVE_Template->get_config_vars('SETTINGS_CACHE_ERROR_T'),
 				'theme' => $remove ? 'accept' : 'error'
 			];
 

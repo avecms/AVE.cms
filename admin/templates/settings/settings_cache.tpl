@@ -151,10 +151,10 @@
 					{#SETTINGS_CACHE_T_BLOCKS#}
 				</td>
 				<td align="center">
-					<strong class="code" id="btn-settings"><a href="javascript:void(0);" class="link btn-show" data-source="blocks">{#SETTINGS_CACHE_SHOW#}</a></strong>
+					<strong class="code" id="btn-settings"><a href="javascript:void(0);" class="link btn-show" data-source="block">{#SETTINGS_CACHE_SHOW#}</a></strong>
 				</td>
 				<td align="center">
-					<a href="javascript:void(0);" class="btn redBtn btn-clear" data-source="blocks">{#SETTINGS_CACHE_CLEAR#}</a>
+					<a href="javascript:void(0);" class="btn redBtn btn-clear" data-source="block">{#SETTINGS_CACHE_CLEAR#}</a>
 				</td>
 			</tr>
 			<tr>
