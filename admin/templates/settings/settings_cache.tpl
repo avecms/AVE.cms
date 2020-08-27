@@ -151,7 +151,7 @@
 					{#SETTINGS_CACHE_T_BLOCKS#}
 				</td>
 				<td align="center">
-					<strong class="code" id="btn-settings"><a href="javascript:void(0);" class="link btn-show" data-source="block">{#SETTINGS_CACHE_SHOW#}</a></strong>
+					<strong class="code" id="btn-block"><a href="javascript:void(0);" class="link btn-show" data-source="block">{#SETTINGS_CACHE_SHOW#}</a></strong>
 				</td>
 				<td align="center">
 					<a href="javascript:void(0);" class="btn redBtn btn-clear" data-source="block">{#SETTINGS_CACHE_CLEAR#}</a>
@@ -162,7 +162,7 @@
 					{#SETTINGS_CACHE_T_SYSBLOKS#}
 				</td>
 				<td align="center">
-					<strong class="code" id="btn-settings"><a href="javascript:void(0);" class="link btn-show" data-source="sysblocks">{#SETTINGS_CACHE_SHOW#}</a></strong>
+					<strong class="code" id="btn-sysblocks"><a href="javascript:void(0);" class="link btn-show" data-source="sysblocks">{#SETTINGS_CACHE_SHOW#}</a></strong>
 				</td>
 				<td align="center">
 					<a href="javascript:void(0);" class="btn redBtn btn-clear" data-source="sysblocks">{#SETTINGS_CACHE_CLEAR#}</a>
