@@ -824,6 +824,10 @@
 					$cache_dir = BASE_DIR . '/tmp/cache/smarty';
 					break;
 
+				case 'blocks':
+					$cache_dir = BASE_DIR . '/tmp/blocks';
+					break;
+
 				case 'documents':
 					$cache_dir = BASE_DIR . '/tmp/cache/sql/documents';
 					break;
@@ -850,6 +854,10 @@
 
 				case 'rubrics':
 					$cache_dir = BASE_DIR . '/tmp/cache/sql/rubrics';
+					break;
+
+				case 'sysblocks':
+					$cache_dir = BASE_DIR . '/tmp/sysblocks';
 					break;
 
 				case 'sessions':

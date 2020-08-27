@@ -60,7 +60,7 @@
 		<tbody>
 			<tr>
 				<td>
-					Шаблоны Smarty
+					{#SETTINGS_CACHE_T_SMARTY#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-smarty"><a href="javascript:void(0);" class="link btn-show" data-source="smarty">{#SETTINGS_CACHE_SHOW#}</a></strong>
@@ -71,7 +71,7 @@
 			</tr>
 			<tr>
 				<td>
-					Данные документов
+					{#SETTINGS_CACHE_T_DOCS#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-documents"><a href="javascript:void(0);" class="link btn-show" data-source="documents">{#SETTINGS_CACHE_SHOW#}</a></strong>
@@ -82,7 +82,7 @@
 			</tr>
 			<tr>
 				<td>
-					Данные запросов
+					{#SETTINGS_CACHE_T_QUERIES#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-requests"><a href="javascript:void(0);" class="link btn-show" data-source="requests">{#SETTINGS_CACHE_SHOW#}</a></strong>
@@ -93,7 +93,7 @@
 			</tr>
 			<tr>
 				<td>
-					Данные модулей
+					{#SETTINGS_CACHE_T_MODULES#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-modules"><a href="javascript:void(0);" class="link btn-show" data-source="modules">{#SETTINGS_CACHE_SHOW#}</a></strong>
@@ -104,7 +104,7 @@
 			</tr>
 			<tr>
 				<td>
-					Данные навигации
+					{#SETTINGS_CACHE_T_NAVI#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-navigations"><a href="javascript:void(0);" class="link btn-show" data-source="navigations">{#SETTINGS_CACHE_SHOW#}</a></strong>
@@ -115,7 +115,7 @@
 			</tr>
 			<tr>
 				<td>
-					Данные рубрик
+					{#SETTINGS_CACHE_T_RUBRICS#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-rubrics"><a href="javascript:void(0);" class="link btn-show" data-source="rubrics">{#SETTINGS_CACHE_SHOW#}</a></strong>
@@ -126,7 +126,7 @@
 			</tr>
 			<tr>
 				<td>
-					Данные постраничной навигации
+					{#SETTINGS_CACHE_T_PAGINATION#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-paginations"><a href="javascript:void(0);" class="link btn-show" data-source="paginations">{#SETTINGS_CACHE_SHOW#}</a></strong>
@@ -137,7 +137,7 @@
 			</tr>
 			<tr>
 				<td>
-					Данные сессий
+					{#SETTINGS_CACHE_T_SESSIONS#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-sessions"><a href="javascript:void(0);" class="link btn-show" data-source="sessions">{#SETTINGS_CACHE_SHOW#}</a></strong>
@@ -148,7 +148,29 @@
 			</tr>
 			<tr>
 				<td>
-					Данные системных настроек
+					{#SETTINGS_CACHE_T_BLOCKS#}
+				</td>
+				<td align="center">
+					<strong class="code" id="btn-settings"><a href="javascript:void(0);" class="link btn-show" data-source="blocks">{#SETTINGS_CACHE_SHOW#}</a></strong>
+				</td>
+				<td align="center">
+					<a href="javascript:void(0);" class="btn redBtn btn-clear" data-source="blocks">{#SETTINGS_CACHE_CLEAR#}</a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{#SETTINGS_CACHE_T_SYSBLOKS#}
+				</td>
+				<td align="center">
+					<strong class="code" id="btn-settings"><a href="javascript:void(0);" class="link btn-show" data-source="sysblocks">{#SETTINGS_CACHE_SHOW#}</a></strong>
+				</td>
+				<td align="center">
+					<a href="javascript:void(0);" class="btn redBtn btn-clear" data-source="sysblocks">{#SETTINGS_CACHE_CLEAR#}</a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{#SETTINGS_CACHE_T_SETTINGS#}
 				</td>
 				<td align="center">
 					<strong class="code" id="btn-settings"><a href="javascript:void(0);" class="link btn-show" data-source="settings">{#SETTINGS_CACHE_SHOW#}</a></strong>
