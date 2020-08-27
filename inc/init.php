@@ -108,6 +108,11 @@
 		return $array;
 	}
 
+	$_GET		= add_slashes($_GET);
+	$_POST		= add_slashes($_POST);
+	$_REQUEST	= array_merge($_POST, $_GET);
+	$_COOKIE	= add_slashes($_COOKIE);
+
 	function isSSL()
 	{
 		if (isset($_SERVER['HTTPS']))
