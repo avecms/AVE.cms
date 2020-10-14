@@ -17,7 +17,7 @@
 		private static $instance = null;
 
 
-		function __construct ()
+		public function __construct ()
 		{
 			$this->_modules = $this->getModules();
 		}
@@ -26,7 +26,9 @@
 		public static function init ()
 		{
 			if (is_null(self::$instance))
+			{
 				self::$instance = new AVE_Module;
+			}
 
 			return self::$instance;
 		}
@@ -35,7 +37,7 @@
 		/**
 		 * Метод, который обрабатывает все module.php и записывает как свойство класса списки модулей
 		 */
-		function getModules ()
+		public function getModules ()
 		{
 			$modules = [];
 
@@ -49,10 +51,14 @@
 			while (false !== ($entry = $d->read()))
 			{
 				if (substr($entry, 0, 1) == '.')
+				{
 					continue;
+				}
 
 				if (! is_dir(BASE_DIR . '/modules/' . $entry))
+				{
 					continue;
+				}
 
 				$AVE_Template = new AVE_Template(BASE_DIR . '/admin/templates');
 
@@ -61,18 +67,24 @@
 				// Языковой файл
 				$lang_file = BASE_DIR . '/modules/'.$entry.'/lang/' . $_SESSION['user_language'] . '.txt';
 
-				// Отдаем смарти переменные
+				// Отдаем SMARTY переменные
 				if (file_exists($lang_file))
+				{
 					$AVE_Template->config_load($lang_file, 'name');
+				}
 				else
-					$_no_lang_file = true;
+					{
+						$_no_lang_file = true;
+					}
 
 				$module_dir = $d->path . '/' . $entry;
 
 				if (! is_dir($module_dir))
+				{
 					continue;
+				}
 
-				$module = array ();
+				$module = [];
 
 				// Если не удалось подключить основной файл модуля module.php - Фиксируем ошибку
 				if (! (is_file($module_dir . '/info.php') && @include_once($module_dir . '/info.php')))
@@ -125,17 +137,15 @@
 			// Закрываем папку
 			$d->Close();
 
-			$modules = msort($modules,'ModuleName');
-
 			return $modules;
 		}
 
 
 		/**
-		 * Метод, преданзначеный для выода модулей
+		 * Метод, предназначенный для вывода модулей
 		 *
 		 */
-		function moduleList ()
+		public function moduleList ()
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -154,7 +164,9 @@
 			$query = $AVE_DB->Query($sql);
 
 			while ($row = $query->FetchRow())
+			{
 				$assign['all_templates'][$row->Id] = htmlspecialchars($row->template_title, ENT_QUOTES);
+			}
 
 			// Заголовок: Автор модуля
 			$author_title = $AVE_Template->get_config_vars('MODULES_AUTHOR');
@@ -169,10 +181,14 @@
 					: "<br /><br /><strong>$author_title</strong><br />" . $module['ModuleAutor'] . "<br />") . '<br /><em>' . $module['ModuleCopyright'] . '</em>';
 				// установленные модули
 				if ($module['ModuleStatus'] !== false)
+				{
 					$installed_modules[$module['ModuleSysName']] = $module;
+				}
 				// неустановленные модули
 				else
-					$not_installed_modules[$module['ModuleSysName']] = $module;
+					{
+						$not_installed_modules[$module['ModuleSysName']] = $module;
+					}
 			}
 
 			! empty($installed_modules)
@@ -183,8 +199,8 @@
 				? ksort($not_installed_modules)
 				: $not_installed_modules = '';
 
-			$assign['installed_modules'] 		= $installed_modules;
-			$assign['not_installed_modules'] 	= $not_installed_modules;
+			$assign['installed_modules'] 		= msort((array)$installed_modules,'ModuleName');
+			$assign['not_installed_modules'] 	= msort((array)$not_installed_modules,'ModuleName');
 
 			// Массив с ошибками
 			if (! empty($modules['errors']))
@@ -210,7 +226,7 @@
 		 * если не указано возвращает модули без учета статуса
 		 * @return array
 		 */
-		function moduleListGet($status = null)
+		public function moduleListGet($status = null)
 		{
 			global $AVE_DB;
 
@@ -221,7 +237,9 @@
 				foreach ($this->_modules AS $k => $v)
 				{
 					if ($status && $v['ModuleStatus'] != $status)
+					{
 						continue;
+					}
 
 					$modules[$k] = $v;
 				}
@@ -249,7 +267,9 @@
 					$query = $AVE_DB->Query($sql, -1, 'modules', true, '.modules');
 
 					while ($row = $query->FetchRow())
+					{
 						$modules[$row->ModuleSysName] = $row;
+					}
 				}
 
 			// Возвращаем список модулей
@@ -261,7 +281,7 @@
 		 * Метод, предназначенный для обновления в БД информации о шаблонах модулей
 		 *
 		 */
-		function moduleOptionsSave ()
+		public function moduleOptionsSave ()
 		{
 			global $AVE_DB;
 
@@ -281,36 +301,39 @@
 
 			$this->clearModulesCache ();
 
-			// Выполянем обновление страницы со списком модулей
+			// Выполняем обновление страницы со списком модулей
 			header('Location:index.php?do=modules&cp=' . SESSION);
 			exit;
 		}
 
 
 		/**
-		 * Метод, предназанченный для установки или переустановки модуля
+		 * Метод, предназначенный для установки или переустановки модуля
 		 *
 		 */
-		function moduleInstall ()
+		public function moduleInstall ()
 		{
 			global $AVE_DB, $AVE_Template;
 
 			// Получаем данные модуля
 			$modules = $this->_modules;
 
+			// Выбираем нужный нам модуль
 			$module = $modules[MODULE_PATH];
 
 			// Удаляем информацию о модуле в таблице module
-			$AVE_DB->Query("
+			$sql = "
 				DELETE
 				FROM
 					" . PREFIX . "_module
 				WHERE
 					ModuleSysName = '" . MODULE_PATH . "'
-			");
+			";
+
+			$AVE_DB->Query($sql);
 
 			// Определяем, имеет ли модуль возможность настройки в Панели управления
-			$module['ModuleAdminEdit'] = (!empty($module['ModuleAdminEdit']))
+			$module['ModuleAdminEdit'] = (! empty($module['ModuleAdminEdit']))
 				? $module['ModuleAdminEdit']
 				: 0;
 
@@ -320,7 +343,7 @@
 				: 0;
 
 			// Добавляем информацию о модуле в таблицу module
-			$AVE_DB->Query("
+			$sql = "
 				INSERT INTO
 					" . PREFIX . "_module
 				SET
@@ -334,31 +357,33 @@
 					ModuleVersion		= '" . $module['ModuleVersion'] . "',
 					ModuleTemplate		= '" . $module['ModuleTemplate'] . "',
 					ModuleAdminEdit		= '" . $module['ModuleAdminEdit'] . "'
-			");
+			";
+
+			$AVE_DB->Query($sql);
 
 			// Подключаем файл с запросами к БД для данного модуля
-			$module_sql_deinstall = array();
-			$module_sql_install = array();
+			$module_sql_deinstall = [];
+			$module_sql_install = [];
 			$sql_file = BASE_DIR . '/modules/' . MODULE_PATH . '/sql.php';
 
 			if (is_file($sql_file) && @include($sql_file))
 			{
 				// Выполняем запросы удаления таблиц модуля
 				// из массива $module_sql_deinstall файла sql.php
-				foreach ($module_sql_deinstall as $sql)
+				foreach ($module_sql_deinstall AS $sql)
 				{
 					$AVE_DB->Query(str_replace('%%PRFX%%', PREFIX, $sql));
 				}
 
 				// Выполняем запросы создания таблиц и данных модуля
 				// из массива $module_sql_install файла sql.php
-				foreach ($module_sql_install as $sql)
+				foreach ($module_sql_install AS $sql)
 				{
 					$AVE_DB->Query(str_replace('%%PRFX%%', PREFIX, $sql));
 				}
 			}
 			// Сохраняем системное сообщение в журнал
-			($_REQUEST['action'] == "reinstall")
+			($_REQUEST['action'] == 'reinstall')
 				? reportLog($AVE_Template->get_config_vars('MODULES_ACTION_REINSTALL') . ' (' . $module['ModuleName'] . ')')
 				: reportLog($AVE_Template->get_config_vars('MODULES_ACTION_INSTALL') . ' (' . $module['ModuleName'] . ')');
 
@@ -374,7 +399,7 @@
 		 * Метод, предназначенный для обновления модуля при увеличении номера версии модуля
 		 *
 		 */
-		function moduleUpdate ()
+		public function moduleUpdate ()
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -394,8 +419,10 @@
 
 				// Выполняем запросы обновления модуля
 				// из массива $module_sql_update файла sql.php
-				foreach ($module_sql_update as $sql)
+				foreach ($module_sql_update AS $sql)
+				{
 					$AVE_DB->Query(str_replace('%%PRFX%%', PREFIX, $sql));
+				}
 			}
 			// Обновляем модуль, если в нем не применяется (отсутствует) файл sql.php
 			elseif (file_exists($mod_file) && file_exists($sql_file) === false)
@@ -430,22 +457,22 @@
 
 			$this->clearModulesCache();
 
-			// Выполянем обновление страницы со списком модулей
+			// Выполняем обновление страницы со списком модулей
 			header('Location:index.php?do=modules&cp=' . SESSION);
 			exit;
 		}
 
 
 		/**
-		 * Метод, предназанченный для удаление модуля
+		 * Метод, предназначенный для удаление модуля
 		 *
 		 */
-		function moduleDelete ()
+		public function moduleDelete ()
 		{
 			global $AVE_DB, $AVE_Template;
 
 			// Подключаем файл с запросами к БД для данного модуля
-			$module_sql_deinstall = array();
+			$module_sql_deinstall = [];
 
 			$sql_file = BASE_DIR . '/modules/' . MODULE_PATH . '/sql.php';
 
@@ -460,20 +487,22 @@
 			}
 
 			// Удаляем информацию о модуле в таблице module
-			$AVE_DB->Query("
+			$sql = "
 				DELETE
 				FROM
 					" . PREFIX . "_module
 				WHERE
 					ModuleSysName = '" . MODULE_PATH . "'
-			");
+			";
+
+			$AVE_DB->Query($sql);
 
 			$this->clearModulesCache();
 
 			// Сохраняем системное сообщение в журнал
 			reportLog ($AVE_Template->get_config_vars('MODULES_ACTION_DELETE') .' (' . MODULE_PATH . ')');
 
-			// Выполянем обновление страницы со списком модулей
+			// Выполняем обновление страницы со списком модулей
 			header('Location:index.php?do=modules&cp=' . SESSION);
 			exit;
 		}
@@ -483,11 +512,11 @@
 		 * Метод, предназначенный для отключения/включение модуля в Панели управления
 		 *
 		 */
-		function moduleStatusChange ()
+		public function moduleStatusChange ()
 		{
 			global $AVE_DB, $AVE_Template;
 
-			$status = $AVE_DB->Query("
+			$sql = "
 				SELECT
 					ModuleName,
 					ModuleStatus
@@ -495,26 +524,30 @@
 					" . PREFIX . "_module
 				WHERE
 					ModuleSysName = '" . MODULE_PATH . "'
-			")->FetchRow();
+			";
 
-			$ModuleStatus = ($status->ModuleStatus == "0" || $status->ModuleStatus == NULL)
-				? "1"
-				: "0";
+			$status = $AVE_DB->Query($sql)->FetchRow();
+
+			$ModuleStatus = ($status->ModuleStatus == '0' || $status->ModuleStatus == NULL)
+				? '1'
+				: '0';
 
 			// Выполняем запрос к БД на смену статуса модуля
-			$AVE_DB->Query("
+			$sql = "
 				UPDATE
 					" . PREFIX . "_module
 				SET
-					ModuleStatus = '".$ModuleStatus."'
+					ModuleStatus = '" . $ModuleStatus . "'
 				WHERE
 					ModuleSysName = '" . MODULE_PATH . "'
-			");
+			";
+
+			$AVE_DB->Query($sql);
 
 			$this->clearModulesCache ();
 
 			// Сохраняем системное сообщение в журнал
-			reportLog ((($ModuleStatus == "0")
+			reportLog ((($ModuleStatus == '0')
 				? $AVE_Template->get_config_vars('MODULES_ACTION_OFFLINE')
 				: $AVE_Template->get_config_vars('MODULES_ACTION_ONLINE')) . ' (' . $status->ModuleName . ')');
 
@@ -524,9 +557,9 @@
 		}
 
 
-		function moduleRemove ($dir)
+		public function moduleRemove ($dir)
 		{
-			global $AVE_DB, $AVE_Template;
+			global $AVE_Template;
 
 			$directory = BASE_DIR . '/modules/' . $dir;
 
@@ -534,10 +567,14 @@
 
 			foreach ($files as $file)
 			{
-				if(substr($file, -1) == '/')
+				if (substr($file, -1) == '/')
+				{
 					$this->moduleRemove($file);
+				}
 				else
-					unlink($file);
+					{
+						unlink($file);
+					}
 			}
 
 			rrmdir ($directory);
@@ -547,7 +584,7 @@
 			// Сохраняем системное сообщение в журнал
 			reportLog ($AVE_Template->get_config_vars('MODULES_ACTION_REMOVE') . ' (' . $dir . ')');
 
-			// Выполянем обновление страницы со списком модулей
+			// Выполняем обновление страницы со списком модулей
 			header('Location:index.php?do=modules&cp=' . SESSION);
 			exit;
 		}
@@ -557,7 +594,7 @@
 		 * Функция очищает кеш системных настроек
 		 *
 		 */
-		function clearModulesCache()
+		public function clearModulesCache()
 		{
 			$cache_dir = BASE_DIR . '/tmp/cache/sql/modules/';
 
