@@ -193,11 +193,11 @@
 
 			! empty($installed_modules)
 				? ksort($installed_modules)
-				: $installed_modules = '';
+				: $installed_modules = [];
 
 			! empty($not_installed_modules)
 				? ksort($not_installed_modules)
-				: $not_installed_modules = '';
+				: $not_installed_modules = [];
 
 			$assign['installed_modules'] 		= msort((array)$installed_modules,'ModuleName');
 			$assign['not_installed_modules'] 	= msort((array)$not_installed_modules,'ModuleName');
