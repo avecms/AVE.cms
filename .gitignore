@@ -1,1 +1,9 @@
+/.idea/*
+/config/*
+/config/config.inc.php
+/config/db.config.php
+/tmp/*
+/modules/*
+/templates/*
+/uploads/*
 *.DS_Store
