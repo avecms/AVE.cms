@@ -874,7 +874,7 @@
 					" . (isset($params['USER_FROM']) ? $params['USER_FROM'] : '') . "
 					" . PREFIX . "_documents AS a
 					" . implode(' ', $request_join) . "
-					" . (isset($params['USER_JOIN']) ? $params['USER_FROM'] : '') . "
+					" . (isset($params['USER_JOIN']) ? $params['USER_JOIN'] : '') . "
 				WHERE
 					" . $request_where_str . "
 				GROUP BY a.Id
