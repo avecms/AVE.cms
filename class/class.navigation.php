@@ -199,13 +199,15 @@
 							" . PREFIX . "_navigation
 						WHERE
 							navigation_id = '" . $navigation_id . "'
+							OR
+							alias = '" . $navigation_id . "'
 					")->FetchRow();
 
 					// Формируем список групп пользователей
 					$row->user_group = explode(',', $row->user_group);
 
 					// Формируем ряд переменных для использования в шаблоне и отображаем форм с данными для редактирования
-					$AVE_Template->assign('nid', $navigation_id);
+					$AVE_Template->assign('nid', $row->navigation_id);
 					$AVE_Template->assign('navigation', $row);
 					$AVE_Template->assign('groups', $AVE_User->userGroupListGet());
 					$AVE_Template->assign('form_action', 'index.php?do=navigation&action=templates&sub=save&navigation_id=' . $navigation_id . '&cp=' . SESSION);

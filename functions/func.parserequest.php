@@ -874,7 +874,7 @@
 					" . (isset($params['USER_FROM']) ? $params['USER_FROM'] : '') . "
 					" . PREFIX . "_documents AS a
 					" . implode(' ', $request_join) . "
-					" . (isset($params['USER_JOIN']) ? $params['USER_JOIN'] : '') . "
+					" . (isset($params['USER_JOIN']) ? $params['USER_FROM'] : '') . "
 				WHERE
 					" . $request_where_str . "
 				GROUP BY a.Id
@@ -1097,6 +1097,185 @@
 		}
 
 		$GLOBALS['block_generate']['REQUESTS'][$id]['ELEMENTS']['ALL'] = Debug::endTime('ELEMENTS_ALL');
+
+		// ============ Обрабатываем теги запроса ============ //
+
+		//-- Парсим теги визуальных блоков
+		$main_template = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $main_template);
+
+		//-- Парсим теги системных блоков
+		$main_template = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_sysblock', $main_template);
+
+		//-- Дата
+		$main_template = preg_replace_callback('/\[tag:date:([a-zA-Z0-9-. \/]+)\]/',
+			function ($match) use ($AVE_Core)
+			{
+				return translate_date(date($match[1], $AVE_Core->curentdoc->document_published));
+			},
+			$main_template
+		);
+
+		$str_replace = [
+			//-- ID Документа
+			'[tag:docid]' => $AVE_Core->curentdoc->Id,
+			//-- ID Автора
+			'[tag:docauthorid]' => $AVE_Core->curentdoc->document_author_id,
+			//-- Имя автора
+			'[tag:docauthor]' => get_username_by_id($AVE_Core->curentdoc->document_author_id),
+			//-- Время - 1 день назад
+			'[tag:humandate]' => human_date($AVE_Core->curentdoc->document_published),
+			//-- Дата создания
+			'[tag:docdate]' => pretty_date(strftime(DATE_FORMAT, $AVE_Core->curentdoc->document_published)),
+			//-- Время создания
+			'[tag:doctime]' => pretty_date(strftime(TIME_FORMAT, $AVE_Core->curentdoc->document_published)),
+			//-- Домен
+			'[tag:domain]' => getSiteUrl(),
+			//-- Заменяем тег пагинации на пагинацию
+			'[tag:pages]' => $pagination,
+			//-- Общее число элементов запроса
+			'[tag:doctotal]' => $num_items,
+			//-- Показано элементов запроса на странице
+			'[tag:doconpage]' => $x,
+			//-- Номер страницы пагинации
+			'[tag:pages:curent]' => get_current_page('page'),
+			//-- Общее кол-во страниц пагинации
+			'[tag:pages:total]' => $num_pages,
+			//-- Title
+			'[tag:pagetitle]' => stripslashes(htmlspecialchars_decode($AVE_Core->curentdoc->document_title)),
+			//-- Alias
+			'[tag:alias]' => (isset($AVE_Core->curentdoc->document_alias) ? $AVE_Core->curentdoc->document_alias : '')
+		];
+
+		$main_template = str_replace(array_keys($str_replace), array_values($str_replace), $main_template);
+
+		//-- Возвращаем параметр документа из БД
+		$main_template = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
+			function ($match) use ($row)
+			{
+				return isset($row->{$match[1]})
+					? $row->{$match[1]}
+					: null;
+			},
+			$main_template
+		);
+
+		//-- Если пришел вызов на активацию языковых файлов
+		$main_template = preg_replace_callback('/\[tag:langfile:([a-zA-Z0-9-_]+)\]/u',
+			function ($match)
+			{
+				global $AVE_Template;
+
+				return $AVE_Template->get_config_vars($match[1]);
+			},
+			$main_template
+		);
+
+		//-- Вставляем элементы запроса
+		$return = str_replace('[tag:content]', $items, $main_template);
+
+		unset ($items, $main_template, $str_replace, $pagination);
+
+		//-- Парсим тег [hide]
+		$return = parse_hide($return);
+
+		//-- Абсолютный путь
+		$return = str_replace('[tag:path]', ABS_PATH, $return);
+
+		//-- Путь до папки шаблона
+		$return = str_replace('[tag:mediapath]', ABS_PATH . 'templates/' . ((defined('THEME_FOLDER') === false) ? DEFAULT_THEME_FOLDER : THEME_FOLDER) . '/', $return);
+
+		//-- Парсим модули
+		$return = $AVE_Core->coreModuleTagParse($return);
+
+		//-- Фиксируем время генерации запроса
+		$GLOBALS['block_generate']['REQUESTS'][$id]['TIME'] = Debug::endTime('request_' . $id);
+
+		//	Статистика
+		if ($request->request_show_statistic)
+			$return .= "<div class=\"request_statistic\"><br>Найдено: $num_items<br>Показано: $items_count<br>Время генерации: " . Debug::endTime('request_' . $id) . " сек<br>Пиковое значение: ".number_format(memory_get_peak_usage()/1024, 0, ',', ' ') . ' Kb</div>';
+
+		return $return;
+	}
+
+
+
+	function parse_request ($id, $params = [])
+	{
+		global $AVE_Core;
+
+		// Получаем информацию о запросе
+		$request = request_get_settings($id);
+
+		// Фиксируем время начала генерации запроса
+		Debug::startTime('request_' . $id);
+
+		// Элементы запроса
+		$rows = $params['ROWS'];
+
+		//-- Обрабатываем шаблоны элементов
+		$items = '';
+
+		//-- Счетчик
+		$x = 0;
+
+		//-- Общее число элементов
+		$items_count = $num_items=  count($rows);
+
+		global $req_item_num, $use_cache, $request_id, $request_changed, $request_changed_elements;
+
+		$use_cache = $request->request_cache_elements;
+
+		$request_id = $request->Id;
+
+		$request_changed = $request->request_changed;
+		$request_changed_elements = $request->request_changed_elements;
+
+		$limit = (isset($params['LIMIT']) && is_numeric($params['LIMIT']) && $params['LIMIT'] > '')
+			? (int)$params['LIMIT']
+			: (int)$request->request_items_per_page;
+
+		// Кол-во страниц
+		$num_pages = ($limit > 0)
+			? ceil($num_items / $limit)
+			: 0;
+
+		Debug::startTime('ELEMENTS_ALL');
+
+		foreach ($rows AS $row)
+		{
+			$x++;
+			$last_item = ($x == $items_count ? true : false);
+			$item_num = $x;
+			$req_item_num = $item_num;
+
+			Debug::startTime('ELEMENT_' . $item_num);
+
+			$item = showrequestelement($row, $request->request_template_item);
+
+			$GLOBALS['block_generate']['REQUESTS'][$id]['ELEMENTS'][$item_num] = Debug::endTime('ELEMENT_' . $item_num);
+
+			$item = str_replace('[tag:item_num]', $item_num, $item);
+			$item = '<'.'?php $item_num='.var_export($item_num,1).'; $last_item='.var_export($last_item,1).'?'.'>'.$item;
+			$item = '<'.'?php $req_item_id = ' . $row . '; ?>' . $item;
+			$item = str_replace('[tag:if_first]', '<'.'?php if(isset($item_num) && $item_num===1) { ?'.'>', $item);
+			$item = str_replace('[tag:if_not_first]', '<'.'?php if(isset($item_num) && $item_num!==1) { ?'.'>', $item);
+			$item = str_replace('[tag:if_last]', '<'.'?php if(isset($last_item) && $last_item) { ?'.'>', $item);
+			$item = str_replace('[tag:if_not_last]', '<'.'?php if(isset($item_num) && !$last_item) { ?'.'>', $item);
+			$item = preg_replace('/\[tag:if_every:([0-9-]+)\]/u', '<'.'?php if(isset($item_num) && !($item_num % $1)){ '.'?'.'>', $item);
+			$item = preg_replace('/\[tag:if_not_every:([0-9-]+)\]/u', '<'.'?php if(isset($item_num) && ($item_num % $1)){ '.'?'.'>', $item);
+			$item = str_replace('[tag:/if]', '<'.'?php  } ?>', $item);
+			$item = str_replace('[tag:if_else]', '<'.'?php  }else{ ?>', $item);
+			$items .= $item;
+
+			Registry::remove('documents', $row);
+			Registry::remove('fields', $row);
+			Registry::remove('fields_param', $row);
+		}
+
+		$GLOBALS['block_generate']['REQUESTS'][$id]['ELEMENTS']['ALL'] = Debug::endTime('ELEMENTS_ALL');
+
+		// Приступаем к обработке шаблона
+		$main_template = $request->request_template_main;
 
 		// ============ Обрабатываем теги запроса ============ //
 

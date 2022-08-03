@@ -82,6 +82,17 @@
 			</tr>
 			<tr>
 				<td>
+					{#SETTINGS_CACHE_T_COMPILED#}
+				</td>
+				<td align="center">
+					<strong class="code" id="btn-compiled"><a href="javascript:void(0);" class="link btn-show" data-source="compiled">{#SETTINGS_CACHE_SHOW#}</a></strong>
+				</td>
+				<td align="center">
+					<a href="javascript:void(0);" class="btn redBtn btn-clear" data-source="compiled">{#SETTINGS_CACHE_CLEAR#}</a>
+				</td>
+			</tr>
+			<tr>
+				<td>
 					{#SETTINGS_CACHE_T_QUERIES#}
 				</td>
 				<td align="center">

@@ -659,6 +659,8 @@
 		 */
 		function _main_content ($rubTmpl)
 		{
+			Debug::startTime('MAINCONTENT');
+
 			// Проверяем теги полей в шаблоне рубрики на условие != ''
 			if (defined('USE_GET_FIELDS') && USE_GET_FIELDS)
 			{
@@ -748,6 +750,14 @@
 				$main_content
 			);
 
+			// GetDocumentsField
+			$main_content = preg_replace_callback(
+				'/\[tag:docs:([0-9]+)(|:([a-zA-Z0-9-_]+))+?\]/',
+				function ($match) {
+					return get_document($match[1], $match[3]);
+				},
+				$main_content
+			);
 
 			$main_content = str_replace('[tag:docdate]', translate_date(strftime(DATE_FORMAT, $this->curentdoc->document_published)), $main_content);
 			$main_content = str_replace('[tag:doctime]', translate_date(strftime(TIME_FORMAT, $this->curentdoc->document_published)), $main_content);
@@ -765,6 +775,8 @@
 
 			//-- Кеширование скомпилированного документа
 			$this->setCompileDocument($main_content);
+
+			$GLOBALS['block_generate']['DOCUMENT']['MAINCONTENT'] = Debug::endTime('MAINCONTENT');
 
 			return $main_content;
 		}
@@ -801,15 +813,22 @@
 				return false;
 
 			$cache['id'] = (int)$cache['id'];
-			$cache['id'] = 'documents/' . (floor($cache['id'] / 1000)) . '/' . $cache['id'];
+			$cache['dir'] = 'documents/' . (floor($cache['id'] / 1000)) . '/' . $cache['id'];
+
+			$cache['compile_id'] = 'compile/' . (floor($cache['id'] / 1000)) . '/' . $cache['id'];
 
 			$cache['file'] = $this->_get_cache_hash() . '.compiled';
+			$cache['compile_file'] = $this->_get_cache_hash() . '.php';
 
 			if (! $cache['file'])
 				return false;
 
-			$cache['dir'] = BASE_DIR . '/tmp/cache/sql/' . (trim($cache['id']) > ''
-				? trim($cache['id']) . '/'
+			$cache['dir'] = BASE_DIR . '/tmp/cache/sql/' . (trim($cache['dir']) > ''
+				? trim($cache['dir']) . '/'
+				: substr($cache['file'], 0, 2) . '/' . substr($cache['file'], 2, 2) . '/' . substr($cache['file'], 4, 2) . '/');
+
+			$cache['compile_dir'] = BASE_DIR . '/tmp/cache/sql/' . (trim($cache['compile_id']) > ''
+				? trim($cache['compile_id']) . '/'
 				: substr($cache['file'], 0, 2) . '/' . substr($cache['file'], 2, 2) . '/' . substr($cache['file'], 4, 2) . '/');
 
 			return $cache;
@@ -890,6 +909,108 @@
 				else if (defined('CACHE_DOC_TPL') && CACHE_DOC_TPL)
 					// Извлекаем скомпилированный шаблон документа из кэша
 					$content = file_get_contents($cache['dir'] . $cache['file']);
+			}
+			else
+				{
+					$content = false;
+				}
+
+			return $content;
+		}
+
+
+		function checkAcceptCache ()
+		{
+			$isAjax = isAjax();
+			$page = get_current_page();
+			$array = ['module', 'sysblock', 'request', 'page', 'apage', 'artpage'];
+
+			foreach ($array AS $k => $v)
+			{
+				if (in_array($v, $_REQUEST))
+					return false;
+			}
+
+			if ( ($isAjax == true) || ($page != 1) )
+				return false;
+
+			return true;
+		}
+
+
+		function setCompileContent ($content)
+		{
+			$cache = $this->_get_cache_id();
+
+			if (! $cache)
+				return false;
+
+			//-- Удаляем файл, если существует
+			if (file_exists($cache['compile_dir'] . $cache['file']))
+				unlink($cache['compile_dir'] . $cache['file']);
+
+			if ($this->checkAcceptCache() == false)
+				return false;
+
+			// Если включен DEV MODE, то отключаем кеширование запросов
+			if (defined('DEV_MODE') AND DEV_MODE)
+				return false;
+
+			if (UGROUP == 1 && (defined('CACHE_DOC_FULL_ADMIN') && CACHE_DOC_FULL_ADMIN == false))
+				return false;
+
+			//-- Кэширование разрешено
+			if (defined('CACHE_DOC_FULL') && CACHE_DOC_FULL)
+			{
+				//-- Если нет папки, создаем
+				if (! is_dir($cache['compile_dir']))
+					@mkdir($cache['compile_dir'], 0766, true);
+
+				//-- Сохраняем скомпилированный шаблон в кэш
+				file_put_contents($cache['compile_dir'] . $cache['compile_file'], $content);
+
+				$GLOBALS['block_generate']['COMPILE']['SET'] = true;
+			}
+
+			return true;
+		}
+
+
+		function getCompileContent ()
+		{
+			if ($this->checkAcceptCache() == false)
+				return false;
+
+			$cache = $this->_get_cache_id();
+
+			if (! $cache)
+				return false;
+
+			$content = false;
+
+			//-- Если нет папки, создаем
+			if (! is_dir($cache['compile_dir']))
+				@mkdir($cache['compile_dir'], 0766, true);
+
+			// Наличие файла
+			if (file_exists($cache['compile_dir'] . $cache['compile_file']))
+			{
+				// Получаем время создания файла
+				$file_time = filemtime($cache['compile_dir'] . $cache['compile_file']);
+
+				// Получаем время для проверки
+				$cache_time = $this->curentdoc->rubric_changed;
+
+				if (! $cache_time || $cache_time > $file_time)
+				{
+					unlink ($cache['compile_dir'] . $cache['compile_file']);
+				}
+				else if (defined('CACHE_DOC_FULL') && CACHE_DOC_FULL)
+				{
+					$content = file_get_contents($cache['compile_dir'] . $cache['compile_file']);
+
+					$GLOBALS['block_generate']['COMPILE']['GET'] = true;
+				}
 			}
 			else
 				{
@@ -1048,391 +1169,368 @@
 		 * @param int $id идентификатор документа
 		 * @param int $rub_id идентификатор рубрики
 		 */
-		function coreSiteFetch($id, $rub_id = '')
+		function coreSiteFetch ($id, $rub_id = '')
 		{
-			global $AVE_DB;
+			global $AVE_DB, $AVE_Module;
 
 			Debug::startTime('DOC_' . $id);
 
-			$main_content = '';
+			$cacheCompile = false;
+			
+			// Определяем рубрику
+			define('RUB_ID', ! empty ($rub_id)
+				? $rub_id
+				: $this->curentdoc->rubric_id);
 
-			// Если происходит вызов модуля, получаем соответствующие мета-теги и получаем шаблон модуля
-			if (isset($_REQUEST['module']) && ! empty($_REQUEST['module']))
+			$main_content = '';	
+
+			if ((defined('CACHE_DOC_FULL') && CACHE_DOC_FULL) && isAjax() == false)
 			{
-				$out = $this->_coreModuleMetatagsFetch();
-				$out = $this->_coreDocumentTemplateGet('', '', $this->_coreModuleTemplateGet());
+				if ($out = $this->getCompileContent())
+				{
+					foreach ($AVE_Module->moduleListGet() as $row)
+					{
+						// Проверяем, существует ли для данного модуля файл module.php в его персональной директории
+						$mod_file = BASE_DIR . '/modules/' . $row['ModuleSysName'] . '/module.php';
+
+						if (is_file($mod_file))
+							include_once($mod_file);
+					}
+
+					$this->_coreRubricPermissionFetch(RUB_ID);
+
+					// Выполняем Код рубрики До загрузки документа
+					ob_start();
+					eval(' ?>' . $this->curentdoc->rubric_start_code . '<?php ');
+					ob_end_clean();
+
+					$cacheCompile = true;
+				}
+
+				//$out = '';
 			}
-			// Если происходит вызов системного блока
-			elseif (isset($_REQUEST['sysblock']) && ! empty($_REQUEST['sysblock']))
+
+			if (! $out)
 			{
-				if (! is_numeric($_REQUEST['sysblock']) && preg_match('/^[A-Za-z0-9-_]{1,20}$/i', $_REQUEST['sysblock']) !== 1)
+				// Если происходит вызов модуля, получаем соответствующие мета-теги и получаем шаблон модуля
+				if (isset($_REQUEST['module']) && ! empty($_REQUEST['module']))
 				{
-					header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
-					exit;
+					$out = $this->_coreModuleMetatagsFetch();
+					$out = $this->_coreDocumentTemplateGet('', '', $this->_coreModuleTemplateGet());
 				}
-
-				// проверяем разрешение на внешнее обращение
-				if (! _getSysBlock($_REQUEST['sysblock'], 'sysblock_external'))
+				// Если происходит вызов системного блока
+				elseif (isset($_REQUEST['sysblock']) && ! empty($_REQUEST['sysblock']))
 				{
-					header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
-					exit;
-				}
+					if (! is_numeric($_REQUEST['sysblock']) && preg_match('/^[A-Za-z0-9-_]{1,20}$/i', $_REQUEST['sysblock']) !== 1)
+					{
+						header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
+						exit;
+					}
 
-				// проверяем разрешение на обращение только по Ajax
-				if (_getSysBlock($_REQUEST['sysblock'], 'sysblock_ajax'))
-				{
-					if (isAjax())
-						$out = parse_sysblock($_REQUEST['sysblock']);
-					else
-						$this->_coreErrorPage404();
-				}
-				else
-				{
-					$out = parse_sysblock($_REQUEST['sysblock']);
-				}
-			}
-			// Если происходит вызов запроса
-			elseif (isset($_REQUEST['request']) && ! empty($_REQUEST['request']))
-			{
-				if (! is_numeric($_REQUEST['request']) && preg_match('/^[A-Za-z0-9-_]{1,20}$/i', $_REQUEST['request']) !== 1)
-					$this->_coreErrorPage404();
+					// проверяем разрешение на внешнее обращение
+					if (! _getSysBlock($_REQUEST['sysblock'], 'sysblock_external'))
+					{
+						header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true);
+						exit;
+					}
 
-				// Определяем рубрику
-				define('RUB_ID', ! empty ($rub_id)
-					? $rub_id
-					: $this->curentdoc->rubric_id);
-
-				// Проверяем разрешение на внешнее обращение
-				if (! $this->_requestGet($_REQUEST['request'], 'request_external'))
-					$this->_coreErrorPage404();
-
-				// Проверяем разрешение на обращение только по Ajax
-				if ($this->_requestGet($_REQUEST['request'], 'request_ajax'))
-				{
-					if (isAjax())
-						$out = request_parse($_REQUEST['request']);
-					else
-						$this->_coreErrorPage404();
-				}
-				else
-				{
-					$out = request_parse($_REQUEST['request']);
-				}
-			}
-			// В противном случае начинаем вывод документа
-			else
-			{
-				if (! isset($this->curentdoc->Id) && ! $this->_coreCurrentDocumentFetch($id, UGROUP))
-				{
-					// Определяем документ с 404 ошибкой в случае, если документ не найден
-					if ($this->_corePageNotFoundFetch(PAGE_NOT_FOUND_ID, UGROUP))
-						$_REQUEST['id'] = $_GET['id'] = $id = PAGE_NOT_FOUND_ID;
-				}
-
-				// проверяем параметры публикации документа
-				if (! $this->_coreDocumentIsPublished())
-					$this->_coreErrorPage404();
-
-				// Определяем права доступа к документам рубрики
-				define('RUB_ID', ! empty ($rub_id)
-					? $rub_id
-					: $this->curentdoc->rubric_id);
-
-				$this->_coreRubricPermissionFetch(RUB_ID);
-
-				// Выполняем Код рубрики До загрузки документа
-				ob_start();
-				eval(' ?>' . $this->curentdoc->rubric_start_code . '<?php ');
-				ob_end_clean();
-
-				// Получаем шаблон
-				$out = $this->_coreDocumentTemplateGet(RUB_ID, null, null, $this->curentdoc->rubric_template_id);
-
-				if (! ((isset ($_SESSION[RUB_ID . '_docread']) && $_SESSION[RUB_ID . '_docread'] == 1)
-					|| (isset ($_SESSION[RUB_ID . '_alles']) && $_SESSION[RUB_ID . '_alles'] == 1)) )
-				{	// читать запрещено - извлекаем ругательство и отдаём вместо контента
-					$main_content = get_settings('message_forbidden');
-				}
-				else
-				{
-					if (isset ($_REQUEST['print']) && $_REQUEST['print'] == 1)
-					{	// Увеличиваем счетчик версий для печати
-						$AVE_DB->Query("
-							UPDATE
-								" . PREFIX . "_documents
-							SET
-								document_count_print = document_count_print + 1
-							WHERE
-								Id = '" . $id . "'
-						");
+					// проверяем разрешение на обращение только по Ajax
+					if (_getSysBlock($_REQUEST['sysblock'], 'sysblock_ajax'))
+					{
+						if (isAjax())
+							$out = parse_sysblock($_REQUEST['sysblock']);
+						else
+							$this->_coreErrorPage404();
 					}
 					else
 					{
-						if (! isset ($_SESSION['doc_view'][$id]))
-						{	// Увеличиваем счетчик просмотров (1 раз в пределах сессии)
+						$out = parse_sysblock($_REQUEST['sysblock']);
+					}
+				}
+				// Если происходит вызов запроса
+				elseif (isset($_REQUEST['request']) && ! empty($_REQUEST['request']))
+				{
+					if (! is_numeric($_REQUEST['request']) && preg_match('/^[A-Za-z0-9-_]{1,20}$/i', $_REQUEST['request']) !== 1)
+						$this->_coreErrorPage404();
+
+					// Проверяем разрешение на внешнее обращение
+					if (! $this->_requestGet($_REQUEST['request'], 'request_external'))
+						$this->_coreErrorPage404();
+
+					// Проверяем разрешение на обращение только по Ajax
+					if ($this->_requestGet($_REQUEST['request'], 'request_ajax'))
+					{
+						if (isAjax())
+							$out = request_parse($_REQUEST['request']);
+						else
+							$this->_coreErrorPage404();
+					}
+					else
+					{
+						$out = request_parse($_REQUEST['request']);
+					}
+				}
+				// В противном случае начинаем вывод документа
+				else
+				{
+					if (! isset($this->curentdoc->Id) && ! $this->_coreCurrentDocumentFetch($id, UGROUP))
+					{
+						// Определяем документ с 404 ошибкой в случае, если документ не найден
+						if ($this->_corePageNotFoundFetch(PAGE_NOT_FOUND_ID, UGROUP))
+							$_REQUEST['id'] = $_GET['id'] = $id = PAGE_NOT_FOUND_ID;
+					}
+
+					// проверяем параметры публикации документа
+					if (! $this->_coreDocumentIsPublished())
+						$this->_coreErrorPage404();
+
+					$this->_coreRubricPermissionFetch(RUB_ID);
+
+					// Выполняем Код рубрики До загрузки документа
+					ob_start();
+					eval(' ?>' . $this->curentdoc->rubric_start_code . '<?php ');
+					ob_end_clean();
+
+					// Получаем шаблон
+					$out = $this->_coreDocumentTemplateGet(RUB_ID, null, null, $this->curentdoc->rubric_template_id);
+
+					if (! ((isset ($_SESSION[RUB_ID . '_docread']) && $_SESSION[RUB_ID . '_docread'] == 1)
+						|| (isset ($_SESSION[RUB_ID . '_alles']) && $_SESSION[RUB_ID . '_alles'] == 1)) )
+					{	// читать запрещено - извлекаем ругательство и отдаём вместо контента
+						$main_content = get_settings('message_forbidden');
+					}
+					else
+					{
+						if (isset ($_REQUEST['print']) && $_REQUEST['print'] == 1)
+						{	// Увеличиваем счетчик версий для печати
 							$AVE_DB->Query("
 								UPDATE
 									" . PREFIX . "_documents
 								SET
-									document_count_view = document_count_view + 1
+									document_count_print = document_count_print + 1
 								WHERE
 									Id = '" . $id . "'
 							");
-
-							$_SESSION['doc_view'][$id] = time();
 						}
-
-						$curdate = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-
-						if (! isset($_SESSION['doc_view_dayly['.$curdate.'][' . $id . ']']))
+						else
 						{
-							// и подневный счетчик просмотров тоже увеличиваем
+							if (! isset ($_SESSION['doc_view'][$id]))
+							{	// Увеличиваем счетчик просмотров (1 раз в пределах сессии)
+								$AVE_DB->Query("
+									UPDATE
+										" . PREFIX . "_documents
+									SET
+										document_count_view = document_count_view + 1
+									WHERE
+										Id = '" . $id . "'
+								");
+
+								$_SESSION['doc_view'][$id] = time();
+							}
+
 							$curdate = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 
-							$AVE_DB->Query("
-								UPDATE
-									" . PREFIX . "_view_count
-								SET
-									count = count + 1
-								WHERE
-									document_id = '" . $id . "' AND
-									day_id = '".$curdate."'
-							");
-
-							if (! $AVE_DB->getAffectedRows())
+							if (! isset($_SESSION['doc_view_dayly['.$curdate.'][' . $id . ']']))
 							{
+								// и подневный счетчик просмотров тоже увеличиваем
+								$curdate = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+
 								$AVE_DB->Query("
-									INSERT INTO " . PREFIX . "_view_count (
-										document_id,
-										day_id,
-										count
-									)
-									VALUES (
-										'" . $id . "',  '".$curdate."', '1'
-									)
-								");
-							}
-
-							$_SESSION['doc_view_dayly['.$curdate.'][' . $id . ']'] = time();
-						}
-					}
-
-					// Извлекаем скомпилированный шаблон документа из кэша
-					if (defined('CACHE_DOC_TPL') && CACHE_DOC_TPL) // && empty ($_POST)
-						$main_content = $this->getCompileDocument();
-					else
-						// Кэширование запрещено
-						$main_content = false;
-
-					// Собираем контент
-					// Если в кеше нет контента, то
-					if (empty($main_content))
-					{
-						// Кэш пустой или отключен, извлекаем и компилируем шаблон
-						if (! empty ($this->curentdoc->rubric_template))
-						{
-							$rubTmpl = $this->curentdoc->rubric_template;
-						}
-						else
-						{
-							// Если документу задан другой шаблон из данной рубрики, то берем его
-							if ($this->curentdoc->rubric_tmpl_id != 0)
-							{
-								$rubTmpl = $AVE_DB->Query("
-									SELECT
-										template
-									FROM
-										" . PREFIX . "_rubric_templates
+									UPDATE
+										" . PREFIX . "_view_count
+									SET
+										count = count + 1
 									WHERE
-										id = '" . $this->curentdoc->rubric_tmpl_id . "'
-									AND
-										rubric_id = '" . RUB_ID . "'
-									LIMIT 1
-								")->GetCell();
+										document_id = '" . $id . "' AND
+										day_id = '".$curdate."'
+								");
+
+								if (! $AVE_DB->getAffectedRows())
+								{
+									$AVE_DB->Query("
+										INSERT INTO " . PREFIX . "_view_count (
+											document_id,
+											day_id,
+											count
+										)
+										VALUES (
+											'" . $id . "',  '".$curdate."', '1'
+										)
+									");
+								}
+
+								$_SESSION['doc_view_dayly['.$curdate.'][' . $id . ']'] = time();
 							}
-							// Иначе берем стандартный шаблон рубрики
+						}
+
+						// Извлекаем скомпилированный шаблон документа из кэша
+						if (defined('CACHE_DOC_TPL') && CACHE_DOC_TPL) // && empty ($_POST)
+							$main_content = $this->getCompileDocument();
+						else
+							// Кэширование запрещено
+							$main_content = false;
+
+						// Собираем контент
+						// Если в кеше нет контента, то
+						if (empty($main_content))
+						{
+							// Кэш пустой или отключен, извлекаем и компилируем шаблон
+							if (! empty ($this->curentdoc->rubric_template))
+							{
+								$rubTmpl = $this->curentdoc->rubric_template;
+							}
 							else
 							{
-								$rubTmpl = $AVE_DB->Query("
-									SELECT
-										rubric_template
-									FROM
-										" . PREFIX . "_rubrics
-									WHERE
-										Id = '" . RUB_ID . "'
-									LIMIT 1
-								")->GetCell();
+								// Если документу задан другой шаблон из данной рубрики, то берем его
+								if ($this->curentdoc->rubric_tmpl_id != 0)
+								{
+									$rubTmpl = $AVE_DB->Query("
+										SELECT
+											template
+										FROM
+											" . PREFIX . "_rubric_templates
+										WHERE
+											id = '" . $this->curentdoc->rubric_tmpl_id . "'
+										AND
+											rubric_id = '" . RUB_ID . "'
+										LIMIT 1
+									")->GetCell();
+								}
+								// Иначе берем стандартный шаблон рубрики
+								else
+								{
+									$rubTmpl = $AVE_DB->Query("
+										SELECT
+											rubric_template
+										FROM
+											" . PREFIX . "_rubrics
+										WHERE
+											Id = '" . RUB_ID . "'
+										LIMIT 1
+									")->GetCell();
+								}
 							}
+
+							$rubTmpl = trim($rubTmpl);
+
+							// Собираем шаблон рубрики
+							if (empty($rubTmpl))
+								// Если не задан шаблон рубрики, выводим сообщение
+								$main_content = $this->_rubric_template_empty;
+							else
+								// Обрабатываем основные поля рубрики
+								$main_content = $this->_main_content($rubTmpl);
 						}
-
-						$rubTmpl = trim($rubTmpl);
-
-						// Собираем шаблон рубрики
-						if (empty($rubTmpl))
-							// Если не задан шаблон рубрики, выводим сообщение
-							$main_content = $this->_rubric_template_empty;
-						else
-							// Обрабатываем основные поля рубрики
-							$main_content = $this->_main_content($rubTmpl);
 					}
+
+					$out = str_replace('[tag:maincontent]', $main_content, $out);
+
+					unset ($this->curentdoc->rubric_template, $this->curentdoc->template);
+				}
+				//-- Конец вывода документа
+
+				//Работа с условиями
+				/*
+					$out = preg_replace('/\[tag:if_exp:?(.*)\]/u', '<?php
+					$my_exp000=true;
+					$my_exp0001=\'$my_exp000=\'. str_replace(\'#var#\',\'$\',<<<BLOCK
+				$1;
+				BLOCK
+				);
+					@eval($my_exp0001);
+					if($my_exp000==true)
+						{
+				?>', $out);
+						$out = str_replace('[tag:if_exp_else]', '<?php }else{ ?>', $out);
+						$out = str_replace('[tag:/if_exp]', '<?php } ?>', $out);
+
+				*/
+
+				// Тут мы вводим в хеадер и футер иньекцию скриптов.
+				if (defined('RUB_ID'))
+				{
+					$replace = [
+						'[tag:rubheader]' => $this->curentdoc->rubric_header_template,
+						'[tag:rubfooter]' => $this->curentdoc->rubric_footer_template
+					];
+
+					$out = str_replace(array_keys($replace), array_values($replace), $out);
+
+					unset ($replace);
 				}
 
-				$out = str_replace('[tag:maincontent]', $main_content, $out);
-
-				unset ($this->curentdoc->rubric_template, $this->curentdoc->template);
-			}
-			//-- Конец вывода документа
-
-			//Работа с условиями
-			/*
-				$out = preg_replace('/\[tag:if_exp:?(.*)\]/u', '<?php
-				$my_exp000=true;
-				$my_exp0001=\'$my_exp000=\'. str_replace(\'#var#\',\'$\',<<<BLOCK
-			$1;
-			BLOCK
-			);
-				@eval($my_exp0001);
-				if($my_exp000==true)
+				// Парсим поля запроса
+				$out = preg_replace_callback('/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/',
+					function ($m) use ($id)
 					{
-			?>', $out);
-					$out = str_replace('[tag:if_exp_else]', '<?php }else{ ?>', $out);
-					$out = str_replace('[tag:/if_exp]', '<?php } ?>', $out);
+						return request_get_document_field($m[1], $id, $m[2], (defined('RUB_ID') ? RUB_ID : 0));
+					},
+					$out
+				);
 
-			*/
+				// Удаляем ошибочные теги полей документа в шаблоне рубрики
+				$out = preg_replace('/\[tag:rfld:\w*\]/', '', $out);
 
-			// Тут мы вводим в хеадер и футер иньекцию скриптов.
-			if (defined('RUB_ID'))
-			{
-				$replace = [
-					'[tag:rubheader]' => $this->curentdoc->rubric_header_template . '[tag:rubheader]',
-					'[tag:rubfooter]' => $this->curentdoc->rubric_footer_template . '[tag:rubfooter]'
-				];
-
-				$out = str_replace(array_keys($replace), array_values($replace), $out);
-
-				unset ($replace);
-			}
-
-			// Парсим поля запроса
-			$out = preg_replace_callback('/\[tag:rfld:([a-zA-Z0-9-_]+)]\[(more|esc|img|[0-9-]+)]/',
-				function ($m) use ($id)
+				// Если в GET запросе пришел параметр print, т.е. страница для печати,
+				// парсим контент, который обрамлен тегами только для печати
+				if (isset ($_REQUEST['print']) && $_REQUEST['print'] == 1)
 				{
-					return request_get_document_field($m[1], $id, $m[2], (defined('RUB_ID') ? RUB_ID : 0));
-				},
-				$out
-			);
-
-			// Удаляем ошибочные теги полей документа в шаблоне рубрики
-			$out = preg_replace('/\[tag:rfld:\w*\]/', '', $out);
-
-			// Если в GET запросе пришел параметр print, т.е. страница для печати,
-			// парсим контент, который обрамлен тегами только для печати
-			if (isset ($_REQUEST['print']) && $_REQUEST['print'] == 1)
-			{
-				$out = str_replace(array('[tag:if_print]', '[/tag:if_print]'), '', $out);
-				$out = preg_replace('/\[tag:if_notprint\](.*?)\[\/tag:if_notprint\]/si', '', $out);
-			}
-			else
-				{
-					// В противном случае наоборот, парсим только тот контент, который предназначен НЕ для печати
-					$out = preg_replace('/\[tag:if_print\](.*?)\[\/tag:if_print\]/si', '', $out);
-					$out = str_replace(array('[tag:if_notprint]', '[/tag:if_notprint]'), '', $out);
+					$out = str_replace(array('[tag:if_print]', '[/tag:if_print]'), '', $out);
+					$out = preg_replace('/\[tag:if_notprint\](.*?)\[\/tag:if_notprint\]/si', '', $out);
 				}
+				else
+					{
+						// В противном случае наоборот, парсим только тот контент, который предназначен НЕ для печати
+						$out = preg_replace('/\[tag:if_print\](.*?)\[\/tag:if_print\]/si', '', $out);
+						$out = str_replace(array('[tag:if_notprint]', '[/tag:if_notprint]'), '', $out);
+					}
 
-			// Парсим теги визуальных блоков
-			$out = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $out);
+				// Парсим теги визуальных блоков
+				$out = preg_replace_callback('/\[tag:block:([A-Za-z0-9-_]{1,20}+)\]/', 'parse_block', $out);
 
-			// Парсим теги системных блоков
-			$out = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)(|:\{(.*?)\})\]/',
-				function ($m)
+				// Парсим теги системных блоков
+				$out = preg_replace_callback('/\[tag:sysblock:([A-Za-z0-9-_]{1,20}+)(|:\{(.*?)\})\]/',
+					function ($m)
+					{
+						return parse_sysblock($m[1], $m[2]);
+					},
+					$out);
+
+				// Парсим тизер документа
+				$out = preg_replace_callback('/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
+					function ($m)
+					{
+						return showteaser($m[1], $m[2]);
+					},
+					$out
+				);
+
+				// Парсим теги модулей
+				$out = $this->coreModuleTagParse($out);
+
+				// Если в запросе пришел параметр module, т.е. вызов модуля,
+				// проверяем установлен и активен ли модуль
+				if (isset($_REQUEST['module']) && ! $this->_getRequestModule($_REQUEST['module']))
+					display_notice($this->_module_error . ' "' . $_REQUEST['module'] . '"'); // Выводим сообщение о том что такого модуля нет
+
+				// Парсим теги системы внутренних запросов
+				$out = preg_replace_callback('/\[tag:request:([A-Za-z0-9-_]{1,20}+)\]/', 'request_parse', $out);
+
+				// Парсим теги навигации
+				$out = preg_replace_callback('/\[tag:navigation:([A-Za-z0-9-_]{1,20}+):?([0-9,]*)\]/', 'parse_navigation', $out);
+
+				// Парсим теги скрытого текста
+				$out = parse_hide($out);
+
+				// Если в запросе пришел параметр sysblock, т.е. вызов сис блока,
+				// парсим контент
+				if (isset($_REQUEST['sysblock']) && $_REQUEST['sysblock'] != '')
 				{
-					return parse_sysblock($m[1], $m[2]);
-				},
-				$out);
-
-			// Парсим тизер документа
-			$out = preg_replace_callback('/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
-				function ($m)
-				{
-					return showteaser($m[1], $m[2]);
-				},
-				$out
-			);
-
-			// Парсим теги модулей
-			$out = $this->coreModuleTagParse($out);
-
-			// Если в запросе пришел параметр module, т.е. вызов модуля,
-			// проверяем установлен и активен ли модуль
-			if (isset($_REQUEST['module']) && ! $this->_getRequestModule($_REQUEST['module']))
-				display_notice($this->_module_error . ' "' . $_REQUEST['module'] . '"'); // Выводим сообщение о том что такого модуля нет
-
-			// Парсим теги системы внутренних запросов
-			$out = preg_replace_callback('/\[tag:request:([A-Za-z0-9-_]{1,20}+)\]/', 'request_parse', $out);
-
-			// Парсим теги навигации
-			$out = preg_replace_callback('/\[tag:navigation:([A-Za-z0-9-_]{1,20}+):?([0-9,]*)\]/', 'parse_navigation', $out);
-
-			// Парсим теги скрытого текста
-			$out = parse_hide($out);
-
-			// Если в запросе пришел параметр sysblock, т.е. вызов сис блока,
-			// парсим контент
-			if (isset($_REQUEST['sysblock']) && $_REQUEST['sysblock'] != '')
-			{
-				$search = array(
-					'[tag:mediapath]',
-					'[tag:path]',
-					'[tag:sitename]',
-					'[tag:home]',
-					'[tag:docid]',
-					'[tag:docparent]'
-				);
-
-				$replace = array(
-					ABS_PATH . 'templates/' . ((defined('THEME_FOLDER') === false) ? DEFAULT_THEME_FOLDER : THEME_FOLDER) . '/',
-					ABS_PATH,
-					htmlspecialchars(get_settings('site_name'), ENT_QUOTES),
-					get_home_link(),
-					(isset ($this->curentdoc->Id) ? $this->curentdoc->Id : ''),
-					(isset ($this->curentdoc->document_parent) ? $this->curentdoc->document_parent : '')
-				);
-			}
-			// Если в запросе пришел параметр request, т.е. вызов запроса,
-			// парсим контент
-			elseif (isset($_REQUEST['request']) && $_REQUEST['request'] != '')
-			{
-				$search = array(
-					'[tag:mediapath]',
-					'[tag:path]',
-					'[tag:sitename]',
-					'[tag:home]',
-					'[tag:docid]',
-					'[tag:docparent]'
-				);
-
-				$replace = array(
-					ABS_PATH . 'templates/' . ((defined('THEME_FOLDER') === false) ? DEFAULT_THEME_FOLDER : THEME_FOLDER) . '/',
-					ABS_PATH,
-					htmlspecialchars(get_settings('site_name'), ENT_QUOTES),
-					get_home_link(),
-					(isset ($this->curentdoc->Id) ? $this->curentdoc->Id : ''),
-					(isset ($this->curentdoc->document_parent) ? $this->curentdoc->document_parent : '')
-				);
-			}
-			else
-				{
-					// В противном случае
-					// парсим остальные теги основного шаблона
 					$search = array(
 						'[tag:mediapath]',
 						'[tag:path]',
 						'[tag:sitename]',
-						'[tag:alias]',
-						'[tag:domain]',
 						'[tag:home]',
-						'[tag:robots]',
-						'[tag:canonical]',
 						'[tag:docid]',
 						'[tag:docparent]'
 					);
@@ -1441,161 +1539,215 @@
 						ABS_PATH . 'templates/' . ((defined('THEME_FOLDER') === false) ? DEFAULT_THEME_FOLDER : THEME_FOLDER) . '/',
 						ABS_PATH,
 						htmlspecialchars(get_settings('site_name'), ENT_QUOTES),
-						(isset($_REQUEST['id'])) ? isset ($this->curentdoc->document_alias) ? $this->curentdoc->document_alias : '' : '',
-						getSiteUrl(),
 						get_home_link(),
-						(isset($this->curentdoc->document_meta_robots) ? $this->curentdoc->document_meta_robots : ''),
-						canonical(isset ($this->curentdoc->document_alias) ? ABS_PATH . $this->curentdoc->document_alias : ''),
-						(isset($this->curentdoc->Id) ? $this->curentdoc->Id : ''),
-						(isset($this->curentdoc->document_parent) ? $this->curentdoc->document_parent : '')
+						(isset ($this->curentdoc->Id) ? $this->curentdoc->Id : ''),
+						(isset ($this->curentdoc->document_parent) ? $this->curentdoc->document_parent : '')
 					);
 				}
+				// Если в запросе пришел параметр request, т.е. вызов запроса,
+				// парсим контент
+				elseif (isset($_REQUEST['request']) && $_REQUEST['request'] != '')
+				{
+					$search = array(
+						'[tag:mediapath]',
+						'[tag:path]',
+						'[tag:sitename]',
+						'[tag:home]',
+						'[tag:docid]',
+						'[tag:docparent]'
+					);
 
-			// Если пришел контент из модуля
-			if (defined('MODULE_CONTENT'))
-			{
-				// парсинг тегов при выводе из модуля
-				$search[] 	= '[tag:maincontent]';
-				$replace[] 	= MODULE_CONTENT;
-				$search[] 	= '[tag:title]';
-				$replace[] 	= htmlspecialchars(defined('MODULE_TITLE') ? MODULE_TITLE : '', ENT_QUOTES);
-				$search[] 	= '[tag:description]';
-				$replace[] 	= htmlspecialchars(defined('MODULE_DESCRIPTION') ? MODULE_DESCRIPTION : '', ENT_QUOTES);
-				$search[] 	= '[tag:keywords]';
-				$replace[] 	= htmlspecialchars(defined('MODULE_KEYWORDS') ? MODULE_KEYWORDS : '', ENT_QUOTES);
-			}
-			// Или из системного блока
-			elseif (isset($_REQUEST['sysblock']))
-				{
-					// Убираем пустые теги в сис блоке
-					$main_content = preg_replace('/\[tag:(.+?)\]/', '', $main_content);
-					$main_content = preg_replace('/\[mod_(.+?)\]/', '', $main_content);
+					$replace = array(
+						ABS_PATH . 'templates/' . ((defined('THEME_FOLDER') === false) ? DEFAULT_THEME_FOLDER : THEME_FOLDER) . '/',
+						ABS_PATH,
+						htmlspecialchars(get_settings('site_name'), ENT_QUOTES),
+						get_home_link(),
+						(isset ($this->curentdoc->Id) ? $this->curentdoc->Id : ''),
+						(isset ($this->curentdoc->document_parent) ? $this->curentdoc->document_parent : '')
+					);
 				}
-			// Или из запроса
-			elseif (isset($_REQUEST['request']))
-				{
-					// Убираем пустые теги в запросе
-					$main_content = preg_replace('/\[tag:(.+?)\]/', '', $main_content);
-					$main_content = preg_replace('/\[mod_(.+?)\]/', '', $main_content);
-				}
-				// Иначе
 				else
 					{
-						// Если стоит вкл на генерацию keywords, description
-						if ($this->curentdoc->rubric_meta_gen)
-						{
-							// Генерируем keywords, description на основе
-							// данных документа, если позволяет рубрика
-							require_once(dirname(__FILE__).'/class.meta.php');
-							$meta = new Meta();
-							$res = $meta->generateMeta($main_content);
-						}
+						// В противном случае
+						// парсим остальные теги основного шаблона
+						$search = array(
+							'[tag:mediapath]',
+							'[tag:path]',
+							'[tag:sitename]',
+							'[tag:alias]',
+							'[tag:domain]',
+							'[tag:home]',
+							'[tag:robots]',
+							'[tag:canonical]',
+							'[tag:docid]',
+							'[tag:docparent]'
+						);
 
-						// Убираем пустые теги
-						$main_content = preg_replace('/\[tag:(.+?)\]/', '', $main_content);
-						$main_content = preg_replace('/\[mod_(.+?)\]/', '', $main_content);
-
-						// Парсим keywords, description, title
-						$search[] = '[tag:keywords]';
-						$replace[] = stripslashes(htmlspecialchars((! empty ($this->curentdoc->rubric_meta_gen) ? $res['keywords'] : $this->curentdoc->document_meta_keywords), ENT_QUOTES));
-						$search[] = '[tag:description]';
-						$replace[] = stripslashes(htmlspecialchars((! empty ($this->curentdoc->rubric_meta_gen) ? $res['description'] : $this->curentdoc->document_meta_description), ENT_QUOTES));
-						$search[] = '[tag:title]';
-						$replace[] = stripslashes(htmlspecialchars_decode(pretty_chars($this->curentdoc->document_title)));
+						$replace = array(
+							ABS_PATH . 'templates/' . ((defined('THEME_FOLDER') === false) ? DEFAULT_THEME_FOLDER : THEME_FOLDER) . '/',
+							ABS_PATH,
+							htmlspecialchars(get_settings('site_name'), ENT_QUOTES),
+							(isset($_REQUEST['id'])) ? isset ($this->curentdoc->document_alias) ? $this->curentdoc->document_alias : '' : '',
+							getSiteUrl(),
+							get_home_link(),
+							(isset($this->curentdoc->document_meta_robots) ? $this->curentdoc->document_meta_robots : ''),
+							canonical(isset ($this->curentdoc->document_alias) ? getSiteUrl() . str_replace('//', '/', ABS_PATH . $this->curentdoc->document_alias) : ''),
+							(isset($this->curentdoc->Id) ? $this->curentdoc->Id : ''),
+							(isset($this->curentdoc->document_parent) ? $this->curentdoc->document_parent : '')
+						);
 					}
 
-			// Возвращаем поле из БД документа
-			$out = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
-				function ($match)
+				// Если пришел контент из модуля
+				if (defined('MODULE_CONTENT'))
 				{
-					return isset($this->curentdoc->{$match[1]})
-						? $this->curentdoc->{$match[1]}
-						: null;
-				},
-				$out
-			);
-
-			// Если пришел вызов на активацию языковых файлов
-			$out = preg_replace_callback(
-				'/\[tag:langfile:([a-zA-Z0-9-_]+)\]/u',
-				function ($match)
-				{
-					global $AVE_Template;
-
-					return $AVE_Template->get_config_vars($match[1]);
-				},
-				$out
-			);
-
-			// Убираем пустые теги
-			$out = preg_replace('/\[tag:doc:\d*\]/', '', $out);
-			$out = preg_replace('/\[tag:langfile:\d*\]/', '', $out);
-
-			// Убираем дубликат
-			$search[] = '[tag:maincontent]';
-			$replace[] = '';
-
-			// Парсим линк на версию для печати
-			$search[] = '[tag:printlink]';
-			$replace[] = get_print_link();
-
-			// Парсим тег версии системы
-			$search[] = '[tag:version]';
-			$replace[] = APP_NAME . ' v' . APP_VERSION ;
-
-			// Парсим тег кол-ва просмотра данного документа
-			$search[] = '[tag:docviews]';
-			$replace[] = isset ($this->curentdoc->document_count_view) ? $this->curentdoc->document_count_view : '';
-
-			// Парсим тизер документа
-			$out = preg_replace_callback('/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
-				function ($m)
-				{
-					return showteaser($m[1], $m[2]);
-				},
-				$out
-			);
-
-			// Парсим аватар автора документа
-			if (defined('RUB_ID'))
-				$out = preg_replace_callback('/\[tag:docauthoravatar:(\d+)\]/',
-					function ($m)
+					// парсинг тегов при выводе из модуля
+					$search[] 	= '[tag:maincontent]';
+					$replace[] 	= MODULE_CONTENT;
+					$search[] 	= '[tag:title]';
+					$replace[] 	= htmlspecialchars(defined('MODULE_TITLE') ? MODULE_TITLE : '', ENT_QUOTES);
+					$search[] 	= '[tag:description]';
+					$replace[] 	= htmlspecialchars(defined('MODULE_DESCRIPTION') ? MODULE_DESCRIPTION : '', ENT_QUOTES);
+					$search[] 	= '[tag:keywords]';
+					$replace[] 	= htmlspecialchars(defined('MODULE_KEYWORDS') ? MODULE_KEYWORDS : '', ENT_QUOTES);
+				}
+				// Или из системного блока
+				elseif (isset($_REQUEST['sysblock']))
 					{
-						return getAvatar(intval($this->curentdoc->document_author_id), $m[1]);
+						// Убираем пустые теги в сис блоке
+						$main_content = preg_replace('/\[tag:(.+?)\]/', '', $main_content);
+						$main_content = preg_replace('/\[mod_(.+?)\]/', '', $main_content);
+					}
+				// Или из запроса
+				elseif (isset($_REQUEST['request']))
+					{
+						// Убираем пустые теги в запросе
+						$main_content = preg_replace('/\[tag:(.+?)\]/', '', $main_content);
+						$main_content = preg_replace('/\[mod_(.+?)\]/', '', $main_content);
+					}
+					// Иначе
+					else
+						{
+							// Если стоит вкл на генерацию keywords, description
+							if ($this->curentdoc->rubric_meta_gen)
+							{
+								// Генерируем keywords, description на основе
+								// данных документа, если позволяет рубрика
+								require_once(dirname(__FILE__).'/class.meta.php');
+								$meta = new Meta();
+								$res = $meta->generateMeta($main_content);
+							}
+
+							// Убираем пустые теги
+							$main_content = preg_replace('/\[tag:(.+?)\]/', '', $main_content);
+							$main_content = preg_replace('/\[mod_(.+?)\]/', '', $main_content);
+
+							// Парсим keywords, description, title
+							$search[] = '[tag:keywords]';
+							$replace[] = stripslashes(htmlspecialchars((! empty ($this->curentdoc->rubric_meta_gen) ? $res['keywords'] : $this->curentdoc->document_meta_keywords), ENT_QUOTES));
+							$search[] = '[tag:description]';
+							$replace[] = stripslashes(htmlspecialchars((! empty ($this->curentdoc->rubric_meta_gen) ? $res['description'] : $this->curentdoc->document_meta_description), ENT_QUOTES));
+							$search[] = '[tag:title]';
+							$replace[] = stripslashes(htmlspecialchars_decode(pretty_chars($this->curentdoc->document_title)));
+						}
+
+				// Возвращаем поле из БД документа
+				$out = preg_replace_callback('/\[tag:doc:([a-zA-Z0-9-_]+)\]/u',
+					function ($match)
+					{
+						return isset($this->curentdoc->{$match[1]})
+							? $this->curentdoc->{$match[1]}
+							: null;
 					},
 					$out
 				);
 
-			// Парсим теги языковых условий
-			if (defined('RUB_ID'))
-			{
-				$out = preg_replace('/\[tag:lang:([a-zA-Z0-9-_]+)\]/', '<?php if ($AVE_Core->curentdoc->document_lang == "$1") { ?>', $out);
-			}
-			else
+				// Если пришел вызов на активацию языковых файлов
+				$out = preg_replace_callback(
+					'/\[tag:langfile:([a-zA-Z0-9-_]+)\]/u',
+					function ($match)
+					{
+						global $AVE_Template;
+
+						return $AVE_Template->get_config_vars($match[1]);
+					},
+					$out
+				);
+
+				// Убираем пустые теги
+				$out = preg_replace('/\[tag:doc:\d*\]/', '', $out);
+				$out = preg_replace('/\[tag:langfile:\d*\]/', '', $out);
+
+				// Убираем дубликат
+				$search[] = '[tag:maincontent]';
+				$replace[] = '';
+
+				// Парсим линк на версию для печати
+				$search[] = '[tag:printlink]';
+				$replace[] = get_print_link();
+
+				// Парсим тег версии системы
+				$search[] = '[tag:version]';
+				$replace[] = APP_NAME . ' v' . APP_VERSION ;
+
+				// Парсим тег кол-ва просмотра данного документа
+				$search[] = '[tag:docviews]';
+				$replace[] = isset ($this->curentdoc->document_count_view) ? $this->curentdoc->document_count_view : '';
+
+				// Парсим тизер документа
+				$out = preg_replace_callback('/\[tag:teaser:(\d+)(|:\[(.*?)\])\]/',
+					function ($m)
+					{
+						return showteaser($m[1], $m[2]);
+					},
+					$out
+				);
+
+				// Парсим аватар автора документа
+				if (defined('RUB_ID'))
+					$out = preg_replace_callback('/\[tag:docauthoravatar:(\d+)\]/',
+						function ($m)
+						{
+							return getAvatar(intval($this->curentdoc->document_author_id), $m[1]);
+						},
+						$out
+					);
+
+				// Парсим теги языковых условий
+				if (defined('RUB_ID'))
 				{
-					$out = preg_replace('/\[tag:lang:([a-zA-Z0-9-_]+)\]/', '<?php if ($_SESSION["user_language"] == "$1") { ?>', $out);
+					$out = preg_replace('/\[tag:lang:([a-zA-Z0-9-_]+)\]/', '<?php if ($AVE_Core->curentdoc->document_lang == "$1") { ?>', $out);
+				}
+				else
+					{
+						$out = preg_replace('/\[tag:lang:([a-zA-Z0-9-_]+)\]/', '<?php if ($_SESSION["user_language"] == "$1") { ?>', $out);
+					}
+
+				$out = str_replace('[tag:/lang]', '<?php } ?>', $out);
+
+				// Парсим хлебные крошки
+				if (preg_match('/\[tag:breadcrumb]/u', $out))
+				{
+					$out = preg_replace_callback('/\[tag:breadcrumb\]/', 'get_breadcrumb', $out);
 				}
 
-			$out = str_replace('[tag:/lang]', '<?php } ?>', $out);
+				// Парсим остальные теги основного шаблона
+				$out = str_replace($search, $replace, $out);
 
-			// Парсим хлебные крошки
-			if (preg_match('/\[tag:breadcrumb]/u', $out))
-			{
-				$out = preg_replace_callback('/\[tag:breadcrumb\]/', 'get_breadcrumb', $out);
+				// Парсим теги для combine.php
+				$out = preg_replace_callback('/\[tag:(css|js):([^ :\/]+):?(\S+)*\]/', array($this, '_parse_combine'), $out);
+
+				// ЧПУ
+				$out = str_ireplace('"//"','"/"', str_ireplace('///','/', rewrite_link($out)));
+
+				unset ($search, $replace, $main_content);  //Убираем данные
+
+				$GLOBALS['block_generate']['DOCUMENT']['FETCH'] = Debug::endTime('DOC_' . $id);
+
+				if ($cacheCompile == false)
+				{
+					$this->setCompileContent($out);
+				}
 			}
-
-			// Парсим остальные теги основного шаблона
-			$out = str_replace($search, $replace, $out);
-
-			// Парсим теги для combine.php
-			$out = preg_replace_callback('/\[tag:(css|js):([^ :\/]+):?(\S+)*\]/', array($this, '_parse_combine'), $out);
-
-			// ЧПУ
-			$out = str_ireplace('"//"','"/"', str_ireplace('///','/', rewrite_link($out)));
-
-			unset ($search, $replace, $main_content);  //Убираем данные
-
-			$GLOBALS['block_generate']['DOCUMENT']['FETCH'] = Debug::endTime('DOC_' . $id);
 
 			// Выводим собранный документ
 			echo $out;

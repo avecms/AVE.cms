@@ -303,7 +303,7 @@
 		'DESCR'			=> 'Вывод общей статистики публичной части',
 		'DEFAULT'		=> 'off',
 		'TYPE'			=> 'dropdown',
-		'VARIANT'		=> ['off', 'light', 'full']
+		'VARIANT'		=> ['off', 'light', 'full', 'dev']
 	];
 
 	//-- Вывод общей статистики в административной части
@@ -401,6 +401,22 @@
 	//-- Кэширование информацию о документе и его полях
 	$GLOBALS['CMS_CONFIG']['_CONST_CACHE']['CACHE_DOC_FILE'] = [
 		'DESCR'			=> 'Кэширование информацию о документе и его полях',
+		'DEFAULT'		=> false,
+		'TYPE'			=> 'bool',
+		'VARIANT'		=> ''
+	];
+
+	//-- Кэширование всей страницы
+	$GLOBALS['CMS_CONFIG']['_CONST_CACHE']['CACHE_DOC_FULL'] = [
+		'DESCR'			=> 'Кэширование всей страницы',
+		'DEFAULT'		=> false,
+		'TYPE'			=> 'bool',
+		'VARIANT'		=> ''
+	];
+
+	//-- Кэширование всей страницы (для админа)
+	$GLOBALS['CMS_CONFIG']['_CONST_CACHE']['CACHE_DOC_FULL_ADMIN'] = [
+		'DESCR'			=> 'Кэширование всей страницы (для админа)',
 		'DEFAULT'		=> false,
 		'TYPE'			=> 'bool',
 		'VARIANT'		=> ''

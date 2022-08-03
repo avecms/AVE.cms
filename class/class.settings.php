@@ -777,6 +777,10 @@
 					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/documents'));
 					break;
 
+				case 'compiled':
+					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/compile'));
+					break;
+
 				case 'langs':
 					$size = format_size(get_dir_size(BASE_DIR . '/tmp/cache/sql/langs'));
 					break;
@@ -840,6 +844,10 @@
 
 				case 'documents':
 					$cache_dir = BASE_DIR . '/tmp/cache/sql/documents';
+					break;
+
+				case 'compiled':
+					$cache_dir = BASE_DIR . '/tmp/cache/sql/compile';
 					break;
 
 				case 'langs':

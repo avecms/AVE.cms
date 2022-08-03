@@ -35,7 +35,7 @@
 	//-- Подключаем файл определения мобильных устройств
 	//-- далее пользуемся $MobileDetect
 	require_once (BASE_DIR . '/lib/mobile_detect/Mobile_Detect.php');
-	$MobileDetect = new Mobile_Detect;
+	$MDetect = new Mobile_Detect;
 
 	$init_start = microtime();
 
@@ -43,6 +43,8 @@
 	require (BASE_DIR . '/inc/init.php');
 
 	$GLOBALS['block_generate']['INIT']['END'] = number_format(microtime_diff($init_start, microtime()), 3, ',', ' ') . ' sec';
+
+	Debug::startTime('CODEEND');
 
 	//-- Проверяем нет ли в запросе папки UPLOADS_DIR
 	//-- подключаем файл для работы thumbsnail
@@ -98,6 +100,7 @@
 	}
 
 	//-- Собираем страницу
+
 	$AVE_Core->coreSiteFetch(get_current_document_id());
 
 	Debug::startTime('CONTENT');
@@ -109,7 +112,13 @@
 	else
 		ob_start();
 
+	Debug::$_document_content = $content;
+
+	Debug::startTime('EVALCONTENT');
+
 	eval (' '.'?>' . $content . '<?'.'php ');
+
+	$GLOBALS['block_generate']['DOCUMENT']['EVALCONTENT'] = Debug::endTime('EVALCONTENT');
 
 	$render = ob_get_clean();
 
@@ -155,23 +164,8 @@
 		exit;
 	}
 
-	//-- Тут заменяем [tag:rubheader]
-	//-- на собранный $GLOBALS["user_header"]
-	$rubheader = (empty($GLOBALS['user_header'])
-		? ''
-		: implode(chr(10), $GLOBALS['user_header']));
-
-	//-- Тут заменяем [tag:rubfooter]
-	//-- на собранный $GLOBALS["user_footer"]
-	$rubfooter = (empty($GLOBALS['user_footer'])
-		? ''
-		: implode(chr(10), $GLOBALS['user_footer']));
-
-	$render = str_replace(['[tag:rubheader]', '[tag:rubfooter]'], [$rubheader, $rubfooter], $render);
-
-	unset ($rubheader, $rubfooter);
-
 	$GLOBALS['block_generate']['DOCUMENT']['CONTENT'] = Debug::endTime('CONTENT');
+	$GLOBALS['block_generate']['INIT']['CODEEND'] = Debug::endTime('CODEEND');
 
 	//-- Вывод конечного результата
 	output_compress($render);

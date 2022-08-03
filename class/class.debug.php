@@ -26,6 +26,8 @@
 
 		protected static $_debug = [];
 
+		public static $_document_content = '';
+
 
 		public function __construct()
 		{
@@ -946,7 +948,7 @@
 		 *
 		 * @return false|null|string|string[]
 		 */
-		public static function _stat_get($type = 'get')
+		public static function _stat_get (string $type = 'get')
 		{
 			ob_start();
 
@@ -975,16 +977,57 @@
 			$stat = htmlspecialchars($stat);
 			$stat = preg_replace('/(=&gt;)/', '<span style="color: #FF8C00;">$1</span>', $stat);
 			$stat = '<pre style="background:#f5f5f5; color: #000; margin: 0; padding: 5px; border: 0; font-size: 11px; font-family: Consolas, Verdana, Arial;">'. $stat .'</pre>';
+			
 			ob_end_clean();
 
 			return $stat;
 		}
 
 
+		public static function getDocumentInfo ()
+		{
+			global $AVE_Template;
+
+			$_arr = [
+				'DOC' => '/admin/index.php?do=docs&action=edit&Id=',
+				'RUBRIC' => '/admin/index.php?do=rubs&action=edit&Id=',
+				'BLOCKS' => '/admin/index.php?do=blocks&action=edit&id=',
+				'SYSBLOCK' => '/admin/index.php?do=sysblocks&action=edit&id=',
+				'REQUESTS' => '/admin/index.php?do=request&action=edit&Id=',
+				'NAVIAGTIONS' => '/admin/index.php?do=navigation&action=templates&navigation_id='
+			];
+
+			$doc = get_document($_REQUEST['id']);
+
+			$_edit = [];
+
+			$_edit['DOC'][$doc['Id']] =  $_arr['DOC'] . $doc['Id'];
+			$_edit['RUBRIC'][$doc['rubric_id']] =  $_arr['RUBRIC'] . $doc['rubric_id'];
+
+			foreach ($GLOBALS['block_generate'] AS $k => $v)
+			{
+				if (! in_array($k, array_keys($_arr))) {
+					continue;
+				}
+
+				foreach ($v as $key => $value) {
+					$_edit[$k][$key] = $_arr[$k] . $key;
+				}
+			}
+
+			$AVE_Template->assign('edit', $_edit);
+			$AVE_Template->assign('session', session_id());
+
+			$return = $AVE_Template->fetch(BASE_DIR . '/lib/debug/debug.tpl');
+
+			return $return;
+		}
+
+
 		/**
 		 * @return string
 		 */
-		public static function displayInfo ()
+		public static function displayInfo (): string
 		{
 			global $AVE_DB;
 
@@ -1014,6 +1057,7 @@
 						<li id="debug-12">MySQL</li>
 						<li id="debug-13">Trace</li>
 						<li id="debug-14">Debug</li>
+						<li id="debug-15">Edit</li>
 					</ul>
 			';
 			$out .= PHP_EOL;
@@ -1111,6 +1155,77 @@
 			$out .= PHP_EOL;
 			$out .= '<div class="debug_tab" id="debug-14-cont" style="display: none;">' . PHP_EOL;
 			$out .= implode('', self::$_debug);
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-15-cont" style="display: none;">' . PHP_EOL;
+			$out .= self::getDocumentInfo();
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '</div>';
+
+			return $out;
+		}
+
+		/**
+		 * @return string
+		 */
+		public static function displayInfoLight (): string
+		{
+			global $AVE_DB;
+
+			$out = PHP_EOL;
+			$out .= '<link rel="stylesheet" href="/lib/debug/debug.css" />';
+			$out .= PHP_EOL;
+			$out .= '<script>window.jQuery || document.write(\'<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js">\x3C/script>\')</script>';
+			$out .= PHP_EOL;
+			$out .= '<script src="/lib/debug/debug.js"></script>';
+			$out .= PHP_EOL;
+			$out .= '<div id="debug_btn"></div>';
+			$out .= PHP_EOL;
+			$out .= '
+				<div id="debug_bar">
+					<ul class="debug_tabs">
+						<li id="debug-1">Timers</li>
+						<li id="debug-2">Blocks</li>
+						<li id="debug-3">Content</li>
+						<li id="debug-4">Debug</li>
+						<li id="debug-5">Document</li>
+					</ul>
+			';
+			$out .= PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-1-cont" style="display: block;">' . PHP_EOL;
+			$out .= 'Time generation: ' . self::getStatistic('time') . ' sec';
+			$out .= '<br>';
+			$out .= 'Memory usage: ' . self::getStatistic('memory');
+			$out .= '<br>';
+			$out .= 'Memory peak usage: ' . self::getStatistic('peak');
+			$out .= '<br>';
+			$out .= 'Real SQL Queries: ' . $AVE_DB->DBProfilesGet('count') . ' for ' . $AVE_DB->DBProfilesGet('time') . ' sec';
+			$out .= '<br>';
+			$out .= 'All SQL Queries: ' . count($AVE_DB->_query_list);
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-2-cont" style="display: none;">' . PHP_EOL;
+			$out .= 'Blocks:';
+			$out .= self::getStatistic('blocks');
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-3-cont" style="display: none;">' . PHP_EOL;
+			$out .= '<pre>' . htmlspecialchars(self::$_document_content) . '</pre>';
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-4-cont" style="display: none;">' . PHP_EOL;
+			$out .= implode('', self::$_debug);
+			$out .= '</div>';
+
+			$out .= PHP_EOL;
+			$out .= '<div class="debug_tab" id="debug-5-cont" style="display: none;">' . PHP_EOL;
+			$out .= self::getDocumentInfo();
 			$out .= '</div>';
 
 			$out .= PHP_EOL;

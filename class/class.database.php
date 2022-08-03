@@ -1369,7 +1369,7 @@
 		 * @param $cache_id
 		 * @return bool
 		 */
-		public function cacheId($cache_id)
+		public function cacheId ($cache_id)
 		{
 			//-- Если это документ, то меняем расположение
 			if (substr($cache_id, 0, 3) == 'doc') {
@@ -1429,6 +1429,12 @@
 			if (substr($cache_id, 0, 3) == 'nav') {
 				$cache_id = explode('_', $cache_id);
 				return $cache_id = 'navigations/' . $cache_id[1];
+			}
+
+			//-- Если это скомпилированный документ, то меняем расположение
+			if (substr($cache_id, 0, 3) == 'cmp') {
+				$cache_id = (int) str_replace('cmp_', '', $cache_id);
+				return $cache_id = 'compile/' . (floor($cache_id / 1000)) . '/' . $cache_id;
 			}
 
 			if (substr_count($cache_id, '__') > 0) {
@@ -1551,6 +1557,7 @@
 			$this->clearCache('fld_' . $doc_id); // Поля
 			$this->clearCache('cmd_' . $doc_id); // Компиляция
 			$this->clearCache('rqe_' . $doc_id); // Элемент запроса
+			$this->clearCache('cmp_' . $doc_id); // Скомпилированный документ
 		}
 
 

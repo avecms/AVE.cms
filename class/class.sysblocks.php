@@ -378,7 +378,7 @@
 		{
 			global $AVE_DB, $AVE_Template;
 
-			$sysblock_id = (int)$_REQUEST['id'];
+			$sysblock_id = $_REQUEST['id'];
 
 			$sql = "
 				SELECT
@@ -387,11 +387,13 @@
 					" . PREFIX . "_sysblocks
 				WHERE
 					id = '" . $sysblock_id . "'
+					OR
+					sysblock_alias = '" . $sysblock_id . "'
 			";
 
 			$row = $AVE_DB->Query($sql)->FetchAssocArray();
 
-			$AVE_Template->assign('sid', $sysblock_id);
+			$AVE_Template->assign('sid', $row['id']);
 			$AVE_Template->assign('groups', self::getGroups());
 
 			if ((isset($_REQUEST['sysblock_visual']) && $_REQUEST['sysblock_visual'] == 1) ||  $row['sysblock_visual'] == 1)

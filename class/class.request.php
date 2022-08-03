@@ -336,6 +336,8 @@
 							" . PREFIX . "_request
 						WHERE
 							Id = '" . $request_id . "'
+							OR
+							request_alias = '" . $request_id . "'
 					");
 
 					if ($sql->_result->num_rows == 0)
@@ -361,10 +363,13 @@
 						array_push($paginations, $pages);
 
 					// Передаем данные в шаблон и отображаем страницу с редактированием запроса
+					if (! isset($_REQUEST['rubric_id']))
+						$_REQUEST['rubric_id'] = $row->rubric_id;
+
 					$AVE_Template->assign('row', $row);
-					$AVE_Template->assign('rid', $request_id);
+					$AVE_Template->assign('rid', $row->Id);
 					$AVE_Template->assign('paginations', $paginations);
-					$AVE_Template->assign('formaction', 'index.php?do=request&action=edit&sub=save&Id=' . $request_id . '&cp=' . SESSION);
+					$AVE_Template->assign('formaction', 'index.php?do=request&action=edit&sub=save&Id=' . $row->Id . '&cp=' . SESSION);
 					$AVE_Template->assign('content', $AVE_Template->fetch('request/form.tpl'));
 
 					break;

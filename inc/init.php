@@ -76,6 +76,11 @@
 		}
 	}
 
+	$_GET		= add_slashes($_GET);
+	$_POST		= add_slashes($_POST);
+	$_REQUEST	= array_merge($_POST, $_GET);
+	$_COOKIE	= add_slashes($_COOKIE);
+
 	unsetGlobals();
 
 	if (isset($HTTP_POST_VARS))
@@ -107,11 +112,6 @@
 
 		return $array;
 	}
-
-	$_GET		= add_slashes($_GET);
-	$_POST		= add_slashes($_POST);
-	$_REQUEST	= array_merge($_POST, $_GET);
-	$_COOKIE	= add_slashes($_COOKIE);
 
 	function isSSL()
 	{
