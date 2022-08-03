@@ -1131,14 +1131,25 @@
 				if (defined('SQL_PROFILING') && SQL_PROFILING)
 					$data .= "\r\n" . "<!-- ------ SQL Queries: ".$AVE_DB->DBProfilesGet('count')." for ".$AVE_DB->DBProfilesGet('time')." sec ----- -->";
 			}
-			else if (defined('PROFILING') && PROFILING == 'full')
+			else if (defined('PROFILING') && PROFILING == 'full') {
 				$data .= Debug::displayInfo();
+			}
 		}
 
 		if ($Gzip && (defined('GZIP_COMPRESSION') && GZIP_COMPRESSION))
 		{
 			$data = gzencode($data, 9);
 			header ('Content-Encoding: gzip');
+		}
+
+		if (UGROUP !== 1 && (defined('PROFILING') && PROFILING == 'full'))
+		{
+			$data .= "\r\n" . "<!-- ------ Time generation: ".Debug::getStatistic('time')." sec ----- -->";
+			$data .= "\r\n" . "<!-- ------ Memory usage: ".Debug::getStatistic('memory')." ----- -->";
+			$data .= "\r\n" . "<!-- ------ Memory peak usage: ".Debug::getStatistic('peak')." ----- -->";
+
+			if (defined('SQL_PROFILING') && SQL_PROFILING)
+				$data .= "\r\n" . "<!-- ------ SQL Queries: ".$AVE_DB->DBProfilesGet('count')." for ".$AVE_DB->DBProfilesGet('time')." sec ----- -->";
 		}
 
 		header ('X-Engine: AVE.cms');
