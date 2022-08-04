@@ -87,7 +87,7 @@
 		<div class="rowElem" id="saveBtn">
 			<div class="saveBtn">
 				{if $smarty.request.id != ''}
-				<input type="hidden" name="id" value="{$id}">
+				<input type="hidden" name="id" value="{$sid}">
 				<input name="submit" type="submit" class="basicBtn" value="{#BLOCK_SAVEDIT#}" />
 				{else}
 				<input name="submit" type="submit" class="basicBtn" value="{#BLOCK_SAVE#}" />

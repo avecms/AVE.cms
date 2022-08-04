@@ -70,7 +70,7 @@
 		 *
 		 * @param int $block_id идентификатор системного блока
 		 */
-		function blockSave($block_id = null)
+		function blockSave ($block_id = null)
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -156,7 +156,7 @@
 		 *
 		 * @param int $block_id идентификатор системного блока
 		 */
-		function blockEdit($block_id)
+		function blockEdit ($block_id)
 		{
 			global $AVE_DB, $AVE_Template;
 
@@ -167,9 +167,11 @@
 					" . PREFIX . "_blocks
 				WHERE
 					id = '" . $block_id . "'
+					OR
+					block_alias = '" . $block_id . "'
 			")->FetchAssocArray();
 
-			$AVE_Template->assign('sid', $block_id);
+			$AVE_Template->assign('sid', $row['id']);
 
 			$oCKeditor = new CKeditor();
 			$oCKeditor->returnOutput = true;

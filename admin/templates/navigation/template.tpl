@@ -43,7 +43,7 @@
 			<a class="basicNum topDir" href="index.php?do=navigation&cp={$sess}">{#NAVI_RETURN_TO_LIST#}</a>
 		</div>
 		<div class="num">
-			<a class="greenNum" href="index.php?do=navigation&action=entries&navigation_id={$smarty.request.navigation_id}&cp={$sess}">{#NAVI_EDIT_ITEMS#}</a>
+			<a class="greenNum" href="index.php?do=navigation&action=entries&navigation_id={$nid}&cp={$sess}">{#NAVI_EDIT_ITEMS#}</a>
 		</div>
 	</div>
 

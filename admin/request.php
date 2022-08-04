@@ -43,7 +43,7 @@
 			if(check_permission_acp('request_edit'))
 			{
 				$AVE_Rubric->rubricTemplateShow(0, 1);
-				$AVE_Request->requestEdit((int)$_REQUEST['Id']);
+				$AVE_Request->requestEdit($_REQUEST['Id']);
 			}
 			break;
 

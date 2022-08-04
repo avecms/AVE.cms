@@ -59,7 +59,7 @@
 			{
 				require(BASE_DIR . '/class/class.user.php');
 				$AVE_User = new AVE_User;
-				$AVE_Navigation->navigationEdit((int)$_REQUEST['navigation_id']);
+				$AVE_Navigation->navigationEdit($_REQUEST['navigation_id']);
 			}
 			break;
 

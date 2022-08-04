@@ -13,7 +13,7 @@ function changeRub(select) {ldelim}
 			{if $smarty.request.action=='new'}
 				location.href='index.php?do=request&action=new&rubric_id=' + select.options[select.selectedIndex].value + '{if $smarty.request.request_title_new!=''}&request_title_new={$smarty.request.request_title_new|escape|stripslashes}{/if}';
 			{else}
-				location.href='index.php?do=request&action=edit&Id={$smarty.request.Id|escape}&rubric_id=' + select.options[select.selectedIndex].value;
+				location.href='index.php?do=request&action=edit&Id={$rid}&rubric_id=' + select.options[select.selectedIndex].value;
 			{/if}
 			{rdelim}
 
@@ -29,7 +29,7 @@ function changeRub(select) {ldelim}
 	<div class="title">
 		<h5>{#REQUEST_EDIT2#}</h5>
 		<div class="num">
-			<a class="basicNum" href="index.php?do=request&action=conditions&Id={$smarty.request.Id|escape}&rubric_id={$smarty.request.rubric_id|escape}&cp={$sess}">{#REQUEST_CONDITION_EDIT#}</a>
+			<a class="basicNum" href="index.php?do=request&action=conditions&Id={$rid}&rubric_id={$smarty.request.rubric_id|escape}&cp={$sess}">{#REQUEST_CONDITION_EDIT#}</a>
 		</div>
 	</div>
 	<div class="widget" style="margin-top: 0px;">
