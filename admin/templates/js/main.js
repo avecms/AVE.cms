@@ -35,7 +35,7 @@ function browse_uploads(target, width, height, scrollbar) {
 	if (typeof height == 'undefined' || height == '') var height = screen.height * 0.8;
 	if (typeof scrollbar == 'undefined') var scrollbar = 0;
 	let targetVal = document.getElementById(target).value;
-	if ((document.getElementById(target).dataset.default).length) {
+	if (!(document.getElementById(target).value).length && (document.getElementById(target).dataset.default).length) {
 		targetVal = document.getElementById(target).dataset.default;
 	}
 	let left = (screen.width - width) / 2;
