@@ -31,11 +31,12 @@
 
 		<!-- JS Scripts -->
 		<script type="text/javascript">
-			var ave_path = "{$ABS_PATH}";
-			var ave_theme = "{$smarty.const.DEFAULT_THEME_FOLDER}";
-			var ave_admintpl = "{$tpl_dir}";
+			let ave_path = "{$ABS_PATH}";
+			let ave_theme = "{$smarty.const.DEFAULT_THEME_FOLDER}";
+			let ave_admintpl = "{$tpl_dir}";
+			let th_folder = "{$smarty.const.THUMBNAIL_DIR}";
 
-			var sess = '{$sess}';
+			let sess = '{$sess}';
 
 			$(document).ready(function(){ldelim}
 
@@ -46,8 +47,8 @@
 				);
 
 				{literal}
-				var mainframe = $('#mainframe');
-				var height = $("body").height();
+				let mainframe = $('#mainframe');
+				let height = $("body").height();
 				mainframe.css({"height": height-280});
 
 				$(window).bind(
@@ -55,8 +56,8 @@
 						function()
 						{
 							$(window).resize(function() {
-								var mainframe = $('#mainframe');
-								var height = $("body").height();
+								let mainframe = $('#mainframe');
+								let height = $("body").height();
 								mainframe.css({"height": height-280});
 							});
 						}
@@ -84,42 +85,42 @@
 			</div>
 
 		<div class="widget first">
-		<form style="display:inline;" name="bForm" onSubmit="return false;" class="mainForm">
-			<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
-				<tr>
-					<td>
-						<div class="pr12"><input type="text" name="bDirName" id="DirName" size="20" style="width:100%;" readonly="readonly" /></div>
-					</td>
-					<td width="5%" nowrap="nowrap">
-						<input type="button" class="basicBtn" onClick="NewFolder();" value="{#MAIN_MP_CREATE_FOLDER#}" />&nbsp;
-					</td>
-					{if check_permission('mediapool_add')}
-					<td width="5%" nowrap="nowrap">
-						<a class="button basicBtn openDialog" data-modal="true" data-height="455" href="index.php?do=browser&type={$smarty.request.type|escape}&target={$smarty.request.target|escape}&action=upload&dir=" data-title="{#MAIN_MP_UPLOAD_FILE#}">{#MAIN_MP_UPLOAD_FILE#}</a>
-					</td>
-					{/if}
-				</tr>
-
-				<tr valign="top">
-					<td{if check_permission('mediapool_add')} colspan="3"{else} colspan="2"{/if}>
-						<div style="border:1px solid #d4d4d4; overflow:hidden; height:100%; width:100%">
-							<iframe id="mainframe" frameborder="0" name="zf" id="zf" width="100%" height="100%" scrolling="Yes" src="index.php?onlycontent=1&do=browser&type={$smarty.request.type|escape}&action=list&dir={$dir}&target={$smarty.request.target|escape}"></iframe>
-						</div>
-					</td>
-				</tr>
-
-				{if $smarty.request.type!=''}
+			<form style="display:inline;" name="bForm" onSubmit="return false;" class="mainForm">
+				<table cellpadding="0" cellspacing="0" width="100%" class="tableStatic">
 					<tr>
-						<td{if check_permission('mediapool_add')} colspan="2"{/if}>
-							<div class="pr12"><input type="text" name="bFileName" size="20" style="width:100%;" readonly="readonly" /></div>
-						</td>
 						<td>
-							<input type="button" class="basicBtn" onClick="submitTheForm();" value="{if $smarty.request.type != 'directory'}{#MAIN_MP_FILE_INSERT#}{else}{#MAIN_MP_DIR_INSERT#}{/if}" />
+							<div class="pr12"><input type="text" name="bDirName" id="DirName" size="20" style="width:100%;" readonly="readonly" /></div>
+						</td>
+						<td width="5%" nowrap="nowrap">
+							<input type="button" class="basicBtn" onClick="NewFolder();" value="{#MAIN_MP_CREATE_FOLDER#}" />&nbsp;
+						</td>
+						{if check_permission('mediapool_add')}
+						<td width="5%" nowrap="nowrap">
+							<a class="button basicBtn openDialog" data-modal="true" data-height="455" href="index.php?do=browser&type={$smarty.request.type|escape}&target={$smarty.request.target|escape}&action=upload&dir=" data-title="{#MAIN_MP_UPLOAD_FILE#}">{#MAIN_MP_UPLOAD_FILE#}</a>
+						</td>
+						{/if}
+					</tr>
+
+					<tr valign="top">
+						<td{if check_permission('mediapool_add')} colspan="3"{else} colspan="2"{/if}>
+							<div style="border:1px solid #d4d4d4; overflow:hidden; height:100%; width:100%">
+								<iframe id="mainframe" frameborder="0" name="zf" id="zf" width="100%" height="100%" scrolling="Yes" src="index.php?onlycontent=1&do=browser&type={$smarty.request.type|escape}&action=list&dir={$dir}&target={$smarty.request.target|escape}"></iframe>
+							</div>
 						</td>
 					</tr>
-				{/if}
-			</table>
-		</form>
+
+					{if $smarty.request.type!=''}
+						<tr>
+							<td{if check_permission('mediapool_add')} colspan="2"{/if}>
+								<div class="pr12"><input type="text" name="bFileName" size="20" style="width:100%;" readonly="readonly" /></div>
+							</td>
+							<td>
+								<input type="button" class="basicBtn" onClick="submitTheForm();" value="{if $smarty.request.type != 'directory'}{#MAIN_MP_FILE_INSERT#}{else}{#MAIN_MP_DIR_INSERT#}{/if}" />
+							</td>
+						</tr>
+					{/if}
+				</table>
+			</form>
 		</div>
 
 			</div>
@@ -130,10 +131,23 @@
 
 		function getUrlParam(paramName)
 		{ldelim}
-			var reParam = new RegExp('(?:[\?&]|&amp;)' + paramName + '=([^&]+)', 'i') ;
-			var match = window.location.search.match(reParam) ;
+			let reParam = new RegExp('(?:[\?&]|&amp;)' + paramName + '=([^&]+)', 'i') ;
+			let match = window.location.search.match(reParam) ;
 
 			return (match && match.length > 1) ? match[1] : '' ;
+		{rdelim}
+
+		function getImgPreview (url)
+		{ldelim}
+			let parts = url.split('/');
+			let fileName = parts.pop();
+			let fileExt = fileName.split('.').pop();
+
+			let thumb = th_folder + '/' + fileName.substr(0, fileName.lastIndexOf(".")) + '-t128x128.' + fileExt;
+
+			parts.push(thumb);
+
+			return parts.join('/');
 		{rdelim}
 
 		function submitTheForm() {ldelim}
@@ -159,14 +173,15 @@
 			window.opener.document.getElementById('{$smarty.request.id|escape}').value = '/{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value;
 
 		{elseif $target=='img_feld' || $target_img=='img_feld'}
+			let imgSource = '/' + '{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value;
 			window.opener.document.getElementById('img_feld__{$target_id}').value = '/{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value;
-			window.opener.document.getElementById('_img_feld__{$target_id}').src = '../index.php?mode=f&width=128&height=128&thumb=/{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value;
-			window.opener.$('.preview__{$target_id}').attr("href", '../index.php?mode=f&width=128&height=128&thumb=/{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value);
-
+			window.opener.document.getElementById('_img_feld__{$target_id}').src = getImgPreview(imgSource);
+			window.opener.$('.preview__{$target_id}').attr("href", getImgPreview(imgSource));
 		{elseif $target!='' && $target_id!='' && $target_id!=null}
 
 		{if $target=='image'}
-			window.opener.$('#preview__{$target_id}').attr('src', '../index.php?mode=f&width=128&height=128&thumb=/{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value);
+			let imgSource = '/' + '{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value;
+			window.opener.$('#preview__{$target_id}').attr('src', getImgPreview(imgSource));
 			window.opener.$('.preview__{$target_id}').attr('href', '/{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value);
 			window.opener.$('#{$target}__{$target_id}').val('/{$mediapath}' + document.bForm.bDirName.value + document.bForm.bFileName.value);
 		{/if}

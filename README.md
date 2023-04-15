@@ -19,8 +19,8 @@
  * ПО WEB сервера: 
    * Apache >= 1.3
    * Nginx >= 1.6.2
-   * PHP >= 5.6.x (zlib, cURL, mbString, JSON)
-   * PHP >= 7.x ... <= 7.4.x
+   * PHP >= 5.6.x (!!!Не поддерживается!!!)
+   * PHP >= 7.x ... <= 7.4.x (zlib, cURL, mbString, JSON)
    * MySQL >= 5.6.x ... <= 5.7.x
 
 ## Установка

@@ -1,4 +1,4 @@
-var Mega = {
+let Mega = {
 
 	init: false,
 
@@ -27,17 +27,19 @@ var Mega = {
 	},
 
 	mega_maxid: function(id, doc) {
-		var maxid = 1;
+		let maxid = 1;
+
 		$('#mega_' + doc + '_' + id).children('.mega_sortable').children('.mega_item').each(function() {
 			maxid = Math.max(maxid, parseInt($(this).attr("data-id")) + 1);
 		});
+
 		return maxid;
 	},
 
 	mega_del_item: function() {
 		$('.mega_item .delete').on('click', function(event) {
 			event.preventDefault();
-			var id = $(this).attr('data-id');
+			let id = $(this).attr('data-id');
 			jConfirm(
 				mega_del_conf,
 				mega_del_head,
@@ -53,8 +55,11 @@ var Mega = {
 	mega_del_all_item: function() {
 		$('.mega_del_all').on('click', function(event) {
 			event.preventDefault();
-			var c_id = $(this).parent().parent().parent('.mega').attr("data-id");
-			var d_id = $(this).parent().parent().parent('.mega').attr("data-doc");
+			let c_id = $(this).parent().parent().parent('.mega').attr("data-id");
+			let d_id = $(this).parent().parent().parent('.mega').attr("data-doc");
+
+			let empty_input = '<input id="empty' + d_id + '_' + c_id + '" type="hidden" value="" name="feld[' + c_id + ']">';
+
 			jConfirm(
 				mega_del_all_c,
 				mega_del_all_h,
@@ -63,6 +68,7 @@ var Mega = {
 						$('#mega_' + d_id + '_' + c_id).children('.mega_sortable').children('.mega_item').each(function() {
 							$(this).remove();
 						});
+						$('#mega_' + d_id + '_' + c_id).append(empty_input);
 					}
 				}
 			);
@@ -72,7 +78,9 @@ var Mega = {
 	megae_upload_files: function() {
 		$('.mega_upload').on('change', function(event) {
 
-			var mega_input = $(this);
+			let mega_input = $(this);
+
+			let iid;
 
 			event.preventDefault();
 
@@ -80,8 +88,8 @@ var Mega = {
 				return false;
 			}
 
-			var files_input = this.files.length;
-			var max_files = mega_input.attr("data-max-files");
+			let files_input = this.files.length;
+			let max_files = mega_input.attr("data-max-files");
 
 			if (files_input > max_files) {
 				$.jGrowl(mega_max_f_t, {
@@ -94,9 +102,9 @@ var Mega = {
 				return false;
 			}
 
-			var c_id = $(this).parent('.mega').attr("data-id");
-			var d_id = $(this).parent('.mega').attr("data-doc");
-			var r_id = $(this).parent('.mega').attr("data-rubric");
+			let c_id = $(this).parent('.mega').attr("data-id");
+			let d_id = $(this).parent('.mega').attr("data-doc");
+			let r_id = $(this).parent('.mega').attr("data-rubric");
 
 			$('#formDoc').ajaxSubmit({
 				url: 'index.php?do=fields',
@@ -112,14 +120,14 @@ var Mega = {
 				},
 				dataType: "JSON",
 				success: function(data) {
-					if (data['respons'] == 'succes') {
-						for (var p = 0, max = data.files.length; p < max; p++) {
+					if (data['respons'] == 'success') {
+						for (let p = 0, max = data.files.length; p < max; p++) {
 
 							iid = Mega.mega_maxid(c_id, d_id);
-							var field_value = data['dir'] + data.files[p];
-							var img_path = data.thumbs[p];
+							let field_value = data['dir'] + data.files[p];
+							let img_path = data.thumbs[p];
 
-							$('#mega_' + d_id + '_' + c_id + ' > .mega_sortable:last').prepend(
+							$('#mega_' + d_id + '_' + c_id + ' > .mega_sortable:last').append(
 								'<div class="mega_item ui-state-default" id="mega_image_' + c_id + '_' + d_id + '_' + iid + '" data-id="' + iid + '" data-doc="' + d_id + '">' +
 									'<div class="header grey_bg"></div>' +
 									'<a class="topDir icon_sprite ico_photo view fancy preview__' + c_id + '_' + d_id + '_' + iid + '" href="' + field_value + '" title="' + mega_look + '"></a>' +
@@ -145,11 +153,14 @@ var Mega = {
 								'</div>'
 							);
 
+							$('#empty' + d_id + '_' + c_id ).remove();
+
 							$.alerts._overlay('hide');
 
 							Mega.mega_update();
 						}
 					}
+
 					$.jGrowl(data['message'], {
 						header: data['header'],
 						theme: data['theme']
@@ -166,8 +177,10 @@ var Mega = {
 	mega_click_upload: function() {
 		$('.mega_upload_local').on('click', function(event) {
 			event.preventDefault();
-			var c_id = $(this).parent().parent().parent('.mega').attr("data-id");
-			var d_id = $(this).parent().parent().parent('.mega').attr("data-doc");
+
+			let c_id = $(this).parent().parent().parent('.mega').attr("data-id");
+			let d_id = $(this).parent().parent().parent('.mega').attr("data-doc");
+
 			$('.mega_upload_field_' + c_id + '_' + d_id).trigger('click');
 		});
 	},
@@ -176,9 +189,9 @@ var Mega = {
 		$('.mega_add_single').on('click', function(event) {
 			event.preventDefault();
 
-			var c_id = $(this).parent().parent().parent('.mega').attr("data-id");
-			var d_id = $(this).parent().parent().parent('.mega').attr("data-doc");
-			var iid = Mega.mega_maxid(c_id, d_id);
+			let c_id = $(this).parent().parent().parent('.mega').attr("data-id");
+			let d_id = $(this).parent().parent().parent('.mega').attr("data-doc");
+			let iid = Mega.mega_maxid(c_id, d_id);
 
 			$('#mega_' + d_id + '_' + c_id + ' > .mega_sortable:last').prepend(
 				'<div class="mega_item ui-state-default" id="mega_image_' + c_id + '_' + d_id + '_' + iid + '" data-id="' + iid + '" data-doc="' + d_id + '">' +
@@ -206,6 +219,8 @@ var Mega = {
 			);
 
 			browse_uploads('image__' + c_id + '_' + d_id + '_' + iid + '');
+
+			$('#empty' + d_id + '_' + c_id ).remove();
 
 			Mega.mega_update();
 		});
@@ -244,10 +259,10 @@ $(document).ready(function() {
 			dataType: "JSON",
 			success: function(data) {
 				$.alerts._overlay('hide');
-				for (var p = 0, max = data.respons.length; p < max; p++) {
-					var iid = Mega.mega_maxid(c_id, d_id);
-					var field_value = dir + data.respons[p];
-					var img_path = '../index.php?thumb=' + field_value + '&mode=f&width=128&height=128';
+				for (let p = 0, max = data.respons.length; p < max; p++) {
+					let iid = Mega.mega_maxid(c_id, d_id);
+					let field_value = dir + data.respons[p];
+					let img_path = '../index.php?thumb=' + field_value + '&mode=f&width=128&height=128';
 
 					$('#mega_' + d_id + '_' + c_id + ' > .mega_sortable:last').prepend(
 						'<div class="mega_item ui-state-default" id="mega_image_' + c_id + '_' + d_id + '_' + iid + '" data-id="' + iid + '" data-doc="' + d_id + '">' +

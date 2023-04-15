@@ -64,16 +64,12 @@
 
 							$image[$k]['url'] = $image_item[0];
 							$image[$k]['thumb'] = ($image_item[0] != '')
-								? make_thumbnail(array('size' => 'f128x128', 'link' => $image_item[0]))
+								? make_thumbnail(['size' => 't128x128', 'link' => $image_item[0]])
 								: $img_pixel;
 
-							$image[$k]['title'] = (isset($image_item[1]))
-								? $image_item[1]
-								: '';
+							$image[$k]['title'] = $image_item[1] ?? '';
 
-							$image[$k]['description'] = (isset($image_item[2]))
-								? $image_item[2]
-								: '';
+							$image[$k]['description'] = $image_item[2] ?? '';
 
 							$image[$k]['link'] = (isset($image_item[3]))
 								? htmlspecialchars($image_item[3], ENT_QUOTES)
@@ -148,9 +144,9 @@
 
 				$items = (isset($field_value))
 					? unserialize($field_value)
-					: array();
+					: [];
 
-				$res = array();
+				$res = [];
 
 				if ($items != false)
 				{
@@ -252,7 +248,7 @@
 								{
 									$image_item = preg_replace_callback(
 										'/\[tag:parametr:(\d+)\]/i',
-										function($data) use($field_data)
+										static function($data) use($field_data)
 										{
 											return $field_data[(int)$data[1]];
 										},
@@ -354,10 +350,10 @@
 			case 'upload':
 				$error = false;
 
-				$search = array();
-				$replace = array();
+				$search = [];
+				$replace = [];
 
-				$files_unput = 'mega_files' . '_' . $_REQUEST['field_id'] . '_' . $_REQUEST['doc_id'];
+				$files_input = 'mega_files' . '_' . $_REQUEST['field_id'] . '_' . $_REQUEST['doc_id'];
 
 				$search[] = '%d';
 				$replace[] = date('d');
@@ -401,15 +397,16 @@
 
 				$dir_abs = BASE_DIR . $dir;
 
-				if (! is_dir($dir_abs))
-					mkdir($dir_abs, 0777, true);
+				if (!is_dir($dir_abs) && !mkdir($dir_abs, 0777, true) && !is_dir($dir_abs)) {
+					throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir_abs));
+				}
 
-				$new_files = array();
-				$thumbs = array();
+				$new_files = [];
+				$thumbs = [];
 
-				foreach ($_FILES[$files_unput]['name'] as $name => $value)
+				foreach ($_FILES[$files_input]['name'] as $name => $value)
 				{
-					$filename = strtolower(stripslashes(prepare_url($_FILES[$files_unput]['name'][$name])));
+					$filename = strtolower(stripslashes(prepare_url($_FILES[$files_input]['name'][$name])));
 
 					$ext = getExtension($filename);
 					$ext = strtolower($ext);
@@ -421,11 +418,11 @@
 							$filename = rand(1000, 9999) . '_' . $filename;
 						}
 
-						if (@move_uploaded_file($_FILES[$files_unput]['tmp_name'][$name], $dir_abs . $filename))
+						if (@move_uploaded_file($_FILES[$files_input]['tmp_name'][$name], $dir_abs . $filename))
 						{
 							$new_files[] = $filename;
 
-							$thumbs[] = make_thumbnail(array('link' => $dir . $filename, 'size' => 'f128x128'));
+							$thumbs[] = make_thumbnail(array('link' => $dir . $filename, 'size' => 't128x128'));
 
 							if ((bool)$watermark)
 							{
@@ -445,7 +442,7 @@
 					else
 						{
 							$error = true;
-							@unlink($_FILES[$files_unput]['tmp_name'][$name]);
+							@unlink($_FILES[$files_input]['tmp_name'][$name]);
 						}
 				}
 
@@ -455,7 +452,7 @@
 						'files' => $new_files,
 						'thumbs' => $thumbs,
 						'dir' => $dir,
-						'respons' => 'succes',
+						'respons' => 'success',
 						'message' => $AVE_Template->get_config_vars('resp_s_m'),
 						'header' => $AVE_Template->get_config_vars('resp_s_h'),
 						'theme' => 'accept'
@@ -476,6 +473,6 @@
 				exit;
 		}
 
-		return ($res ? $res : $field_value);
+		return $res ?: $field_value;
 	}
 ?>

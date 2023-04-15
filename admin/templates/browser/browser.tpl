@@ -163,8 +163,8 @@
 		{rdelim});
 
 			function ConfirmDelete(fName) {ldelim}
-				var title = "{#MAIN_MP_FILE_DELETE#}";
-				var confirm = "{#MAIN_MP_DELETE_CONFIRM#}";
+				let title = "{#MAIN_MP_FILE_DELETE#}";
+				let confirm = "{#MAIN_MP_DELETE_CONFIRM#}";
 				jConfirm(
 				confirm,
 				title,
