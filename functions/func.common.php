@@ -625,7 +625,7 @@
 					if (! is_dir($dir . "/" . $file))
 					{
 						$files[] = $file;
-						$thumbs[] = make_thumbnail(array('link' => $dir_abs . $file, 'size' => 'f128x128'));
+						$thumbs[] = make_thumbnail(array('link' => $dir_abs . $file, 'size' => 't128x128'));
 					}
 				}
 			}
