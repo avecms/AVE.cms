@@ -34,9 +34,12 @@ function browse_uploads(target, width, height, scrollbar) {
 	if (typeof width == 'undefined' || width == '') var width = screen.width * 0.8;
 	if (typeof height == 'undefined' || height == '') var height = screen.height * 0.8;
 	if (typeof scrollbar == 'undefined') var scrollbar = 0;
-	var targetVal = document.getElementById(target).value;
-	var left = (screen.width - width) / 2;
-	var top = (screen.height - height) / 2;
+	let targetVal = document.getElementById(target).value;
+	if ((document.getElementById(target).dataset.default).length) {
+		targetVal = document.getElementById(target).dataset.default;
+	}
+	let left = (screen.width - width) / 2;
+	let top = (screen.height - height) / 2;
 	window.open('index.php?do=browser&type=image&target=' + target + '&tval=' + targetVal, 'imgpop', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',scrollbars=' + scrollbar + ',resizable=1');
 }
 

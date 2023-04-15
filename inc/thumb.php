@@ -129,7 +129,9 @@
 
 	//-- Если пришел прямой вызов файла, то сразу отрубаем его
 	if ($_SERVER['REQUEST_URI'] == '/inc/thumb.php')
+	{
 		die('No image');
+	}
 
 	//-- Если файл существует, показываем его
 	if (file_exists(BASE_DIR . $imagefile))
@@ -172,7 +174,9 @@
 	$countParts = count($nameParts);
 
 	if ($countParts < 2 || ! in_array(strtolower(end($nameParts)), $allowedExt))
+	{
 		exit(0);
+	}
 
 	$matches = [];
 

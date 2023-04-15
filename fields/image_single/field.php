@@ -16,7 +16,7 @@
 	{
 		global $AVE_Template;
 
-		$fld_dir  = dirname(__FILE__) . '/';
+		$fld_dir  = __DIR__ . '/';
 		$tpl_dir  = $fld_dir . 'tpl/';
 		$fld_name = basename($fld_dir);
 
@@ -36,10 +36,14 @@
 				$img = $image[0];
 				unset($image[0]);
 				$image = array($img, implode('|', $image));
-				$field = (!empty($image[0]) ? '../' . make_thumbnail(array('link' => $image[0], 'size' => 'f128x128')) : make_thumbnail(array('link' => $blanc, 'size' => 'f128x128')));
+				$field = (! empty($image[0])
+					? make_thumbnail(array('link' => $image[0], 'size' => 't128x128'))
+					: make_thumbnail(array('link' => $blanc, 'size' => 't128x128'))
+				);
 
 				$tpl_file = get_field_tpl($tpl_dir, $field_id, 'admin', $_tpl);
 
+				$AVE_Template->assign('default', $default);
 				$AVE_Template->assign('field_dir', $fld_name);
 				$AVE_Template->assign('image', $image);
 				$AVE_Template->assign('doc_id', (int)$_REQUEST['Id']);

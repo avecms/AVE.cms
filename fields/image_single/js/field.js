@@ -11,11 +11,11 @@ var SingleImage = {
 	single_image: function() {
 		$('.single_image').each(function(index, element) {
 
-			var image_id = $(element).attr('data-id');
-			var doc_id = $(element).attr('data-doc');
-			var link = $(element).find('a.lnk');
-			var look = $(element).find('a.look');
-			var input = $(element).find('input');
+			let image_id = $(element).attr('data-id');
+			let doc_id = $(element).attr('data-doc');
+			let link = $(element).find('a.lnk');
+			let look = $(element).find('a.look');
+			let input = $(element).find('input');
 
 			link.on('click', function(event) {
 				event.preventDefault();
@@ -34,13 +34,13 @@ var SingleImage = {
 				});
 
 				$('#preview__' + image_id + '_' + doc_id).attr({
-					'src': '../index.php?mode=f&width=128&height=128&thumb=/' + dir + '/' + file_full
+					//'src': '../index.php?mode=t&width=128&height=128&thumb=/' + dir + '/' + file_full
 				});
 			});
 
 			if (input.val() == '') {
 				$('#preview__' + image_id + '_' + doc_id).attr({
-					'src': '/uploads/images/' + thumbdir + '/noimage-f128x128.png'
+					'src': '/uploads/images/' + thumbdir + '/noimage-t128x128.png'
 				});
 				$('.preview__' + image_id + '_' + doc_id).attr({
 					'href': '/uploads/images/noimage.png'
