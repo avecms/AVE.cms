@@ -130,6 +130,7 @@
 
 				$AVE_Template->assign('max_files', $AVE_Template->get_config_vars('max_f_f') . $iniset_count);
 				$AVE_Template->assign('dir_upload', $AVE_Template->get_config_vars('upl_dir') . $dir_upload);
+				$AVE_Template->assign('dir_uploaded', $dir_upload);
 				$AVE_Template->assign('show_upload', $show_upload);
 
 				$AVE_Template->assign('field_dir', $fld_name);

@@ -15,7 +15,7 @@ let Mega = {
 		this.mega_del_all_item();
 		this.mega_add_single();
 		this.mega_add_folder();
-		this.megae_upload_files();
+		this.mega_upload_files();
 		this.mega_click_upload();
 	},
 
@@ -75,7 +75,7 @@ let Mega = {
 		});
 	},
 
-	megae_upload_files: function() {
+	mega_upload_files: function() {
 		$('.mega_upload').on('change', function(event) {
 
 			let mega_input = $(this);
@@ -155,6 +155,8 @@ let Mega = {
 
 							$('#empty' + d_id + '_' + c_id ).remove();
 
+							$('#mega_upload_field_' + c_id + '_' + d_id).val('');
+
 							$.alerts._overlay('hide');
 
 							Mega.mega_update();
@@ -221,6 +223,8 @@ let Mega = {
 			browse_uploads('image__' + c_id + '_' + d_id + '_' + iid + '');
 
 			$('#empty' + d_id + '_' + c_id ).remove();
+
+			$('#mega_upload_field_' + c_id + '_' + d_id).val('');
 
 			Mega.mega_update();
 		});

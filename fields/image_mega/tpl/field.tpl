@@ -7,20 +7,20 @@
 	{/if}
 	<link href="{$ABS_PATH}fields/{$field_dir}/css/field.css" rel="stylesheet" type="text/css" media="screen" />
 	<script type="text/javascript">
-		var mega_blank			= '{$tpl_dir}/images/blanc.gif';
-		var mega_title			= '{#img_title#}';
-		var mega_description	= '{#img_description#}';
-		var mega_link			= '{#img_link#}';
-		var mega_look			= '{#look#}';
-		var mega_del			= '{#delete#}';
-		var mega_del_conf		= '{#del_conf#}';
-		var mega_del_head		= '{#del_head#}';
-		var mega_del_all_c		= '{#del_all_c#}';
-		var mega_del_all_h		= '{#del_all_h#}';
-		var mega_max_f_t		= '{#max_f_t#}';
-		var mega_max_f_h		= '{#max_f_h#}';
-		var mega_from_file		= '{#from_file#}';
-		var mega_from_docs		= '{#from_docs#}';
+		let mega_blank			= '{$tpl_dir}/images/blanc.gif',
+			mega_title			= '{#img_title#}',
+			mega_description	= '{#img_description#}',
+			mega_link			= '{#img_link#}',
+			mega_look			= '{#look#}',
+			mega_del			= '{#delete#}',
+			mega_del_conf		= '{#del_conf#}',
+			mega_del_head		= '{#del_head#}',
+			mega_del_all_c		= '{#del_all_c#}',
+			mega_del_all_h		= '{#del_all_h#}',
+			mega_max_f_t		= '{#max_f_t#}',
+			mega_max_f_h		= '{#max_f_h#}',
+			mega_from_file		= '{#from_file#}',
+			mega_from_docs		= '{#from_docs#}';
 	</script>
 	{assign var=mega_new value="load" scope="global"}
 {/if}
@@ -28,7 +28,7 @@
 <div class="mega" id="mega_{$doc_id}_{$field_id}" data-id="{$field_id}" data-doc="{$doc_id}" data-rubric="{$smarty.request.rubric_id}">
 	<input type="hidden" value="" id="cascad__{$field_id}_{$doc_id}">
 	{if $show_upload}
-	<input type="file" class="mega_upload mega_upload_field_{$field_id}_{$doc_id}" multiple="multiple" name="mega_files_{$field_id}_{$doc_id}[]" style="visibility: hidden; display: none;" data-max-files="{$max_files}" />
+		<input type="file" class="mega_upload mega_upload_field_{$field_id}_{$doc_id}" multiple="multiple" name="mega_files_{$field_id}_{$doc_id}[]" id="mega_upload_field_{$field_id}_{$doc_id}" style="visibility: hidden; display: none;" data-max-files="{$max_files}" />
 	{/if}
 	<ul class="messages">
 		<li class="highlight grey">
@@ -44,6 +44,10 @@
 			{else}
 			&nbsp;|&nbsp;
 			<a href="javascript:void(0);" class="topDir" title="{#add_upl_e#}<br><br>{$max_files}<br>{$dir_upload}">[?]</a>
+			{/if}
+			{if $dir_uploaded}
+				<input type="hidden" value="{$dir_uploaded}" name="feld[{$field_id}][dir]" id="dir__{$field_id}_{$doc_id}">
+				<a href="javascript:void(0);" class="mega_upload_dir topDir" title="{$dir_uploaded}" onclick="browse_uploads('dir__{$field_id}_{$doc_id}');">Show folder</a>
 			{/if}
 		</li>
 	</ul>
