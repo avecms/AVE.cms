@@ -1,5 +1,5 @@
 <script>
-	let path_upload = "{$smarty.request.dir|escape}";
+	var path_upload = "{$smarty.request.dir|escape}";
 </script>
 
 <!-- Wrapper -->

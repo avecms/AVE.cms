@@ -149,12 +149,18 @@
 
 				if (@unlink($del_file))
 				{
-					$nameParts = explode('.', $file_name);
-					$ext = strtolower(end($nameParts));
-					if (in_array($ext, $images_ext))
+					foreach (glob($upload_path . $_REQUEST['dir'] . THUMBNAIL_DIR . '/*') as $f_name)
 					{
-						$nameParts[count($nameParts)-2] .= $thumb_size;
-						@unlink($upload_path . $_REQUEST['dir'] . THUMBNAIL_DIR . '/' . implode('.', $nameParts));
+						$base_file = basename($del_file);
+						$nameParts = explode('.', $base_file);
+						$start = strtolower(array_shift($nameParts));
+						$ext = strtolower(array_pop($nameParts));
+
+						$regexp = '/^(' . $start . ')*(-)(t|f|c|s).{3,}.(' . $ext . ')/';
+
+						if (preg_match_all($regexp, basename($f_name))) {
+							@unlink($upload_path . $_REQUEST['dir'] . THUMBNAIL_DIR . '/' . basename($f_name));
+						}
 					}
 
 					reportLog($_SESSION['user_name'] . ' - удалил файл ('
