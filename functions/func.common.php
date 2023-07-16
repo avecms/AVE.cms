@@ -613,23 +613,19 @@
 		$files = array();
 		$thumbs = array();
 
-		if ($handle = opendir($dir))
-		{
-			while (false !== ($file = readdir($handle)))
-			{
-				$nameParts = explode('.', $file);
-				$ext = strtolower(end($nameParts));
-
-				if ($file != "." && $file != ".." && in_array($ext, $images_ext))
-				{
-					if (! is_dir($dir . "/" . $file))
-					{
-						$files[] = $file;
-						$thumbs[] = make_thumbnail(array('link' => $dir_abs . $file, 'size' => 't128x128'));
-					}
-				}
-			}
-			closedir($handle);
+		$img_files = scandir($dir);
+		foreach ($img_files as $file) {
+		$nameParts = explode('.', $file);
+		        $ext = strtolower(end($nameParts));
+		
+		        if ($file != "." && $file != ".." && in_array($ext, $images_ext))
+		        {
+		          if (! is_dir($dir . "/" . $file))
+		          {
+		            $files[] = $file;
+		            $thumbs[] = make_thumbnail(array('link' => $dir_abs . $file, 'size' => 'f128x128'));
+		          }
+		        }
 		}
 
 		//$return = array(
