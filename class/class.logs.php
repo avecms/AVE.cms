@@ -24,9 +24,9 @@
 		 *
 		 * @public
 		 */
-		public $_404dir = '/tmp/logs/404.php';
-		public $_logdir = '/tmp/logs/log.php';
-		public $_sqldir = '/tmp/logs/sql.php';
+		public $_404dir = '/tmp/logs/404.csv';
+		public $_logdir = '/tmp/logs/log.csv';
+		public $_sqldir = '/tmp/logs/sql.csv';
 
 	/**
 	 *	Внутренние методы класса
@@ -41,21 +41,48 @@
 		 * Метод, предназначенный для отображения всех записей Журнала событий
 		 *
 		 */
-		function logList()
+		function logList ()
 		{
 			global $AVE_Template;
 
-			$logdata = array();
+			$file_name = BASE_DIR . $this->_logdir;
+			$_lines = [];
 
-			$logfile = BASE_DIR.$this->_logdir;
+			if (file_exists($file_name) && $fp = @fopen($file_name, 'rb'))
+			{
+				$_count = 10000;
 
-			if(file_exists($logfile))
-				@eval(' ?>'.file_get_contents($logfile).'<?php ');
+				$_size = @filesize($file_name);
 
-			arsort($logdata);
+				$_slice = 10240;
+
+				$_size > $_slice && fseek($fp, $_size - $_slice);
+
+				while (!feof($fp))
+				{
+					$event = fgetcsv($fp, $_slice);
+
+					if (empty($event[0]) || count($event) < 3) {
+						continue;
+					}
+
+					$_lines[] = [
+						'log_time'		=> $event['0'],
+						'log_ip'		=> $event['1'],
+						'log_url'		=> $event['2'],
+						'log_user_id'	=> $event['3'],
+						'log_user_name'	=> $event['4'],
+						'log_text'		=> $event['5'],
+						'log_type'		=> $event['6'],
+						'log_rubric'	=> $event['7']
+					];
+				}
+
+				count($_lines) > $_count && $_lines = array_slice($_lines, -$_count);
+			}
 
 			// Передаем данные в шаблон для вывода и отображаем страницу
-			$AVE_Template->assign('logs', $logdata);
+			$AVE_Template->assign('logs', $_lines);
 			$AVE_Template->assign('content', $AVE_Template->fetch('logs/logs.tpl'));
 		}
 
@@ -67,17 +94,42 @@
 		{
 			global $AVE_Template;
 
-			$log404 = array();
+			$file_name = BASE_DIR . $this->_404dir;
+			$_lines = [];
 
-			$logfile = BASE_DIR . $this->_404dir;
+			if (file_exists($file_name) && $fp = @fopen($file_name, 'rb'))
+			{
+				$_count = 10000;
 
-			if(file_exists($logfile))
-				include($logfile);
+				$_size = @filesize($file_name);
 
-			arsort($log404);
+				$_slice = 10240;
+
+				$_size > $_slice && fseek($fp, $_size - $_slice);
+
+				while (!feof($fp))
+				{
+					$event = fgetcsv($fp, $_slice);
+
+					if (empty($event[0]) || count($event) < 3) {
+						continue;
+					}
+
+					$_lines[] = [
+						'log_time'		    => $event['0'],
+						'log_ip'		    => $event['1'],
+						'log_query'		    => $event['2'],
+						'log_user_agent'	    => $event['3'],
+						'log_user_referer'	    => $event['4'],
+						'log_request_uri'		=> $event['5']
+					];
+				}
+
+				count($_lines) > $_count && $_lines = array_slice($_lines, -$_count);
+			}
 
 			// Передаем данные в шаблон для вывода и отображаем страницу
-			$AVE_Template->assign('logs', $log404);
+			$AVE_Template->assign('logs', $_lines);
 			$AVE_Template->assign('content', $AVE_Template->fetch('logs/404.tpl'));
 		}
 
@@ -89,17 +141,42 @@
 		{
 			global $AVE_Template;
 
-			$logsql = array();
+			$file_name = BASE_DIR . $this->_sqldir;
+			$_lines = [];
 
-			$logfile = BASE_DIR . $this->_sqldir;
+			if (file_exists($file_name) && $fp = @fopen($file_name, 'rb'))
+			{
+				$_count = 10000;
 
-			if(file_exists($logfile))
-				include($logfile);
+				$_size = @filesize($file_name);
 
-			arsort($logsql);
+				$_slice = 10240;
+
+				$_size > $_slice && fseek($fp, $_size - $_slice);
+
+				while (!feof($fp))
+				{
+					$event = fgetcsv($fp, $_slice);
+
+					if (empty($event[0]) || count($event) < 3) {
+						continue;
+					}
+
+					$_lines[] = [
+						'log_time'		=> $event['0'],
+						'log_ip'		=> $event['1'],
+						'log_url'		=> $event['2'],
+						'log_user_id'	=> $event['3'],
+						'log_user_name'	=> $event['4'],
+						'log_text'		=> unserialize(base64_decode($event['5']))
+					];
+				}
+
+				count($_lines) > $_count && $_lines = array_slice($_lines, -$_count);
+			}
 
 			// Передаем данные в шаблон для вывода и отображаем страницу
-			$AVE_Template->assign('logs', $logsql);
+			$AVE_Template->assign('logs', $_lines);
 			$AVE_Template->assign('content', $AVE_Template->fetch('logs/sql.tpl'));
 		}
 
@@ -171,48 +248,20 @@
 		{
 			global $AVE_Template;
 
-			// Определяем тип файла (CSV), формат имени файла, разделители и т.д.
-			$datstring = '';
-			$dattype = 'text/csv';
-			$datname = 'system_log_' . date('dmyhis', time()) . '.csv';
-
-			$separator = ';';
-			$enclosed = '"';
-
-			// Выполняем запрос к БД на получение списка всех системных сообщений
-			$logdata=array();
-			$logfile = BASE_DIR.$this->_logdir;
-			if(file_exists($logfile))
-				@eval(' ?>'.file_get_contents($logfile).'<?php ');
-			arsort($logdata);
-			$fieldcount = count($logdata[0]);
-
-			foreach($logdata[0] as $k=>$v)
-				$datstring .= $enclosed . $k . $enclosed . $separator;
-			$datstring .= PHP_EOL;
-
-			// Циклически обрабатываем данные и формируем CSV файл с учетом указаны выше параметров
-			foreach($logdata as $k=>$v)
-			{
-				foreach ($v as $key => $val)
-				{
-					$val = ($key=='log_time') ? date('d-m-Y, H:i:s', $val) : $val;
-					$datstring .= ($val == '') ? $separator : $enclosed . stripslashes($val) . $enclosed . $separator;
-				}
-				$datstring .= PHP_EOL;
-			}
+			$file_name = BASE_DIR . $this->_logdir;
+			$dateName = 'system_log_' . date('dmyhis', time()) . '.csv';
 
 			// Определяем заголовки документа
 			header('Content-Encoding: windows-1251');
 			header('Content-type: text/csv; charset=windows-1251');
 			header('Expires: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-			header('Content-Disposition: attachment; filename="' . $datname . '"');
-			header('Content-Length: ' . strlen($datstring));
+			header('Content-Disposition: attachment; filename="' . $dateName . '"');
+			header('Content-Length: ' . filesize($file_name));
 			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 			header('Pragma: public');
 
 			// Выводим данные
-			echo mb_convert_encoding($datstring, 'windows-1251', 'UTF-8');
+			readfile($file_name);
 
 			// Сохраняем системное сообщение в журнал
 			reportLog($AVE_Template->get_config_vars('LOGS_EXPORT'));
@@ -228,56 +277,23 @@
 		{
 			global $AVE_Template;
 
-			// Определяем тип файла (CSV), формат имени файла, разделители и т.д.
-			$datstring = '';
-			$dattype = 'text/csv';
-			$datname = 'system_log_' . date('dmyhis', time()) . '.csv';
-
-			$separator = ';';
-			$enclosed = '"';
-
-			// Выполняем запрос к БД на получение списка всех системных сообщений
-			$log404 = array();
-
-			$logfile = BASE_DIR.$this->_404dir;
-
-			if(file_exists($logfile))
-				include($logfile);
-
-			arsort($log404);
-
-			$fieldcount = count($log404[0]);
-
-			foreach($log404[0] as $k=>$v)
-				$datstring .= $enclosed . $k . $enclosed . $separator;
-
-			$datstring .= PHP_EOL;
-
-			// Циклически обрабатываем данные и формируем CSV файл с учетом указаны выше параметров
-			foreach($log404 as $k=>$v)
-			{
-				foreach ($v as $key => $val)
-				{
-					$val = ($key=='log_time') ? date('d-m-Y, H:i:s', $val) : $val;
-					$datstring .= ($val == '') ? $separator : $enclosed . stripslashes($val) . $enclosed . $separator;
-				}
-				$datstring .= PHP_EOL;
-			}
+			$file_name = BASE_DIR . $this->_404dir;
+			$dateName = 'system_log_' . date('dmyhis', time()) . '.csv';
 
 			// Определяем заголовки документа
 			header('Content-Encoding: windows-1251');
 			header('Content-type: text/csv; charset=windows-1251');
 			header('Expires: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-			header('Content-Disposition: attachment; filename="' . $datname . '"');
-			header('Content-Length: ' . strlen($datstring));
+			header('Content-Disposition: attachment; filename="' . $dateName . '"');
+			header('Content-Length: ' . filesize($file_name));
 			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 			header('Pragma: public');
 
 			// Выводим данные
-			echo mb_convert_encoding(strip_tags($datstring), 'windows-1251', 'UTF-8');
+			readfile($file_name);
 
 			// Сохраняем системное сообщение в журнал
-			reportLog($AVE_Template->get_config_vars('LOGS_404_EXPORT'));
+			reportLog($AVE_Template->get_config_vars('LOGS_EXPORT'));
 
 			exit;
 		}
@@ -290,60 +306,24 @@
 		{
 			global $AVE_Template;
 
-			// Определяем тип файла (CSV), формат имени файла, разделители и т.д.
-			$datstring = '';
-			$dattype = 'text/csv';
-			$datname = 'system_log_' . date('dmyhis', time()) . '.csv';
-
-			$separator = ';';
-			$enclosed = '"';
-
-			// Выполняем запрос к БД на получение списка всех системных сообщений
-			$logsql = array();
-
-			$logfile = BASE_DIR . $this->_sqldir;
-
-			if(file_exists($logfile))
-				include($logfile);
-
-			arsort($logsql);
-
-			$fieldcount = count($logsql[0]);
-
-			foreach($logsql[0] as $k=>$v)
-				$datstring .= $enclosed . $k . $enclosed . $separator;
-
-			$datstring .= PHP_EOL;
-
-			// Циклически обрабатываем данные и формируем CSV файл с учетом указаны выше параметров
-			foreach($logsql as $k => $v)
-			{
-				foreach ($v as $key => $val)
-				{
-					$val = ($key == 'log_time') ? date('d-m-Y, H:i:s', $val) : $val;
-					$val = ($key == 'log_text') ? serialize($val) : $val;
-					$datstring .= ($val == '') ? $separator : $enclosed . stripslashes($val) . $enclosed . $separator;
-				}
-				$datstring .= PHP_EOL;
-			}
+			$file_name = BASE_DIR . $this->_sqldir;
+			$dateName = 'system_log_' . date('dmyhis', time()) . '.csv';
 
 			// Определяем заголовки документа
 			header('Content-Encoding: windows-1251');
 			header('Content-type: text/csv; charset=windows-1251');
 			header('Expires: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-			header('Content-Disposition: attachment; filename="' . $datname . '"');
-			header('Content-Length: ' . strlen($datstring));
+			header('Content-Disposition: attachment; filename="' . $dateName . '"');
+			header('Content-Length: ' . filesize($file_name));
 			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 			header('Pragma: public');
 
 			// Выводим данные
-			echo mb_convert_encoding(strip_tags($datstring), 'windows-1251', 'UTF-8');
+			readfile($file_name);
 
 			// Сохраняем системное сообщение в журнал
-			reportLog($AVE_Template->get_config_vars('LOGS_SQL_EXPORT'));
+			reportLog($AVE_Template->get_config_vars('LOGS_EXPORT'));
 
 			exit;
 		}
-
 	}
-?>

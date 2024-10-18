@@ -53,33 +53,33 @@
 	{
 		global $AVE_Template;
 
-		$logs = array();
-		$logdata = array();
-		$log404 = array();
-		$logsql = array();
+		$logs = [
+			'logs' => 0,
+			'404' => 0,
+			'sql' => 0
+		];
 
-		$_404dir = BASE_DIR . '/tmp/logs/404.php';
-		$_logdir = BASE_DIR . '/tmp/logs/log.php';
-		$_sqldir = BASE_DIR . '/tmp/logs/sql.php';
+		$_logdir = BASE_DIR . '/tmp/logs/log.csv';
+		$_404dir = BASE_DIR . '/tmp/logs/404.csv';
+		$_sqldir = BASE_DIR . '/tmp/logs/sql.csv';
 
-		if (file_exists($_logdir))
-			@eval(' ?>' . file_get_contents($_logdir) . '<?'.'php ');
+		if (file_exists($_logdir)) {
+			$fp = file($_logdir);
+			$logs['logs'] = count($fp);
+			fclose($fp);
+		}
 
-		$logs['logs'] = count($logdata);
+		if (file_exists($_404dir)) {
+			$fp = file($_404dir);
+			$logs['404'] = count($fp);
+			fclose($fp);
+		}
 
-		if (file_exists($_404dir))
-			@eval(' ?>' . file_get_contents($_404dir) . '<?'.'php ');
-
-		$logs['404'] = count($log404);
-
-		if (file_exists($_sqldir))
-			@eval(' ?>' . file_get_contents($_sqldir) . '<?'.'php ');
-
-		$logs['sql'] = count($logsql);
-
-		unset($logdata);
-		unset($log404);
-		unset($logsql);
+		if (file_exists($_sqldir)) {
+			$fp = file($_sqldir);
+			$logs['sql'] = count($fp);
+			fclose($fp);
+		}
 
 		// Передаем данные в шаблон для вывода
 		$AVE_Template->assign('logs', $logs);
