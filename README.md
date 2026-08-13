@@ -1,3 +1,5 @@
+
+
 # AVE.cms
 
 **AVE.cms 3.3 build 0.37** — модульная система управления сайтами на PHP.
@@ -49,7 +51,7 @@ AVE.cms включает публичное ядро и единую панел�
 
 - PHP 7.3 или новее;
 - MySQL 5.7 или новее с InnoDB и `utf8mb4`;
-- расширения PHP `mysqli`, `mbstring`, `json` и `openssl`;
+- расширения PHP `mysqli`, `mbstring`, `json`, `simplexml` и `openssl`;
 - расширения `curl`, `zip` и GD рекомендуются для сетевых операций, ZIP-пакетов
   и обработки изображений;
 - право записи в `configs/`, `storage/`, `tmp/` и `uploads/`;
