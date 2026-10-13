@@ -21,7 +21,7 @@
 	return [
 		'code'    => 'dashboard',
 		'name'    => 'Дашборд',
-		'version' => '0.1.0',
+		'version' => '0.2.3',
 
 		'navigation' => array(
 			array(
@@ -39,6 +39,7 @@
 		),
 
 		'routes' => array(
+			array('GET', '/dashboard/attention', array(\App\Adminx\Dashboard\Controller::class, 'attention')),
 			array('GET', '/', array(\App\Adminx\Dashboard\Controller::class, 'index')),
 			array('GET', '/dashboard', array(\App\Adminx\Dashboard\Controller::class, 'index')),
 		),

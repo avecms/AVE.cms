@@ -441,7 +441,7 @@
 			}
 
 			foreach ($defaults as $key => $value) {
-				if (!isset($input[$key]) || trim((string) $input[$key]) === '') {
+				if (!array_key_exists($key, $input)) {
 					$input[$key] = $value;
 				}
 			}

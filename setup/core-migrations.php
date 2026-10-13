@@ -105,10 +105,11 @@
 			'005_rebuild_native_condition_cache', '006_sargable_condition_cache',
 			'007_result_contract', '008_preview_renderer', '009_native_executor',
 			'010_native_audit_result', '011_order_tiebreaker', '012_condition_value_sources',
-			'013_sort_rules', '014_request_revisions',
+			'013_sort_rules', '014_request_revisions', '015_request_description_capacity',
 		), 'backup' => array(
 			'013_sort_rules' => array('{{content_prefix}}_request'),
 			'014_request_revisions' => array(),
+			'015_request_description_capacity' => array('{{content_prefix}}_request'),
 		)),
 		'rubrics' => array('directory' => 'Rubrics', 'ids' => array(
 			'001_create_rubrics_tables', '002_rubric_field_settings',
@@ -147,9 +148,11 @@
 		'users' => array('directory' => 'Users', 'ids' => array(
 			'001_normalize_public_session_activity', '002_harden_public_remember_tokens',
 			'003_system_user_security', '004_system_session_expiry',
+			'005_public_session_capacity',
 		), 'backup' => array(
 			'002_harden_public_remember_tokens' => array('{{public_user_prefix}}_users_session'),
 			'003_system_user_security' => array(),
 			'004_system_session_expiry' => array('{{prefix}}_users_session'),
+			'005_public_session_capacity' => array('{{public_shell_prefix}}_sessions'),
 		)),
 	);

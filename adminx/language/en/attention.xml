@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language>
+  <phrase data="attention_heading">Needs attention</phrase>
+  <phrase data="attention_empty">Nothing new</phrase>
+  <phrase data="attention_wait">Oldest waiting %s</phrase>
+  <phrase data="attention_waiting">Awaiting processing</phrase>
+  <phrase data="attention_minutes">min</phrase>
+  <phrase data="attention_hours">h</phrase>
+  <phrase data="attention_days">d</phrase>
+  <phrase data="attention_unavailable">Unable to refresh</phrase>
+  <phrase data="attention_stale">Updates temporarily unavailable</phrase>
+  <phrase data="attention_orders">New orders</phrase>
+  <phrase data="attention_messages">New messages</phrase>
+  <phrase data="attention_order_filter">New: awaiting processing</phrase>
+</language>

@@ -405,6 +405,7 @@
 				$preset = $kind === 'rich' ? 'full' : ($kind === 'rich_simple' ? 'simple' : 'slim');
 				return '<textarea class="textarea documents-rich-editor" name="' . $this->e($this->fname($field, '[raw]'))
 					. '" data-rich-editor data-rich-preset="' . $preset . '" data-editor-height="' . $editorHeight
+					. '" data-rich-options="' . $this->e(json_encode(\App\Content\Fields\RichEditorSettings::options($settings), JSON_UNESCAPED_UNICODE))
 					. '" spellcheck="true">' . $this->e($parsed) . '</textarea>';
 			}
 

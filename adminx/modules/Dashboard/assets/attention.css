@@ -1,0 +1,252 @@
+.attention-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.attention-topbar[hidden],
+.attention-overview[hidden] {
+  display: none;
+}
+.attention-shortcut,
+.attention-card {
+  --attention-color: var(--amber-700);
+  --attention-soft: var(--amber-100);
+  --attention-border: var(--amber-300);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+.attention-shortcut.is-blue,
+.attention-card.is-blue {
+  --attention-color: var(--blue-700);
+  --attention-soft: var(--blue-100);
+  --attention-border: var(--blue-300);
+}
+.attention-shortcut.is-green,
+.attention-card.is-green {
+  --attention-color: var(--green-700);
+  --attention-soft: var(--green-100);
+  --attention-border: var(--green-300);
+}
+.attention-shortcut.has-pending,
+.attention-card.has-pending {
+  color: var(--attention-color);
+  background: var(--attention-soft);
+  border-color: var(--attention-border);
+}
+.attention-shortcut:hover,
+.attention-card:hover {
+  color: var(--attention-color);
+  text-decoration: none;
+}
+.attention-shortcut:focus-visible,
+.attention-card:focus-visible {
+  outline: 2px solid var(--attention-color);
+  outline-offset: 2px;
+}
+.attention-shortcut.is-arriving,
+.attention-card.is-arriving {
+  animation: attention-arrival 0.7s ease-out 2;
+}
+.attention-shortcut[hidden],
+.attention-card[hidden] {
+  display: none;
+}
+.attention-shortcut {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  background: var(--surface-card);
+  white-space: nowrap;
+}
+.attention-shortcut > .ti {
+  font-size: 18px;
+}
+.attention-shortcut b {
+  position: absolute;
+  top: -6px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  border: 2px solid var(--surface-card);
+  background: var(--attention-color);
+  color: #fff;
+  font-size: 10px;
+  line-height: 1;
+  text-align: center;
+}
+.attention-overview {
+  margin-bottom: 24px;
+}
+.attention-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.attention-heading h2 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.attention-heading > span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.attention-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+}
+.attention-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+  min-height: 140px;
+  padding: 20px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--surface-card);
+}
+.attention-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: var(--surface-card);
+  font-size: 24px;
+}
+.attention-card-body {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+.attention-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.attention-card-body strong {
+  font-size: 30px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.attention-wait {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.attention-card-arrow {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 19px;
+}
+.attention-dot {
+  display: none;
+  flex: 0 0 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.has-pending .attention-dot {
+  display: inline-block;
+  animation: attention-pulse 2.2s ease-in-out infinite;
+}
+.attention-shortcut.is-stale {
+  opacity: 0.65;
+}
+@keyframes attention-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes attention-arrival {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+}
+@media (max-width: 680px) {
+  .attention-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .attention-card {
+    padding: 16px;
+    min-height: 125px;
+    gap: 12px;
+  }
+  .attention-topbar {
+    gap: 7px;
+  }
+  .topbar.has-attention {
+    padding-inline: 8px;
+    gap: 6px;
+  }
+  .topbar.has-attention .topbar-right {
+    gap: 4px;
+  }
+  .topbar.has-attention .topbar-site-link,
+  .topbar.has-attention .env-badge {
+    display: none;
+  }
+  .topbar.has-attention .logo-suffix {
+    display: none;
+  }
+  .topbar.has-attention .topbar-logo .logo-img {
+    width: 52px;
+    height: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .has-pending .attention-dot,
+  .attention-shortcut.is-arriving,
+  .attention-card.is-arriving {
+    animation: none;
+  }
+}
+@media (max-width: 380px) {
+  .topbar.has-attention .logo-suffix {
+    display: none;
+  }
+  .topbar.has-attention .topbar-logo .logo-img {
+    width: 52px;
+    height: auto;
+  }
+  .attention-shortcut {
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
+  }
+}
+@media (max-width: 480px) {
+  .topbar.has-attention .topbar-logo {
+    display: none;
+  }
+}

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language>
+	<phrase data="documents_bulk_strip_description_styles">Remove styles from product descriptions</phrase>
+	<phrase data="documents_bulk_description_styles_help">Only the field assigned to the product description role. Removes style attributes, including spacing, colors and font sizes. Other fields, classes, headings and &lt;style&gt; elements are unchanged. HTML is normalized during parsing.</phrase>
+	<phrase data="documents_bulk_move_warning">Only fields with matching aliases and types are transferred. Values of other fields will not be retained in the destination rubric.</phrase>
 	<phrase data="documents_bulk_title">Bulk editor</phrase>
 	<phrase data="documents_bulk_intro">Checks changes before starting and processes documents in small batches.</phrase>
 	<phrase data="documents_bulk_notice_title">Review first, then apply</phrase>

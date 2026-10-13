@@ -242,12 +242,7 @@
       <div class="product-package-list" data-package-list>
         {% for package in shipping_profile.packages %}
         <div class="product-package-row" data-package-row>
-          <input class="input" name="title" value="{{ package.title|e('html_attr') }}" aria-label="Название грузового места">
-          <input class="input" type="number" name="quantity" min="1" max="999" step="1" value="{{ package.quantity }}" aria-label="Количество">
-          <input class="input" type="number" name="weight_kg" min="0" step="0.001" value="{{ package.weight_kg }}" aria-label="Вес в килограммах">
-          <input class="input" type="number" name="length_cm" min="0" step="0.1" value="{{ package.length_cm }}" aria-label="Длина в сантиметрах">
-          <input class="input" type="number" name="width_cm" min="0" step="0.1" value="{{ package.width_cm }}" aria-label="Ширина в сантиметрах">
-          <input class="input" type="number" name="height_cm" min="0" step="0.1" value="{{ package.height_cm }}" aria-label="Высота в сантиметрах">
+          {% include '@documents/_product_package_fields.twig' with {package: package} only %}
           <button class="btn btn-ghost btn-icon btn-sm ax-act ax-act-danger" type="button" data-package-remove data-tooltip="Удалить грузовое место" aria-label="Удалить грузовое место"><i class="ti ti-trash"></i></button>
         </div>
         {% endfor %}
@@ -259,6 +254,6 @@
       </div>
     </div>
   </form>
-  <template data-package-template><div class="product-package-row" data-package-row><input class="input" name="title" value="" placeholder="Коробка 1" aria-label="Название грузового места"><input class="input" type="number" name="quantity" min="1" max="999" step="1" value="1" aria-label="Количество"><input class="input" type="number" name="weight_kg" min="0" step="0.001" value="" placeholder="0" aria-label="Вес в килограммах"><input class="input" type="number" name="length_cm" min="0" step="0.1" value="" placeholder="0" aria-label="Длина в сантиметрах"><input class="input" type="number" name="width_cm" min="0" step="0.1" value="" placeholder="0" aria-label="Ширина в сантиметрах"><input class="input" type="number" name="height_cm" min="0" step="0.1" value="" placeholder="0" aria-label="Высота в сантиметрах"><button class="btn btn-ghost btn-icon btn-sm ax-act ax-act-danger" type="button" data-package-remove data-tooltip="Удалить грузовое место" aria-label="Удалить грузовое место"><i class="ti ti-trash"></i></button></div></template>
+  <template data-package-template><div class="product-package-row" data-package-row>{% include '@documents/_product_package_fields.twig' with {package: {quantity: 1}} only %}<button class="btn btn-ghost btn-icon btn-sm ax-act ax-act-danger" type="button" data-package-remove data-tooltip="Удалить грузовое место" aria-label="Удалить грузовое место"><i class="ti ti-trash"></i></button></div></template>
 </section>
 {% endif %}

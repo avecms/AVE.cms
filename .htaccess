@@ -62,6 +62,7 @@ AddDefaultCharset UTF-8
 	RewriteRule ^setup/?$ setup/index.php [L,QSA]
 
 	# Internal implementation and runtime data must not be addressed directly.
+	RewriteRule ^system/App/Frontend/Auth/assets/(?:phone-mask|auth)\.js$ - [L]
 	RewriteRule ^(?:configs|storage|system|tmp)(?:/|$) - [R=404,L]
 	# Module packages expose only static files from their declared asset roots.
 	# Manifests, migrations, views, LESS sources and executable code stay private.

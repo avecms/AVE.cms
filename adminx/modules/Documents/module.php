@@ -17,7 +17,7 @@
 	return array(
 		'code' => 'documents',
 		'name' => 'Документы',
-		'version' => '0.4.2',
+		'version' => '0.4.10',
 
 		'permissions' => array(
 			'key' => 'documents',

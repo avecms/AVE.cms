@@ -5,6 +5,21 @@
 
 <div class="page-header dashboard-page-header"><div><h1>{{ greeting }}</h1><p class="text-secondary">{{ lang.dashboard_summary|default('Сводка системы и последние изменения') }}</p></div><div class="dashboard-date"><i class="ti ti-calendar"></i>{{ 'now'|date('d.m.Y') }}</div></div>
 
+{% if attention.items %}
+<section class="attention-overview" data-attention-overview aria-labelledby="attention-heading">
+  <div class="attention-heading"><h2 id="attention-heading">{{ lang.attention_heading|default('Требуют внимания') }}</h2><span data-attention-health hidden>{{ lang.attention_stale|default('Данные временно не обновляются') }}</span></div>
+  <div class="attention-grid">
+    {% for item in attention.items %}
+      <a class="attention-card is-{{ item.tone }}{{ item.available and item.count > 0 ? ' has-pending' : '' }}" href="{{ item.url }}" data-attention-key="{{ item.key }}">
+        <span class="attention-card-icon"><i class="{{ item.icon }}" aria-hidden="true"></i></span>
+        <span class="attention-card-body"><span class="attention-card-title">{{ item.title }}<i class="attention-dot" aria-hidden="true"></i></span><strong data-attention-count>{{ item.available ? item.count : '—' }}</strong><span class="attention-wait" data-attention-wait>{{ item.wait }}</span></span>
+        <i class="ti ti-arrow-up-right attention-card-arrow" aria-hidden="true"></i>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 {% if dashboard_widgets %}
 <div class="dashboard-module-widgets">
   {% for dashboard_widget in dashboard_widgets %}

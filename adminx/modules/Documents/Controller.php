@@ -442,6 +442,7 @@
 			AdminAssets::addScript($this->base() . '/modules/Documents/assets/documents.js', 50);
 			return $this->render('@documents/bulk-editor.twig', array(
 				'bulk_options' => BulkEditor::options(),
+				'bulk_clean_descriptions' => Request::getStr('operation', '') === 'strip_description_styles',
 			));
 		}
 
@@ -587,9 +588,11 @@
 			$snapshot = (new DocumentSnapshotRepository())->find($id);
 			DocumentSaveEvents::after('create', 'adminx', $id, $rubricId, Auth::id(), $input, $fieldValues, array(), is_array($snapshot) ? $snapshot : array());
 			$nextMediaDraftToken = DocumentMediaDraft::issue(Auth::id(), $id);
+			$editorState = Model::editorState($id);
 			return $this->success('Документ создан', array('data' => array(
 				'id' => $id,
-				'document_version' => Model::documentVersion($id),
+				'document_version' => $editorState ? $editorState['version'] : Model::documentVersion($id),
+				'editor_state' => $editorState,
 				'snapshot_warning' => $snapshotError,
 				'media_draft_token' => $nextMediaDraftToken,
 			), 'redirect' => $this->base() . '/documents/' . $id . '/edit'));
@@ -734,9 +737,11 @@
 			$snapshot = (new DocumentSnapshotRepository())->find($id);
 			DocumentSaveEvents::after('update', 'adminx', $id, (int) $doc['rubric_id'], Auth::id(), $input, $fieldValues, $doc, is_array($snapshot) ? $snapshot : array());
 			$mediaCleanup = DocumentMediaReplacement::cleanup($mediaReplacement, $fieldValues);
+			$editorState = Model::editorState($id);
 			return $this->success('Документ сохранён', array('data' => array(
 				'id' => $id,
-				'document_version' => Model::documentVersion($id),
+				'document_version' => $editorState ? $editorState['version'] : Model::documentVersion($id),
+				'editor_state' => $editorState,
 				'snapshot_warning' => $snapshotError,
 				'media_cleanup' => $mediaCleanup,
 				'media_draft_token' => DocumentMediaDraft::issue(Auth::id(), $id),

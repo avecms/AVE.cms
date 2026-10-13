@@ -21,6 +21,33 @@
 
 	class Html
 	{
+		/** Remove inline CSS from an HTML fragment, leaving other attributes and elements intact. */
+		public static function removeInlineStyles($html)
+		{
+			$html = (string) $html;
+			if (stripos($html, 'style') === false) { return array('html' => $html, 'removed' => 0); }
+			$previous = libxml_use_internal_errors(true);
+			try {
+				$dom = new \DOMDocument('1.0', 'UTF-8');
+				if (!$dom->loadHTML('<?xml encoding="UTF-8"><html><body>' . $html . '</body></html>', LIBXML_NONET)) {
+					throw new \InvalidArgumentException('Не удалось разобрать HTML описания');
+				}
+
+				$nodes = (new \DOMXPath($dom))->query('//*[@style]');
+				$count = $nodes->length;
+				if (!$count) { return array('html' => $html, 'removed' => 0); }
+				foreach ($nodes as $node) { $node->removeAttribute('style'); }
+				$body = $dom->getElementsByTagName('body')->item(0);
+				if (!$body) { throw new \InvalidArgumentException('Не удалось разобрать HTML описания'); }
+				$result = '';
+				foreach ($body->childNodes as $node) { $result .= $dom->saveHTML($node); }
+				return array('html' => $result, 'removed' => $count);
+			} finally {
+				libxml_clear_errors();
+				libxml_use_internal_errors($previous);
+			}
+		}
+
 		protected function __construct()
 		{
 			//

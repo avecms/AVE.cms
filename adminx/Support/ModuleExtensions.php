@@ -62,6 +62,12 @@
 			return self::contributions('header');
 		}
 
+		/** Small, permission-scoped work queues; providers must not mutate their records. */
+		public static function attentionQueues()
+		{
+			return self::contributions('attention');
+		}
+
 		public static function dashboardWidgets(array $visibleCodes = null)
 		{
 			return self::contributions('dashboard', $visibleCodes);

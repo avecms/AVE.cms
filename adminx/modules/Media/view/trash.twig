@@ -10,6 +10,7 @@
 </div>
 <div class="section-header ax-panel-header"><div class="section-icon"><i class="ti ti-trash"></i></div><div><div class="section-eyebrow">Медиа</div><h2>Удалённые файлы и папки</h2><p class="section-desc">Восстановление возвращает объект по исходному пути. Окончательное удаление необратимо.</p></div></div>
 <div class="card ax-list-card media-trash-card">
+  {% if items and can_manage %}<div class="media-trash-toolbar"><button class="btn btn-danger" type="button" data-media-trash-clear><i class="ti ti-trash"></i>Очистить корзину</button><span class="text-secondary" data-media-trash-progress role="status" aria-live="polite"></span></div>{% endif %}
   <div class="table-scroll"><table class="table"><thead><tr><th>Объект</th><th>Тип</th><th>Удалён</th><th class="table-actions"></th></tr></thead><tbody>
   {% for item in items %}<tr><td><b>{{ item.name }}</b><small class="table-subtitle mono">{{ item.path }}</small></td><td>{{ item.type == 'folder' ? 'Папка' : 'Файл' }}</td><td>{{ item.deleted_label }}</td><td class="table-actions"><div class="cluster">
     <button class="btn btn-ghost btn-icon ax-act ax-act-restore" type="button" data-media-trash-restore="{{ item.token }}" data-name="{{ item.name }}" data-tooltip="Восстановить" aria-label="Восстановить"><i class="ti ti-restore"></i></button>

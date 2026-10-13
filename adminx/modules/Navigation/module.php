@@ -17,7 +17,7 @@
 	return array(
 		'code' => 'navigation',
 		'name' => 'Навигация',
-		'version' => '0.2.2',
+		'version' => '0.2.3',
 
 		'hook_definitions' => array(
 			array(

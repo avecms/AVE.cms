@@ -40,7 +40,16 @@
 			)->getAll() ?: array();
 		}
 
-		protected static function baseSql($select)
+		public static function home()
+		{
+			return DB::query(self::baseSql(
+				'doc.Id, doc.document_alias, doc.document_published, doc.document_changed,'
+					. ' doc.document_sitemap_freq, doc.document_sitemap_pr',
+				true
+			) . ' LIMIT 1')->getAssoc() ?: null;
+		}
+
+		protected static function baseSql($select, $home = false)
 		{
 			$documents = ContentTables::table('documents');
 			$rubrics = ContentTables::table('rubrics');
@@ -57,7 +66,8 @@
 				. " WHERE doc.document_status = '1' AND doc.document_deleted = '0'"
 				. " AND doc.document_in_sitemap = 1"
 				. ' AND ' . DocumentVisibility::publicSql('doc', 'rub')
-				. " AND doc.Id != '1' AND doc.Id != '" . (int) PAGE_NOT_FOUND_ID . "'"
+				. ($home ? ' AND doc.Id = 1' : ' AND doc.Id != 1')
+				. ' AND doc.Id != ' . (defined('PAGE_NOT_FOUND_ID') ? (int) PAGE_NOT_FOUND_ID : (int) \App\Frontend\PublicSettings::get('page_not_found_id', 0))
 				. " AND doc.document_meta_robots NOT LIKE '%noindex%'"
 				. " AND (rub.rubric_template != '' OR EXISTS (SELECT 1 FROM `" . $templates . "` rt"
 				. " WHERE rt.rubric_id = rub.Id AND rt.template != ''))"

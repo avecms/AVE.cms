@@ -42,9 +42,9 @@
       <div class="documents-bulk-controls">
         {% if bulk_options.products_available %}
         <label class="field"><span>Контур</span><select class="select" name="scope">
-          <option value="all">Документы и товары</option>
+          <option value="all"{{ not bulk_clean_descriptions ? ' selected' : '' }}>Документы и товары</option>
           <option value="documents">Только обычные документы</option>
-          <option value="products">Только товары</option>
+          <option value="products"{{ bulk_clean_descriptions ? ' selected' : '' }}>Только товары</option>
         </select></label>
         {% else %}
         <input type="hidden" name="scope" value="all">
@@ -57,7 +57,7 @@
         </select></label>
         <label class="field"><span>Состояние</span><select class="select" name="state">
           <option value="">Опубликованные и черновики</option>
-          <option value="active">Только опубликованные</option>
+          <option value="active"{{ bulk_clean_descriptions ? ' selected' : '' }}>Только опубликованные</option>
           <option value="draft">Только черновики</option>
         </select></label>
         <label class="field documents-bulk-search"><span>Поиск</span><span class="input-wrap"><i class="ti ti-search"></i><input class="input" type="search" name="q" placeholder="ID, название или alias"></span></label>
@@ -78,6 +78,7 @@
           <option value="set">Установить значение</option>
           <option value="clear">Очистить значение</option>
           <option value="replace">Найти и заменить</option>
+          {% if bulk_options.product_descriptions_available %}<option value="strip_description_styles"{{ bulk_clean_descriptions ? ' selected' : '' }}>Удалить стили из описаний товаров</option>{% endif %}
           <option value="move">Перенести в другую рубрику</option>
 		  <option value="publish">Опубликовать</option>
 		  <option value="unpublish">Снять с публикации</option>

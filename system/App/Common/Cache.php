@@ -184,8 +184,10 @@
 				return $value;
 			}
 
+			$started = false;
 			try {
-				return Lock::run('cache-remember:' . (string) $key, function () use ($key, $ttl, $callback, $miss) {
+				return Lock::run('cache-remember:' . (string) $key, function () use ($key, $ttl, $callback, $miss, &$started) {
+					$started = true;
 					$value = self::get($key, $miss);
 					if ($value !== $miss) {
 						return $value;
@@ -196,6 +198,8 @@
 					return $value;
 				});
 			} catch (\RuntimeException $e) {
+				// Retry only lock acquisition, never a failing computation or cache write.
+				if ($started) { throw $e; }
 				$value = self::get($key, $miss);
 				if ($value !== $miss) {
 					return $value;
@@ -225,8 +229,10 @@
 				return $value;
 			}
 
+			$started = false;
 			try {
-				return Lock::run('cache-remember:' . (string) $key, function () use ($key, $ttl, $tags, $callback, $miss) {
+				return Lock::run('cache-remember:' . (string) $key, function () use ($key, $ttl, $tags, $callback, $miss, &$started) {
+					$started = true;
 					$value = self::get($key, $miss);
 					if ($value !== $miss) {
 						return $value;
@@ -237,6 +243,7 @@
 					return $value;
 				});
 			} catch (\RuntimeException $e) {
+				if ($started) { throw $e; }
 				$value = self::get($key, $miss);
 				if ($value !== $miss) {
 					return $value;

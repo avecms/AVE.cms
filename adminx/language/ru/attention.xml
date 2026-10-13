@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language>
+  <phrase data="attention_heading">Требуют внимания</phrase>
+  <phrase data="attention_empty">Новых нет</phrase>
+  <phrase data="attention_wait">Самое старое ждёт %s</phrase>
+  <phrase data="attention_waiting">Ожидают обработки</phrase>
+  <phrase data="attention_minutes">мин</phrase>
+  <phrase data="attention_hours">ч</phrase>
+  <phrase data="attention_days">дн</phrase>
+  <phrase data="attention_unavailable">Не удалось обновить</phrase>
+  <phrase data="attention_stale">Данные временно не обновляются</phrase>
+  <phrase data="attention_orders">Новые заказы</phrase>
+  <phrase data="attention_messages">Новые обращения</phrase>
+  <phrase data="attention_order_filter">Новые: ожидают обработки</phrase>
+</language>

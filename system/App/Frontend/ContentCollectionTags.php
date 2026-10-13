@@ -61,6 +61,7 @@
 				$params
 			))->getValue();
 			$pages = max(1, (int) ceil($total / $limit));
+			if ($paginate) { PublicPageContext::recordPagination(PublicPageContext::documentId(), 'page', $pages); }
 			$page = min($page, $pages);
 			$sql = 'SELECT d.Id,d.document_title,d.document_alias,d.document_excerpt,d.document_published,d.document_count_view'
 				. ' FROM %b d WHERE ' . $condition . ' ORDER BY d.document_published DESC,d.Id DESC'

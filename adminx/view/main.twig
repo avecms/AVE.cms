@@ -18,11 +18,20 @@
 
 <!-- ================= TOPBAR ================= -->
 <style>.topbar-help .ti{color:var(--primary,#206bc4)}.topbar-help:hover .ti{color:var(--primary,#206bc4)}</style>
-<header class="topbar">
+<header class="topbar{{ attention.items ? ' has-attention' : '' }}">
   <button class="btn btn-ghost btn-icon" id="sidebarToggle" aria-label="{{ lang.topbar_collapse_menu|default('Свернуть меню') }}" data-tooltip="{{ lang.topbar_menu|default('Меню') }}"><i class="ti ti-layout-sidebar-left-collapse"></i></button>
   <a href="{{ ADMINX_BASE }}/" class="topbar-logo" style="color:var(--text-primary)"><img class="logo-img" src="{{ asset_ver(ADMINX_BASE ~ '/assets/img/logo.svg') }}" alt="AVE" width="66" height="24"><span class="logo-text logo-suffix">.cms</span></a>
   {% if site_development_mode %}<a class="env-badge" href="{{ ADMINX_BASE }}/settings/main" data-tooltip="{{ lang.development_mode_hint|default('Сайт закрыт для посетителей') }}"><i class="ti ti-lock"></i>{{ lang.development_mode|default('Режим разработки') }}</a>{% endif %}
   <div class="topbar-right">
+    {% if attention.items %}
+      <div class="attention-topbar" data-attention-root data-attention-user="{{ attention_user_id }}" data-attention-url="{{ ADMINX_BASE }}/dashboard/attention" data-attention-initial="{{ attention|json_encode|e('html_attr') }}" aria-label="{{ lang.attention_heading|default('Требуют внимания') }}">
+        {% for item in attention.items %}
+          <a class="attention-shortcut is-{{ item.tone }}{{ item.available and item.count > 0 ? ' has-pending' : '' }}" href="{{ item.url }}" data-attention-key="{{ item.key }}" data-tooltip="{{ item.title }}: {{ item.available ? item.count : '—' }} · {{ item.wait }}" aria-label="{{ item.title }}: {{ item.available ? item.count : '—' }} · {{ item.wait }}">
+            <i class="{{ item.icon }}" aria-hidden="true"></i><b data-attention-count>{{ item.available ? (item.count > 99 ? '99+' : item.count) : '—' }}</b>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
     <a class="btn btn-ghost btn-icon topbar-site-link" href="{{ public_url }}" target="_blank" rel="noopener" aria-label="{{ lang.topbar_visit_site|default('Перейти на сайт') }}" data-tooltip="{{ lang.topbar_visit_site|default('Перейти на сайт') }}"><i class="ti ti-external-link"></i></a>
     <button class="btn btn-ghost btn-icon topbar-command" type="button" data-command-palette-open aria-label="Быстрый переход" data-tooltip="Быстрый переход"><i class="ti ti-search"></i></button>
     {% if module_header_actions %}

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language>
+	<phrase data="runtime_c55667032216bcac">Встроенная проверка PHP недоступна на сервере.</phrase>
 	<phrase data="runtime_287ef8ef854ce1aa">(копия)</phrase>
 	<phrase data="runtime_eb35949a5a0f8ff5">PHP CLI недоступен для проверки синтаксиса.</phrase>
 	<phrase data="runtime_46c24d5ef1a06bf8">PHP-синтаксис: ошибка в коде блока</phrase>

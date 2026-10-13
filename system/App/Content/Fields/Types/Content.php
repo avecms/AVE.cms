@@ -43,7 +43,7 @@
 
 		public function settingsSchema()
 		{
-			return array(
+			return array_merge(array(
 				array(
 					'key' => 'mode',
 					'type' => 'select',
@@ -80,7 +80,7 @@
 					'label' => 'Высота редактора, px',
 					'default' => 300,
 				),
-			);
+			), \App\Content\Fields\RichEditorSettings::schema());
 		}
 
 		public function renderEdit(FieldContext $ctx)

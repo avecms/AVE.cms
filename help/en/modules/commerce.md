@@ -3,6 +3,15 @@
 The Commerce module manages the cart, checkout, delivery, payment,
 coupons, favorites, viewed products and customer order history.
 
+## Processing archived carts
+
+In Orders → Abandoned carts, choose the contact or UTM archive. After handling
+the customer, click the green Processed checkmark and confirm. The cart leaves
+the pending archive queue and remains available under Processed archive.
+Contacts, cart items and attribution are retained without automatic expiry.
+The detail view shows when and by whom it was processed. Reopen returns it to
+the queue. The mark is shared by all managers and requires order management permission.
+
 ## Order export
 
 Set the search, order state, and payment filter, then click **CSV**. The current
@@ -472,3 +481,12 @@ The script is included in `System -> Site Users -> Registration`, in the block
 **Account after order**. The consent text, policy address and Twig-
 letter template. If public registration or this script is disabled,
 checkout continues to work in guest mode.
+# Payment after checkout
+
+An online order is saved before starting payment. The confirmation page shows
+its number and amount. The Pay button is immediately available; manager approval
+is not required. Repeated clicks reuse the existing payment.
+
+In **Shop settings → General → Payment notice**, edit the notice and toggle its
+visibility. Hiding the notice does not hide the Pay button. Its presentation is
+editable in the `payment_notice` shop template.

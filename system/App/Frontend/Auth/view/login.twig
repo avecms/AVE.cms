@@ -16,5 +16,8 @@
     {% endif %}
     {% include '@system_auth/phone.twig' %}
     {% include '@system_auth/oauth.twig' %}
+    {% if not password_login_enabled and not phone_providers and not oauth_providers %}
+    <p role="status" data-auth-unavailable>Вход временно недоступен. Попробуйте позже.</p>
+    {% endif %}
   </div>
 </div>

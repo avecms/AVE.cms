@@ -1243,6 +1243,7 @@
 .documents-bulk-controls .field {
   min-width: 0;
 }
+.documents-bulk-progress-actions [hidden],
 .documents-bulk-controls .field[hidden],
 [data-bulk-technical-help][hidden] {
   display: none;
@@ -1336,6 +1337,15 @@
   margin-top: 3px;
   color: var(--text-muted);
   font-size: 11px;
+}
+.documents-bulk-html-preview {
+  display: block;
+  max-height: 140px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.5;
 }
 .documents-bulk-value-cell {
   color: var(--text-secondary);

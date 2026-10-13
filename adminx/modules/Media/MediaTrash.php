@@ -129,7 +129,12 @@
 		{
 			return Lock::run('media-trash', function () use ($token) {
 				$entry = self::entry($token);
+				$payload = self::itemsRoot() . '/' . $entry['token'] . '/payload';
+				self::removeTree($payload);
+				clearstatcache(true, $payload);
+				if (file_exists($payload)) { throw new \RuntimeException('Не удалось удалить файлы корзины. Проверьте права доступа.'); }
 				self::removeTree(self::itemsRoot() . '/' . $entry['token']);
+				if (is_dir(self::itemsRoot() . '/' . $entry['token'])) { throw new \RuntimeException('Не удалось удалить запись корзины. Проверьте права доступа.'); }
 				AuditLog::record('media.purged', array('actor_id' => Auth::id(), 'target_type' => 'media', 'meta' => array('path' => $entry['path'], 'token' => $entry['token'])));
 				return $entry;
 			});

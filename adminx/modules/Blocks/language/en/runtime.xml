@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language>
+	<phrase data="runtime_c55667032216bcac">Built-in PHP syntax checking is not available on this server.</phrase>
 	<phrase data="runtime_287ef8ef854ce1aa">(copy)</phrase>
 	<phrase data="runtime_eb35949a5a0f8ff5">PHP CLI is not available for syntax checking.</phrase>
 	<phrase data="runtime_46c24d5ef1a06bf8">PHP syntax: error in block code</phrase>

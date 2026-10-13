@@ -71,6 +71,7 @@
 				'rubrics' => Model::rubrics(),
 				'document_fields' => self::$documentFields,
 				'products_available' => self::productsAvailable(),
+				'product_descriptions_available' => self::productDescriptionsAvailable(),
 			);
 		}
 
@@ -78,6 +79,7 @@
 		{
 			$filters = self::filters($input);
 			$operation = self::operation($input, $filters);
+			if ($operation['type'] === 'strip_description_styles') { $filters['scope'] = 'products'; }
 			$matches = self::matches($filters);
 			if (!$matches['ids']) {
 				throw new \InvalidArgumentException('По выбранным условиям документы не найдены');
@@ -103,10 +105,10 @@
 					'title' => html_entity_decode((string) $row['document_title'], ENT_QUOTES, 'UTF-8'),
 					'rubric' => html_entity_decode((string) $row['rubric_title'], ENT_QUOTES, 'UTF-8'),
 					'state' => (int) $row['document_status'] === 1 ? 'Опубликован' : 'Черновик',
-					'before' => self::shortValue($change['before']),
-					'after' => self::shortValue($change['after']),
+					'before' => $operation['type'] === 'strip_description_styles' ? mb_substr($change['before'], 0, 1000, 'UTF-8') : self::shortValue($change['before']),
+					'after' => $operation['type'] === 'strip_description_styles' ? mb_substr($change['after'], 0, 1000, 'UTF-8') : self::shortValue($change['after']),
 					'changed' => $change['changed'],
-					'note' => $change['note'],
+					'note' => \App\Common\Language::translateSource($change['note']),
 				);
 			}
 
@@ -211,6 +213,17 @@
 			if (!$row) { return false; }
 
 			$type = $operation['type'];
+			if ($type === 'strip_description_styles') {
+				if (!self::productDescriptionsAvailable()) { throw new \InvalidArgumentException('Нет доступа к описаниям товаров'); }
+				$fieldId = self::productDescriptionField($row);
+				if (!$fieldId) { return false; }
+				$current = self::currentValue($row, array('target_type' => 'field', 'field_id' => $fieldId));
+				$next = self::changedValue($current, $operation);
+				if (!$next['changed']) { return false; }
+				$service->patch($documentId, array('fields' => array($fieldId => $next['value'])), $actorId, 'bulk_editor');
+				return true;
+			}
+
 			if (isset($operation['target_type']) && $operation['target_type'] === 'state') {
 				if ($type === 'technical' && Model::isProtectedDocument($documentId)) { return false; }
 				$current = (string) $row[$operation['target']];
@@ -272,7 +285,7 @@
 		{
 			$type = isset($input['operation']) ? (string) $input['operation'] : '';
 			$allowed = array_merge(
-				array('fill', 'set', 'clear', 'replace', 'move', 'publish', 'unpublish', 'recalculate'),
+				array('fill', 'set', 'clear', 'replace', 'move', 'publish', 'unpublish', 'recalculate', 'strip_description_styles'),
 				array_keys(self::$stateOperations)
 			);
 			if (!in_array($type, $allowed, true)) {
@@ -280,6 +293,11 @@
 			}
 
 			$operation = array('type' => $type, 'label' => self::operationLabel($type));
+			if ($type === 'strip_description_styles') {
+				if (!self::productDescriptionsAvailable()) { throw new \InvalidArgumentException('Нет доступа к описаниям товаров'); }
+				return array_merge($operation, array('target_type' => 'product_description', 'target_label' => 'Описание товара'));
+			}
+
 			if (isset(self::$stateOperations[$type])) {
 				$config = self::$stateOperations[$type];
 				$value = isset($config['value']) ? (string) $config['value'] : trim(isset($input[$config['value_input']]) ? (string) $input[$config['value_input']] : '');
@@ -400,6 +418,12 @@
 				foreach ($valueRows ?: array() as $valueRow) {
 					$currentValues[(int) $valueRow['Id']] = html_entity_decode((string) $valueRow['current_value'], ENT_QUOTES, 'UTF-8');
 				}
+			} elseif (isset($operation['target_type']) && $operation['target_type'] === 'product_description') {
+				foreach (array_chunk($ids, 500) as $chunk) {
+					$valueRows = DB::query('SELECT p.product_id,' . \App\Modules\Products\ProductRoles::valueSql('description')
+						. ' current_value FROM ' . CatalogTables::table('catalog_product_index') . ' p WHERE p.product_id IN %li AND p.is_deleted=0', $chunk)->getAll();
+					foreach ($valueRows ?: array() as $valueRow) { $currentValues[(int) $valueRow['product_id']] = (string) $valueRow['current_value']; }
+				}
 			} elseif (isset($operation['target_type']) && $operation['target_type'] === 'field') {
 				$valueRows = DB::query(
 					'SELECT df.document_id,CONCAT(COALESCE(df.field_value,\'\'),COALESCE(dft.field_value,\'\')) current_value'
@@ -444,7 +468,7 @@
 			}
 
 			if ($operation['type'] === 'move') {
-				return array('before' => (string) $row['rubric_title'], 'after' => (string) $operation['target_rubric_title'], 'changed' => (int) $row['rubric_id'] !== (int) $operation['target_rubric_id'], 'note' => 'Совпадающие поля переносятся по системному имени');
+				return array('before' => (string) $row['rubric_title'], 'after' => (string) $operation['target_rubric_title'], 'changed' => (int) $row['rubric_id'] !== (int) $operation['target_rubric_id'], 'note' => 'Переносятся только поля с одинаковыми системными именами и типами. Значения остальных полей не сохранятся в новой рубрике.');
 			}
 
 			if ($operation['target_type'] === 'state') {
@@ -460,13 +484,18 @@
 
 			$current = self::currentValue($row, $operation);
 			$next = self::changedValue($current, $operation);
-			return array('before' => $current, 'after' => $next['value'], 'changed' => $next['changed'], 'note' => $next['changed'] ? '' : 'Значение уже соответствует действию');
+			return array('before' => $current, 'after' => $next['value'], 'changed' => $next['changed'], 'note' => isset($next['removed']) ? 'Удалится атрибутов style: ' . $next['removed'] : ($next['changed'] ? '' : 'Значение уже соответствует действию'));
 		}
 
 		protected static function currentValue(array $row, array $operation)
 		{
 			if (array_key_exists('__bulk_current', $row)) {
 				return (string) $row['__bulk_current'];
+			}
+
+			if ($operation['target_type'] === 'product_description') {
+				$fieldId = self::productDescriptionField($row);
+				return $fieldId ? self::currentValue($row, array('target_type' => 'field', 'field_id' => $fieldId)) : '';
 			}
 
 			if ($operation['target_type'] === 'document' || $operation['target_type'] === 'state') {
@@ -496,6 +525,11 @@
 		{
 			$current = (string) $current;
 			$type = $operation['type'];
+			if ($type === 'strip_description_styles') {
+				$result = \App\Helpers\Html::removeInlineStyles($current);
+				return array('value' => $result['html'], 'changed' => $result['removed'] > 0, 'removed' => $result['removed']);
+			}
+
 			if ($type === 'fill') {
 				$value = trim($current) === '' ? (string) $operation['value'] : $current;
 			} elseif ($type === 'clear') {
@@ -584,10 +618,27 @@
 			}
 		}
 
+		protected static function productDescriptionsAvailable()
+		{
+			$module = \App\Common\ModuleManager::get('products');
+			return $module && !empty($module['enabled']) && \App\Common\Permission::check('manage_products')
+				&& class_exists('App\\Modules\\Products\\ProductRoles') && self::productsAvailable();
+		}
+
+		protected static function productDescriptionField(array $row)
+		{
+			$product = DB::query('SELECT rubric_id FROM ' . CatalogTables::table('catalog_product_index')
+				. ' WHERE product_id=%i AND is_deleted=0', (int) $row['Id'])->getAssoc();
+			if (!$product || (int) $product['rubric_id'] !== (int) $row['rubric_id']) { return 0; }
+			$roles = \App\Modules\Products\ProductRoles::forRubric((int) $row['rubric_id']);
+			return isset($roles['description']) ? (int) $roles['description'] : 0;
+		}
+
 		protected static function operationLabel($type)
 		{
 			$labels = array(
 				'fill' => 'Заполнить пустые', 'set' => 'Установить значение', 'clear' => 'Очистить',
+				'strip_description_styles' => 'Удалить стили из описаний товаров',
 				'replace' => 'Найти и заменить', 'move' => 'Перенести в рубрику',
 					'publish' => 'Опубликовать', 'unpublish' => 'Снять с публикации',
 					'recalculate' => 'Пересчитать поля и индексы',

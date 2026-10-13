@@ -16,6 +16,8 @@
 
 	defined('BASEPATH') || die('Direct access to this location is not allowed.');
 
+	use App\Helpers\PhpSyntax;
+
 	class Syntax
 	{
 		public static function check($code, $eval)
@@ -30,44 +32,8 @@
 				);
 			}
 
-			$tmp = tempnam(sys_get_temp_dir(), 'ave-sysblock-');
-			if ($tmp === false) {
-				return self::unavailable('Не удалось создать временный файл для проверки.');
-			}
-
-			$file = $tmp . '.php';
-			@rename($tmp, $file);
-			$written = @file_put_contents($file, '?>' . (string) $code . '<?php ');
-			if ($written === false) {
-				@unlink($file);
-				return self::unavailable('Не удалось записать временный файл для проверки.');
-			}
-
-			$php = defined('PHP_BINARY') && PHP_BINARY ? PHP_BINARY : 'php';
-			$cmd = escapeshellarg($php) . ' -l ' . escapeshellarg($file) . ' 2>&1';
-			$output = array();
-			$status = 0;
-			@exec($cmd, $output, $status);
-			@unlink($file);
-
-			$text = trim(implode("\n", $output));
-			if ($text === '') {
-				return self::unavailable('PHP CLI недоступен для проверки синтаксиса.');
-			}
-
-			$clean = str_replace($file, 'код блока', $text);
-			$line = 0;
-			if (preg_match('/ on line ([0-9]+)/i', $clean, $m)) {
-				$line = (int) $m[1];
-			}
-
-			return array(
-				'ok' => (int) $status === 0,
-				'checked' => true,
-				'message' => (int) $status === 0 ? 'Синтаксис PHP без ошибок.' : 'В PHP-коде есть синтаксическая ошибка.',
-				'line' => $line,
-				'output' => $clean,
-			);
+			$result = PhpSyntax::check('<?php ?>' . (string) $code);
+			return $result['checked'] ? $result : self::unavailable($result['message']);
 		}
 
 		protected static function unavailable($message)

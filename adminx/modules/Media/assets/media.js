@@ -59,10 +59,12 @@
         var audit = e.target.closest('[data-media-audit-run]');
         var trashRestore = e.target.closest('[data-media-trash-restore]');
         var trashPurge = e.target.closest('[data-media-trash-purge]');
+        var trashClear = e.target.closest('[data-media-trash-clear]');
 
         if (audit) { self.runAudit(audit); return; }
         if (trashRestore) { self.restoreTrash(trashRestore); return; }
         if (trashPurge) { self.purgeTrash(trashPurge); return; }
+        if (trashClear) { self.clearTrash(trashClear); return; }
         if (folder) { self.createFolder(); return; }
         if (rename) { self.rename(rename); return; }
         if (del) { self.remove(del); return; }
@@ -399,6 +401,35 @@
           submitAction(self.base() + '/media/trash/' + encodeURIComponent(button.getAttribute('data-media-trash-purge') || '') + '/purge', {});
         }
       });
+    },
+
+    clearTrash: function (button) {
+      var self = this;
+      if (self.clearingTrash) return;
+      var items = Array.from(document.querySelectorAll('[data-media-trash-purge]'));
+      if (!items.length) return;
+      Adminx.Confirm.open({kind: 'danger', title: 'Очистить корзину медиа?',
+        message: 'Все объекты, показанные в корзине, будут удалены окончательно. Восстановить их будет нельзя.',
+        confirmLabel: 'Удалить навсегда', confirmClass: 'btn-danger', onConfirm: function () {
+          self.clearingTrash = true;
+          var done = 0, progress = document.querySelector('[data-media-trash-progress]');
+          document.querySelectorAll('[data-media-trash-clear], [data-media-trash-purge], [data-media-trash-restore]').forEach(function (el) { el.disabled = true; });
+          function step() {
+            progress.textContent = done + ' / ' + items.length;
+            if (done === items.length) { window.location.reload(); return Promise.resolve(); }
+            var item = items[done];
+            return Adminx.Ajax.post(self.base() + '/media/trash/' + encodeURIComponent(item.getAttribute('data-media-trash-purge')) + '/purge', new FormData(document.getElementById('mediaActionForm'))).then(function (payload) {
+              var data = payload.data || {};
+              if (!data.success) throw new Error(data.message || Adminx.tr('Не удалось очистить корзину'));
+              item.closest('tr').remove(); done++; return step();
+            });
+          }
+          step().catch(function (error) {
+            self.clearingTrash = false;
+            document.querySelectorAll('[data-media-trash-clear], [data-media-trash-purge], [data-media-trash-restore]').forEach(function (el) { el.disabled = false; });
+            Adminx.Toast.show(error.message || 'Ошибка сети', 'error');
+          });
+        }});
     },
 
     clearThumbnails: function (button) {

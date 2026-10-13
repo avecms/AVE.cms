@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language>
+	<phrase data="documents_bulk_strip_description_styles">Удалить стили из описаний товаров</phrase>
+	<phrase data="documents_bulk_description_styles_help">Только поле с ролью «Описание товара». Будут удалены атрибуты style, включая отступы, цвета и размеры текста. Другие поля, классы, заголовки и блоки &lt;style&gt; не изменяются. HTML будет нормализован при разборе.</phrase>
+	<phrase data="documents_bulk_move_warning">Переносятся только поля с одинаковыми системными именами и типами. Значения остальных полей не сохранятся в новой рубрике.</phrase>
 	<phrase data="documents_bulk_title">Массовый редактор</phrase>
 	<phrase data="documents_bulk_intro">Проверяет изменения до запуска и обрабатывает документы небольшими пакетами.</phrase>
 	<phrase data="documents_bulk_notice_title">Сначала проверка, затем применение</phrase>

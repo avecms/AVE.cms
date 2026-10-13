@@ -1036,3 +1036,11 @@ button.media-thumb {
   color: var(--text-secondary, #667085);
   font-size: 13px;
 }
+.media-trash-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-default);
+}

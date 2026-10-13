@@ -51,6 +51,7 @@
 				throw new \RuntimeException($lint['message'] . ($lint['line'] ? ' Строка ' . $lint['line'] . '.' : ''));
 			}
 
+			$php = PhpCode::cliBinary();
 			$dir = TemporaryDirectory::create('console');
 
 			$codeFile = $dir . '/snippet.php';
@@ -70,7 +71,6 @@
 			@file_put_contents($codeFile, PhpCode::source($code));
 			@file_put_contents($runnerFile, $runner);
 
-			$php = self::resolvePhpBinary();
 			$command = escapeshellarg($php)
 				. ' -d display_errors=1 -d memory_limit=128M'
 				. ' -d disable_functions=exec,shell_exec,system,passthru,popen'
@@ -82,7 +82,7 @@
 				0 => array('pipe', 'r'),
 				1 => array('pipe', 'w'),
 				2 => array('pipe', 'w'),
-			), $pipes, $dir);
+			), $pipes, $dir, null, array('bypass_shell' => DIRECTORY_SEPARATOR === '\\'));
 			if (!is_resource($process)) {
 				self::cleanup($dir);
 				throw new \RuntimeException('Не удалось запустить PHP-процесс.');
@@ -137,99 +137,6 @@
 			);
 		}
 
-		/** Find a CLI binary compatible with the application runtime. */
-		protected static function resolvePhpBinary()
-		{
-			$candidates = array();
-			$configured = trim((string) getenv('ADMINX_PHP_BINARY'));
-			if ($configured !== '') {
-				$candidates[] = $configured;
-			}
-
-			$config = PublicConfiguration::value('admin_console', array());
-			if (is_array($config) && !empty($config['php_binary'])) {
-				$candidates[] = trim((string) $config['php_binary']);
-			}
-
-			if (defined('PHP_BINDIR') && PHP_BINDIR !== '') {
-				$candidates[] = rtrim(PHP_BINDIR, '/\\') . DIRECTORY_SEPARATOR . 'php';
-			}
-
-			if (defined('PHP_BINARY') && PHP_BINARY !== '') {
-				$candidates[] = dirname(PHP_BINARY) . DIRECTORY_SEPARATOR . 'php';
-				$candidates[] = PHP_BINARY;
-			}
-
-			$candidates[] = 'php';
-			$candidates = array_values(array_unique($candidates));
-			$detected = array();
-			foreach ($candidates as $candidate) {
-				$version = self::probePhpBinary($candidate);
-				if ($version >= 70300) {
-					return $candidate;
-				}
-
-				if ($version > 0) {
-					$detected[] = $candidate . ' (PHP ' . self::formatVersionId($version) . ')';
-				}
-			}
-
-			$message = 'Для PHP-консоли нужен CLI-интерпретатор PHP 7.3 или новее.';
-			if ($detected) {
-				$message .= ' Найдены несовместимые: ' . implode(', ', $detected) . '.';
-			}
-
-			throw new \RuntimeException($message . ' Укажите путь в ADMINX_PHP_BINARY.');
-		}
-
-		protected static function probePhpBinary($binary)
-		{
-			$command = escapeshellarg((string) $binary) . ' -r ' . escapeshellarg('echo PHP_VERSION_ID;');
-			$pipes = array();
-			$process = @proc_open($command, array(
-				0 => array('pipe', 'r'),
-				1 => array('pipe', 'w'),
-				2 => array('pipe', 'w'),
-			), $pipes);
-			if (!is_resource($process)) {
-				return 0;
-			}
-
-			fclose($pipes[0]);
-			stream_set_blocking($pipes[1], false);
-			stream_set_blocking($pipes[2], false);
-			$started = microtime(true);
-			$output = '';
-			do {
-				$output .= (string) stream_get_contents($pipes[1]);
-				$status = proc_get_status($process);
-				if (!$status['running']) {
-					break;
-				}
-
-				if (microtime(true) - $started >= 2) {
-					proc_terminate($process, 9);
-					break;
-				}
-
-				usleep(10000);
-			} while (true);
-			$output .= (string) stream_get_contents($pipes[1]);
-			fclose($pipes[1]);
-			fclose($pipes[2]);
-			proc_close($process);
-
-			$output = trim($output);
-			return preg_match('/^\d{5,6}$/', $output) === 1 ? (int) $output : 0;
-		}
-
-		protected static function formatVersionId($version)
-		{
-			$version = (int) $version;
-			return (int) floor($version / 10000)
-				. '.' . (int) floor(($version % 10000) / 100)
-				. '.' . (int) ($version % 100);
-		}
 
 		protected static function cleanup($dir)
 		{

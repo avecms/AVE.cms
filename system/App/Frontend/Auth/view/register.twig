@@ -24,5 +24,8 @@
     {% if phone_registration_enabled and registration_phone_providers %}
       {% include '@system_auth/phone.twig' with {'phone_providers': registration_phone_providers, 'phone_auth_registration': true, 'return_url': auth_urls.profile} %}
     {% endif %}
+    {% if not email_registration_enabled and not (phone_registration_enabled and registration_phone_providers) %}
+    <p role="status" data-auth-unavailable>Регистрация сейчас недоступна.</p>
+    {% endif %}
   </div>
 </div>

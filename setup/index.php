@@ -423,7 +423,7 @@
             <label><span>Имя администратора</span><input name="admin_name" value="<?= setup_escape($defaults['admin_name']) ?>" required></label>
             <label><span>Логин</span><input name="admin_login" value="<?= setup_escape($defaults['admin_login']) ?>" required></label>
 			<label><span>Email</span><input name="admin_email" type="email" value="<?= setup_escape($defaults['admin_email']) ?>" required></label>
-			<label><span>Пароль</span><input name="admin_password" type="password" minlength="<?= (int) $adminPasswordMinLength ?>" required><small>Не менее <?= (int) $adminPasswordMinLength ?> символов</small></label>
+			<label><span>Пароль</span><input name="admin_password" type="password" minlength="<?= (int) $adminPasswordMinLength ?>" required><small><?= setup_escape(sprintf(AveSetupLocale::translate('Не менее %d символов'), (int) $adminPasswordMinLength)) ?></small></label>
 			<label class="form-span-2"><span>Папка панели управления</span><input name="admin_directory" value="<?= setup_escape($defaults['admin_directory']) ?>" pattern="[A-Za-z][A-Za-z0-9_\-]{0,47}" maxlength="48" required><small>По умолчанию adminx. Можно изменить до установки; системные имена использовать нельзя.</small></label>
           </div>
 

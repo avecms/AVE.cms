@@ -103,11 +103,11 @@
 
 			foreach (isset($requirements['extensions']) ? (array) $requirements['extensions'] : array() as $extension) { if (!extension_loaded((string) $extension)) { $errors[] = 'Отсутствует PHP-расширение ' . $extension; } }
 			$conflicts = array();
-			foreach ($manifest['files'] as $file) {
+			foreach (self::managedEntries($manifest['files']) as $file) {
 				if (!self::writableTarget(ReleaseState::resolve($file['path']))) { $errors[] = 'Нет прав записи: ' . $file['path']; }
 			}
 
-			foreach ($manifest['deletions'] as $file) {
+			foreach (self::managedEntries($manifest['deletions']) as $file) {
 				$target = ReleaseState::resolve($file['path']);
 				if (is_file($target) && !is_writable($target)) { $errors[] = 'Нет прав удаления: ' . $file['path']; }
 			}
@@ -118,7 +118,7 @@
 			$required = max(10485760, (int) filesize(self::directory($job['id']) . '/patch.zip') * 4 + (int) ceil($databaseBytes * 1.25));
 			$free = @disk_free_space(self::root());
 			if ($free !== false && $free < $required) { $errors[] = 'Недостаточно свободного места для staging и отката'; }
-			return array('ready' => !$errors && !$conflicts, 'errors' => $errors, 'conflicts' => $conflicts, 'files' => count($manifest['files']), 'deletions' => count($manifest['deletions']), 'migrations' => count($manifest['migrations']), 'required_bytes' => $required);
+			return array('ready' => !$errors && !$conflicts, 'errors' => $errors, 'conflicts' => $conflicts, 'files' => count(self::managedEntries($manifest['files'])), 'deletions' => count(self::managedEntries($manifest['deletions'])), 'preserved' => self::preservedEntries($manifest), 'migrations' => count($manifest['migrations']), 'required_bytes' => $required);
 		}
 
 		public static function rollback($id, $restoreDatabase = true)
@@ -162,7 +162,7 @@
 			@mkdir($directory, 0750, true);
 			$job['journal'] = array();
 			$paths = array();
-			foreach (array_merge($job['manifest']['files'], $job['manifest']['deletions']) as $file) { $paths[$file['path']] = $file['path']; }
+			foreach (self::managedEntries(array_merge($job['manifest']['files'], $job['manifest']['deletions'])) as $file) { $paths[$file['path']] = $file['path']; }
 			$paths['storage/installed.lock'] = 'storage/installed.lock';
 			foreach ($paths as $logical) {
 				$actual = $logical === 'storage/installed.lock' ? ReleaseState::lockFile() : ReleaseState::resolve($logical);
@@ -243,13 +243,13 @@
 			self::assertMaintenanceAvailable($job['id']);
 			self::writeMaintenance($job);
 			try {
-				foreach ($job['manifest']['files'] as $file) {
+				foreach (self::managedEntries($job['manifest']['files']) as $file) {
 					$source = self::directory($job['id']) . '/stage/payload/' . $file['path'];
 					$target = ReleaseState::resolve($file['path']);
 					self::replaceFile($source, $target, $file['sha256'], $file['mode']);
 				}
 
-				foreach ($job['manifest']['deletions'] as $file) { $target = ReleaseState::resolve($file['path']); if (is_file($target) && !@unlink($target)) { throw new \RuntimeException('Не удалось удалить устаревший файл: ' . $file['path']); } }
+				foreach (self::managedEntries($job['manifest']['deletions']) as $file) { $target = ReleaseState::resolve($file['path']); if (is_file($target) && !@unlink($target)) { throw new \RuntimeException('Не удалось удалить устаревший файл: ' . $file['path']); } }
 				$migrations = isset($job['pending_migrations']) && is_array($job['pending_migrations'])
 					? $job['pending_migrations']
 					: $job['manifest']['migrations'];
@@ -279,15 +279,31 @@
 		{
 			try {
 				if (!ReleaseState::matches($job['manifest']['to'])) { throw new \RuntimeException('Реестр версии не подтвердил обновление'); }
-				foreach ($job['manifest']['files'] as $file) { $target = ReleaseState::resolve($file['path']); if (!is_file($target) || !hash_equals($file['sha256'], hash_file('sha256', $target))) { throw new \RuntimeException('Контрольная проверка файла не пройдена: ' . $file['path']); } }
+				foreach (self::managedEntries($job['manifest']['files']) as $file) { $target = ReleaseState::resolve($file['path']); if (!is_file($target) || !hash_equals($file['sha256'], hash_file('sha256', $target))) { throw new \RuntimeException('Контрольная проверка файла не пройдена: ' . $file['path']); } }
 				self::verifyRuntime();
-				self::removeMaintenance(); $job['status'] = 'completed'; $job['progress'] = 100; $job['message'] = 'Обновление установлено'; $job['recovery_token'] = ''; $job['updated_at'] = date(DATE_ATOM); self::save($job); return $job;
+				$job['preserved_files'] = self::preservedEntries($job['manifest']);
+				self::removeMaintenance(); $job['status'] = 'completed'; $job['progress'] = 100; $job['message'] = 'Обновление установлено' . ($job['preserved_files'] ? '. Сохранены файлы проекта: ' . implode(', ', $job['preserved_files']) : ''); $job['recovery_token'] = ''; $job['updated_at'] = date(DATE_ATOM); self::save($job); return $job;
 			} catch (\Throwable $e) {
 				$job['status'] = 'verification_failed'; $job['error'] = $e->getMessage(); $job['message'] = 'Контрольная проверка не пройдена, требуется откат'; $job['updated_at'] = date(DATE_ATOM); self::save($job); throw $e;
 			}
 		}
 
 		protected static function withPreflight(array $job) { $job['preflight'] = self::preflight($job); return $job; }
+		protected static function managedEntries(array $entries)
+		{
+			return array_values(array_filter($entries, function ($file) { return !ReleaseState::preservedPath($file['path']); }));
+		}
+
+		protected static function preservedEntries(array $manifest)
+		{
+			$paths = array();
+			foreach (array_merge($manifest['files'], $manifest['deletions']) as $file) {
+				if (ReleaseState::preservedPath($file['path'])) { $paths[] = $file['path']; }
+			}
+
+			return array_values(array_unique($paths));
+		}
+
 		protected static function writableTarget($path) { $path = (string) $path; if (is_file($path)) { return is_writable($path) && is_writable(dirname($path)); } $directory = dirname($path); while (!is_dir($directory) && $directory !== dirname($directory)) { $directory = dirname($directory); } return is_dir($directory) && is_writable($directory); }
 		public static function databaseRequirementError($databaseVersion, array $requirements)
 		{
@@ -350,7 +366,7 @@
 		}
 
 		protected static function replaceFile($source, $target, $checksum, $mode) { if (!is_file($source) || !hash_equals($checksum, hash_file('sha256', $source))) { throw new \RuntimeException('Staging-файл повреждён'); } $directory = dirname($target); if (!is_dir($directory) && !@mkdir($directory, 0755, true) && !is_dir($directory)) { throw new \RuntimeException('Не удалось создать каталог обновления'); } $temporary = $target . '.update-' . bin2hex(random_bytes(4)); if (!copy($source, $temporary) || !@rename($temporary, $target)) { @unlink($temporary); throw new \RuntimeException('Не удалось заменить файл: ' . $target); } @chmod($target, $mode ?: 0644); if (function_exists('opcache_invalidate')) { @opcache_invalidate($target, true); } }
-		protected static function restoreFiles(array $job) { foreach (array_reverse(isset($job['journal']) ? $job['journal'] : array()) as $entry) { if (!empty($entry['existed'])) { self::replaceFile($entry['backup'], $entry['actual'], hash_file('sha256', $entry['backup']), fileperms($entry['backup']) & 0777); } elseif (is_file($entry['actual'])) { @unlink($entry['actual']); } } }
+		protected static function restoreFiles(array $job) { foreach (array_reverse(isset($job['journal']) ? $job['journal'] : array()) as $entry) { if (ReleaseState::preservedPath($entry['path'])) { continue; } if (!empty($entry['existed'])) { self::replaceFile($entry['backup'], $entry['actual'], hash_file('sha256', $entry['backup']), fileperms($entry['backup']) & 0777); } elseif (is_file($entry['actual'])) { @unlink($entry['actual']); } } }
 		protected static function clearRuntimeCaches()
 		{
 			Cache::flush();

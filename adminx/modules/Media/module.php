@@ -19,7 +19,7 @@
 	return array(
 		'code' => 'media',
 		'name' => 'Медиа',
-		'version' => '0.6.4',
+		'version' => '0.6.5',
 
 		'permissions' => array(
 			'key' => 'media',

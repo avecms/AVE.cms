@@ -354,9 +354,9 @@ CREATE TABLE IF NOT EXISTS `{{prefix}}_console_snippets` (
 -- Public shell and accounts ----------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `{{prefix}}_public_sessions` (
-  `sesskey` VARCHAR(32) NOT NULL,
+  `sesskey` VARCHAR(256) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
   `expiry` INT UNSIGNED NOT NULL DEFAULT 0,
-  `value` TEXT NOT NULL,
+  `value` MEDIUMTEXT NOT NULL,
   `Ip` VARCHAR(45) NOT NULL DEFAULT '',
   `expire_datum` VARCHAR(25) NOT NULL DEFAULT '',
   PRIMARY KEY (`sesskey`),
@@ -992,7 +992,7 @@ CREATE TABLE IF NOT EXISTS `{{prefix}}_request` (
   `request_order_by_nat` INT NOT NULL DEFAULT 0,
   `request_author_id` INT UNSIGNED NOT NULL DEFAULT 1,
   `request_created` INT UNSIGNED NOT NULL DEFAULT 0,
-  `request_description` TINYTEXT NOT NULL,
+  `request_description` TEXT NOT NULL,
   `request_result_contract` MEDIUMTEXT DEFAULT NULL,
   `request_preview_renderer` VARCHAR(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT 'data_cards',
   `request_executor_mode` VARCHAR(16) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT 'legacy',

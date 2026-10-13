@@ -35,6 +35,7 @@
 	use App\Adminx\Rubrics\Model as RubricsModel;
 	use App\Adminx\Documents\Model as DocumentsModel;
 	use App\Adminx\Packages\Products\ProductIndexer;
+	use App\Adminx\Packages\Products\Attributes;
 
 	class Model
 	{
@@ -1137,27 +1138,50 @@
 
 		protected static function runFilterRecompile($rubricId, $itemId)
 		{
-			$runner = AdminLocation::path('modules/Catalog/bin/recompile.php');
-			if (!is_file($runner)) { throw new \RuntimeException('Сценарий пересборки фильтров не найден'); }
-			if (!function_exists('exec')) { throw new \RuntimeException('Функция exec недоступна'); }
-			$output = array(); $code = 0;
-			$command = escapeshellarg(self::phpCliBinary()) . ' ' . escapeshellarg($runner) . ' ' . (int) $rubricId . ' ' . (int) $itemId . ' 2>&1';
-			exec($command, $output, $code);
-			if ($code !== 0) { throw new \RuntimeException(trim(implode("\n", $output)) ?: 'Пересборка завершилась с ошибкой'); }
-			return array('item_id' => (int) $itemId, 'output' => trim(implode("\n", $output)));
-		}
+			$item = static::item((int) $itemId);
+			if (!$item || (int) $item['rubric_id'] !== (int) $rubricId) { throw new \RuntimeException('Раздел каталога не найден'); }
+			$settings = static::settings((int) $rubricId, (int) $item['field_id']);
+			$native = isset($item['filter_runtime']) && in_array($item['filter_runtime'], array('native', 'shadow'), true);
+			$products = static::productsAvailable() && isset($settings['purpose']) && $settings['purpose'] === 'commerce';
+			if ($native && !$products) { throw new \RuntimeException('Для нативных фильтров включите модуль «Товары»'); }
+			if (!$native && $products && !method_exists(ProductIndexer::class, 'rebuildFilterIndex')) { throw new \RuntimeException('Обновите модуль «Товары» для пересборки индекса фильтров'); }
+			$requestId = isset($settings['request_id']) ? (int) $settings['request_id'] : 0;
+			if (!$native && !$products && $requestId < 1) { throw new \RuntimeException('Сначала выберите запрос фильтра в настройках каталога'); }
+			$owns = !DB::$transaction_in_progress;
+			$previousMode = DB::$throw_exception_on_error;
+			$savepoint = 'catalog_filters_' . bin2hex(random_bytes(6));
+			$started = false;
+			DB::$throw_exception_on_error = true;
+			try {
+				if ($owns) { DB::startTransaction(); } else { DB::query('SAVEPOINT ' . $savepoint); }
+				$started = true;
+				$result = array('item_id' => (int) $itemId, 'runtime' => $native ? 'native' : 'legacy', 'request_id' => 0, 'products' => 0, 'filters' => 0);
+				if ($native) {
+					$report = Attributes::rebuildShadowIndex((int) $itemId);
+					$result['filters'] = (int) $report['indexed_values'];
+					$result['products'] = (int) DB::query('SELECT COUNT(DISTINCT product_id) FROM ' . Attributes::table('attribute_filter_index') . ' WHERE catalog_item_id=%i', (int) $itemId)->getValue();
+				} else {
+					if ($requestId > 0) {
+						$compiled = \App\Content\Requests\RequestConditionCompiler::compile($requestId, true);
+						if (!$compiled) { throw new \RuntimeException('Запрос фильтра не найден'); }
+						$result['request_id'] = $requestId;
+					}
 
-		protected static function phpCliBinary()
-		{
-			$candidates = array(getenv('PHP_CLI_BINARY'));
-			if (defined('PHP_BINDIR')) { $candidates[] = PHP_BINDIR . '/php'; }
-			if (defined('PHP_BINARY') && preg_match('/^php(?:[0-9.]*)?$/i', basename((string) PHP_BINARY))) { $candidates[] = PHP_BINARY; }
-			$candidates[] = '/usr/local/bin/php'; $candidates[] = '/usr/bin/php';
-			foreach (array_unique(array_filter($candidates)) as $candidate) {
-				if (is_file($candidate) && is_executable($candidate)) { return $candidate; }
-			}
+					if ($products) {
+						$ids = array_merge(array((int) $itemId), isset($item['source_item_ids']) ? (array) $item['source_item_ids'] : array());
+						$result = array_merge($result, ProductIndexer::rebuildFilterIndex($ids));
+					}
+				}
 
-			throw new \RuntimeException('CLI-интерпретатор PHP не найден');
+				if ($owns) { DB::commit(); } else { DB::query('RELEASE SAVEPOINT ' . $savepoint); }
+			} catch (\Throwable $e) {
+				if ($started && $owns) { DB::rollback(); }
+				elseif ($started) { DB::query('ROLLBACK TO SAVEPOINT ' . $savepoint); DB::query('RELEASE SAVEPOINT ' . $savepoint); }
+				throw $e;
+			} finally { DB::$throw_exception_on_error = $previousMode; }
+			DB::afterCommit(function () { static::clearCache(); });
+			$result['output'] = $native ? 'Нативный индекс фильтров пересобран.' : 'Условия запроса и индекс фильтров пересобраны.';
+			return $result;
 		}
 
 		protected static function rebuildRequest($requestId)

@@ -44,11 +44,11 @@
 
 		public function settingsSchema()
 		{
-			return array(
+			return array_merge(array(
 				array('key' => 'editor', 'type' => 'select', 'label' => 'Редактор',
 					  'options' => array('rich', 'plain'), 'default' => 'rich'),
 				array('key' => 'height', 'type' => 'int', 'label' => 'Высота редактора, px', 'default' => 300),
-			);
+			), \App\Content\Fields\RichEditorSettings::schema());
 		}
 
 		public function renderEdit(FieldContext $ctx)

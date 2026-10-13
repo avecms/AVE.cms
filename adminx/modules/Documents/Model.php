@@ -728,6 +728,23 @@
 			)->getValue());
 		}
 
+		public static function editorState($id)
+		{
+			$row = DB::query('SELECT Id,document_title,document_status,document_deleted,document_changed,document_version FROM '
+				. self::documentsTable() . ' WHERE Id=%i LIMIT 1', (int) $id)->getAssoc();
+			if (!$row) { return null; }
+			$label = $row['document_deleted'] ? 'Удалён' : ($row['document_status'] ? 'Опубликован' : 'Черновик');
+			$label = \App\Common\Language::translateSource($label);
+			return array(
+				'title' => self::decode($row['document_title']),
+				'version' => max(1, (int) $row['document_version']),
+				'state_label' => $label,
+				'state_badge' => $row['document_deleted'] ? 'gray' : ($row['document_status'] ? 'green' : 'amber'),
+				'meta' => 'ID ' . (int) $row['Id'] . ', ' . $label . \App\Common\Language::translateSource(', изменён:')
+					. ' ' . date('d.m.Y H:i', (int) $row['document_changed']),
+			);
+		}
+
 		public static function markChanged($id)
 		{
 			self::touchDocument((int) $id);
@@ -1744,6 +1761,9 @@
 				DB::Insert(self::docFieldsTable(), array(
 					'rubric_field_id' => (int) $field['Id'],
 					'document_id' => (int) $documentId,
+					'field_value' => '',
+					'field_number_value' => 0,
+					'document_in_search' => '1',
 				));
 			}
 		}

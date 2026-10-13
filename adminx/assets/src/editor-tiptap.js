@@ -7,6 +7,10 @@ import TableRow from '@tiptap/extension-table-row';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TextAlign from '@tiptap/extension-text-align';
+import { isWordHtml, cleanWordHtml } from './_word-paste';
+import { RichSearch, ContentFragments } from './_rich-extensions';
+import { tr, readOptions, openSearch, openSymbols, openSnippets, openBlocks, openReview, reviewBeforeSave, installTools } from './_rich-tools';
+import { installRecovery } from './_rich-recovery';
 
 var EnhancedImage = Image.extend({
   addAttributes: function () {
@@ -90,6 +94,8 @@ var EnhancedImage = Image.extend({
 
     extensions: function () {
       return [
+        RichSearch,
+        ContentFragments,
         StarterKit.configure({ link: false }),
         Link.configure({
           openOnClick: false,
@@ -107,6 +113,7 @@ var EnhancedImage = Image.extend({
     },
 
     create: function (textarea) {
+      var options = readOptions(textarea);
       var preset = textarea.getAttribute('data-rich-preset') || 'full';
       var root = el('div', { class: 'rich-editor rich-editor-' + preset });
       var toolbar = el('div', { class: 'rich-editor-toolbar', role: 'toolbar' });
@@ -131,6 +138,9 @@ var EnhancedImage = Image.extend({
         extensions: this.extensions(),
         content: textarea.value || '',
         editorProps: {
+          transformPastedHTML: function (html) {
+            return isWordHtml(html) ? cleanWordHtml(html) : html;
+          },
           attributes: {
             class: 'rich-editor-prose',
             spellcheck: textarea.getAttribute('spellcheck') || 'true'
@@ -155,15 +165,18 @@ var EnhancedImage = Image.extend({
         }
       });
 
-      this.buildToolbar(toolbar, editor);
+      this.buildToolbar(toolbar, editor, options, textarea);
       textarea.setAttribute('data-rich-editor-ready', '1');
       textarea._adminxTiptap = editor;
       this.instances.push(editor);
       this.bindForm(textarea, editor);
       this.syncToolbar(root, editor);
+      installTools(this, root, textarea, editor, options);
+      installRecovery(this, root, textarea, editor);
     },
 
     button: function (name, tooltip, iconName, run) {
+      tooltip = tr(tooltip);
       var btn = el('button', {
         class: 'btn btn-ghost btn-icon btn-sm rich-editor-btn',
         type: 'button',
@@ -175,7 +188,7 @@ var EnhancedImage = Image.extend({
       return btn;
     },
 
-    buildToolbar: function (toolbar, editor) {
+    buildToolbar: function (toolbar, editor, options, textarea) {
       var group;
       var self = this;
       function addGroup() {
@@ -183,6 +196,11 @@ var EnhancedImage = Image.extend({
         toolbar.appendChild(group);
       }
       function add(name, tooltip, iconName, run) {
+        if (options.hide_image && name === 'image') { return; }
+        if (options.hide_table && name === 'table') { return; }
+        if (options.hide_source && name === 'source') { return; }
+        if (options.hide_align && name.indexOf('align') === 0) { return; }
+        if (options.profile === 'compact' && ['image', 'table', 'code', 'alignCenter', 'alignRight', 'showBlocks'].indexOf(name) !== -1) { return; }
         group.appendChild(self.button(name, tooltip, iconName, run));
       }
       function addBlockSelect() {
@@ -201,16 +219,20 @@ var EnhancedImage = Image.extend({
           ['heading-5', 'Заголовок H5'],
           ['heading-6', 'Заголовок H6']
         ].forEach(function (item) {
+          if (item[0].indexOf('heading-') === 0 && (options.headings === 'none' || (options.headings === 'no_h1' && item[0] === 'heading-1'))) { return; }
           var option = el('option', { value: item[0] });
           option.textContent = item[1];
           select.appendChild(option);
         });
         select.addEventListener('change', function () {
-          if (select.value === 'paragraph') {
+          // Focusing in Safari/iOS synchronously refreshes the toolbar value.
+          var block = select.value;
+          var level = parseInt(block.replace('heading-', ''), 10);
+          if (block === 'paragraph') {
             editor.chain().focus().setParagraph().run();
             return;
           }
-          editor.chain().focus().setHeading({ level: parseInt(select.value.replace('heading-', ''), 10) }).run();
+          editor.chain().focus().setHeading({ level: level }).run();
         });
         group.appendChild(select);
       }
@@ -218,6 +240,7 @@ var EnhancedImage = Image.extend({
       addGroup();
       add('undo', 'Отменить', 'arrow-back-up', function () { editor.chain().focus().undo().run(); });
       add('redo', 'Повторить', 'arrow-forward-up', function () { editor.chain().focus().redo().run(); });
+      add('pasteWord', 'Вставить из Word', 'clipboard-text', function () { self.openWordPaste(editor); });
 
       addGroup();
       add('bold', 'Жирный', 'bold', function () { editor.chain().focus().toggleBold().run(); });
@@ -238,6 +261,14 @@ var EnhancedImage = Image.extend({
 
       addGroup();
       add('link', 'Ссылка', 'link', function () { self.openLink(editor); });
+      add('documentLink', 'Ссылка на документ или товар', 'file-search', function () {
+        var selection = { from: editor.state.selection.from, to: editor.state.selection.to };
+        self.openDocumentLinkPicker(function (item) {
+          var href = item.url || '/' + String(item.alias || '').replace(/^\/+/, '');
+          if (selection.from !== selection.to) { editor.chain().focus().setTextSelection(selection).setLink({ href: href }).run(); }
+          else { editor.chain().focus().insertContentAt(selection, { type: 'text', text: item.title || href, marks: [{ type: 'link', attrs: { href: href } }] }).run(); }
+        });
+      });
       add('image', 'Изображение', 'photo-plus', function () {
         self.openMediaPicker(editor);
       });
@@ -252,10 +283,140 @@ var EnhancedImage = Image.extend({
       });
 
       addGroup();
+      add('fullscreen', 'Развернуть редактор', 'arrows-maximize', function () { self.toggleFullscreen(editor); });
       if (window.CodeMirror) {
         add('source', 'Исходник', 'code-dots', function () { self.openSource(editor); });
       }
       add('clear', 'Очистить формат', 'eraser', function () { editor.chain().focus().unsetAllMarks().clearNodes().run(); });
+      addGroup();
+      add('find', 'Найти и заменить', 'replace', function () { openSearch(editor); });
+      add('symbols', 'Специальные символы', 'omega', function () { openSymbols(editor); });
+      if (options.snippets !== 'none') { add('snippets', 'Готовые фрагменты', 'template', function () { openSnippets(editor, options); }); }
+      if (!options.hide_blocks) { add('blocks', 'Порядок блоков', 'list-details', function () { openBlocks(editor); }); }
+      add('review', 'Проверка оформления', 'text-spellcheck', function () { openReview(editor, textarea, options); });
+      toolbar.querySelectorAll('.rich-editor-group').forEach(function (node) { if (!node.children.length) { node.remove(); } });
+    },
+
+    reviewBeforeSave: reviewBeforeSave,
+
+    replaceHtml: function (textarea, html) {
+      var editor = textarea._adminxTiptap;
+      if (!editor || editor.isDestroyed) { return; }
+      var root = textarea.closest('.rich-editor');
+      editor.commands.setContent(html || '<p></p>');
+      if (root && root._richSourceEditor) {
+        root._richSourceSyncing = true;
+        root._richSourceEditor.setValue(html);
+        root._richSourceSyncing = false;
+      }
+      // Preserve source attributes Tiptap does not model until the next visual edit.
+      textarea.value = html;
+      textarea.removeAttribute('data-rich-editor-dirty');
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    },
+
+    toggleFullscreen: function (editor) {
+      if (this.fullscreen && this.fullscreen.editor === editor) { this.fullscreen.close(); return; }
+      if (this.fullscreen) { this.fullscreen.close(); }
+      var self = this;
+      var root = editor.view.dom.closest('.rich-editor');
+      var ancestors = [];
+      var scrollX = window.scrollX;
+      var scrollY = window.scrollY;
+      var parent = root.parentElement;
+      // Keep the editor inside its form; transformed drawers must not clip fixed positioning.
+      while (parent && parent !== document.body) {
+        parent.classList.add('rich-editor-fullscreen-parent');
+        ancestors.push(parent);
+        parent = parent.parentElement;
+      }
+      root.classList.add('rich-editor-fullscreen');
+      document.body.classList.add('rich-editor-fullscreen-open');
+      function refresh() {
+        if (root._richSourceEditor) { root._richSourceEditor.refresh(); }
+      }
+      function close() {
+        if (!self.fullscreen || self.fullscreen.editor !== editor) { return; }
+        root.classList.remove('rich-editor-fullscreen');
+        ancestors.forEach(function (node) { node.classList.remove('rich-editor-fullscreen-parent'); });
+        document.body.classList.remove('rich-editor-fullscreen-open');
+        document.removeEventListener('keydown', onKey, true);
+        window.removeEventListener('resize', refresh);
+        observer.disconnect();
+        editor.off('destroy', close);
+        self.fullscreen = null;
+        if (!editor.isDestroyed) { self.syncToolbar(root, editor); refresh(); }
+        window.scrollTo(scrollX, scrollY);
+      }
+      function onKey(event) {
+        if (event.key !== 'Escape') { return; }
+        var childDialog = Array.from(document.querySelectorAll('.overlay.show, .rich-editor-tools-overlay, .rich-editor-word-overlay, .rich-editor-link-overlay, .rich-editor-image-overlay, .rich-editor-document-picker-overlay, .media-picker-overlay.show')).some(function (node) { return !node.contains(root); });
+        if (childDialog) { return; }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        close();
+      }
+      var observer = new MutationObserver(function () { if (!root.isConnected || editor.isDestroyed) { close(); } });
+      observer.observe(document.body, { childList: true, subtree: true });
+      this.fullscreen = { editor: editor, close: close };
+      editor.on('destroy', close);
+      document.addEventListener('keydown', onKey, true);
+      window.addEventListener('resize', refresh);
+      this.syncToolbar(root, editor);
+      requestAnimationFrame(refresh);
+    },
+
+    openWordPaste: function (editor) {
+      var self = this;
+      var selection = { from: editor.state.selection.from, to: editor.state.selection.to };
+      var overlay = el('div', { class: 'overlay rich-editor-word-overlay' });
+      var modal = el('div', { class: 'modal rich-editor-prompt', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'richEditorWordTitle' });
+      modal.innerHTML = '<div class="modal-header"><span class="dialog-icon info"><i class="ti ti-clipboard-text"></i></span>' +
+        '<div style="flex:1"><h3 id="richEditorWordTitle">Вставить из Word</h3></div>' +
+        '<button class="modal-close" type="button" data-word-cancel aria-label="Закрыть"><i class="ti ti-x"></i></button></div>' +
+        '<div class="modal-body"><textarea class="input" rows="8" style="width:100%;resize:vertical;min-height:180px" aria-label="Текст из Word" placeholder="Вставьте скопированный текст" data-word-input></textarea></div>' +
+        '<div class="modal-footer"><button class="btn btn-ghost" type="button" data-word-cancel>Отмена</button><button class="btn btn-primary" type="button" data-word-apply disabled><i class="ti ti-check"></i>Вставить</button></div>';
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+      var input = overlay.querySelector('[data-word-input]');
+      var apply = overlay.querySelector('[data-word-apply]');
+      var html = null;
+      var closed = false;
+      function close() {
+        if (closed) { return; }
+        closed = true;
+        document.removeEventListener('keydown', onKey, true);
+        overlay.remove();
+        if (!editor.isDestroyed) { editor.commands.focus(); }
+      }
+      function onKey(event) {
+        if (event.key === 'Escape') { event.preventDefault(); event.stopImmediatePropagation(); close(); }
+        if (event.key === 'Tab') {
+          var controls = Array.from(modal.querySelectorAll('button:not(:disabled),textarea'));
+          var index = controls.indexOf(document.activeElement);
+          event.preventDefault();
+          controls[(index + (event.shiftKey ? controls.length - 1 : 1)) % controls.length].focus();
+        }
+      }
+      input.addEventListener('paste', function (event) {
+        var data = event.clipboardData;
+        if (!data) { return; }
+        event.preventDefault();
+        var source = data.getData('text/html');
+        html = source ? cleanWordHtml(source) : null;
+        input.value = data.getData('text/plain') || (html ? new DOMParser().parseFromString(html, 'text/html').body.textContent : '');
+        apply.disabled = !input.value.trim();
+      });
+      input.addEventListener('input', function () { html = null; apply.disabled = !input.value.trim(); });
+      overlay.addEventListener('click', function (event) {
+        if (event.target === overlay || event.target.closest('[data-word-cancel]')) { close(); return; }
+        if (!event.target.closest('[data-word-apply]') || apply.disabled || editor.isDestroyed) { return; }
+        var content = html !== null ? html : input.value.split(/\r?\n/).map(function (line) { return '<p>' + self.escape(line) + '</p>'; }).join('');
+        editor.chain().focus().insertContentAt(selection, content).run();
+        close();
+      });
+      document.addEventListener('keydown', onKey, true);
+      requestAnimationFrame(function () { if (!closed) { overlay.classList.add('show'); input.focus(); } });
     },
 
     syncToolbar: function (root, editor) {
@@ -278,11 +439,28 @@ var EnhancedImage = Image.extend({
         var btn = root.querySelector('[data-rich-command="' + name + '"]');
         if (btn) { btn.setAttribute('aria-pressed', states[name] ? 'true' : 'false'); }
       });
+      var fullscreen = root.querySelector('[data-rich-command="fullscreen"]');
+      if (fullscreen) {
+        var expanded = root.classList.contains('rich-editor-fullscreen');
+        var label = tr(expanded ? 'Свернуть редактор' : 'Развернуть редактор');
+        fullscreen.setAttribute('aria-pressed', expanded ? 'true' : 'false');
+        fullscreen.setAttribute('aria-label', label);
+        fullscreen.setAttribute('data-tooltip', label);
+        fullscreen.innerHTML = icon(expanded ? 'arrows-minimize' : 'arrows-maximize');
+      }
       var blockSelect = root.querySelector('[data-rich-block-select]');
       if (blockSelect) {
         var blockValue = 'paragraph';
         for (var level = 1; level <= 6; level++) {
           if (editor.isActive('heading', { level: level })) { blockValue = 'heading-' + level; break; }
+        }
+        var currentOnly = blockSelect.querySelector('[data-rich-current-block]');
+        if (currentOnly) { currentOnly.remove(); }
+        if (!Array.from(blockSelect.options).some(function (option) { return option.value === blockValue; })) {
+          var currentOption = el('option', { value: blockValue, 'data-rich-current-block': '' });
+          currentOption.textContent = 'H' + blockValue.replace('heading-', '') + ' (' + tr('в тексте') + ')';
+          currentOption.disabled = true;
+          blockSelect.appendChild(currentOption);
         }
         blockSelect.value = blockValue;
       }
@@ -328,6 +506,7 @@ var EnhancedImage = Image.extend({
         root.classList.remove('rich-editor-source-open');
         this.setSourceControls(root, false);
         this.syncToolbar(root, editor);
+        root.dispatchEvent(new Event('rich:mode-change'));
         editor.commands.focus();
         return;
       }
@@ -352,23 +531,25 @@ var EnhancedImage = Image.extend({
           storage.value = cm.getValue();
           storage.setAttribute('data-rich-editor-dirty', '1');
           storage.dispatchEvent(new Event('input', { bubbles: true }));
+          root.dispatchEvent(new Event('rich:source-change'));
         });
       }
 
       var height = Math.max(260, Math.round(surface.getBoundingClientRect().height || 0));
       root._richSourceSyncing = true;
-      root._richSourceEditor.setValue(editor.getHTML());
+      root._richSourceEditor.setValue(storage ? this.syncTextarea(storage, editor) : editor.getHTML());
       root._richSourceSyncing = false;
       root._richSourceEditor.setSize('100%', height);
       root.classList.add('rich-editor-source-open');
       this.setSourceControls(root, true);
       this.syncToolbar(root, editor);
+      root.dispatchEvent(new Event('rich:mode-change'));
       setTimeout(function () { root._richSourceEditor.refresh(); root._richSourceEditor.focus(); }, 0);
     },
 
     setSourceControls: function (root, sourceOpen) {
       root.querySelectorAll('.rich-editor-toolbar [data-rich-command], .rich-editor-toolbar [data-rich-block-select]').forEach(function (control) {
-        if (control.getAttribute('data-rich-command') === 'source') { return; }
+        if (['source', 'fullscreen'].indexOf(control.getAttribute('data-rich-command')) !== -1) { return; }
         control.disabled = !!sourceOpen;
       });
     },

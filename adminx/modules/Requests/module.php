@@ -22,7 +22,7 @@
 	return [
 		'code'    => 'requests',
 		'name'    => 'Запросы',
-		'version' => '0.2.0',
+		'version' => '0.2.1',
 
 		'permissions' => [
 			'key'      => 'requests',
@@ -76,6 +76,7 @@
 			['id' => '012_condition_value_sources', 'file' => 'migrations/012_condition_value_sources.php'],
 			['id' => '013_sort_rules', 'file' => 'migrations/013_sort_rules.php'],
 			['id' => '014_request_revisions', 'file' => 'migrations/014_request_revisions.sql'],
+			['id' => '015_request_description_capacity', 'file' => 'migrations/015_request_description_capacity.php'],
 		],
 
 		'routes' => array(

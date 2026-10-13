@@ -1289,7 +1289,7 @@
         if (host) { allowed[String(host.getAttribute('data-rubric-field-id'))] = true; }
       });
       document.querySelectorAll('.ax-document-field[data-rubric-field-id]').forEach(function (field) {
-        var hide = (limited || tokens.length > 0) && !allowed[String(field.getAttribute('data-rubric-field-id'))];
+        var hide = limited && !allowed[String(field.getAttribute('data-rubric-field-id'))];
         field.classList.toggle('is-catalog-hidden', hide);
       });
       var empty = catalog.querySelector('[data-document-catalog-empty]');
@@ -1377,9 +1377,11 @@
       });
     },
 
-    submit: function (stay) {
+    submit: function (stay, reviewed) {
       if (!this.form || this.submitting) { return; }
       var self = this;
+      if (!reviewed && Adminx.RichEditor && Adminx.RichEditor.reviewBeforeSave
+          && Adminx.RichEditor.reviewBeforeSave(this.form, function () { self.submit(stay, true); })) { return; }
       var id = parseInt(this.field('id').value, 10) || 0;
       this.clearErrors();
       this.syncEditors();
@@ -1426,6 +1428,7 @@
             self.refreshMediaDraft(payload.data.media_draft_token, payload.data.id || id);
           }
 		  self.resetMediaReplacements();
+          self.refreshSavedHeading(payload.data && payload.data.editor_state);
           if (self.form.getAttribute('data-quick-edit') === '1') {
             self.refreshQuickEditOpener(!stay);
             return;
@@ -1622,7 +1625,10 @@
 		  }
 		  control.value = saved[Math.min(index, saved.length - 1)] || '';
 		  if (control._adminxCodeMirror) { control._adminxCodeMirror.setValue(control.value); }
-		  if (control._adminxTiptap) { control._adminxTiptap.commands.setContent(control.value || '<p></p>'); }
+		  if (control._adminxTiptap) {
+		    if (Adminx.RichEditor && Adminx.RichEditor.replaceHtml) { Adminx.RichEditor.replaceHtml(control, control.value); }
+		    else { control._adminxTiptap.commands.setContent(control.value || '<p></p>'); }
+		  }
 		});
 	  });
 	  this.form.querySelectorAll('[data-document-term-input]').forEach(function (field) {
@@ -1677,14 +1683,22 @@
       if (note) { note.remove(); }
       var factId = document.querySelector('[data-document-fact-id]');
       if (factId) { factId.textContent = String(id); }
-      var titleField = this.field('document_title');
+    },
+
+    refreshSavedHeading: function (state) {
+      if (!state) { return; }
       var heading = document.querySelector('[data-document-edit-heading]');
-      var title = titleField ? titleField.value.trim() : '';
-      if (heading && title) { heading.textContent = title; }
-      var status = this.field('document_status');
       var meta = document.querySelector('[data-document-edit-meta]');
-      if (meta) { meta.textContent = 'ID ' + id + ', ' + (status && status.value === '1' ? 'опубликован' : 'черновик') + ', сохранён только что'; }
-      if (title) { document.title = title + ' · AVE.cms'; }
+      if (heading) { heading.textContent = state.title; }
+      if (meta) { meta.textContent = state.meta; }
+      document.querySelectorAll('[data-document-state-badge]').forEach(function (badge) {
+        badge.classList.remove('badge-blue', 'badge-green', 'badge-amber', 'badge-gray');
+        if (['blue', 'green', 'amber', 'gray'].indexOf(state.state_badge) !== -1) {
+          badge.classList.add('badge-' + state.state_badge);
+        }
+        badge.textContent = state.state_label;
+      });
+      document.title = state.title + ' · AVE.cms';
     },
 
     setSaving: function (saving) {
@@ -3671,7 +3685,10 @@
     var selected = target.options[target.selectedIndex];
     var editsField = operation && ['fill', 'set', 'clear', 'replace'].indexOf(operation.value) !== -1;
     var message = editsField && selected ? String(selected.getAttribute('data-help') || '') : '';
-    if (selected && selected.value === 'document_title' && scope && scope.value === 'products') {
+    if (operation && operation.value === 'strip_description_styles') {
+      message = Adminx.tr('Только поле с ролью «Описание товара». Будут удалены атрибуты style, включая отступы, цвета и размеры текста. Другие поля, классы, заголовки и блоки <style> не изменяются. HTML будет нормализован при разборе.');
+    }
+    if (editsField && selected && selected.value === 'document_title' && scope && scope.value === 'products') {
       message = 'Это заголовок документа в панели. Название товара на сайте обычно берётся из поля рубрики, помеченного «витрина: название товара на сайте».';
     }
     var text = help.querySelector('span');
@@ -3702,6 +3719,12 @@
 
   function updateOperation() {
     var value = operation ? operation.value : '';
+    if (scope) {
+      Array.prototype.forEach.call(scope.options || [], function (option) {
+        option.disabled = value === 'strip_description_styles' && option.value !== 'products';
+      });
+      if (value === 'strip_description_styles') { scope.value = 'products'; }
+    }
     var editsField = ['fill', 'set', 'clear', 'replace'].indexOf(value) !== -1;
     setVisibility('[data-bulk-target-wrap]', editsField);
     setVisibility('[data-bulk-search-wrap]', value === 'replace');
@@ -3757,6 +3780,17 @@
     token = plan.token || '';
     var rows = root.querySelector('[data-bulk-preview-rows]');
     rows.replaceChildren();
+    var htmlPreview = plan.operation && plan.operation.type === 'strip_description_styles';
+    function valueCell(value) {
+      var td = cell(htmlPreview ? '' : value, 'documents-bulk-value-cell');
+      if (htmlPreview) {
+        var code = document.createElement('code');
+        code.className = 'documents-bulk-html-preview';
+        code.textContent = value || '';
+        td.appendChild(code);
+      }
+      return td;
+    }
     (plan.sample || []).forEach(function (item) {
       var tr = document.createElement('tr');
       var identity = document.createElement('td');
@@ -3768,10 +3802,15 @@
       identity.appendChild(meta);
       tr.appendChild(identity);
       tr.appendChild(cell(item.rubric));
-      tr.appendChild(cell(item.before, 'documents-bulk-value-cell'));
-      tr.appendChild(cell(item.after, 'documents-bulk-value-cell'));
+      tr.appendChild(valueCell(item.before));
+      tr.appendChild(valueCell(item.after));
       var result = cell(item.changed ? 'Изменится' : (item.note || 'Без изменений'));
       result.className = item.changed ? 'documents-bulk-result is-changed' : 'documents-bulk-result is-skipped';
+      if (item.changed && item.note) {
+        var note = document.createElement('small');
+        note.textContent = item.note;
+        result.appendChild(note);
+      }
       tr.appendChild(result);
       rows.appendChild(tr);
     });

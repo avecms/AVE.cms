@@ -113,6 +113,7 @@
 			$currentMethod = $method;
 			$currentBody = $body;
 			$currentHeaders = $options['headers'];
+			$redirectCookies = array();
 			$started = microtime(true);
 			$requestId = substr(hash('sha256', $method . '|' . $currentUrl . '|' . microtime(true)), 0, 24);
 			self::observe('http.outbound.requesting', 'requesting', $requestId, array(
@@ -139,6 +140,7 @@
 							'redirects' => $redirect,
 							'duration_ms' => (int) round((microtime(true) - $started) * 1000),
 						), array('status' => (int) $response['status'], 'bytes' => (int) $response['bytes']), $options['source']);
+						unset($response['set_cookies']);
 						return $response;
 					}
 
@@ -148,12 +150,26 @@
 
 					$nextUrl = self::redirectUrl($target['url'], (string) $response['headers']['location']);
 					$nextTarget = self::resolve($nextUrl, $options);
-					if (self::origin($target) !== self::origin($nextTarget)) {
+					$sameOrigin = self::origin($target) === self::origin($nextTarget);
+					if (!$sameOrigin && $options['same_origin_redirects']) {
+						throw new \RuntimeException('Удалённый сервер перенаправил запрос на другой хост');
+					}
+
+					if (!$sameOrigin) {
 						$currentHeaders = self::withoutSensitiveHeaders($currentHeaders);
+						$redirectCookies = array();
+					} elseif ($options['redirect_cookies']) {
+						foreach (self::redirectCookiePairs($response['set_cookies']) as $name => $value) {
+							$redirectCookies[$name] = $value;
+						}
+
+						if ($redirectCookies) {
+							$currentHeaders = self::withCookieHeader($currentHeaders, $redirectCookies);
+						}
 					}
 
 					$currentUrl = $nextTarget['url'];
-					if ($response['status'] === 303 || (($response['status'] === 301 || $response['status'] === 302) && $currentMethod === 'POST')) {
+					if ($response['status'] === 303 || (($response['status'] === 301 || ($response['status'] === 302 && !$options['preserve_post_on_302'])) && $currentMethod === 'POST')) {
 						$currentMethod = 'GET';
 						$currentBody = null;
 					}
@@ -178,6 +194,7 @@
 			$bytes = 0;
 			$overflow = false;
 			$responseHeaders = array();
+			$setCookies = array();
 			$headerOverflow = false;
 			$file = null;
 			if ($options['download_path'] !== '' && $method !== 'HEAD') {
@@ -200,10 +217,11 @@
 				CURLOPT_USERAGENT => $options['user_agent'],
 				CURLOPT_HTTPHEADER => $headers,
 				CURLOPT_RESOLVE => array($target['host'] . ':' . $target['port'] . ':' . $resolveIp),
-				CURLOPT_HEADERFUNCTION => function ($curl, $line) use (&$responseHeaders, &$headerOverflow, $options) {
+				CURLOPT_HEADERFUNCTION => function ($curl, $line) use (&$responseHeaders, &$setCookies, &$headerOverflow, $options) {
 					$length = strlen($line);
 					if (stripos($line, 'HTTP/') === 0) {
 						$responseHeaders = array();
+						$setCookies = array();
 						return $length;
 					}
 
@@ -214,6 +232,7 @@
 
 					$name = strtolower(trim(substr($line, 0, $position)));
 					$value = trim(substr($line, $position + 1));
+					if ($name === 'set-cookie') { $setCookies[] = $value; }
 					if ($name === 'content-length' && ctype_digit($value) && (int) $value > $options['max_bytes']) {
 						$headerOverflow = true;
 						return 0;
@@ -266,7 +285,7 @@
 				throw new \RuntimeException('Удалённый сервер изменил проверенный сетевой адрес');
 			}
 
-			return array('status' => $status, 'headers' => $responseHeaders, 'body' => $buffer, 'bytes' => $bytes);
+			return array('status' => $status, 'headers' => $responseHeaders, 'set_cookies' => $setCookies, 'body' => $buffer, 'bytes' => $bytes);
 		}
 
 		protected static function resolve($url, array $options)
@@ -443,6 +462,9 @@
 				'source' => 'runtime',
 				'download_path' => '',
 				'allow_http_errors' => false,
+				'preserve_post_on_302' => false,
+				'same_origin_redirects' => false,
+				'redirect_cookies' => false,
 				'allowed_private_hosts' => array(),
 			), $options);
 			$options['allowed_schemes'] = array_values(array_intersect(array('http', 'https'), array_map('strtolower', (array) $options['allowed_schemes'])));
@@ -453,6 +475,9 @@
 			$options['max_bytes'] = max(1, min(104857600, (int) $options['max_bytes']));
 			$options['download_path'] = isset($options['download_path']) ? (string) $options['download_path'] : '';
 			$options['allow_http_errors'] = !empty($options['allow_http_errors']);
+			$options['preserve_post_on_302'] = !empty($options['preserve_post_on_302']);
+			$options['same_origin_redirects'] = !empty($options['same_origin_redirects']);
+			$options['redirect_cookies'] = !empty($options['redirect_cookies']);
 			$options['allowed_private_hosts'] = array_values(array_unique(array_filter(array_map(function ($host) {
 				try { return self::asciiHost($host); } catch (\Throwable $e) { return ''; }
 			}, (array) $options['allowed_private_hosts']))));
@@ -525,6 +550,33 @@
 			return array_values(array_filter($headers, function ($header) {
 				return !preg_match('/^(?:authorization|cookie|proxy-authorization)\s*:/i', (string) $header);
 			}));
+		}
+
+		protected static function redirectCookiePairs(array $headers)
+		{
+			$pairs = array();
+			foreach ($headers as $header) {
+				$part = trim(strtok((string) $header, ';'));
+				$position = strpos($part, '=');
+				if ($position === false) { continue; }
+				$name = trim(substr($part, 0, $position));
+				$value = trim(substr($part, $position + 1));
+				if (!preg_match('/^[A-Za-z0-9!#$%&\x27*+.^_`|~-]+$/D', $name) || preg_match('/[\r\n;]/', $value)) { continue; }
+				$pairs[$name] = $value;
+			}
+
+			return $pairs;
+		}
+
+		protected static function withCookieHeader(array $headers, array $cookies)
+		{
+			$headers = array_values(array_filter($headers, function ($header) {
+				return !preg_match('/^cookie\s*:/i', (string) $header);
+			}));
+			$pairs = array();
+			foreach ($cookies as $name => $value) { $pairs[] = $name . '=' . $value; }
+			$headers[] = 'Cookie: ' . implode('; ', $pairs);
+			return $headers;
 		}
 
 		protected static function origin(array $target)

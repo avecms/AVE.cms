@@ -173,6 +173,7 @@
 
 	$authUser && Auth::ensureBrowserToken();
 	$canAdmin = $authUser !== null && Permission::checkAcp('admin_panel');
+	$isAttentionPoll = $requestPath === '/dashboard/attention';
 	$forcePasswordPath = in_array($requestPath, array('/account/password', '/logout', '/locale'), true);
 	if ($canAdmin && !empty($authUser['must_change_password']) && !$forcePasswordPath) {
 		if (Request::isAjax()) {
@@ -235,7 +236,7 @@
 
 	$canClearCache = Permission::check('manage_settings');
 	$cacheSizes = array();
-	if ($canClearCache) {
+	if ($canClearCache && !$isAttentionPoll) {
 		$cacheSizes = Cache::remember('adminx.cache.sizes.' . md5((string) ADMINX_BASE), 30, function () {
 			$out = array();
 			foreach (\App\Adminx\Settings\Model::cacheRows() as $row) {
@@ -252,7 +253,7 @@
 		'user_name'  => $authUser['name'] ?? '',
 		'user_email' => $authUser['email'] ?? '',
 		'user_role'  => $authUser['role'] ?? '',
-		'module_header_actions' => $canAdmin
+		'module_header_actions' => $canAdmin && !$isAttentionPoll
 			? \App\Adminx\Support\ModuleExtensions::headerActions()
 			: array(),
 		'can_clear_cache' => $canClearCache,
@@ -265,7 +266,7 @@
 	//-- Сводка уведомлений в шапке (новые заказы/письма) — только для админа.
 	$notifications = array('total' => 0, 'orders' => 0, 'messages' => 0, 'items' => array());
 	$notificationPreferences = array();
-	if ($canAdmin) {
+	if ($canAdmin && !$isAttentionPoll) {
 		$notificationPreferences = \App\Adminx\Support\ModuleExtensions::notificationPreferences();
 		$notificationKey = 'adminx.notifications.' . (int) Auth::id() . '.' . md5((string) ADMINX_BASE);
 		$notifications = Cache::remember($notificationKey, 15, function () {
@@ -279,6 +280,18 @@
 		'notification_preferences' => $notificationPreferences,
 		'can_manage_notification_preferences' => Permission::check('manage_settings'),
 	));
+
+	$attention = array('items' => array());
+	$dashboardModule = \App\Common\ModuleManager::get('dashboard');
+	if ($canAdmin && !empty($dashboardModule['enabled'])) {
+		$attention = \App\Adminx\Dashboard\Attention::summary(ADMINX_BASE);
+		if ($attention['items'] && !$isAttentionPoll) {
+			AdminAssets::addStyle(ADMINX_BASE . '/modules/Dashboard/assets/attention.css', 55);
+			AdminAssets::addScript(ADMINX_BASE . '/modules/Dashboard/assets/attention.js', 55);
+		}
+	}
+
+	Twig::addGlobals(array('attention' => $attention, 'attention_user_id' => (int) Auth::id()));
 
 	if (!$isPublic && !$canAdmin) {
 		if (Request::isAjax()) {

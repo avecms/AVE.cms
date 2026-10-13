@@ -216,6 +216,12 @@
 			return false;
 		}
 
+		/** Installation defaults become project-owned and must survive core updates. */
+		public static function preservedPath($logicalPath)
+		{
+			return in_array(strtolower(self::normalizeLogicalPath($logicalPath)), array('.htaccess', 'robots.txt'), true);
+		}
+
 		public static function lockFile()
 		{
 			return BASEPATH . '/storage/installed.lock';

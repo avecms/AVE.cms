@@ -31,6 +31,16 @@
 	 */
 	class Controller extends BaseController
 	{
+		public function attention(array $params = array())
+		{
+			if (!\App\Common\Auth::user() || !\App\Common\Permission::checkAcp('admin_panel')) {
+				return $this->error('Недостаточно прав', array(), 403);
+			}
+
+			\App\Helpers\Request::setHeader('Cache-Control: private, no-store', true);
+			return $this->success('', array('data' => Attention::summary($this->base())));
+		}
+
 		/** GET / и /dashboard */
 		public function index(array $params = [])
 		{

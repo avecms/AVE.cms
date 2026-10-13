@@ -21,7 +21,7 @@
 	return [
 		'code'    => 'users',
 		'name'    => 'Пользователи',
-		'version' => '0.3.1',
+		'version' => '0.3.2',
 
 		'permissions' => [
 			'key'      => 'users',
@@ -78,6 +78,7 @@
 			['id' => '002_harden_public_remember_tokens', 'file' => 'migrations/002_harden_public_remember_tokens.php'],
 			['id' => '003_system_user_security', 'file' => 'migrations/003_system_user_security.php'],
 			['id' => '004_system_session_expiry', 'file' => 'migrations/004_system_session_expiry.php'],
+			['id' => '005_public_session_capacity', 'file' => 'migrations/005_public_session_capacity.sql'],
 		],
 
 		'admin_extension' => array(

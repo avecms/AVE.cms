@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language>
+	<phrase data="media_trash_clear">Очистить корзину</phrase>
+	<phrase data="media_trash_clear_confirm">Очистить корзину медиа?</phrase>
+	<phrase data="media_trash_clear_warning">Все объекты, показанные в корзине, будут удалены окончательно. Восстановить их будет нельзя.</phrase>
+	<phrase data="media_trash_clear_error">Не удалось очистить корзину</phrase>
+	<phrase data="media_trash_files_error">Не удалось удалить файлы корзины. Проверьте права доступа.</phrase>
+	<phrase data="media_trash_entry_error">Не удалось удалить запись корзины. Проверьте права доступа.</phrase>
+</language>

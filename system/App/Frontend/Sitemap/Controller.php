@@ -58,7 +58,7 @@
 			$xml = self::declaration() . "\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
 			for ($part = 1; $part <= $parts; $part++) {
 				$xml .= "  <sitemap><loc>" . self::escape(rtrim(HOST, '/') . '/sitemap-' . $part . '.xml')
-					. '</loc><lastmod>' . date('c') . "</lastmod></sitemap>\n";
+					. "</loc></sitemap>\n";
 			}
 
 			return $xml . '</sitemapindex>';
@@ -69,7 +69,8 @@
 			$frequencies = array('always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never');
 			$xml = self::declaration() . "\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
 			if ($includeHome) {
-				$xml .= self::url(rtrim(HOST, '/') . '/', time(), 'weekly', '0.8');
+				$home = Repository::home();
+				if ($home) { array_unshift($rows, $home); }
 			}
 
 			foreach ($rows as $row) {
@@ -79,8 +80,8 @@
 					: 'weekly';
 				$changed = !empty($row['document_changed']) ? (int) $row['document_changed'] : (int) $row['document_published'];
 				$xml .= self::url(
-					rtrim(HOST, '/') . '/' . ltrim((string) $row['document_alias'], '/') . URL_SUFF,
-					$changed > 0 ? $changed : time(),
+					(int) $row['Id'] === 1 ? rtrim(HOST, '/') . '/' : rtrim(HOST, '/') . '/' . ltrim((string) $row['document_alias'], '/') . URL_SUFF,
+					$changed,
 					$frequency,
 					(string) $row['document_sitemap_pr']
 				);
@@ -91,8 +92,9 @@
 
 		protected static function url($location, $timestamp, $frequency, $priority)
 		{
-			return '  <url><loc>' . self::escape($location) . '</loc><lastmod>' . date('c', $timestamp)
-				. '</lastmod><changefreq>' . self::escape($frequency) . '</changefreq><priority>'
+			return '  <url><loc>' . self::escape($location) . '</loc>'
+				. ($timestamp > 0 ? '<lastmod>' . date('c', $timestamp) . '</lastmod>' : '')
+				. '<changefreq>' . self::escape($frequency) . '</changefreq><priority>'
 				. self::escape($priority) . "</priority></url>\n";
 		}
 
