@@ -20,6 +20,7 @@
 }
 .settings-card {
   padding: 0;
+  min-width: 0;
 }
 .settings-layout-card {
   overflow: hidden;
@@ -106,6 +107,7 @@
 }
 .settings-stack {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
 }
 .settings-section-head {
@@ -121,6 +123,10 @@
   align-items: flex-start;
   gap: 12px;
   min-width: 0;
+}
+.settings-section-title > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .settings-head-icon {
   width: 34px;
@@ -474,6 +480,60 @@
 .settings-maintenance-actions > div .btn {
   grid-column: 2;
   grid-row: 1 / span 2;
+}
+.settings-session-body {
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.settings-session-body .alert,
+.settings-session-body p {
+  margin: 0;
+}
+.settings-session-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  margin: 0;
+}
+.settings-session-stats dt {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.settings-session-stats dd {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.settings-session-progress-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  min-height: 32px;
+  font-variant-numeric: tabular-nums;
+}
+.settings-session-error {
+  overflow-wrap: anywhere;
+}
+.settings-session-progress[hidden],
+[data-session-stop][hidden] {
+  display: none;
+}
+[data-session-maintenance] .settings-section-head {
+  flex-wrap: wrap;
+}
+[data-session-maintenance] .settings-section-head .settings-section-title {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+[data-session-maintenance] .settings-section-head > .btn {
+  flex: 0 1 auto;
+  white-space: normal;
 }
 .settings-maintenance-breakdown {
   grid-column: 1 / -1;

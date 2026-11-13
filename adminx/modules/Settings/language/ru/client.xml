@@ -64,4 +64,10 @@
 	<phrase data="runtime_b27389d8c15db395">Константа не найдена</phrase>
 	<phrase data="runtime_babdb58139be97ea">Настройки сохранены</phrase>
 	<phrase data="runtime_e70084d8c3dab3fe">Данные очищены</phrase>
+	<phrase data="settings_sessions_confirm">Очистить просроченные сессии?</phrase>
+	<phrase data="settings_sessions_confirm_hint">Действующие сессии, заказы и сохранённые брошенные корзины останутся. Очистка выполняется порциями; дождитесь завершения на этой странице.</phrase>
+	<phrase data="settings_sessions_working">Очистка…</phrase>
+	<phrase data="settings_sessions_count">Удалено сессий:</phrase>
+	<phrase data="settings_sessions_done">Очистка завершена.</phrase>
+	<phrase data="settings_sessions_stopped">Очистка остановлена.</phrase>
 </language>

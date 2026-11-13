@@ -21,6 +21,7 @@
 
   function normalizeMode(mode) {
     if (!mode) { return 'htmlmixed'; }
+    if (mode === 'html') { return 'htmlmixed'; }
     if (mode === 'php') { return 'application/x-httpd-php'; }
     if (mode === 'smarty') { return 'smartymixed'; }
     if (mode === 'js') { return 'text/javascript'; }

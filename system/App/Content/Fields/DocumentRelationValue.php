@@ -104,6 +104,10 @@
 				$candidates[] = (int) $raw;
 			} elseif (ctype_digit($raw)) {
 				$candidates[] = (int) $raw;
+			} elseif (preg_match('/^[0-9|,;\s]+$/D', $raw)) {
+				foreach (preg_split('/[|,;\s]+/', $raw, -1, PREG_SPLIT_NO_EMPTY) as $part) {
+					$candidates[] = (int) $part;
+				}
 			} else {
 				foreach (preg_split('/[,;\s]+/', $raw, -1, PREG_SPLIT_NO_EMPTY) as $part) {
 					if (preg_match('/(?:^|\|)(\d+)(?:\|)?$/', trim((string) $part), $match)) {

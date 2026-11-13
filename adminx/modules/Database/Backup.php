@@ -17,6 +17,8 @@
 	defined('BASEPATH') || die('Direct access to this location is not allowed.');
 
 	use App\Common\Settings;
+	use App\Common\DatabaseConfiguration;
+	use App\Common\Db\Core\MysqliDriver;
 	use DB;
 
 	/**
@@ -229,8 +231,10 @@
 			gzwrite($fp, "-- AVE.cms full dump\n-- database: " . Model::databaseName() . "\n-- prefixes: {{prefix}}\n-- source-prefix: " . Model::basePrefix() .
 				"\n-- date: " . date('Y-m-d H:i:s') . "\n\nSET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS=0;\n\n");
 
-			$mysqli = DB::mysqli();
+			$driver = null;
 			try {
+				$driver = self::openSnapshot();
+				$mysqli = $driver->getMysqli();
 				$total = count($tables);
 				foreach ($tables as $index => $table) {
 					self::notify($progress, array(
@@ -254,6 +258,11 @@
 				flock($lock, LOCK_UN);
 				fclose($lock);
 				throw $e;
+			} finally {
+				if ($driver !== null) {
+					$driver->getMysqli()->rollback();
+					$driver->close();
+				}
 			}
 
 			flock($lock, LOCK_UN);
@@ -284,24 +293,22 @@
 			$portableTable = Model::portableTableName($table);
 			gzwrite($fp, "\n-- ----- Table `{$portableTable}` -----\nDROP TABLE IF EXISTS `{$portableTable}`;\n");
 
-			$create = (array) DB::query('SHOW CREATE TABLE `' . $table . '`')->getObject();
+			$result = $mysqli->query('SHOW CREATE TABLE `' . $table . '`');
+			if (!$result) { throw new \RuntimeException('Не удалось прочитать структуру таблицы ' . $table . ': ' . $mysqli->error); }
+			$create = $result->fetch_assoc();
+			$result->free();
 			$ddl = isset($create['Create Table']) ? $create['Create Table'] : '';
 			$enumFallbacks = SqlDumpReader::enumFallbacks($ddl);
 			if ($ddl !== '') {
 				gzwrite($fp, self::portableDdl($ddl) . ";\n\n");
 			}
 
-			//-- Данные пакетами, чтобы не держать всё в памяти.
-			$offset = 0;
-			$batch = 500;
-			do {
-				$rows = DB::query('SELECT * FROM `' . $table . '` LIMIT ' . $batch . ' OFFSET ' . $offset)->getAll();
-				if (!$rows) {
-					break;
-				}
-
-				foreach ($rows as $row) {
-					$row = (array) $row;
+			// A single streaming SELECT cannot repeat or skip rows when writers change offsets.
+			$result = $mysqli->query('SELECT * FROM `' . $table . '`', MYSQLI_USE_RESULT);
+			if (!$result) { throw new \RuntimeException('Не удалось прочитать таблицу ' . $table . ': ' . $mysqli->error); }
+			$count = 0;
+			try {
+				while ($row = $result->fetch_assoc()) {
 					$cols = array();
 					$vals = array();
 					foreach ($row as $col => $val) {
@@ -318,20 +325,38 @@
 					}
 
 					gzwrite($fp, 'INSERT INTO `' . $portableTable . '` (' . implode(',', $cols) . ') VALUES (' . implode(',', $vals) . ");\n");
+					$count++;
+					if ($count % 5000 === 0) {
+						self::notify($progress, array('table' => $table, 'current' => (int) $current, 'total' => (int) $total, 'rows' => $count));
+					}
 				}
 
-				$offset += $batch;
-				if ($offset === $batch || $offset % 5000 === 0 || count($rows) < $batch) {
-					self::notify($progress, array(
-						'table' => $table,
-						'current' => (int) $current,
-						'total' => (int) $total,
-						'rows' => $offset,
-					));
-				}
-			} while (count($rows) === $batch);
+				if ($mysqli->errno) { throw new \RuntimeException('Ошибка чтения таблицы ' . $table . ': ' . $mysqli->error); }
+			} finally {
+				$result->free();
+			}
+
+			self::notify($progress, array('table' => $table, 'current' => (int) $current, 'total' => (int) $total, 'rows' => $count));
 
 			gzwrite($fp, "\n");
+		}
+
+		/** Keep the read snapshot independent of the caller and progress callbacks. */
+		protected static function openSnapshot()
+		{
+			$config = DatabaseConfiguration::all();
+			$config['dbname'] = Model::databaseName();
+			$driver = new MysqliDriver($config);
+			try {
+				foreach (array('SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ', 'START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY') as $sql) {
+					if (!$driver->query($sql)) { throw new \RuntimeException('Не удалось открыть согласованный снимок БД: ' . $driver->error()); }
+				}
+			} catch (\Throwable $e) {
+				$driver->close();
+				throw $e;
+			}
+
+			return $driver;
 		}
 
 		/** Заменяет префикс только внутри SQL-идентификаторов, не затрагивая данные строк. */

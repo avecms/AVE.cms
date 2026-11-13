@@ -13,6 +13,7 @@
     dirty: false,
     layoutDrag: null,
     sectionDrag: null,
+    sessionCleanup: null,
 
     init: function () {
       this.root = document.querySelector('[data-settings-page]');
@@ -34,6 +35,11 @@
         if (cacheClear) { self.clearCache(cacheClear.getAttribute('data-cache-clear')); }
         var maintenanceClear = e.target.closest('[data-maintenance-clear]');
         if (maintenanceClear) { self.clearMaintenance(maintenanceClear.getAttribute('data-maintenance-clear')); }
+        if (e.target.closest('[data-session-cleanup]')) { self.confirmSessionCleanup(); }
+        if (e.target.closest('[data-session-stop]') && self.sessionCleanup) {
+          self.sessionCleanup.stopped = true;
+          e.target.closest('[data-session-stop]').disabled = true;
+        }
         var systemFile = e.target.closest('[data-system-file-edit]');
         if (systemFile) { self.openSystemFile(systemFile.getAttribute('data-system-file-edit')); }
         if (e.target.closest('[data-constant-new]')) { self.fillConstantNew(); }
@@ -431,6 +437,70 @@
           }).catch(function () { Adminx.Loader.hide(); Adminx.Toast.show('Ошибка сети', 'error'); });
         }
       });
+    },
+
+    confirmSessionCleanup: function () {
+      if (this.sessionCleanup) { return; }
+      var self = this;
+      Adminx.Confirm.open({
+        kind: 'warning',
+        title: 'Очистить просроченные сессии?',
+        message: 'Действующие сессии, заказы и сохранённые брошенные корзины останутся. Очистка выполняется порциями; дождитесь завершения на этой странице.',
+        confirmLabel: 'Очистить',
+        onConfirm: function () {
+          if (self.sessionCleanup) { return; }
+          var root = document.querySelector('[data-session-maintenance]');
+          self.sessionCleanup = {root: root, count: 0, total: Number(root.querySelector('[data-session-expired]').textContent) || 0, cutoff: 0, stopped: false};
+          root.querySelector('[data-session-cleanup]').disabled = true;
+          root.querySelector('[data-session-progress]').hidden = false;
+          root.querySelector('[data-session-progress-bar]').style.width = '0%';
+          root.querySelector('[role=progressbar]').setAttribute('aria-valuenow', '0');
+          root.querySelector('[data-session-progress-status]').textContent = Adminx.tr('Очистка…');
+          root.querySelector('[data-session-stop]').hidden = false;
+          root.querySelector('[data-session-stop]').disabled = false;
+          self.clearSessionBatch();
+        }
+      });
+    },
+
+    clearSessionBatch: function () {
+      var self = this;
+      var job = this.sessionCleanup;
+      if (!job) { return; }
+      if (job.stopped) { self.finishSessionCleanup(false); return; }
+      var form = new FormData();
+      form.append('cutoff', String(job.cutoff));
+      Adminx.Ajax.post(self.base() + '/settings/maintenance/sessions/clear', form).then(function (payload) {
+        var response = payload.data || {};
+        if (!payload.ok || !response.success || !response.data) {
+          throw new Error(response.message || Adminx.tr('Не удалось очистить данные'));
+        }
+        var result = response.data;
+        job.cutoff = result.cutoff;
+        job.count += Number(result.count) || 0;
+        var percent = result.done ? 100 : Math.min(99, Math.round(100 * job.count / Math.max(1, job.total)));
+        job.root.querySelector('[data-session-progress-bar]').style.width = percent + '%';
+        job.root.querySelector('[role=progressbar]').setAttribute('aria-valuenow', String(percent));
+        job.root.querySelector('[data-session-expired]').textContent = String(Math.max(0, job.total - job.count));
+        job.root.querySelector('[data-session-progress-status]').textContent = Adminx.tr('Удалено сессий:') + ' ' + job.count;
+        if (result.done || job.stopped) {
+          self.finishSessionCleanup(Boolean(result.done));
+        } else {
+          window.setTimeout(function () { self.clearSessionBatch(); }, 200);
+        }
+      }).catch(function (error) { self.finishSessionCleanup(false, error.message || Adminx.tr('Ошибка сети')); });
+    },
+
+    finishSessionCleanup: function (done, error) {
+      var job = this.sessionCleanup;
+      if (!job) { return; }
+      job.root.querySelector('[data-session-cleanup]').disabled = false;
+      job.root.querySelector('[data-session-stop]').hidden = true;
+      var message = (done ? Adminx.tr('Очистка завершена.') : Adminx.tr('Очистка остановлена.')) + ' ' + Adminx.tr('Удалено сессий:') + ' ' + job.count;
+      if (done) { job.root.querySelector('[data-session-expired]').textContent = '0'; }
+      job.root.querySelector('[data-session-progress-status]').textContent = error ? message + '. ' + error : message;
+      Adminx.Toast.show(error || message, error ? 'error' : (done ? 'success' : 'info'));
+      this.sessionCleanup = null;
     },
 
     openSystemFile: function (code) {

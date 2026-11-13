@@ -17,6 +17,7 @@
 	defined("BASEPATH") || die ('Direct access to this location is not allowed.');
 
 	use App\Content\PublicShellTables;
+	use App\Common\WebMaintenance;
 	use DB;
 
 	class SessionDB
@@ -86,13 +87,81 @@
 			return DB::Delete(PublicShellTables::table('sessions'), 'sesskey = %s', $sessionId);
 		}
 
-		/**
-		 * Удалить истёкшие сессии.
-		 * expire хранит абсолютный timestamp, поэтому сравниваем с time(), а не с time()-maxlifetime.
-		 */
 		public static function gc($maxlifetime)
 		{
-			return (bool) DB::Delete(PublicShellTables::table('sessions'), 'expiry < %i', time());
+			try {
+				if (!WebMaintenance::scheduleSessionCleanup()) {
+					WebMaintenance::pruneDatabaseSessions();
+				}
+
+				return true;
+			} catch (\Throwable $e) {
+				error_log('Session garbage collection failed: ' . $e->getMessage());
+				return false;
+			}
+		}
+
+		/** Delete one indexed batch; never rebuild or optimize the session table here. */
+		public static function pruneExpired($limit = 1000, $cutoff = null)
+		{
+			$limit = max(1, min(1000, (int) $limit));
+			$table = PublicShellTables::table('sessions');
+			$previousMode = DB::$throw_exception_on_error;
+			DB::$throw_exception_on_error = true;
+			$timeouts = null;
+
+			try {
+				$timeouts = DB::query('SELECT @@SESSION.innodb_lock_wait_timeout row_wait, @@SESSION.lock_wait_timeout metadata_wait')->getAssoc();
+				DB::query('SET SESSION innodb_lock_wait_timeout=1, SESSION lock_wait_timeout=1');
+				$expiryIndex = self::expiryIndex($table);
+				$cutoff = self::expirationCutoff($cutoff);
+				$keys = array_column(DB::query('SELECT sesskey FROM %b FORCE INDEX (%b) WHERE expiry <= %i ORDER BY expiry ASC LIMIT %i', $table, $expiryIndex, $cutoff, $limit)->getAll(), 'sesskey');
+				if (!$keys) { return 0; }
+				// Recheck expiry after selection: a concurrent request may renew a session.
+				DB::query('DELETE s FROM %b s FORCE INDEX (PRIMARY) WHERE s.sesskey IN %ls AND s.expiry <= %i', $table, $keys, $cutoff);
+				return (int) DB::affectedRows();
+			} finally {
+				try {
+					if ($timeouts) {
+						DB::query('SET SESSION innodb_lock_wait_timeout=%i, SESSION lock_wait_timeout=%i', (int) $timeouts['row_wait'], (int) $timeouts['metadata_wait']);
+					}
+				} finally {
+					DB::$throw_exception_on_error = $previousMode;
+				}
+			}
+		}
+
+		/** Exact index-only counts for the maintenance screen, not the public request path. */
+		public static function expirationStats()
+		{
+			$table = PublicShellTables::table('sessions');
+			$cutoff = time();
+			$row = DB::query('SELECT COUNT(*) total, COALESCE(SUM(expiry <= %i),0) expired FROM %b FORCE INDEX (%b)', $cutoff, $table, self::expiryIndex($table))->getAssoc();
+			$expired = (int) $row['expired'];
+			return array('expired' => $expired, 'active' => (int) $row['total'] - $expired, 'cutoff' => $cutoff);
+		}
+
+		public static function hasExpired($cutoff = null)
+		{
+			$table = PublicShellTables::table('sessions');
+			return (bool) DB::query('SELECT 1 FROM %b FORCE INDEX (%b) WHERE expiry <= %i LIMIT 1', $table, self::expiryIndex($table), self::expirationCutoff($cutoff))->getValue();
+		}
+
+		protected static function expirationCutoff($cutoff)
+		{
+			return $cutoff === null ? time() : max(0, min(time(), (int) $cutoff));
+		}
+
+		protected static function expiryIndex($table)
+		{
+			foreach (DB::query('SHOW INDEX FROM %b', $table)->getAll() as $index) {
+				if ((int) $index['Seq_in_index'] === 1 && strtolower((string) $index['Column_name']) === 'expiry'
+					&& strtoupper((string) $index['Index_type']) === 'BTREE') {
+					return (string) $index['Key_name'];
+				}
+			}
+
+			throw new \RuntimeException('Session cleanup requires an index starting with expiry in ' . $table);
 		}
 
 		public function __destruct()

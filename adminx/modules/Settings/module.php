@@ -17,7 +17,7 @@
 	return array(
 		'code' => 'settings',
 		'name' => 'Настройки',
-		'version' => '0.1.4',
+		'version' => '0.1.5',
 
 		'permissions' => array(
 			'key' => 'settings',

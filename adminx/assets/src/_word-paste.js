@@ -3,6 +3,45 @@ export function isWordHtml(html) {
   return /\bmso-|class=["']?Mso|urn:schemas-microsoft-com:office|Microsoft Word/i.test(html);
 }
 
+function normalizeClipboardDocument(doc) {
+  doc.querySelectorAll('br.Apple-interchange-newline, br.ProseMirror-trailingBreak').forEach(node => node.remove());
+  const block = /^(?:BODY|DIV|SECTION|ARTICLE|MAIN|P|H[1-6]|BLOCKQUOTE|PRE|UL|OL|LI|TABLE|THEAD|TBODY|TFOOT|TR|TD|TH|HR)$/;
+  const whitespace = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+  const remove = [];
+  while (whitespace.nextNode()) {
+    const node = whitespace.currentNode;
+    if (node.textContent.trim() || node.parentElement.closest('pre, code')) { continue; }
+    // HTML indentation between blocks is not an empty paragraph or a hard break.
+    if (block.test((node.previousSibling || {}).nodeName) || block.test((node.nextSibling || {}).nodeName)) {
+      remove.push(node);
+    }
+  }
+  remove.forEach(node => node.remove());
+
+  function padding(node) {
+    if (node.nodeType === 3) { return !node.textContent.replace(/[\s\u200b\ufeff]/g, ''); }
+    if (node.nodeType !== 1 || !/^(?:P|DIV|SPAN|BR)$/.test(node.nodeName)) { return false; }
+    return !node.textContent.replace(/[\s\u200b\ufeff]/g, '') &&
+      Array.from(node.querySelectorAll('*')).every(child => /^(?:P|DIV|SPAN|BR|STRONG|B|EM|I|U|S|STRIKE|DEL)$/.test(child.nodeName));
+  }
+  function trimEdge(parent, edge) {
+    while (parent[edge] && padding(parent[edge])) { parent[edge].remove(); }
+    const node = parent[edge];
+    if (node && /^(?:DIV|SECTION|ARTICLE|MAIN)$/.test(node.nodeName)) { trimEdge(node, edge); }
+  }
+  // Trim only the fragment edges; intentional blank paragraphs inside it stay intact.
+  if (Array.from(doc.body.children).some(node => block.test(node.nodeName)) &&
+      Array.from(doc.body.childNodes).some(node => !padding(node))) {
+    trimEdge(doc.body, 'firstChild');
+    trimEdge(doc.body, 'lastChild');
+  }
+  return doc.body.innerHTML;
+}
+
+export function cleanClipboardHtml(html) {
+  return normalizeClipboardDocument(new DOMParser().parseFromString(html, 'text/html'));
+}
+
 export function cleanWordHtml(html) {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   doc.querySelectorAll('script,style,meta,link,iframe,object,embed,svg,math,form,input,button').forEach(node => node.remove());
@@ -86,5 +125,5 @@ export function cleanWordHtml(html) {
       node.replaceWith(...Array.from(node.childNodes));
     }
   });
-  return doc.body.innerHTML;
+  return normalizeClipboardDocument(doc);
 }

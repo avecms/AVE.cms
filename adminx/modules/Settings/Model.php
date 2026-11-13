@@ -18,6 +18,9 @@
 
 	use App\Common\Cache;
 	use App\Common\Settings;
+	use App\Common\Lock;
+	use App\Common\Session\SessionDB;
+	use App\Common\WebMaintenance;
 	use App\Common\FileCacheInvalidator;
 	use App\Common\SystemTables;
 	use App\Content\CatalogTables;
@@ -299,8 +302,36 @@
 			);
 		}
 
-		public static function clearMaintenance($target)
+		public static function publicSessionStatus()
 		{
+			$previousMode = DB::$throw_exception_on_error;
+			DB::$throw_exception_on_error = true;
+			try {
+				return array_merge(array('available' => true, 'error' => ''), SessionDB::expirationStats(), WebMaintenance::sessionCleanupStatus());
+			} catch (\Throwable $e) {
+				return array('available' => false, 'error' => $e->getMessage());
+			} finally {
+				DB::$throw_exception_on_error = $previousMode;
+			}
+		}
+
+		public static function clearMaintenance($target, $cutoff = 0)
+		{
+			if ((string) $target === 'sessions') {
+				if (DB::$transaction_in_progress) { throw new \RuntimeException('Очистка сессий недоступна внутри транзакции.'); }
+				$cutoff = (int) $cutoff > 0 ? min(time(), (int) $cutoff) : time();
+				$previousMode = DB::$throw_exception_on_error;
+				DB::$throw_exception_on_error = true;
+				try {
+					return Lock::run('web-maintenance:sessions:v1:' . PublicShellTables::table('sessions'), function () use ($cutoff) {
+						$count = SessionDB::pruneExpired(1000, $cutoff);
+						return array('target' => 'sessions', 'count' => $count, 'done' => !SessionDB::hasExpired($cutoff), 'cutoff' => $cutoff);
+					}, 0.0, true);
+				} finally {
+					DB::$throw_exception_on_error = $previousMode;
+				}
+			}
+
 			$tables = array(
 				'views' => ContentTables::table('view_count'),
 			);

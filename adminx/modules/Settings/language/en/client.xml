@@ -64,4 +64,10 @@
 	<phrase data="runtime_b27389d8c15db395">Constant not found</phrase>
 	<phrase data="runtime_babdb58139be97ea">Settings saved</phrase>
 	<phrase data="runtime_e70084d8c3dab3fe">Data cleared</phrase>
+	<phrase data="settings_sessions_confirm">Clear expired sessions?</phrase>
+	<phrase data="settings_sessions_confirm_hint">Valid sessions, orders and saved abandoned carts will remain. Cleanup runs in batches; keep this page open until it finishes.</phrase>
+	<phrase data="settings_sessions_working">Cleaning up...</phrase>
+	<phrase data="settings_sessions_count">Sessions deleted:</phrase>
+	<phrase data="settings_sessions_done">Cleanup completed.</phrase>
+	<phrase data="settings_sessions_stopped">Cleanup stopped.</phrase>
 </language>

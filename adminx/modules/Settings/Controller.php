@@ -71,6 +71,7 @@
 			} elseif ($section === 'maintenance') {
 				$data['cache_rows'] = Model::cacheRows();
 				$data['maintenance_counts'] = Model::maintenanceCounts();
+				$data['public_sessions'] = Model::publicSessionStatus();
 			} elseif ($section === 'diagnostics') {
 				$data['production_diagnostics'] = ProductionDiagnostics::run();
 			} elseif ($section === 'files') {
@@ -242,9 +243,18 @@
 				return $err;
 			}
 
-			$result = Model::clearMaintenance(isset($params['target']) ? $params['target'] : '');
+			try {
+				$result = Model::clearMaintenance(isset($params['target']) ? $params['target'] : '', Request::postInt('cutoff', 0));
+			} catch (\Throwable $e) {
+				return $this->error('Не удалось очистить данные: ' . $e->getMessage(), array(), 422);
+			}
+
 			if ($result === false) {
 				return $this->error('Неизвестная операция обслуживания', array(), 404);
+			}
+
+			if ($result['target'] === 'sessions' && $result['count'] > 0) {
+				AuditLog::record('settings.sessions_cleared', array('actor_id' => Auth::id(), 'target_type' => 'public_sessions', 'meta' => array('deleted' => $result['count'], 'cutoff' => $result['cutoff'])));
 			}
 
 			return $this->success('Данные очищены', array('data' => $result));

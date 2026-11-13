@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language>
+  <phrase data="settings_sessions_title">Public sessions</phrase>
+  <phrase data="settings_sessions_hint">Only expired sessions are deleted. Valid sessions, orders and saved abandoned carts are not affected.</phrase>
+  <phrase data="settings_sessions_clear">Clear expired sessions</phrase>
+  <phrase data="settings_sessions_expired">Expired</phrase>
+  <phrase data="settings_sessions_active">Valid</phrase>
+  <phrase data="settings_sessions_progress">Expired session cleanup</phrase>
+  <phrase data="settings_sessions_stop">Stop</phrase>
+  <phrase data="settings_sessions_other_handler">Database sessions are not currently used. Automatic cleanup of this table is disabled.</phrase>
+  <phrase data="settings_sessions_web">Post-response cleanup is available. Limit: 1000 records per minute. Use Scheduler and cron to run without visitor requests.</phrase>
+  <phrase data="settings_sessions_no_web">Post-response cleanup is unavailable in this PHP environment. Configure cron in Scheduler for regular cleanup.</phrase>
+  <phrase data="settings_sessions_last">Last automatic attempt:</phrase>
+  <phrase data="settings_sessions_deleted">Deleted:</phrase>
+  <phrase data="settings_sessions_no_runs">No automatic attempts have been recorded since the update.</phrase>
+  <phrase data="settings_sessions_size">The table size in megabytes may not decrease immediately: the database reuses freed space. Another optimization is not required to delete records.</phrase>
+  <phrase data="settings_sessions_check_failed">Could not check public sessions.</phrase>
+  <phrase data="settings_sessions_confirm">Clear expired sessions?</phrase>
+  <phrase data="settings_sessions_confirm_hint">Valid sessions, orders and saved abandoned carts will remain. Cleanup runs in batches; keep this page open until it finishes.</phrase>
+  <phrase data="settings_sessions_working">Cleaning up...</phrase>
+  <phrase data="settings_sessions_count">Sessions deleted:</phrase>
+  <phrase data="settings_sessions_done">Cleanup completed.</phrase>
+  <phrase data="settings_sessions_stopped">Cleanup stopped.</phrase>
+  <phrase data="settings_sessions_transaction">Session cleanup is unavailable inside a transaction.</phrase>
+  <phrase data="settings_sessions_failed">Could not clear data:</phrase>
+  <phrase data="settings_sessions_sapi">PHP SAPI:</phrase>
+  <phrase data="settings_sessions_gc_on">enabled</phrase>
+  <phrase data="settings_sessions_gc_off">disabled</phrase>
+  <phrase data="settings_sessions_lifetime">Session lifetime, seconds:</phrase>
+</language>

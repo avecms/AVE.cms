@@ -7,7 +7,7 @@ import TableRow from '@tiptap/extension-table-row';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TextAlign from '@tiptap/extension-text-align';
-import { isWordHtml, cleanWordHtml } from './_word-paste';
+import { isWordHtml, cleanWordHtml, cleanClipboardHtml } from './_word-paste';
 import { RichSearch, ContentFragments } from './_rich-extensions';
 import { tr, readOptions, openSearch, openSymbols, openSnippets, openBlocks, openReview, reviewBeforeSave, installTools } from './_rich-tools';
 import { installRecovery } from './_rich-recovery';
@@ -115,7 +115,7 @@ var EnhancedImage = Image.extend({
     create: function (textarea) {
       var options = readOptions(textarea);
       var preset = textarea.getAttribute('data-rich-preset') || 'full';
-      var root = el('div', { class: 'rich-editor rich-editor-' + preset });
+      var root = el('div', { class: 'rich-editor rich-editor-' + preset + ' rich-editor-show-blocks' });
       var toolbar = el('div', { class: 'rich-editor-toolbar', role: 'toolbar' });
       var surface = el('div', { class: 'rich-editor-surface' });
       var editorEl = el('div', { class: 'rich-editor-content' });
@@ -139,7 +139,7 @@ var EnhancedImage = Image.extend({
         content: textarea.value || '',
         editorProps: {
           transformPastedHTML: function (html) {
-            return isWordHtml(html) ? cleanWordHtml(html) : html;
+            return isWordHtml(html) ? cleanWordHtml(html) : cleanClipboardHtml(html);
           },
           attributes: {
             class: 'rich-editor-prose',
@@ -200,7 +200,7 @@ var EnhancedImage = Image.extend({
         if (options.hide_table && name === 'table') { return; }
         if (options.hide_source && name === 'source') { return; }
         if (options.hide_align && name.indexOf('align') === 0) { return; }
-        if (options.profile === 'compact' && ['image', 'table', 'code', 'alignCenter', 'alignRight', 'showBlocks'].indexOf(name) !== -1) { return; }
+        if (options.profile === 'compact' && ['image', 'table', 'code', 'alignCenter', 'alignRight'].indexOf(name) !== -1) { return; }
         group.appendChild(self.button(name, tooltip, iconName, run));
       }
       function addBlockSelect() {
@@ -411,8 +411,9 @@ var EnhancedImage = Image.extend({
       overlay.addEventListener('click', function (event) {
         if (event.target === overlay || event.target.closest('[data-word-cancel]')) { close(); return; }
         if (!event.target.closest('[data-word-apply]') || apply.disabled || editor.isDestroyed) { return; }
-        var content = html !== null ? html : input.value.split(/\r?\n/).map(function (line) { return '<p>' + self.escape(line) + '</p>'; }).join('');
-        editor.chain().focus().insertContentAt(selection, content).run();
+        editor.chain().focus().setTextSelection(selection).run();
+        if (html !== null) { editor.view.pasteHTML(html); }
+        else { editor.view.pasteText(input.value); }
         close();
       });
       document.addEventListener('keydown', onKey, true);

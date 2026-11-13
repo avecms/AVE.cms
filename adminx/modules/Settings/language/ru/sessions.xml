@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language>
+  <phrase data="settings_sessions_title">Публичные сессии</phrase>
+  <phrase data="settings_sessions_hint">Удаляются только просроченные сессии. Действующие сессии, заказы и сохранённые брошенные корзины не затрагиваются.</phrase>
+  <phrase data="settings_sessions_clear">Очистить просроченные</phrase>
+  <phrase data="settings_sessions_expired">Просроченные</phrase>
+  <phrase data="settings_sessions_active">Действующие</phrase>
+  <phrase data="settings_sessions_progress">Очистка просроченных сессий</phrase>
+  <phrase data="settings_sessions_stop">Остановить</phrase>
+  <phrase data="settings_sessions_other_handler">Сейчас используются не сессии БД. Автоочистка этой таблицы не запускается.</phrase>
+  <phrase data="settings_sessions_web">Веб-очистка после отправки ответа доступна. Лимит: 1000 записей в минуту. Для запуска без посещений используйте Планировщик и cron.</phrase>
+  <phrase data="settings_sessions_no_web">Очистка после ответа недоступна в этом PHP-окружении. Для регулярной очистки настройте cron в модуле «Планировщик».</phrase>
+  <phrase data="settings_sessions_last">Последняя автоматическая попытка:</phrase>
+  <phrase data="settings_sessions_deleted">Удалено:</phrase>
+  <phrase data="settings_sessions_no_runs">После обновления автоматические запуски пока не зарегистрированы.</phrase>
+  <phrase data="settings_sessions_size">Размер таблицы в мегабайтах может не уменьшиться сразу: БД повторно использует освобождённое место. Повторная оптимизация для очистки записей не требуется.</phrase>
+  <phrase data="settings_sessions_check_failed">Не удалось проверить публичные сессии.</phrase>
+  <phrase data="settings_sessions_confirm">Очистить просроченные сессии?</phrase>
+  <phrase data="settings_sessions_confirm_hint">Действующие сессии, заказы и сохранённые брошенные корзины останутся. Очистка выполняется порциями; дождитесь завершения на этой странице.</phrase>
+  <phrase data="settings_sessions_working">Очистка…</phrase>
+  <phrase data="settings_sessions_count">Удалено сессий:</phrase>
+  <phrase data="settings_sessions_done">Очистка завершена.</phrase>
+  <phrase data="settings_sessions_stopped">Очистка остановлена.</phrase>
+  <phrase data="settings_sessions_transaction">Очистка сессий недоступна внутри транзакции.</phrase>
+  <phrase data="settings_sessions_failed">Не удалось очистить данные:</phrase>
+  <phrase data="settings_sessions_sapi">Режим PHP:</phrase>
+  <phrase data="settings_sessions_gc_on">включён</phrase>
+  <phrase data="settings_sessions_gc_off">выключен</phrase>
+  <phrase data="settings_sessions_lifetime">Время жизни сессии, секунд:</phrase>
+</language>

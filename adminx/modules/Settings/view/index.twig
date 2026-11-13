@@ -414,6 +414,52 @@
     </div>
   </div>
 
+  <div class="card settings-card" data-session-maintenance>
+    <div class="settings-section-head">
+      <div class="settings-section-title">
+        <span class="icon-tile settings-head-icon" style="--tile-bg:var(--blue-100);--tile-fg:var(--blue-600)"><i class="ti ti-clock-x"></i></span>
+        <div><h2>Публичные сессии</h2><p class="text-secondary">Удаляются только просроченные сессии. Действующие сессии, заказы и сохранённые брошенные корзины не затрагиваются.</p></div>
+      </div>
+      {% if can_manage and public_sessions.available %}
+      <button class="btn btn-danger-soft btn-sm" type="button" data-session-cleanup><i class="ti ti-trash"></i>Очистить просроченные</button>
+      {% endif %}
+    </div>
+    <div class="settings-session-body">
+      {% if public_sessions.available %}
+      <dl class="settings-session-stats">
+        <div><dt>Просроченные</dt><dd data-session-expired>{{ public_sessions.expired }}</dd></div>
+        <div><dt>Действующие</dt><dd>{{ public_sessions.active }}</dd></div>
+      </dl>
+      <div class="settings-session-progress" data-session-progress hidden>
+        <div class="progress" role="progressbar" aria-label="Очистка просроченных сессий" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar" data-session-progress-bar style="width:0%"></div></div>
+        <div class="settings-session-progress-row"><span role="status" aria-live="polite" data-session-progress-status></span>{% if can_manage %}<button class="btn btn-ghost btn-sm" type="button" data-session-stop hidden><i class="ti ti-player-pause"></i>Остановить</button>{% endif %}</div>
+      </div>
+      <div class="alert {{ public_sessions.last and public_sessions.last.error ? 'alert-danger' : 'alert-info' }}">
+        <i class="ti ti-info-circle"></i>
+        <div>
+          {% if not public_sessions.database %}
+          Сейчас используются не сессии БД. Автоочистка этой таблицы не запускается.
+          {% elseif public_sessions.after_response %}
+          Веб-очистка после отправки ответа доступна. Лимит: 1000 записей в минуту. Для запуска без посещений используйте Планировщик и cron.
+          {% else %}
+          Очистка после ответа недоступна в этом PHP-окружении. Для регулярной очистки настройте cron в модуле «Планировщик».
+          {% endif %}
+          {% if public_sessions.last %}
+          <div>Последняя автоматическая попытка: {{ public_sessions.last.at|date('d.m.Y H:i:s') }}. Удалено: {{ public_sessions.last.deleted }}.</div>
+          {% if public_sessions.last.error %}<div class="settings-session-error">{{ public_sessions.last.error }}</div>{% endif %}
+          {% else %}
+          <div>После обновления автоматические запуски пока не зарегистрированы.</div>
+          {% endif %}
+        </div>
+      </div>
+      <p class="text-secondary text-xs">Режим PHP: {{ public_sessions.sapi }}. PHP GC: {{ public_sessions.gc_enabled ? 'включён' : 'выключен' }}. Время жизни сессии, секунд: {{ public_sessions.lifetime }}.</p>
+      <p class="text-secondary text-xs">Размер таблицы в мегабайтах может не уменьшиться сразу: БД повторно использует освобождённое место. Повторная оптимизация для очистки записей не требуется.</p>
+      {% else %}
+      <div class="alert alert-danger"><i class="ti ti-alert-triangle"></i><div>Не удалось проверить публичные сессии.<div class="settings-session-error">{{ public_sessions.error }}</div></div></div>
+      {% endif %}
+    </div>
+  </div>
+
   <div class="card settings-card">
     <div class="settings-section-head"><div class="settings-section-title"><span class="icon-tile settings-head-icon" style="--tile-bg:var(--red-100);--tile-fg:var(--red-600)"><i class="ti ti-database-minus"></i></span><div><h2>Служебные данные</h2><p class="text-secondary">Глобальная очистка ревизий редакторов и подневных счётчиков.</p></div></div></div>
     <div class="settings-maintenance-actions">
