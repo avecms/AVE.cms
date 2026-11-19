@@ -278,12 +278,12 @@
           <div class="stack-sm" style="gap:8px">
             {% for code in basic_flags %}
             {% set label = flag_labels[code] %}
-            <label class="check"><input type="checkbox" name="{{ code }}" value="1"{{ request and request[code] == '1' ? ' checked' : '' }}><span>{{ label }}</span></label>
+            <label class="check"><input type="checkbox" name="{{ code }}" value="1"{{ request and attribute(request, code) == '1' ? ' checked' : '' }}><span>{{ label }}</span></label>
             {% endfor %}
             <div class="request-advanced-flags" data-request-advanced hidden>
               <div class="request-advanced-flags-head"><b>Служебные параметры</b><span>Нужны интеграциям и старым шаблонам</span></div>
               {% for code, label in flag_labels %}{% if code not in basic_flags %}
-              <label class="check"><input type="checkbox" name="{{ code }}" value="1"{{ request and request[code] == '1' ? ' checked' : '' }}><span>{{ label }}</span></label>
+              <label class="check"><input type="checkbox" name="{{ code }}" value="1"{{ request and attribute(request, code) == '1' ? ' checked' : '' }}><span>{{ label }}</span></label>
               {% endif %}{% endfor %}
             </div>
           </div>

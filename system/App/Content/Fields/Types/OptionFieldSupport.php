@@ -37,7 +37,7 @@
 			return $this->normalizeOptionList($ctx->setting('options', array()));
 		}
 
-		protected function optionMap(FieldContext $ctx)
+		public function optionMap(FieldContext $ctx)
 		{
 			if ($this->usesDirectory($ctx)) {
 				$options = $this->directoryOptionMap($ctx);

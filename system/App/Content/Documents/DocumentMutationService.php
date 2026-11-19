@@ -437,7 +437,9 @@
 			$value = function ($canonical, $legacy, $default = '') use ($payload, $base, $legacyInput) {
 				if (array_key_exists($canonical, $payload)) { return $payload[$canonical]; }
 				if (array_key_exists($legacy, $payload)) { return $payload[$legacy]; }
-				return array_key_exists($legacy, $base) ? $base[$legacy] : $default;
+				$stored = array_key_exists($legacy, $base) ? $base[$legacy] : $default;
+				return in_array($legacy, array('document_title', 'document_breadcrumb_title'), true)
+					? htmlspecialchars_decode((string) $stored, ENT_QUOTES) : $stored;
 			};
 			if (array_key_exists('excerpt', $payload)) {
 				$excerpt = $payload['excerpt'];

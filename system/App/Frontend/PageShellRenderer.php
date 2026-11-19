@@ -118,9 +118,15 @@
 				Url::site(),
 			));
 			array_splice($search, 6, 0, array('[tag:robots]', '[tag:canonical]'));
+			$alias = is_object($document) && isset($document->document_alias) ? (string) $document->document_alias : '';
+			$documentPath = str_replace('//', '/', ABS_PATH . $alias);
+			if (trim($alias, '/') !== '' && defined('URL_SUFF') && URL_SUFF !== '') {
+				$documentPath = rtrim($documentPath, '/') . URL_SUFF;
+			}
+
 			$canonical = Url::canonical(
 				is_object($document) && isset($document->document_alias)
-					? Url::site() . str_replace('//', '/', ABS_PATH . $document->document_alias)
+					? Url::site() . $documentPath
 					: ''
 			);
 			array_splice($replace, 6, 0, array(

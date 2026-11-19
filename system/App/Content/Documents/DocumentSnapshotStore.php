@@ -26,7 +26,7 @@
 	class DocumentSnapshotStore
 	{
 		const FORMAT = 'ave.document-snapshot';
-		const VERSION = 4;
+		const VERSION = 5;
 		const MAX_BYTES = 16777216;
 
 		public function read($documentId)

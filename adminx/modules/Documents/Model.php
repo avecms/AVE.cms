@@ -1808,7 +1808,7 @@
 				'editor' => $editor,
 				'editor_kind' => $kind,
 				'parsed' => $type === 'youtube' ? $parsed : self::viewValue($kind, $parsed, $raw),
-				'options' => self::fieldOptions($row['rubric_field_default'], $type, $settings),
+				'options' => self::fieldOptions($row['rubric_field_default'], $type, $settings, $raw),
 				'media_upload_dir' => $isDocumentMedia ? self::mediaUploadDir($row, $documentId, $mediaDraftToken) : '',
 				'media_target_dir' => $mediaTargetDir,
 				'media_picker_dir' => $isDocumentMedia && (int) $documentId > 0 ? $mediaTargetDir : '/uploads',
@@ -2460,18 +2460,33 @@
 			return '';
 		}
 
-		protected static function fieldOptions($default, $type = '', array $settings = array())
+		protected static function fieldOptions($default, $type = '', array $settings = array(), $value = '')
 		{
 			$default = (string) $default;
 			$type = (string) $type;
+			if (isset($settings['option_source']) && $settings['option_source'] === 'directory') {
+				$plugin = FieldRegistry::get($type);
+				if ($plugin && is_callable(array($plugin, 'optionMap'))) {
+					$context = new FieldContext($value, array('rubric_field_type' => $type,
+						'rubric_field_default' => $default, 'rubric_field_settings' => json_encode($settings)), 'edit');
+					$out = array();
+					foreach ($plugin->optionMap($context) as $key => $label) {
+						$out[] = array('value' => (string) $key, 'label' => (string) $label);
+					}
+
+					return $out;
+				}
+			}
+
 			if (!empty($settings['options']) && is_array($settings['options'])) {
 				$out = array();
+				$isList = array_keys($settings['options']) === range(0, count($settings['options']) - 1);
 				foreach ($settings['options'] as $key => $option) {
 					if (is_array($option)) {
 						$value = isset($option['value']) ? (string) $option['value'] : (isset($option['key']) ? (string) $option['key'] : (string) $key);
 						$label = isset($option['label']) ? (string) $option['label'] : (isset($option['title']) ? (string) $option['title'] : $value);
 					} else {
-						$value = is_int($key) ? (string) $option : (string) $key;
+						$value = $isList ? (string) $option : (string) $key;
 						$label = (string) $option;
 					}
 

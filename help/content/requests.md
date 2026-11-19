@@ -232,7 +232,7 @@ oldprice для поля old.
 
 ```html
 <article class="teaser">
-  <h2><a href="[tag:link]">[tag:doctitle]</a></h2>
+  <h2><a href="[tag:link]" title="[tag:doctitle:attr]">[tag:doctitle]</a></h2>
   <div>[tag:rfld:excerpt][0]</div>
 </article>
 ```
